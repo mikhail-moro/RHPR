@@ -1,0 +1,20 @@
+{
+  "name": "rhpr",
+  "interface": {
+    "displayName": "Rhpr"
+  },
+  "plugins": [
+    {
+      "name": "rhpr-ops",
+      "source": {
+        "source": "local",
+        "path": "./plugins/rhpr-ops"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer"
+    }
+  ]
+}

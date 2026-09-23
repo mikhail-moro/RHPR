@@ -1,0 +1,3 @@
+interface:
+  display_name: "GitHub Ops"
+  short_description: "PRs, Actions runs, status, and experiment artifacts"
