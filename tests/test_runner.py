@@ -52,9 +52,11 @@ class RunnerTest(unittest.TestCase):
                 if isinstance(node, ast.Assign)
                 and len(node.targets) == 1
                 and isinstance(node.targets[0], ast.Name)
-                and node.targets[0].id in {"EMBEDDED_PACKAGE", "EXPERIMENT_CONFIG"}
+                and node.targets[0].id
+                in {"EMBEDDED_PACKAGE", "EXPERIMENT_CONFIG", "GIT_SHA"}
             }
             self.assertEqual(json.loads(assignments["EXPERIMENT_CONFIG"])["seed"], 42)
+            self.assertEqual(assignments["GIT_SHA"], "local")
             package = base64.b64decode(assignments["EMBEDDED_PACKAGE"])
             with zipfile.ZipFile(io.BytesIO(package)) as archive:
                 self.assertIn("rhpr/runner.py", archive.namelist())
