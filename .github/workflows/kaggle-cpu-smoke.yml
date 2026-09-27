@@ -15,12 +15,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  experiment:
+  collect:
     runs-on: ubuntu-latest
     timeout-minutes: 75
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
-      KAGGLE_KERNEL_ID: ${{ vars.KAGGLE_KERNEL_ID }}
+      KAGGLE_KERNEL_ID: carasik/rhpr-synthetic-logistic-baseline
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       TELEGRAM_THREAD_ID: ${{ secrets.TELEGRAM_THREAD_ID }}
@@ -31,35 +31,48 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Validate configuration
-        shell: bash
-        run: |
-          test -n "$KAGGLE_API_TOKEN" || { echo "Missing KAGGLE_API_TOKEN secret"; exit 1; }
-          test -n "$KAGGLE_KERNEL_ID" || { echo "Missing KAGGLE_KERNEL_ID variable"; exit 1; }
-          python3 -m json.tool experiments/baseline.json >/dev/null
-
       - name: Install Kaggle CLI
         run: python3 -m pip install kaggle
 
-      - name: Show Kaggle quota
-        continue-on-error: true
-        run: kaggle quota -v
+      - name: Monitor existing CPU kernel and download outputs
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import time
+          from pathlib import Path
+          from scripts.kaggle_job import (
+              FAILURE_STATES,
+              SUCCESS_STATES,
+              copy_result_file,
+              kernel_status,
+              run,
+          )
 
-      - name: Build private CPU kernel bundle
-        run: >-
-          python3 scripts/build_kaggle_bundle.py
-          --experiment experiments/baseline.json
-          --kernel-id "$KAGGLE_KERNEL_ID"
-          --accelerator cpu
-          --output build/kaggle
+          kernel_id = os.environ["KAGGLE_KERNEL_ID"]
+          for _ in range(240):
+              status, raw = kernel_status(kernel_id)
+              print(raw, flush=True)
+              if status in SUCCESS_STATES:
+                  break
+              if status in FAILURE_STATES:
+                  raise RuntimeError(f"Kaggle kernel finished with status {status}")
+              time.sleep(15)
+          else:
+              raise TimeoutError("Kaggle kernel did not finish within 60 minutes")
 
-      - name: Submit, wait, and download outputs
-        run: >-
-          python3 scripts/kaggle_job.py
-          --bundle build/kaggle
-          --kernel-id "$KAGGLE_KERNEL_ID"
-          --output artifacts/kaggle
-          --timeout-minutes 60
+          output = Path("artifacts/kaggle")
+          downloaded = output / "downloaded"
+          downloaded.mkdir(parents=True)
+          result = run(["kaggle", "kernels", "output", kernel_id, "-p", str(downloaded), "--force"])
+          print(result.stdout, end="")
+          for name in ("metrics.json", "summary.md", "run-manifest.json"):
+              copy_result_file(downloaded, name, output)
+          metrics = json.loads((output / "metrics.json").read_text(encoding="utf-8"))
+          if not isinstance(metrics, dict) or not metrics:
+              raise RuntimeError("metrics.json must be a non-empty object")
+          PY
 
       - name: Write job summary
         if: always()
