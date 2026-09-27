@@ -12,34 +12,79 @@ permissions:
 
 concurrency:
   group: kaggle-${{ github.repository }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  diagnose:
+  experiment:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 75
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
       KAGGLE_KERNEL_ID: carasik/rhpr-synthetic-logistic-baseline
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      TELEGRAM_THREAD_ID: ${{ secrets.TELEGRAM_THREAD_ID }}
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+
+      - name: Validate configuration
+        shell: bash
+        run: |
+          test -n "$KAGGLE_API_TOKEN" || { echo "Missing KAGGLE_API_TOKEN secret"; exit 1; }
+          python3 -m json.tool experiments/baseline.json >/dev/null
+
       - name: Install Kaggle CLI
         run: python3 -m pip install kaggle
-      - name: Read failed kernel status
-        run: kaggle kernels status "$KAGGLE_KERNEL_ID"
-      - name: Download failed kernel outputs
+
+      - name: Show Kaggle quota
         continue-on-error: true
-        run: |
-          mkdir -p artifacts/kaggle
-          kaggle kernels output "$KAGGLE_KERNEL_ID" -p artifacts/kaggle --force
-          find artifacts/kaggle -maxdepth 4 -type f -print
-      - name: Upload diagnostic outputs
+        run: kaggle quota -v
+
+      - name: Build private CPU kernel bundle
+        run: >-
+          python3 scripts/build_kaggle_bundle.py
+          --experiment experiments/baseline.json
+          --kernel-id "$KAGGLE_KERNEL_ID"
+          --accelerator cpu
+          --output build/kaggle
+
+      - name: Submit, wait, and download outputs
+        run: >-
+          python3 scripts/kaggle_job.py
+          --bundle build/kaggle
+          --kernel-id "$KAGGLE_KERNEL_ID"
+          --output artifacts/kaggle
+          --timeout-minutes 60
+
+      - name: Write job summary
+        if: always()
+        env:
+          SUMMARY_PATH: ${{ github.step_summary }}
+        run: >-
+          python3 scripts/write_job_summary.py
+          --metrics artifacts/kaggle/metrics.json
+          --summary "$SUMMARY_PATH"
+          --experiment experiments/baseline.json
+
+      - name: Upload outputs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kaggle-diagnostics-${{ github.run_id }}
+          name: kaggle-results-${{ github.run_id }}
           path: artifacts/kaggle/
           if-no-files-found: warn
-          retention-days: 7
+          retention-days: 30
+
+      - name: Notify Telegram
+        if: always()
+        continue-on-error: true
+        run: >-
+          python3 scripts/notify_telegram.py
+          --status "${{ job.status }}"
+          --experiment experiments/baseline.json
+          --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          --metrics artifacts/kaggle/metrics.json
