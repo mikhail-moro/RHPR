@@ -1,0 +1,39 @@
+{
+  "mcpServers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "default_tools_approval_mode": "prompt",
+      "startup_timeout_sec": 30,
+      "tool_timeout_sec": 120
+    },
+    "kaggle": {
+      "type": "http",
+      "url": "https://www.kaggle.com/mcp",
+      "default_tools_approval_mode": "prompt",
+      "startup_timeout_sec": 30,
+      "tool_timeout_sec": 3600
+    },
+    "telegram": {
+      "command": "/bin/sh",
+      "args": [
+        "-c",
+        "exec python3 \"$PLUGIN_ROOT/scripts/telegram_mcp.py\""
+      ],
+      "env_vars": [
+        "TELEGRAM_BOT_TOKEN",
+        "TELEGRAM_CHAT_ID",
+        "TELEGRAM_THREAD_ID"
+      ],
+      "enabled_tools": ["send_notification"],
+      "default_tools_approval_mode": "prompt",
+      "tools": {
+        "send_notification": {
+          "approval_mode": "prompt"
+        }
+      },
+      "startup_timeout_sec": 10,
+      "tool_timeout_sec": 30
+    }
+  }
+}

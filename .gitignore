@@ -1,6 +1,8 @@
 .env
 .env.*
 !.env.example
+secrets.*
+!.secrets.example
 
 .DS_Store
 Thumbs.db
@@ -11,9 +13,13 @@ Thumbs.db
 node_modules/
 dist/
 build/
+artifacts/
+.kaggle/
 
 __pycache__/
 *.py[cod]
 .venv/
 venv/
 
+.pytest_cache/
+.ruff_cache/
