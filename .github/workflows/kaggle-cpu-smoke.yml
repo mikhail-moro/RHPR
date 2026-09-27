@@ -12,93 +12,34 @@ permissions:
 
 concurrency:
   group: kaggle-${{ github.repository }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  collect:
+  diagnose:
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    timeout-minutes: 15
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
       KAGGLE_KERNEL_ID: carasik/rhpr-synthetic-logistic-baseline
-      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-      TELEGRAM_THREAD_ID: ${{ secrets.TELEGRAM_THREAD_ID }}
     steps:
-      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: pip
-
       - name: Install Kaggle CLI
         run: python3 -m pip install kaggle
-
-      - name: Monitor existing CPU kernel and download outputs
-        shell: bash
+      - name: Read failed kernel status
+        run: kaggle kernels status "$KAGGLE_KERNEL_ID"
+      - name: Download failed kernel outputs
+        continue-on-error: true
         run: |
-          python3 - <<'PY'
-          import json
-          import os
-          import time
-          from pathlib import Path
-          from scripts.kaggle_job import (
-              FAILURE_STATES,
-              SUCCESS_STATES,
-              copy_result_file,
-              kernel_status,
-              run,
-          )
-
-          kernel_id = os.environ["KAGGLE_KERNEL_ID"]
-          for _ in range(240):
-              status, raw = kernel_status(kernel_id)
-              print(raw, flush=True)
-              if status in SUCCESS_STATES:
-                  break
-              if status in FAILURE_STATES:
-                  raise RuntimeError(f"Kaggle kernel finished with status {status}")
-              time.sleep(15)
-          else:
-              raise TimeoutError("Kaggle kernel did not finish within 60 minutes")
-
-          output = Path("artifacts/kaggle")
-          downloaded = output / "downloaded"
-          downloaded.mkdir(parents=True)
-          result = run(["kaggle", "kernels", "output", kernel_id, "-p", str(downloaded), "--force"])
-          print(result.stdout, end="")
-          for name in ("metrics.json", "summary.md", "run-manifest.json"):
-              copy_result_file(downloaded, name, output)
-          metrics = json.loads((output / "metrics.json").read_text(encoding="utf-8"))
-          if not isinstance(metrics, dict) or not metrics:
-              raise RuntimeError("metrics.json must be a non-empty object")
-          PY
-
-      - name: Write job summary
-        if: always()
-        env:
-          SUMMARY_PATH: ${{ github.step_summary }}
-        run: >-
-          python3 scripts/write_job_summary.py
-          --metrics artifacts/kaggle/metrics.json
-          --summary "$SUMMARY_PATH"
-          --experiment experiments/baseline.json
-
-      - name: Upload outputs
+          mkdir -p artifacts/kaggle
+          kaggle kernels output "$KAGGLE_KERNEL_ID" -p artifacts/kaggle --force
+          find artifacts/kaggle -maxdepth 4 -type f -print
+      - name: Upload diagnostic outputs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kaggle-results-${{ github.run_id }}
+          name: kaggle-diagnostics-${{ github.run_id }}
           path: artifacts/kaggle/
           if-no-files-found: warn
-          retention-days: 30
-
-      - name: Notify Telegram
-        if: always()
-        continue-on-error: true
-        run: >-
-          python3 scripts/notify_telegram.py
-          --status "${{ job.status }}"
-          --experiment experiments/baseline.json
-          --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          --metrics artifacts/kaggle/metrics.json
+          retention-days: 7
