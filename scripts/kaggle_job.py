@@ -9,7 +9,7 @@ import time
 from pathlib import Path
 
 
-STATUS_PATTERN = re.compile(r"status\s+[\"']?([a-z_-]+)", re.IGNORECASE)
+STATUS_PATTERN = re.compile(r"status\s+[\"']?([a-z0-9_.-]+)", re.IGNORECASE)
 SUCCESS_STATES = {"complete", "completed"}
 FAILURE_STATES = {"error", "failed", "cancelled", "canceled"}
 
@@ -19,13 +19,19 @@ def run(command: list[str], *, check: bool = True) -> subprocess.CompletedProces
     return subprocess.run(command, check=check, text=True, capture_output=True)
 
 
+def parse_kernel_status(output: str) -> str:
+    match = STATUS_PATTERN.search(output)
+    if not match:
+        raise RuntimeError(f"could not parse Kaggle status: {output[-1000:]}")
+    return match.group(1).rsplit(".", 1)[-1].lower()
+
+
 def kernel_status(kernel_id: str) -> tuple[str, str]:
     result = run(["kaggle", "kernels", "status", kernel_id], check=False)
     output = "\n".join(part for part in (result.stdout, result.stderr) if part).strip()
-    match = STATUS_PATTERN.search(output)
-    if result.returncode != 0 or not match:
+    if result.returncode != 0:
         raise RuntimeError(f"could not read Kaggle status: {output[-1000:]}")
-    return match.group(1).lower(), output
+    return parse_kernel_status(output), output
 
 
 def copy_result_file(search_root: Path, name: str, destination: Path) -> None:

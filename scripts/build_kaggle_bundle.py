@@ -1,12 +1,51 @@
 from __future__ import annotations
 
 import argparse
+import base64
+import io
 import json
 import shutil
+import zipfile
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def _embedded_package() -> str:
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for source in sorted((ROOT / "src" / "rhpr").glob("*.py")):
+            archive.writestr(f"rhpr/{source.name}", source.read_bytes())
+    return base64.b64encode(buffer.getvalue()).decode("ascii")
+
+
+def _render_runner(config_text: str) -> str:
+    package = _embedded_package()
+    return f'''from __future__ import annotations
+
+import base64
+import sys
+from pathlib import Path
+
+
+EMBEDDED_PACKAGE = {package!r}
+EXPERIMENT_CONFIG = {config_text!r}
+WORKING = Path("/kaggle/working")
+PACKAGE_ARCHIVE = WORKING / "rhpr-package.zip"
+CONFIG_PATH = WORKING / "experiment.json"
+
+WORKING.mkdir(parents=True, exist_ok=True)
+PACKAGE_ARCHIVE.write_bytes(base64.b64decode(EMBEDDED_PACKAGE))
+CONFIG_PATH.write_text(EXPERIMENT_CONFIG, encoding="utf-8")
+sys.path.insert(0, str(PACKAGE_ARCHIVE))
+
+from rhpr.runner import execute  # noqa: E402
+
+
+result = execute(CONFIG_PATH, WORKING)
+print(result["metrics"])
+'''
 
 
 def build(experiment: Path, kernel_id: str, accelerator: str, output: Path) -> Path:
@@ -17,7 +56,8 @@ def build(experiment: Path, kernel_id: str, accelerator: str, output: Path) -> P
     if accelerator not in {"cpu", "gpu"}:
         raise ValueError("accelerator must be cpu or gpu")
 
-    config = json.loads(experiment.read_text(encoding="utf-8"))
+    config_text = experiment.read_text(encoding="utf-8")
+    config = json.loads(config_text)
     kaggle_config = config.get("kaggle", {})
     if not isinstance(kaggle_config, dict):
         raise ValueError("config.kaggle must be an object")
@@ -25,13 +65,13 @@ def build(experiment: Path, kernel_id: str, accelerator: str, output: Path) -> P
     if output.exists():
         shutil.rmtree(output)
     output.mkdir(parents=True)
-    shutil.copytree(ROOT / "src" / "rhpr", output / "rhpr")
-    shutil.copy2(ROOT / "kaggle" / "run.py", output / "run.py")
-    shutil.copy2(experiment, output / "experiment.json")
+    (output / "run.py").write_text(_render_runner(config_text), encoding="utf-8")
+
+    kernel_slug = kernel_id.split("/", 1)[1]
 
     metadata = {
         "id": kernel_id,
-        "title": f"RHPR: {config.get('name', experiment.stem)}",
+        "title": kernel_slug.replace("-", " ").replace("_", " ").title(),
         "code_file": "run.py",
         "language": "python",
         "kernel_type": "script",

@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import ast
+import base64
+import io
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 
 
@@ -36,7 +41,33 @@ class RunnerTest(unittest.TestCase):
             metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
             self.assertTrue(metadata["is_private"])
             self.assertTrue(metadata["enable_gpu"])
-            self.assertTrue((output / "rhpr" / "runner.py").is_file())
+            self.assertEqual(metadata["title"], "Rhpr Experiments")
+            self.assertFalse((output / "rhpr").exists())
+            self.assertFalse((output / "experiment.json").exists())
+
+            runner = (output / "run.py").read_text(encoding="utf-8")
+            assignments = {
+                node.targets[0].id: ast.literal_eval(node.value)
+                for node in ast.parse(runner).body
+                if isinstance(node, ast.Assign)
+                and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id in {"EMBEDDED_PACKAGE", "EXPERIMENT_CONFIG"}
+            }
+            self.assertEqual(json.loads(assignments["EXPERIMENT_CONFIG"])["seed"], 42)
+            package = base64.b64decode(assignments["EMBEDDED_PACKAGE"])
+            with zipfile.ZipFile(io.BytesIO(package)) as archive:
+                self.assertIn("rhpr/runner.py", archive.namelist())
+
+            working = Path(directory) / "working"
+            local_runner = output / "local-run.py"
+            local_runner.write_text(
+                runner.replace('Path("/kaggle/working")', f"Path({str(working)!r})"),
+                encoding="utf-8",
+            )
+            subprocess.run([sys.executable, str(local_runner)], check=True, capture_output=True)
+            for name in ("metrics.json", "summary.md", "run-manifest.json"):
+                self.assertTrue((working / name).is_file())
 
     def test_telegram_message_includes_metrics(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
