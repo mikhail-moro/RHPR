@@ -4,6 +4,7 @@ import argparse
 import base64
 import io
 import json
+import os
 import shutil
 import zipfile
 from pathlib import Path
@@ -20,17 +21,19 @@ def _embedded_package() -> str:
     return base64.b64encode(buffer.getvalue()).decode("ascii")
 
 
-def _render_runner(config_text: str) -> str:
+def _render_runner(config_text: str, git_sha: str) -> str:
     package = _embedded_package()
     return f'''from __future__ import annotations
 
 import base64
+import os
 import sys
 from pathlib import Path
 
 
 EMBEDDED_PACKAGE = {package!r}
 EXPERIMENT_CONFIG = {config_text!r}
+GIT_SHA = {git_sha!r}
 WORKING = Path("/kaggle/working")
 PACKAGE_ARCHIVE = WORKING / "rhpr-package.zip"
 CONFIG_PATH = WORKING / "experiment.json"
@@ -38,6 +41,7 @@ CONFIG_PATH = WORKING / "experiment.json"
 WORKING.mkdir(parents=True, exist_ok=True)
 PACKAGE_ARCHIVE.write_bytes(base64.b64decode(EMBEDDED_PACKAGE))
 CONFIG_PATH.write_text(EXPERIMENT_CONFIG, encoding="utf-8")
+os.environ["GITHUB_SHA"] = GIT_SHA
 sys.path.insert(0, str(PACKAGE_ARCHIVE))
 
 from rhpr.runner import execute  # noqa: E402
@@ -65,7 +69,8 @@ def build(experiment: Path, kernel_id: str, accelerator: str, output: Path) -> P
     if output.exists():
         shutil.rmtree(output)
     output.mkdir(parents=True)
-    (output / "run.py").write_text(_render_runner(config_text), encoding="utf-8")
+    git_sha = os.environ.get("GITHUB_SHA", "local")
+    (output / "run.py").write_text(_render_runner(config_text, git_sha), encoding="utf-8")
 
     kernel_slug = kernel_id.split("/", 1)[1]
 
