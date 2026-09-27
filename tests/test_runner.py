@@ -4,12 +4,14 @@ import ast
 import base64
 import io
 import json
+import os
 import subprocess
 import sys
 import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,12 +34,13 @@ class RunnerTest(unittest.TestCase):
     def test_bundle_is_private_and_self_contained(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "bundle"
-            metadata_path = build(
-                ROOT / "experiments" / "baseline.json",
-                "owner/rhpr-experiments",
-                "gpu",
-                output,
-            )
+            with patch.dict(os.environ, {"GITHUB_SHA": "test-revision"}):
+                metadata_path = build(
+                    ROOT / "experiments" / "baseline.json",
+                    "owner/rhpr-experiments",
+                    "gpu",
+                    output,
+                )
             metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
             self.assertTrue(metadata["is_private"])
             self.assertTrue(metadata["enable_gpu"])
@@ -56,7 +59,7 @@ class RunnerTest(unittest.TestCase):
                 in {"EMBEDDED_PACKAGE", "EXPERIMENT_CONFIG", "GIT_SHA"}
             }
             self.assertEqual(json.loads(assignments["EXPERIMENT_CONFIG"])["seed"], 42)
-            self.assertEqual(assignments["GIT_SHA"], "local")
+            self.assertEqual(assignments["GIT_SHA"], "test-revision")
             package = base64.b64decode(assignments["EMBEDDED_PACKAGE"])
             with zipfile.ZipFile(io.BytesIO(package)) as archive:
                 self.assertIn("rhpr/runner.py", archive.namelist())
