@@ -5,6 +5,7 @@ import math
 import random
 import time
 from collections.abc import Callable, Sequence
+from itertools import islice
 from pathlib import Path
 from typing import Any
 
@@ -129,14 +130,19 @@ def _full_catalog_ndcg(
     k: int,
     item_chunk_size: int,
     amp: bool,
-) -> float:
+    phase: str,
+    max_batches: int | None = None,
+    progress_interval_batches: int = 0,
+) -> tuple[float, int]:
     model.eval()
     total = 0.0
     observations = 0
     catalogue_size = model.num_items
     effective_k = min(k, catalogue_size)
 
-    for item_ids, valid_mask, targets in loader:
+    started = time.perf_counter()
+    batches = islice(loader, max_batches) if max_batches is not None else loader
+    for batch_index, (item_ids, valid_mask, targets) in enumerate(batches, start=1):
         item_ids = item_ids.to(device, non_blocking=True)
         valid_mask = valid_mask.to(device, non_blocking=True)
         targets = targets.to(device, non_blocking=True)
@@ -164,10 +170,24 @@ def _full_catalog_ndcg(
         gains = torch.where(found, 1.0 / torch.log2(ranks.float() + 1.0), 0.0)
         total += float(gains.sum().item())
         observations += int(targets.shape[0])
+        if progress_interval_batches and batch_index % progress_interval_batches == 0:
+            print(
+                json.dumps(
+                    {
+                        "phase": phase,
+                        "batches_done": batch_index,
+                        "batches_total": min(len(loader), max_batches) if max_batches is not None else len(loader),
+                        "examples_done": observations,
+                        "elapsed_seconds": time.perf_counter() - started,
+                    },
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
 
     if observations == 0:
         raise ValueError("evaluation split is empty")
-    return total / observations
+    return total / observations, observations
 
 
 def _positive_int(config: dict[str, Any], name: str, default: int) -> int:
@@ -192,7 +212,22 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
     data_path = Path(str(data_config.get("path", "/kaggle/input/yambda-50m/listens.parquet")))
     max_seq_len = _positive_int(model_config, "max_seq_len", 1028)
 
+    data_started = time.perf_counter()
+    print(json.dumps({"phase": "data_loading", "path": str(data_path)}, sort_keys=True), flush=True)
     dataset = load_yambda_sequences(data_path)
+    data_seconds = time.perf_counter() - data_started
+    print(
+        json.dumps(
+            {
+                "phase": "data_loaded",
+                "elapsed_seconds": data_seconds,
+                "num_users": len(dataset.splits),
+                "num_items": dataset.num_items,
+            },
+            sort_keys=True,
+        ),
+        flush=True,
+    )
     device_name = str(training_config.get("device", "cuda" if torch.cuda.is_available() else "cpu"))
     if device_name == "cuda" and not torch.cuda.is_available():
         raise RuntimeError("CUDA was requested but is not available")
@@ -231,6 +266,13 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
         collate_fn=_collate_training,
         device=device,
     )
+    max_training_batches = training_config.get("max_batches_per_epoch")
+    if max_training_batches is not None:
+        max_training_batches = _positive_int(training_config, "max_batches_per_epoch", 1)
+    training_batches = min(len(training_loader), max_training_batches or len(training_loader))
+    training_progress_interval = int(training_config.get("progress_interval_batches", 100))
+    if training_progress_interval < 0:
+        raise ValueError("progress_interval_batches must not be negative")
     evaluation_batch_size = _positive_int(evaluation_config, "batch_size", 32)
     validation_loader = _loader(
         _EvaluationDataset(dataset.splits, max_seq_len, "validation"),
@@ -241,6 +283,12 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
         collate_fn=_collate_evaluation,
         device=device,
     )
+    max_validation_batches = evaluation_config.get("max_validation_batches")
+    if max_validation_batches is not None:
+        max_validation_batches = _positive_int(evaluation_config, "max_validation_batches", 1)
+    evaluation_progress_interval = int(evaluation_config.get("progress_interval_batches", 20))
+    if evaluation_progress_interval < 0:
+        raise ValueError("progress_interval_batches must not be negative")
     test_loader = _loader(
         _EvaluationDataset(dataset.splits, max_seq_len, "test"),
         batch_size=evaluation_batch_size,
@@ -277,14 +325,24 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
     stale_epochs = 0
     training_seconds = 0.0
     validation_seconds = 0.0
+    validation_examples = 0
 
     for epoch in range(1, max_epochs + 1):
         train_started = time.perf_counter()
+        print(
+            json.dumps(
+                {"phase": "training_started", "epoch": epoch, "batches_total": training_batches},
+                sort_keys=True,
+            ),
+            flush=True,
+        )
         model.train()
         optimizer.zero_grad(set_to_none=True)
         running_loss = 0.0
         batches = 0
-        for batch_index, (item_ids, valid_mask, targets) in enumerate(training_loader, start=1):
+        for batch_index, (item_ids, valid_mask, targets) in enumerate(
+            islice(training_loader, training_batches), start=1
+        ):
             item_ids = item_ids.to(device, non_blocking=True)
             valid_mask = valid_mask.to(device, non_blocking=True)
             targets = targets.to(device, non_blocking=True)
@@ -300,9 +358,9 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
                     num_negatives=num_negatives,
                 )
             group_start = ((batch_index - 1) // accumulation_steps) * accumulation_steps + 1
-            group_size = min(accumulation_steps, len(training_loader) - group_start + 1)
+            group_size = min(accumulation_steps, training_batches - group_start + 1)
             scaler.scale(loss / group_size).backward()
-            if batch_index % accumulation_steps == 0 or batch_index == len(training_loader):
+            if batch_index % accumulation_steps == 0 or batch_index == training_batches:
                 scaler.unscale_(optimizer)
                 nn.utils.clip_grad_norm_(model.parameters(), grad_clip_norm)
                 scaler.step(optimizer)
@@ -310,17 +368,36 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
                 optimizer.zero_grad(set_to_none=True)
             running_loss += float(loss.detach().item())
             batches += 1
+            if training_progress_interval and batch_index % training_progress_interval == 0:
+                print(
+                    json.dumps(
+                        {
+                            "phase": "training",
+                            "epoch": epoch,
+                            "batches_done": batch_index,
+                            "batches_total": training_batches,
+                            "elapsed_seconds": time.perf_counter() - train_started,
+                            "mean_loss": running_loss / batches,
+                        },
+                        sort_keys=True,
+                    ),
+                    flush=True,
+                )
 
         train_loss = running_loss / batches
         epoch_training_seconds = time.perf_counter() - train_started
         validation_started = time.perf_counter()
-        validation_ndcg = _full_catalog_ndcg(
+        print(json.dumps({"phase": "validation_started", "epoch": epoch}, sort_keys=True), flush=True)
+        validation_ndcg, validation_examples = _full_catalog_ndcg(
             model,
             validation_loader,
             device=device,
             k=k,
             item_chunk_size=item_chunk_size,
             amp=amp,
+            phase="validation",
+            max_batches=max_validation_batches,
+            progress_interval_batches=evaluation_progress_interval,
         )
         epoch_validation_seconds = time.perf_counter() - validation_started
         training_seconds += epoch_training_seconds
@@ -357,13 +434,15 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
             best_state = torch.load(checkpoint_path, map_location=device)
         model.load_state_dict(best_state)
         test_started = time.perf_counter()
-        test_ndcg = _full_catalog_ndcg(
+        test_ndcg, _ = _full_catalog_ndcg(
             model,
             test_loader,
             device=device,
             k=k,
             item_chunk_size=item_chunk_size,
             amp=amp,
+            phase="test",
+            progress_interval_batches=evaluation_progress_interval,
         )
         test_seconds = time.perf_counter() - test_started
     (output_dir / "history.json").write_text(json.dumps(history, indent=2) + "\n", encoding="utf-8")
@@ -376,6 +455,11 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
         "num_users": len(dataset.splits),
         "num_training_users": len(training_loader.dataset),
         "num_items": dataset.num_items,
+        "data_seconds": data_seconds,
+        "training_batches_per_epoch": training_batches,
+        "training_is_subset": training_batches < len(training_loader),
+        "validation_examples": validation_examples,
+        "validation_is_subset": max_validation_batches is not None and max_validation_batches < len(validation_loader),
         "epochs_trained": len(history),
         "best_epoch": best_epoch,
         "train_loss_at_best": train_loss_at_best,
