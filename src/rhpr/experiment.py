@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import random
+from pathlib import Path
 from typing import Any
 
 
@@ -12,7 +13,7 @@ def _sigmoid(value: float) -> float:
     return exp_value / (1.0 + exp_value)
 
 
-def run_experiment(config: dict[str, Any]) -> dict[str, int | float | str]:
+def _run_synthetic(config: dict[str, Any]) -> dict[str, int | float | str]:
     """Run a deterministic synthetic baseline used to verify the whole loop."""
     seed = int(config.get("seed", 42))
     samples = int(config.get("samples", 1000))
@@ -67,3 +68,20 @@ def run_experiment(config: dict[str, Any]) -> dict[str, int | float | str]:
         "test_samples": len(test),
         "seed": seed,
     }
+
+
+def run_experiment(
+    config: dict[str, Any], output_dir: Path | None = None
+) -> dict[str, int | float | str | bool]:
+    """Dispatch a versioned experiment while keeping heavyweight imports optional."""
+
+    kind = str(config.get("kind", "synthetic"))
+    if kind == "synthetic":
+        return _run_synthetic(config)
+    if kind == "yambda_sasrec":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_sasrec")
+        from rhpr.sasrec.experiment import run_yambda_experiment
+
+        return run_yambda_experiment(config, output_dir)
+    raise ValueError(f"unsupported experiment kind: {kind}")

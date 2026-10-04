@@ -16,8 +16,9 @@ ROOT = Path(__file__).resolve().parents[1]
 def _embedded_package() -> str:
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for source in sorted((ROOT / "src" / "rhpr").glob("*.py")):
-            archive.writestr(f"rhpr/{source.name}", source.read_bytes())
+        source_root = ROOT / "src"
+        for source in sorted((source_root / "rhpr").rglob("*.py")):
+            archive.writestr(source.relative_to(source_root).as_posix(), source.read_bytes())
     return base64.b64encode(buffer.getvalue()).decode("ascii")
 
 

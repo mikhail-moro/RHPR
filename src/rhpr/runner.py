@@ -14,11 +14,11 @@ from rhpr.metrics import validate_metrics
 
 def execute(config_path: Path, output_dir: Path) -> dict[str, object]:
     config: dict[str, Any] = json.loads(config_path.read_text(encoding="utf-8"))
+    output_dir.mkdir(parents=True, exist_ok=True)
     started_at = datetime.now(UTC)
-    metrics = validate_metrics(run_experiment(config))
+    metrics = validate_metrics(run_experiment(config, output_dir))
     finished_at = datetime.now(UTC)
 
-    output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "metrics.json").write_text(
         json.dumps(metrics, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )

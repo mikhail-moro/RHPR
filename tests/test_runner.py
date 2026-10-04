@@ -63,6 +63,7 @@ class RunnerTest(unittest.TestCase):
             package = base64.b64decode(assignments["EMBEDDED_PACKAGE"])
             with zipfile.ZipFile(io.BytesIO(package)) as archive:
                 self.assertIn("rhpr/runner.py", archive.namelist())
+                self.assertIn("rhpr/sasrec/model.py", archive.namelist())
 
             working = Path(directory) / "working"
             local_runner = output / "local-run.py"
