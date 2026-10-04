@@ -73,10 +73,12 @@ def test_example(split: SequenceSplit, max_seq_len: int) -> tuple[np.ndarray, in
 
 
 def _chronological_items(items: Sequence[int], timestamps: Sequence[int] | None) -> np.ndarray:
-    item_array = np.asarray(items, dtype=np.int64)
+    # Kaggle's Polars build can materialize a Parquet list cell as either (N,)
+    # or (1, N). Both represent one user sequence, so normalize the boundary.
+    item_array = np.asarray(items, dtype=np.int64).reshape(-1)
     if timestamps is None:
         return item_array
-    timestamp_array = np.asarray(timestamps, dtype=np.int64)
+    timestamp_array = np.asarray(timestamps, dtype=np.int64).reshape(-1)
     if timestamp_array.shape != item_array.shape:
         raise ValueError("item and timestamp lists have different lengths")
     if timestamp_array.size > 1 and np.any(timestamp_array[1:] < timestamp_array[:-1]):

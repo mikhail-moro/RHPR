@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from rhpr.sasrec.data import (  # noqa: E402
+    _chronological_items,
     cold_target_fraction,
     load_yambda_sequences,
     make_training_pair,
@@ -23,6 +24,10 @@ from rhpr.sasrec.evaluation import ndcg_at_k_single_target  # noqa: E402
 
 
 class SASRecDataTest(unittest.TestCase):
+    def test_nested_parquet_list_cell_is_normalized(self) -> None:
+        items = _chronological_items([[30, 10, 20]], [[3, 1, 2]])
+        np.testing.assert_array_equal(items, [10, 20, 30])
+
     def test_leave_two_out_and_shifted_tail(self) -> None:
         split = split_sequence(7, [10, 20, 30, 40, 50, 60])
         np.testing.assert_array_equal(split.train, [10, 20, 30, 40])
