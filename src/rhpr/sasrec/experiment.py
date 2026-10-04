@@ -19,6 +19,7 @@ from rhpr.sasrec.data import (
     cold_target_fraction,
     load_yambda_sequences,
     make_training_pair,
+    resolve_yambda_parquet_path,
     test_example,
     validation_example,
 )
@@ -209,7 +210,9 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
     training_config = dict(config.get("training", {}))
     evaluation_config = dict(config.get("evaluation", {}))
     loss_config = dict(config.get("loss", {}))
-    data_path = Path(str(data_config.get("path", "/kaggle/input/yambda-50m/listens.parquet")))
+    data_path = resolve_yambda_parquet_path(
+        Path(str(data_config.get("path", "/kaggle/input/yambda-50m/listens.parquet")))
+    )
     max_seq_len = _positive_int(model_config, "max_seq_len", 1028)
 
     data_started = time.perf_counter()
@@ -455,6 +458,7 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
         "num_users": len(dataset.splits),
         "num_training_users": len(training_loader.dataset),
         "num_items": dataset.num_items,
+        "data_path": str(data_path),
         "data_seconds": data_seconds,
         "training_batches_per_epoch": training_batches,
         "training_is_subset": training_batches < len(training_loader),

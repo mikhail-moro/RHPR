@@ -87,6 +87,24 @@ def _chronological_items(items: Sequence[int], timestamps: Sequence[int] | None)
     return item_array
 
 
+def resolve_yambda_parquet_path(path: str | Path) -> Path:
+    """Accept both Kaggle mount layouts observed for the same Yambda source."""
+
+    requested = Path(path)
+    modern_root = Path("/kaggle/input/datasets/ploshkin/yambda")
+    legacy_root = Path("/kaggle/input/yambda")
+    candidates = [requested]
+    for source_root, alternate_root in ((modern_root, legacy_root), (legacy_root, modern_root)):
+        try:
+            candidates.append(alternate_root / requested.relative_to(source_root))
+        except ValueError:
+            pass
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    raise FileNotFoundError(f"Yambda parquet not found; checked: {', '.join(map(str, candidates))}")
+
+
 def load_yambda_sequences(path: str | Path) -> YambdaSequences:
     """Load sequential Yambda parquet and map catalogue ids to 1..N (0 is padding)."""
 
@@ -95,9 +113,7 @@ def load_yambda_sequences(path: str | Path) -> YambdaSequences:
     except ImportError as exc:  # pragma: no cover - exercised in the Kaggle image
         raise RuntimeError("the yambda_sasrec experiment requires polars") from exc
 
-    parquet_path = Path(path)
-    if not parquet_path.is_file():
-        raise FileNotFoundError(f"Yambda parquet not found: {parquet_path}")
+    parquet_path = resolve_yambda_parquet_path(path)
 
     schema = pl.read_parquet_schema(parquet_path)
     if {"uid", "item_ids"}.issubset(schema):

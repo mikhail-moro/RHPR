@@ -4,6 +4,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 
@@ -16,6 +17,7 @@ from rhpr.sasrec.data import (  # noqa: E402
     cold_target_fraction,
     load_yambda_sequences,
     make_training_pair,
+    resolve_yambda_parquet_path,
     split_sequence,
     test_example,
     validation_example,
@@ -24,6 +26,12 @@ from rhpr.sasrec.evaluation import ndcg_at_k_single_target  # noqa: E402
 
 
 class SASRecDataTest(unittest.TestCase):
+    def test_kaggle_mount_layout_fallback(self) -> None:
+        modern = Path("/kaggle/input/datasets/ploshkin/yambda/sequential/50m/listens.parquet")
+        legacy = Path("/kaggle/input/yambda/sequential/50m/listens.parquet")
+        with patch.object(Path, "is_file", autospec=True, side_effect=lambda path: path == legacy):
+            self.assertEqual(resolve_yambda_parquet_path(modern), legacy)
+
     def test_nested_parquet_list_cell_is_normalized(self) -> None:
         items = _chronological_items([[30, 10, 20]], [[3, 1, 2]])
         np.testing.assert_array_equal(items, [10, 20, 30])
