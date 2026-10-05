@@ -350,6 +350,9 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
         for batch_index, (item_ids, valid_mask, targets) in enumerate(
             islice(training_loader, training_batches), start=1
         ):
+            deadline = training_config.get("deadline_unix_seconds")
+            if deadline is not None and batch_index % 32 == 1 and time.time() >= float(deadline):
+                raise TimeoutError("search training budget exhausted")
             item_ids = item_ids.to(device, non_blocking=True)
             valid_mask = valid_mask.to(device, non_blocking=True)
             targets = targets.to(device, non_blocking=True)
@@ -500,3 +503,32 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
             }
         )
     return metrics
+
+
+def evaluate_saved_checkpoint(config: dict[str, Any], checkpoint: Path) -> dict[str, int | float]:
+    """Evaluate the validation-selected winner on test without retraining."""
+    _seed_everything(int(config.get("seed", 42)), bool(config.get("deterministic", True)))
+    data_path = resolve_yambda_parquet_path(Path(config["data"]["path"]))
+    dataset = load_yambda_sequences(data_path)
+    model_config = config["model"]
+    training = config["training"]
+    evaluation = config["evaluation"]
+    device = torch.device(training.get("device", "cuda"))
+    model = SASRecModel(num_items=dataset.num_items, **model_config).to(device)
+    model.load_state_dict(torch.load(checkpoint, map_location=device, weights_only=True))
+    loader = _loader(
+        _EvaluationDataset(dataset.splits, model_config["max_seq_len"], "test"),
+        batch_size=int(evaluation["batch_size"]), shuffle=False,
+        workers=int(training.get("workers", 2)), seed=int(config.get("seed", 42)),
+        collate_fn=_collate_evaluation, device=device,
+    )
+    started = time.perf_counter()
+    ndcg, examples = _full_catalog_ndcg(
+        model, loader, device=device, k=10, item_chunk_size=int(evaluation["item_chunk_size"]),
+        amp=bool(training.get("amp", True)), phase="test", progress_interval_batches=20,
+    )
+    return {
+        "test_ndcg_at_10": ndcg, "test_examples": examples,
+        "test_seconds": time.perf_counter() - started,
+        "test_cold_target_fraction": cold_target_fraction(dataset.splits, target="test"),
+    }

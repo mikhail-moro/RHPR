@@ -84,4 +84,10 @@ def run_experiment(
         from rhpr.sasrec.experiment import run_yambda_experiment
 
         return run_yambda_experiment(config, output_dir)
+    if kind == "yambda_sasrec_search":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_sasrec_search")
+        from rhpr.sasrec.search import run_search
+
+        return run_search(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")

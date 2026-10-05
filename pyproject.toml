@@ -11,6 +11,7 @@ dependencies = []
 
 [project.optional-dependencies]
 sasrec = ["numpy>=1.26", "polars>=1.0", "torch>=2.2"]
+search = ["optuna>=4.0,<5"]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
