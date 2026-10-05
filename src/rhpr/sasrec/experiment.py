@@ -307,6 +307,8 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
         lr=float(training_config.get("learning_rate", 1e-3)),
         weight_decay=float(training_config.get("weight_decay", 0.0)),
     )
+    if device.type == "cuda":
+        torch.cuda.reset_peak_memory_stats(device)
     scaler = torch.cuda.amp.GradScaler(enabled=amp)
     loss_name = str(loss_config.get("name", "bce"))
     num_negatives = _positive_int(loss_config, "num_negatives", 1)
@@ -329,6 +331,8 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
     training_seconds = 0.0
     validation_seconds = 0.0
     validation_examples = 0
+    training_peak_allocated_gib = 0.0
+    training_peak_reserved_gib = 0.0
 
     for epoch in range(1, max_epochs + 1):
         train_started = time.perf_counter()
@@ -389,6 +393,13 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
 
         train_loss = running_loss / batches
         epoch_training_seconds = time.perf_counter() - train_started
+        if device.type == "cuda":
+            training_peak_allocated_gib = max(
+                training_peak_allocated_gib, torch.cuda.max_memory_allocated(device) / 2**30
+            )
+            training_peak_reserved_gib = max(
+                training_peak_reserved_gib, torch.cuda.max_memory_reserved(device) / 2**30
+            )
         validation_started = time.perf_counter()
         print(json.dumps({"phase": "validation_started", "epoch": epoch}, sort_keys=True), flush=True)
         validation_ndcg, validation_examples = _full_catalog_ndcg(
@@ -471,6 +482,10 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
         "validation_cold_target_fraction": cold_target_fraction(dataset.splits, target="validation"),
         "training_seconds": training_seconds,
         "validation_seconds": validation_seconds,
+        "training_peak_allocated_gib": training_peak_allocated_gib,
+        "training_peak_reserved_gib": training_peak_reserved_gib,
+        "cuda_device_count": torch.cuda.device_count() if device.type == "cuda" else 0,
+        "training_examples_per_epoch": min(len(training_loader.dataset), training_batches * physical_batch_size),
         "loss": loss_name,
         "num_negatives": num_negatives,
         "amp": amp,

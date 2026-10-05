@@ -1,0 +1,51 @@
+{
+  "name": "yambda-50m-sasrec-bce-microbatch4",
+  "kind": "yambda_sasrec",
+  "seed": 42,
+  "deterministic": true,
+  "data": {
+    "path": "/kaggle/input/datasets/ploshkin/yambda/sequential/50m/listens.parquet",
+    "format": "sequential"
+  },
+  "model": {
+    "max_seq_len": 1028,
+    "d_model": 256,
+    "n_layers": 4,
+    "n_heads": 4,
+    "ffn_multiplier": 4,
+    "dropout": 0.2
+  },
+  "loss": {
+    "name": "bce",
+    "num_negatives": 1
+  },
+  "training": {
+    "device": "cuda",
+    "physical_batch_size": 4,
+    "effective_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0,
+    "max_epochs": 1,
+    "max_batches_per_epoch": 128,
+    "progress_interval_batches": 32,
+    "early_stopping_patience": 1,
+    "grad_clip_norm": 1.0,
+    "workers": 2,
+    "amp": true,
+    "keep_checkpoint": false
+  },
+  "evaluation": {
+    "batch_size": 32,
+    "k": 10,
+    "item_chunk_size": 65536,
+    "max_validation_batches": 8,
+    "progress_interval_batches": 2,
+    "evaluate_test": false
+  },
+  "kaggle": {
+    "dataset_sources": ["ploshkin/yambda"],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": []
+  }
+}
