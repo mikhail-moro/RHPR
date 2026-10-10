@@ -1,0 +1,3 @@
+interface:
+  display_name: "Kaggle Experiments"
+  short_description: "Build, launch, monitor, and analyze Kaggle runs"

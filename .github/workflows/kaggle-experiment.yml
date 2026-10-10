@@ -1,0 +1,109 @@
+name: Kaggle experiment
+
+on:
+  workflow_dispatch:
+    inputs:
+      experiment:
+        description: JSON configuration under experiments/
+        required: true
+        default: experiments/baseline.json
+        type: string
+      accelerator:
+        description: Kaggle accelerator
+        required: true
+        default: cpu
+        type: choice
+        options:
+          - cpu
+          - gpu
+      timeout_minutes:
+        description: Cancel after this many minutes
+        required: true
+        default: "360"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kaggle-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 720
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_KERNEL_ID: ${{ vars.KAGGLE_KERNEL_ID }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      TELEGRAM_THREAD_ID: ${{ secrets.TELEGRAM_THREAD_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Validate configuration
+        shell: bash
+        run: |
+          test -n "$KAGGLE_API_TOKEN" || { echo "Missing KAGGLE_API_TOKEN secret"; exit 1; }
+          test -n "$KAGGLE_KERNEL_ID" || { echo "Missing KAGGLE_KERNEL_ID variable"; exit 1; }
+          case "${{ inputs.experiment }}" in
+            experiments/*.json) ;;
+            *) echo "Experiment must be a JSON file under experiments/"; exit 1 ;;
+          esac
+
+      - name: Install Kaggle CLI
+        run: python3 -m pip install kaggle
+
+      - name: Show Kaggle quota
+        continue-on-error: true
+        run: kaggle quota -v
+
+      - name: Build private kernel bundle
+        run: >-
+          python3 scripts/build_kaggle_bundle.py
+          --experiment "${{ inputs.experiment }}"
+          --kernel-id "$KAGGLE_KERNEL_ID"
+          --accelerator "${{ inputs.accelerator }}"
+          --output build/kaggle
+
+      - name: Submit, wait, and download outputs
+        run: >-
+          python3 scripts/kaggle_job.py
+          --bundle build/kaggle
+          --kernel-id "$KAGGLE_KERNEL_ID"
+          --output artifacts/kaggle
+          --timeout-minutes "${{ inputs.timeout_minutes }}"
+
+      - name: Write job summary
+        if: always()
+        env:
+          SUMMARY_PATH: ${{ github.step_summary }}
+        run: >-
+          python3 scripts/write_job_summary.py
+          --metrics artifacts/kaggle/metrics.json
+          --summary "$SUMMARY_PATH"
+          --experiment "${{ inputs.experiment }}"
+
+      - name: Upload outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kaggle-results-${{ github.run_id }}
+          path: artifacts/kaggle/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Notify Telegram
+        if: always()
+        continue-on-error: true
+        run: >-
+          python3 scripts/notify_telegram.py
+          --status "${{ job.status }}"
+          --experiment "${{ inputs.experiment }}"
+          --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          --metrics artifacts/kaggle/metrics.json

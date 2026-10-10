@@ -1,0 +1,14 @@
+{
+  "name": "synthetic-logistic-baseline",
+  "seed": 42,
+  "samples": 1000,
+  "features": 8,
+  "epochs": 100,
+  "learning_rate": 0.2,
+  "kaggle": {
+    "dataset_sources": [],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": []
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "rhpr-ops",
+  "version": "0.1.0",
+  "description": "Operate RHPR experiments across GitHub, Kaggle, and Telegram.",
+  "author": {
+    "name": "mikhail-moro",
+    "url": "https://github.com/mikhail-moro"
+  },
+  "homepage": "https://github.com/mikhail-moro/RHPR",
+  "repository": "https://github.com/mikhail-moro/RHPR",
+  "keywords": ["experiments", "github", "kaggle", "telegram"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "RHPR Ops",
+    "shortDescription": "Run reproducible Kaggle experiments from GitHub.",
+    "longDescription": "GitHub workflow, Kaggle MCP, and Telegram notification guidance for RHPR experiments.",
+    "developerName": "mikhail-moro",
+    "category": "Developer",
+    "capabilities": ["Read", "Write", "External actions"],
+    "defaultPrompt": [
+      "Implement an experiment and prepare a PR.",
+      "Run this experiment on Kaggle and report metrics.",
+      "Check the latest Kaggle experiment status."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}
