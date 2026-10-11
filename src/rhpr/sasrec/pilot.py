@@ -14,13 +14,16 @@ from typing import Any
 def validate_pilot_config(config: dict[str, Any]) -> None:
     base = config["base"]
     variants = config["variants"]
-    if len(variants) != 4 or len({v["name"] for v in variants}) != 4:
-        raise ValueError("pilot requires four distinctly named variants")
-    settings = {(v["compressor_type"], v["use_time_features"]) for v in variants}
-    if settings != {(c, t) for c in ("identity", "pair_mlp") for t in (False, True)}:
-        raise ValueError("pilot must cover Full/PairMLP x Time OFF/ON")
     if any(type(v["use_time_features"]) is not bool for v in variants):
         raise ValueError("use_time_features must be boolean")
+    if len(variants) not in (2, 4) or len({v["name"] for v in variants}) != len(variants):
+        raise ValueError("pilot requires two or four distinctly named variants")
+    settings = {(v["compressor_type"], v["use_time_features"]) for v in variants}
+    expected = {(c, False) for c in ("identity", "pair_mlp")}
+    if len(variants) == 4:
+        expected |= {(c, True) for c in ("identity", "pair_mlp")}
+    if settings != expected:
+        raise ValueError("pilot must cover Full/PairMLP with Time OFF, optionally also Time ON")
     tail = int(base["model"]["tail_size"])
     if tail < 1 or int(base["loss"]["tail_size"]) != tail:
         raise ValueError("all variants require the same protected tail and loss tail")
@@ -61,7 +64,9 @@ def run_compression_pilot(config: dict[str, Any], output_dir: Path) -> dict[str,
     data = base["data"]
     dataset = load_yambda_sequences(resolve_yambda_parquet_path(Path(data["path"])),
                                    timestamp_unit=data.get("timestamp_unit", "seconds"))
-    if any(split.timestamps is None for split in dataset.splits):
+    if any(v["use_time_features"] for v in config["variants"]) and any(
+        split.timestamps is None for split in dataset.splits
+    ):
         raise ValueError("Time ON/OFF pilot requires observed timestamps")
     records: list[dict[str, Any]] = []
     predictions: list[dict[str, Any]] = []
@@ -81,7 +86,8 @@ def run_compression_pilot(config: dict[str, Any], output_dir: Path) -> dict[str,
             "config": config, "started_at": datetime.fromtimestamp(started, UTC).isoformat(),
             "updated_at": datetime.now(UTC).isoformat(), "pilot_complete": complete})
         (output_dir / "summary.md").write_text(
-            f"# Compression pilot\n\nCompleted {len(records)}/4 variants; test reserved.\n", encoding="utf-8")
+            f"# Compression pilot\n\nCompleted {len(records)}/{len(config['variants'])} variants; test reserved.\n",
+            encoding="utf-8")
         return metrics
 
     persist(False)
