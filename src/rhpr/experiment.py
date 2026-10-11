@@ -90,4 +90,10 @@ def run_experiment(
         from rhpr.sasrec.search import run_search
 
         return run_search(config, output_dir)
+    if kind == "yambda_compression_pilot":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_compression_pilot")
+        from rhpr.sasrec.pilot import run_compression_pilot
+
+        return run_compression_pilot(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")

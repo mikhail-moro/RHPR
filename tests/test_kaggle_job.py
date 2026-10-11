@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import unittest
+import tempfile
+from pathlib import Path
 
-from scripts.kaggle_job import parse_kernel_status
+from scripts.kaggle_job import copy_result_file, parse_kernel_status
 
 
 class KaggleJobTest(unittest.TestCase):
@@ -16,6 +18,17 @@ class KaggleJobTest(unittest.TestCase):
     def test_rejects_missing_status(self) -> None:
         with self.assertRaises(RuntimeError):
             parse_kernel_status("unexpected output")
+
+    def test_suite_prefers_root_metrics_over_variant_metrics(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            downloaded, destination = root / "downloaded", root / "artifacts"
+            (downloaded / "runs" / "full").mkdir(parents=True)
+            destination.mkdir()
+            (downloaded / "metrics.json").write_text('{"pilot_complete": true}')
+            (downloaded / "runs" / "full" / "metrics.json").write_text('{"variant": "full"}')
+            copy_result_file(downloaded, "metrics.json", destination)
+            self.assertEqual((destination / "metrics.json").read_text(), '{"pilot_complete": true}')
 
 
 if __name__ == "__main__":
