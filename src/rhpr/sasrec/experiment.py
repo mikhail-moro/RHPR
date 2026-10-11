@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import random
 import time
 from collections.abc import Callable, Sequence
@@ -16,33 +17,49 @@ from torch.utils.data import DataLoader, Dataset
 
 from rhpr.sasrec.data import (
     SequenceSplit,
+    YambdaSequences,
     cold_target_fraction,
     load_yambda_sequences,
     make_training_pair,
     resolve_yambda_parquet_path,
     test_example,
     validation_example,
+    training_gap_ids,
+    evaluation_gap_ids,
 )
+from rhpr.sasrec.benchmark import benchmark_inference, score_catalogue
+from rhpr.sasrec.diagnostics import context_hash
 from rhpr.sasrec.losses import next_item_loss
 from rhpr.sasrec.model import SASRecModel
 
 
-class _TrainingDataset(Dataset[tuple[np.ndarray, np.ndarray]]):
-    def __init__(self, splits: Sequence[SequenceSplit], max_seq_len: int) -> None:
+class _TrainingDataset(Dataset[Any]):
+    def __init__(self, splits: Sequence[SequenceSplit], max_seq_len: int, *,
+                 use_time_features: bool = False, time_unit: float = 1.0,
+                 num_gap_buckets: int = 32) -> None:
         self.splits = tuple(split for split in splits if split.train.size >= 2)
         self.max_seq_len = max_seq_len
+        self.use_time_features = use_time_features
+        self.time_unit = time_unit
+        self.num_gap_buckets = num_gap_buckets
         if not self.splits:
             raise ValueError("no user has enough training interactions for shifted targets")
 
     def __len__(self) -> int:
         return len(self.splits)
 
-    def __getitem__(self, index: int) -> tuple[np.ndarray, np.ndarray]:
-        return make_training_pair(self.splits[index].train, self.max_seq_len)
+    def __getitem__(self, index: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        inputs, targets = make_training_pair(self.splits[index].train, self.max_seq_len)
+        gaps = (training_gap_ids(self.splits[index], self.max_seq_len,
+                                 time_unit=self.time_unit, num_buckets=self.num_gap_buckets)
+                if self.use_time_features else np.zeros_like(inputs))
+        return inputs, targets, gaps
 
 
-class _EvaluationDataset(Dataset[tuple[np.ndarray, int]]):
-    def __init__(self, splits: Sequence[SequenceSplit], max_seq_len: int, split_name: str) -> None:
+class _EvaluationDataset(Dataset[Any]):
+    def __init__(self, splits: Sequence[SequenceSplit], max_seq_len: int, split_name: str, *,
+                 use_time_features: bool = False, time_unit: float = 1.0,
+                 num_gap_buckets: int = 32) -> None:
         if split_name == "validation":
             self.example: Callable[[SequenceSplit, int], tuple[np.ndarray, int]] = validation_example
         elif split_name == "test":
@@ -51,12 +68,20 @@ class _EvaluationDataset(Dataset[tuple[np.ndarray, int]]):
             raise ValueError("split_name must be validation or test")
         self.splits = tuple(splits)
         self.max_seq_len = max_seq_len
+        self.split_name = split_name
+        self.use_time_features = use_time_features
+        self.time_unit = time_unit
+        self.num_gap_buckets = num_gap_buckets
 
     def __len__(self) -> int:
         return len(self.splits)
 
-    def __getitem__(self, index: int) -> tuple[np.ndarray, int]:
-        return self.example(self.splits[index], self.max_seq_len)
+    def __getitem__(self, index: int) -> tuple[np.ndarray, int, np.ndarray, int]:
+        context, target = self.example(self.splits[index], self.max_seq_len)
+        gaps = (evaluation_gap_ids(self.splits[index], self.max_seq_len, self.split_name,
+                                   time_unit=self.time_unit, num_buckets=self.num_gap_buckets)
+                if self.use_time_features else np.zeros_like(context))
+        return context, target, gaps, self.splits[index].user_id
 
 
 def _pad_sequences(sequences: Sequence[np.ndarray]) -> tuple[torch.Tensor, torch.Tensor]:
@@ -71,18 +96,21 @@ def _pad_sequences(sequences: Sequence[np.ndarray]) -> tuple[torch.Tensor, torch
 
 
 def _collate_training(
-    batch: Sequence[tuple[np.ndarray, np.ndarray]],
-) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-    inputs, targets = zip(*batch, strict=True)
+    batch: Sequence[tuple[np.ndarray, np.ndarray, np.ndarray]],
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    inputs, targets, gaps = zip(*batch, strict=True)
     item_ids, valid_mask = _pad_sequences(inputs)
     padded_targets, _ = _pad_sequences(targets)
-    return item_ids, valid_mask, padded_targets
+    padded_gaps, _ = _pad_sequences(gaps)
+    return item_ids, valid_mask, padded_targets, padded_gaps
 
 
-def _collate_evaluation(batch: Sequence[tuple[np.ndarray, int]]) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-    contexts, targets = zip(*batch, strict=True)
+def _collate_evaluation(batch: Sequence[Any]) -> tuple[torch.Tensor, ...]:
+    contexts, targets, gaps, user_ids = zip(*batch, strict=True)
     item_ids, valid_mask = _pad_sequences(contexts)
-    return item_ids, valid_mask, torch.tensor(targets, dtype=torch.long)
+    padded_gaps, _ = _pad_sequences(gaps)
+    return (item_ids, valid_mask, torch.tensor(targets, dtype=torch.long),
+            padded_gaps, torch.tensor(user_ids, dtype=torch.long))
 
 
 def _seed_everything(seed: int, deterministic: bool) -> None:
@@ -134,42 +162,64 @@ def _full_catalog_ndcg(
     phase: str,
     max_batches: int | None = None,
     progress_interval_batches: int = 0,
+    details: dict[str, Any] | None = None,
+    prediction_rows: list[dict[str, Any]] | None = None,
+    model_label: str = "full",
+    seed: int = 42,
 ) -> tuple[float, int]:
     model.eval()
     total = 0.0
+    total_hits = 0
     observations = 0
-    catalogue_size = model.num_items
-    effective_k = min(k, catalogue_size)
+    groups = {label: [0.0, 0, 0] for label in ("le128", "129_512", "513_1028")}
 
     started = time.perf_counter()
     batches = islice(loader, max_batches) if max_batches is not None else loader
-    for batch_index, (item_ids, valid_mask, targets) in enumerate(batches, start=1):
+    for batch_index, batch in enumerate(batches, start=1):
+        item_ids, valid_mask, targets = batch[:3]
+        raw_items = item_ids
+        gap_ids = batch[3] if len(batch) > 3 else None
+        user_ids = batch[4] if len(batch) > 4 else None
         item_ids = item_ids.to(device, non_blocking=True)
         valid_mask = valid_mask.to(device, non_blocking=True)
         targets = targets.to(device, non_blocking=True)
+        if gap_ids is not None and model.use_time_features:
+            gap_ids = gap_ids.to(device, non_blocking=True)
+        else:
+            gap_ids = None
         with torch.autocast(device_type=device.type, dtype=torch.float16, enabled=amp):
-            states = model.last_state(item_ids, valid_mask)
-
-        best_scores = torch.empty((states.shape[0], 0), device=device, dtype=torch.float32)
-        best_ids = torch.empty((states.shape[0], 0), device=device, dtype=torch.long)
-        for first_item in range(1, catalogue_size + 1, item_chunk_size):
-            last_item = min(first_item + item_chunk_size, catalogue_size + 1)
-            embeddings = model.item_embedding.weight[first_item:last_item]
-            scores = states.float() @ embeddings.float().T
-            local_k = min(effective_k, scores.shape[1])
-            chunk_scores, chunk_indexes = torch.topk(scores, k=local_k, dim=1)
-            chunk_ids = chunk_indexes + first_item
-            candidate_scores = torch.cat((best_scores, chunk_scores), dim=1)
-            candidate_ids = torch.cat((best_ids, chunk_ids), dim=1)
-            keep = min(effective_k, candidate_scores.shape[1])
-            best_scores, indexes = torch.topk(candidate_scores, k=keep, dim=1)
-            best_ids = torch.gather(candidate_ids, 1, indexes)
+            states = model.last_state(item_ids, valid_mask, gap_ids)
+        _, best_ids = score_catalogue(model, states, k=k, item_chunk_size=item_chunk_size)
 
         matches = best_ids == targets[:, None]
         found = matches.any(dim=1)
         ranks = matches.to(torch.int64).argmax(dim=1) + 1
         gains = torch.where(found, 1.0 / torch.log2(ranks.float() + 1.0), 0.0)
         total += float(gains.sum().item())
+        total_hits += int(found.sum().item())
+        lengths = valid_mask.sum(dim=1).cpu().tolist()
+        gains_cpu, hits_cpu = gains.cpu().tolist(), found.cpu().tolist()
+        for row_index, length in enumerate(lengths):
+            label = "le128" if length <= 128 else "129_512" if length <= 512 else "513_1028"
+            group = groups[label]
+            group[0] += gains_cpu[row_index]
+            group[1] += int(hits_cpu[row_index])
+            group[2] += 1
+        if prediction_rows is not None:
+            if user_ids is None:
+                raise ValueError("per-user evaluation requires stable user IDs")
+            top_ids, rank_values = best_ids.cpu().tolist(), ranks.cpu().tolist()
+            target_values = targets.cpu().tolist()
+            for row_index, user_id in enumerate(user_ids.tolist()):
+                prediction_rows.append({
+                    "model": model_label, "time_enabled": model.use_time_features,
+                    "seed": seed, "split": phase, "user_id": int(user_id),
+                    "context_hash": context_hash(raw_items[row_index, :lengths[row_index]].numpy()),
+                    "target": int(target_values[row_index]), "top10": top_ids[row_index],
+                    "rank_in_top10": int(rank_values[row_index]) if hits_cpu[row_index] else None,
+                    "ndcg_at_10": float(gains_cpu[row_index]),
+                    "recall_at_10": int(hits_cpu[row_index]),
+                })
         observations += int(targets.shape[0])
         if progress_interval_batches and batch_index % progress_interval_batches == 0:
             print(
@@ -188,6 +238,13 @@ def _full_catalog_ndcg(
 
     if observations == 0:
         raise ValueError("evaluation split is empty")
+    if details is not None:
+        details.update({"recall_at_10": total_hits / observations, "groups": {}})
+        for label, (gain_sum, hit_sum, count) in groups.items():
+            details["groups"][label] = {"count": count}
+            if count:
+                details["groups"][label].update({"ndcg_at_10": gain_sum / count,
+                                                "recall_at_10": hit_sum / count})
     return total / observations, observations
 
 
@@ -198,7 +255,8 @@ def _positive_int(config: dict[str, Any], name: str, default: int) -> int:
     return value
 
 
-def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str, int | float | str | bool]:
+def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
+                          dataset: YambdaSequences | None = None) -> dict[str, int | float | str | bool]:
     """Train SASRec and evaluate leave-two-out targets against the full catalogue."""
 
     seed = int(config.get("seed", 42))
@@ -210,6 +268,13 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
     training_config = dict(config.get("training", {}))
     evaluation_config = dict(config.get("evaluation", {}))
     loss_config = dict(config.get("loss", {}))
+    use_time_features = bool(model_config.get("use_time_features", False))
+    num_gap_buckets = _positive_int(model_config, "num_gap_buckets", 33)
+    time_unit = float(data_config.get("gap_time_unit", 1.0))
+    if time_unit <= 0:
+        raise ValueError("gap_time_unit must be positive")
+    feature_settings = {"use_time_features": use_time_features, "time_unit": time_unit,
+                        "num_gap_buckets": num_gap_buckets - 1}
     data_path = resolve_yambda_parquet_path(
         Path(str(data_config.get("path", "/kaggle/input/yambda-50m/listens.parquet")))
     )
@@ -217,7 +282,10 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
 
     data_started = time.perf_counter()
     print(json.dumps({"phase": "data_loading", "path": str(data_path)}, sort_keys=True), flush=True)
-    dataset = load_yambda_sequences(data_path)
+    if dataset is None:
+        dataset = load_yambda_sequences(data_path, timestamp_unit=str(data_config.get("timestamp_unit", "seconds")))
+    if use_time_features and any(split.timestamps is None for split in dataset.splits):
+        raise ValueError("time features require timestamps for every sequence")
     data_seconds = time.perf_counter() - data_started
     print(
         json.dumps(
@@ -249,6 +317,10 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
         n_layers=_positive_int(model_config, "n_layers", 4),
         ffn_multiplier=_positive_int(model_config, "ffn_multiplier", 4),
         dropout=float(model_config.get("dropout", 0.2)),
+        compressor_type=str(model_config.get("compressor_type", "identity")),
+        tail_size=_positive_int(model_config, "tail_size", 128),
+        use_time_features=use_time_features,
+        num_gap_buckets=num_gap_buckets,
     ).to(device)
 
     physical_batch_size = _positive_int(training_config, "physical_batch_size", 4)
@@ -261,7 +333,7 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
         raise ValueError("workers must not be negative")
 
     training_loader = _loader(
-        _TrainingDataset(dataset.splits, max_seq_len),
+        _TrainingDataset(dataset.splits, max_seq_len, **feature_settings),
         batch_size=physical_batch_size,
         shuffle=True,
         workers=workers,
@@ -278,7 +350,7 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
         raise ValueError("progress_interval_batches must not be negative")
     evaluation_batch_size = _positive_int(evaluation_config, "batch_size", 32)
     validation_loader = _loader(
-        _EvaluationDataset(dataset.splits, max_seq_len, "validation"),
+        _EvaluationDataset(dataset.splits, max_seq_len, "validation", **feature_settings),
         batch_size=evaluation_batch_size,
         shuffle=False,
         workers=workers,
@@ -293,7 +365,7 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
     if evaluation_progress_interval < 0:
         raise ValueError("progress_interval_batches must not be negative")
     test_loader = _loader(
-        _EvaluationDataset(dataset.splits, max_seq_len, "test"),
+        _EvaluationDataset(dataset.splits, max_seq_len, "test", **feature_settings),
         batch_size=evaluation_batch_size,
         shuffle=False,
         workers=workers,
@@ -312,6 +384,10 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
     scaler = torch.cuda.amp.GradScaler(enabled=amp)
     loss_name = str(loss_config.get("name", "bce"))
     num_negatives = _positive_int(loss_config, "num_negatives", 1)
+    loss_tail_size = loss_config.get("tail_size")
+    if loss_tail_size is not None:
+        loss_tail_size = _positive_int(loss_config, "tail_size", 128)
+    negative_generator = torch.Generator(device=device).manual_seed(seed + 173)
     max_epochs = _positive_int(training_config, "max_epochs", 15)
     patience = _positive_int(training_config, "early_stopping_patience", 3)
     min_delta = float(training_config.get("early_stopping_min_delta", 0.0))
@@ -333,8 +409,14 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
     validation_examples = 0
     training_peak_allocated_gib = 0.0
     training_peak_reserved_gib = 0.0
+    validation_details: dict[str, Any] = {}
+    best_validation_recall = 0.0
+    best_groups: dict[str, Any] = {}
 
     for epoch in range(1, max_epochs + 1):
+        if device.type == "cuda":
+            torch.cuda.synchronize(device)
+            torch.cuda.reset_peak_memory_stats(device)
         train_started = time.perf_counter()
         print(
             json.dumps(
@@ -347,7 +429,7 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
         optimizer.zero_grad(set_to_none=True)
         running_loss = 0.0
         batches = 0
-        for batch_index, (item_ids, valid_mask, targets) in enumerate(
+        for batch_index, (item_ids, valid_mask, targets, gap_ids) in enumerate(
             islice(training_loader, training_batches), start=1
         ):
             deadline = training_config.get("deadline_unix_seconds")
@@ -356,8 +438,9 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
             item_ids = item_ids.to(device, non_blocking=True)
             valid_mask = valid_mask.to(device, non_blocking=True)
             targets = targets.to(device, non_blocking=True)
+            gap_ids = gap_ids.to(device, non_blocking=True) if use_time_features else None
             with torch.autocast(device_type=device.type, dtype=torch.float16, enabled=amp):
-                encoded, compressed_mask, source_positions = model.encode(item_ids, valid_mask)
+                encoded, compressed_mask, source_positions = model.encode(item_ids, valid_mask, gap_ids)
                 loss = next_item_loss(
                     name=loss_name,
                     model=model,
@@ -366,6 +449,9 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
                     source_positions=source_positions,
                     targets=targets,
                     num_negatives=num_negatives,
+                    loss_tail_size=loss_tail_size,
+                    original_lengths=valid_mask.sum(dim=1),
+                    negative_generator=negative_generator,
                 )
             group_start = ((batch_index - 1) // accumulation_steps) * accumulation_steps + 1
             group_size = min(accumulation_steps, training_batches - group_start + 1)
@@ -393,6 +479,8 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
                     ),
                     flush=True,
                 )
+            # Do not retain the final training activations during evaluation/benchmark.
+            del item_ids, valid_mask, targets, gap_ids, encoded, compressed_mask, source_positions, loss
 
         train_loss = running_loss / batches
         epoch_training_seconds = time.perf_counter() - train_started
@@ -415,6 +503,7 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
             phase="validation",
             max_batches=max_validation_batches,
             progress_interval_batches=evaluation_progress_interval,
+            details=validation_details,
         )
         epoch_validation_seconds = time.perf_counter() - validation_started
         training_seconds += epoch_training_seconds
@@ -424,6 +513,7 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
                 "epoch": epoch,
                 "train_loss": train_loss,
                 "validation_ndcg_at_10": validation_ndcg,
+                "validation_recall_at_10": validation_details["recall_at_10"],
                 "training_seconds": epoch_training_seconds,
                 "validation_seconds": epoch_validation_seconds,
             }
@@ -434,6 +524,8 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
             best_validation = validation_ndcg
             best_epoch = epoch
             train_loss_at_best = train_loss
+            best_validation_recall = validation_details["recall_at_10"]
+            best_groups = validation_details["groups"]
             stale_epochs = 0
             torch.save(model.state_dict(), checkpoint_path)
         else:
@@ -441,15 +533,31 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
             if stale_epochs >= patience:
                 break
 
+    # Optimizer buffers are not part of inference memory or latency.
+    del optimizer, scaler
+    model.zero_grad(set_to_none=True)
+    if device.type == "cuda":
+        torch.cuda.empty_cache()
     evaluate_test = bool(evaluation_config.get("evaluate_test", True))
+    diagnostics_enabled = bool(config.get("diagnostics", {}).get("enabled", False))
+    benchmark_config = dict(config.get("benchmark", {}))
+    benchmark_enabled = bool(benchmark_config.get("enabled", False))
+    prediction_rows: list[dict[str, Any]] = []
+    label = "pairmlp" if str(model_config.get("compressor_type", "identity")) == "pair_mlp" else "full"
+    if evaluate_test or diagnostics_enabled or benchmark_enabled:
+        best_state = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
+        model.load_state_dict(best_state)
+        del best_state
+    if diagnostics_enabled:
+        _full_catalog_ndcg(
+            model, validation_loader, device=device, k=k, item_chunk_size=item_chunk_size,
+            amp=amp, phase="validation", max_batches=max_validation_batches,
+            prediction_rows=prediction_rows, model_label=label, seed=seed,
+        )
     test_ndcg = 0.0
     test_seconds = 0.0
+    test_details: dict[str, Any] = {}
     if evaluate_test:
-        try:
-            best_state = torch.load(checkpoint_path, map_location=device, weights_only=True)
-        except TypeError:  # PyTorch before weights_only was introduced
-            best_state = torch.load(checkpoint_path, map_location=device)
-        model.load_state_dict(best_state)
         test_started = time.perf_counter()
         test_ndcg, _ = _full_catalog_ndcg(
             model,
@@ -460,9 +568,31 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
             amp=amp,
             phase="test",
             progress_interval_batches=evaluation_progress_interval,
+            details=test_details,
+            prediction_rows=prediction_rows if diagnostics_enabled else None,
+            model_label=label, seed=seed,
         )
         test_seconds = time.perf_counter() - test_started
     (output_dir / "history.json").write_text(json.dumps(history, indent=2) + "\n", encoding="utf-8")
+    (output_dir / "model-config.json").write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
+    if diagnostics_enabled:
+        import polars as pl
+        pl.DataFrame(prediction_rows, infer_schema_length=None).write_parquet(output_dir / "predictions.parquet")
+    benchmark_metrics: dict[str, Any] = {}
+    if benchmark_enabled:
+        benchmark_config.update({"seed": seed, "checkpoint": str(checkpoint_path),
+                                 "revision": os.environ.get("GITHUB_SHA", "local")})
+        sample_size = int(benchmark_config.get("real_sample_size", 200))
+        selected = np.random.default_rng(seed).choice(len(dataset.splits),
+                    size=min(sample_size, len(dataset.splits)), replace=False)
+        contexts = [validation_example(dataset.splits[int(i)], max_seq_len)[0] for i in selected]
+        gaps = ([evaluation_gap_ids(dataset.splits[int(i)], max_seq_len, "validation",
+                                   time_unit=time_unit, num_buckets=num_gap_buckets - 1) for i in selected]
+                if use_time_features else None)
+        print(json.dumps({"phase": "benchmark_started", "model": label, "time": use_time_features}), flush=True)
+        benchmark_metrics = benchmark_inference(model, contexts, device=device, amp=amp,
+                             item_chunk_size=item_chunk_size, config=benchmark_config,
+                             output_dir=output_dir, k=k, gap_ids=gaps)
     if not bool(training_config.get("keep_checkpoint", False)):
         checkpoint_path.unlink()
 
@@ -482,8 +612,11 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
         "best_epoch": best_epoch,
         "train_loss_at_best": train_loss_at_best,
         "validation_ndcg_at_10": best_validation,
+        "validation_recall_at_10": best_validation_recall,
         "validation_cold_target_fraction": cold_target_fraction(dataset.splits, target="validation"),
         "training_seconds": training_seconds,
+        "training_examples_per_second": (len(history) * min(len(training_loader.dataset),
+                                           training_batches * physical_batch_size)) / training_seconds,
         "validation_seconds": validation_seconds,
         "training_peak_allocated_gib": training_peak_allocated_gib,
         "training_peak_reserved_gib": training_peak_reserved_gib,
@@ -493,15 +626,40 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path) -> dict[str,
         "num_negatives": num_negatives,
         "amp": amp,
         "device": str(device),
+        "compressor_type": str(model_config.get("compressor_type", "identity")),
+        "time_features": use_time_features,
+        "loss_tail_size": loss_tail_size or 0,
+        "physical_batch_size": physical_batch_size,
+        "effective_batch_size": effective_batch_size,
+        "best_at_epoch_limit": best_epoch == max_epochs,
+        **benchmark_metrics,
     }
     if evaluate_test:
         metrics.update(
             {
                 "test_ndcg_at_10": test_ndcg,
+                "test_recall_at_10": test_details["recall_at_10"],
                 "test_cold_target_fraction": cold_target_fraction(dataset.splits, target="test"),
                 "test_seconds": test_seconds,
             }
         )
+    for phase, groups in (("validation", best_groups), ("test", test_details.get("groups", {}))):
+        for group, values in groups.items():
+            for key, value in values.items():
+                metrics[f"{phase}_{group}_{key}"] = value
+    train_lengths = np.array([min(len(split.train) - 1, max_seq_len)
+                             for split in training_loader.dataset.splits], dtype=np.int64)
+    eval_lengths = np.array([min(len(split.train), max_seq_len) for split in dataset.splits], dtype=np.int64)
+    tail_size = int(model_config.get("tail_size", 128))
+    for phase, lengths in (("train", train_lengths), ("validation", eval_lengths)):
+        metrics[f"{phase}_history_length_mean"] = float(lengths.mean())
+        metrics[f"{phase}_history_length_p50"] = float(np.quantile(lengths, .5))
+        metrics[f"{phase}_history_length_p95"] = float(np.quantile(lengths, .95))
+        metrics[f"{phase}_eligible_compression_fraction"] = float((lengths > tail_size).mean())
+    (output_dir / "length-distributions.json").write_text(json.dumps({
+        "train": dict(zip(*[a.tolist() for a in np.unique(train_lengths, return_counts=True)])),
+        "validation": dict(zip(*[a.tolist() for a in np.unique(eval_lengths, return_counts=True)])),
+    }, indent=2) + "\n", encoding="utf-8")
     return metrics
 
 
@@ -509,7 +667,7 @@ def evaluate_saved_checkpoint(config: dict[str, Any], checkpoint: Path) -> dict[
     """Evaluate the validation-selected winner on test without retraining."""
     _seed_everything(int(config.get("seed", 42)), bool(config.get("deterministic", True)))
     data_path = resolve_yambda_parquet_path(Path(config["data"]["path"]))
-    dataset = load_yambda_sequences(data_path)
+    dataset = load_yambda_sequences(data_path, timestamp_unit=str(config["data"].get("timestamp_unit", "seconds")))
     model_config = config["model"]
     training = config["training"]
     evaluation = config["evaluation"]
@@ -517,18 +675,24 @@ def evaluate_saved_checkpoint(config: dict[str, Any], checkpoint: Path) -> dict[
     model = SASRecModel(num_items=dataset.num_items, **model_config).to(device)
     model.load_state_dict(torch.load(checkpoint, map_location=device, weights_only=True))
     loader = _loader(
-        _EvaluationDataset(dataset.splits, model_config["max_seq_len"], "test"),
+        _EvaluationDataset(dataset.splits, model_config["max_seq_len"], "test",
+            use_time_features=bool(model_config.get("use_time_features", False)),
+            time_unit=float(config["data"].get("gap_time_unit", 1.0)),
+            num_gap_buckets=int(model_config.get("num_gap_buckets", 33)) - 1),
         batch_size=int(evaluation["batch_size"]), shuffle=False,
         workers=int(training.get("workers", 2)), seed=int(config.get("seed", 42)),
         collate_fn=_collate_evaluation, device=device,
     )
     started = time.perf_counter()
+    details: dict[str, Any] = {}
     ndcg, examples = _full_catalog_ndcg(
         model, loader, device=device, k=10, item_chunk_size=int(evaluation["item_chunk_size"]),
         amp=bool(training.get("amp", True)), phase="test", progress_interval_batches=20,
+        details=details,
     )
     return {
         "test_ndcg_at_10": ndcg, "test_examples": examples,
+        "test_recall_at_10": details["recall_at_10"],
         "test_seconds": time.perf_counter() - started,
         "test_cold_target_fraction": cold_target_fraction(dataset.splits, target="test"),
     }

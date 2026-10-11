@@ -35,6 +35,11 @@ def kernel_status(kernel_id: str) -> tuple[str, str]:
 
 
 def copy_result_file(search_root: Path, name: str, destination: Path) -> None:
+    # Suites contain per-variant metrics; the root aggregate is authoritative.
+    root_file = search_root / name
+    if root_file.is_file():
+        shutil.copy2(root_file, destination / name)
+        return
     matches = list(search_root.rglob(name))
     if len(matches) != 1:
         raise RuntimeError(f"expected one {name}, found {len(matches)}")
