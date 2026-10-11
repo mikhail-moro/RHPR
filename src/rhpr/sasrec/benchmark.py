@@ -307,7 +307,7 @@ def _metadata(device: torch.device, amp: bool, model: nn.Module) -> dict[str, An
         "kv_cache": False,
         "model": {name: getattr(model, name, None) for name in
                   ("d_model", "n_heads", "n_layers", "ffn_multiplier", "max_seq_len", "compressor_type",
-                   "tail_size", "use_time_features", "num_gap_buckets")},
+                   "tail_size", "use_time_features", "num_gap_buckets", "compression_depth")},
         "precision": {"matmul_float32_precision": torch.get_float32_matmul_precision(),
                       "cuda_matmul_allow_tf32": bool(torch.backends.cuda.matmul.allow_tf32),
                       "cudnn_allow_tf32": bool(torch.backends.cudnn.allow_tf32)},

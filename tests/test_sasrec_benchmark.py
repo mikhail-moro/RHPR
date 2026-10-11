@@ -161,6 +161,25 @@ class SASRecBenchmarkTest(unittest.TestCase):
         self.assertEqual(batch["nominal"]["projection_rows"], 3)
         self.assertEqual(batch["nominal"]["compressor_flops"], 2 * 3 * 16 * 8)
 
+    def test_recursive_flops_count_every_pass_and_use_physically_shortened_encoder(self) -> None:
+        from rhpr.sasrec.benchmark import _prepare_batch, _profile_shapes, dense_encoder_flops
+        from rhpr.sasrec.model import SASRecModel
+
+        model = SASRecModel(num_items=7, max_seq_len=1028, d_model=8, n_heads=2,
+                            n_layers=1, ffn_multiplier=2, dropout=0.0,
+                            compressor_type="recursive_pair_mlp").eval()
+        contexts = [np.arange(1028) % 7 + 1, np.arange(130) % 7 + 1]
+        for depth, length, pairs in ((0, 1028, 0), (1, 578, 451), (2, 353, 676), (3, 241, 788)):
+            with self.subTest(depth=depth), torch.inference_mode():
+                model.set_compression_depth(depth)
+                batch = _prepare_batch(contexts, None, torch.device("cpu"))
+                _profile_shapes(model, batch, torch.device("cpu"), False)
+                self.assertEqual(batch["nominal"]["encoder_length"], length)
+                self.assertEqual(batch["nominal"]["projection_rows"], pairs)
+                self.assertEqual(batch["nominal"]["compressor_flops"], 4 * pairs * 8**2)
+                self.assertEqual(batch["nominal"]["encoder_flops"], dense_encoder_flops(
+                    batch_size=2, sequence_length=length, d_model=8, n_layers=1, ffn_multiplier=2))
+
     def test_disabled_benchmark_does_not_create_artifacts(self) -> None:
         from rhpr.sasrec.benchmark import benchmark_inference
 
