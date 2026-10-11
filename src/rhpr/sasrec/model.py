@@ -127,6 +127,72 @@ class PairMLPSequenceCompressor(MeanSequenceCompressor):
         return super().merge_pairs(left, right) + F.gelu(self.projection(torch.cat((left, right), dim=-1)))
 
 
+class RecursivePairMLPSequenceCompressor(PairMLPSequenceCompressor):
+    """Reuse one pair projection while retaining the same raw recent tail.
+
+    Each pass pairs the current old prefix from its oldest end. Unpaired old
+    singletons pass through unchanged. Raw endpoints compose across passes,
+    so metadata and downstream positions always refer to original events.
+    """
+
+    def __init__(self, d_model: int, tail_size: int = 128, depth: int = 1) -> None:
+        self.depth = depth
+        super().__init__(d_model, tail_size)
+
+    @staticmethod
+    def validate_depth(depth: int) -> int:
+        if isinstance(depth, bool) or not isinstance(depth, int) or not 0 <= depth <= 3:
+            raise ValueError("compression depth must be an integer between 0 and 3")
+        return depth
+
+    @property
+    def depth(self) -> int:
+        return self._depth
+
+    @depth.setter
+    def depth(self, depth: int) -> None:
+        self._depth = self.validate_depth(depth)
+
+    def pair_count(self, lengths: torch.Tensor) -> int:
+        old = (lengths - self.tail_size).clamp(min=0)
+        total = torch.zeros((), dtype=old.dtype, device=old.device)
+        for _ in range(self.depth):
+            total = total + torch.div(old, 2, rounding_mode="floor").sum()
+            old = torch.div(old + 1, 2, rounding_mode="floor")
+        return int(total.item())
+
+    def _compress(
+        self, embeddings: torch.Tensor, valid_mask: torch.Tensor, depth: int
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        if depth == 0:
+            return IdentitySequenceCompressor()(embeddings, valid_mask)
+        output, output_mask = embeddings, valid_mask
+        for level in range(depth):
+            output, output_mask, local_endpoints = super().forward(output, output_mask)
+            if level == 0:
+                raw_endpoints = local_endpoints
+            else:
+                raw_endpoints = torch.gather(raw_endpoints, 1, local_endpoints.clamp(min=0))
+                raw_endpoints = raw_endpoints.masked_fill(~output_mask, -1)
+        return output, output_mask, raw_endpoints
+
+    def forward_with_metadata(
+        self, embeddings: torch.Tensor, valid_mask: torch.Tensor, depth: int | None = None
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        selected_depth = self.depth if depth is None else self.validate_depth(depth)
+        output, output_mask, raw_endpoints = self._compress(embeddings, valid_mask, selected_depth)
+        # Outputs form a contiguous partition of the raw history. Endpoint
+        # differences therefore count events exactly, including odd carries.
+        previous_endpoints = F.pad(raw_endpoints[:, :-1], (1, 0), value=-1)
+        source_counts = (raw_endpoints - previous_endpoints).masked_fill(~output_mask, 0)
+        return output, output_mask, raw_endpoints, source_counts
+
+    def forward(
+        self, embeddings: torch.Tensor, valid_mask: torch.Tensor
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        return self._compress(embeddings, valid_mask, self.depth)
+
+
 class SASRecModel(nn.Module):
     """Small PyTorch SASRec based on the official Yambda benchmark implementation."""
 
@@ -142,6 +208,7 @@ class SASRecModel(nn.Module):
         dropout: float,
         compressor: nn.Module | None = None,
         compressor_type: str = "identity",
+        compression_depth: int = 1,
         tail_size: int = 128,
         use_time_features: bool = False,
         num_gap_buckets: int = 33,
@@ -153,7 +220,7 @@ class SASRecModel(nn.Module):
             raise ValueError("d_model must be divisible by n_heads")
         if max_seq_len < 1 or n_layers < 1 or ffn_multiplier < 1:
             raise ValueError("max_seq_len, n_layers, and ffn_multiplier must be positive")
-        if compressor_type not in {"identity", "recent", "mean", "pair_mlp"}:
+        if compressor_type not in {"identity", "recent", "mean", "pair_mlp", "recursive_pair_mlp"}:
             raise ValueError(f"unknown compressor_type: {compressor_type}")
         if compressor is not None and compressor_type != "identity":
             raise ValueError("choose a custom compressor or compressor_type, not both")
@@ -167,6 +234,7 @@ class SASRecModel(nn.Module):
         self.n_layers = int(n_layers)
         self.ffn_multiplier = int(ffn_multiplier)
         self.compressor_type = "custom" if compressor is not None else compressor_type
+        self.compression_depth = RecursivePairMLPSequenceCompressor.validate_depth(compression_depth)
         self.tail_size = int(tail_size)
         self.use_time_features = bool(use_time_features)
         self.num_gap_buckets = int(num_gap_buckets)
@@ -195,11 +263,20 @@ class SASRecModel(nn.Module):
                     self.compressor = MeanSequenceCompressor(tail_size)
                 elif compressor_type == "pair_mlp":
                     self.compressor = PairMLPSequenceCompressor(d_model, tail_size)
+                elif compressor_type == "recursive_pair_mlp":
+                    self.compressor = RecursivePairMLPSequenceCompressor(d_model, tail_size, self.compression_depth)
             self.gap_embedding = nn.Embedding(num_gap_buckets, d_model) if use_time_features else None
             if self.gap_embedding is not None:
                 nn.init.zeros_(self.gap_embedding.weight)
         if isinstance(self.compressor, PairMLPSequenceCompressor):
             self.compressor.reset_residual()
+
+    def set_compression_depth(self, depth: int) -> None:
+        """Select a deterministic exit without replacing or reinitializing weights."""
+        if not isinstance(self.compressor, RecursivePairMLPSequenceCompressor):
+            raise ValueError("set_compression_depth requires a recursive pair compressor")
+        self.compressor.depth = depth
+        self.compression_depth = self.compressor.depth
 
     @torch.no_grad()
     def _initialize(self, initializer_range: float) -> None:

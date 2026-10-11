@@ -96,4 +96,10 @@ def run_experiment(
         from rhpr.sasrec.pilot import run_compression_pilot
 
         return run_compression_pilot(config, output_dir)
+    if kind == "yambda_mixed_depth":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_mixed_depth")
+        from rhpr.sasrec.mixed_depth import run_mixed_depth
+
+        return run_mixed_depth(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")

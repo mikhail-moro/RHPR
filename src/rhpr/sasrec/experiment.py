@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import os
@@ -255,6 +256,49 @@ def _positive_int(config: dict[str, Any], name: str, default: int) -> int:
     return value
 
 
+def _mixed_depth_settings(
+    training: dict[str, Any], model: dict[str, Any], evaluation: dict[str, Any],
+) -> tuple[torch.Tensor, int] | None:
+    settings = training.get("mixed_depth")
+    if settings is None:
+        return None
+    if not isinstance(settings, dict) or model.get("compressor_type") != "recursive_pair_mlp":
+        raise ValueError("mixed_depth requires a recursive_pair_mlp model and an object configuration")
+    probabilities = settings.get("probabilities")
+    if not isinstance(probabilities, list) or len(probabilities) != 4:
+        raise ValueError("mixed_depth probabilities must contain four depth probabilities")
+    if any(isinstance(value, bool) or not isinstance(value, (int, float))
+           or not math.isfinite(value) or value <= 0 for value in probabilities):
+        raise ValueError("all four mixed_depth probabilities must be finite and positive")
+    if not math.isclose(sum(probabilities), 1.0, rel_tol=0.0, abs_tol=1e-8):
+        raise ValueError("mixed_depth probabilities must sum to one")
+    interval = settings.get("validation_interval", 5)
+    if isinstance(interval, bool) or not isinstance(interval, int) or interval < 1:
+        raise ValueError("mixed_depth validation_interval must be a positive integer")
+    if evaluation.get("evaluate_test", True):
+        raise ValueError("mixed_depth screening must leave test unevaluated")
+    return torch.tensor(probabilities, dtype=torch.float64, device="cpu"), interval
+
+
+def _sample_mixed_depth(probabilities: torch.Tensor, generator: torch.Generator) -> int:
+    """Use a private CPU stream, independent of shuffle, dropout, and negatives."""
+    return int(torch.multinomial(probabilities, 1, generator=generator).item())
+
+
+def _save_history(output_dir: Path, history: list[dict[str, Any]]) -> None:
+    temporary = output_dir / "history.json.tmp"
+    temporary.write_text(json.dumps(history, indent=2) + "\n", encoding="utf-8")
+    temporary.replace(output_dir / "history.json")
+
+
+def _checkpoint_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
                           dataset: YambdaSequences | None = None) -> dict[str, int | float | str | bool]:
     """Train SASRec and evaluate leave-two-out targets against the full catalogue."""
@@ -268,6 +312,9 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
     training_config = dict(config.get("training", {}))
     evaluation_config = dict(config.get("evaluation", {}))
     loss_config = dict(config.get("loss", {}))
+    mixed_depth = _mixed_depth_settings(training_config, model_config, evaluation_config)
+    if mixed_depth is not None and loss_config.get("tail_size") != model_config.get("tail_size", 128):
+        raise ValueError("mixed_depth requires the common loss tail to equal the protected model tail")
     use_time_features = bool(model_config.get("use_time_features", False))
     num_gap_buckets = _positive_int(model_config, "num_gap_buckets", 33)
     time_unit = float(data_config.get("gap_time_unit", 1.0))
@@ -309,6 +356,8 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
     n_heads = _positive_int(model_config, "n_heads", 4)
     if d_model // n_heads < 32:
         raise ValueError("d_model / n_heads must be at least 32")
+    depth_arguments = ({"compression_depth": model_config.get("compression_depth", 1)}
+                       if model_config.get("compressor_type") == "recursive_pair_mlp" else {})
     model = SASRecModel(
         num_items=dataset.num_items,
         max_seq_len=max_seq_len,
@@ -321,6 +370,7 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
         tail_size=_positive_int(model_config, "tail_size", 128),
         use_time_features=use_time_features,
         num_gap_buckets=num_gap_buckets,
+        **depth_arguments,
     ).to(device)
 
     physical_batch_size = _positive_int(training_config, "physical_batch_size", 4)
@@ -388,6 +438,7 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
     if loss_tail_size is not None:
         loss_tail_size = _positive_int(loss_config, "tail_size", 128)
     negative_generator = torch.Generator(device=device).manual_seed(seed + 173)
+    depth_generator = torch.Generator(device="cpu").manual_seed(seed + 271)
     max_epochs = _positive_int(training_config, "max_epochs", 15)
     patience = _positive_int(training_config, "early_stopping_patience", 3)
     min_delta = float(training_config.get("early_stopping_min_delta", 0.0))
@@ -399,7 +450,7 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
 
     output_dir.mkdir(parents=True, exist_ok=True)
     checkpoint_path = output_dir / "best-model.pt"
-    history: list[dict[str, int | float]] = []
+    history: list[dict[str, Any]] = []
     best_validation = -math.inf
     best_epoch = 0
     train_loss_at_best = math.inf
@@ -412,6 +463,11 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
     validation_details: dict[str, Any] = {}
     best_validation_recall = 0.0
     best_groups: dict[str, Any] = {}
+    best_depth_validation: dict[str, Any] = {}
+    depth_totals = {str(depth): {"batches": 0, "users": 0, "loss_sum": 0.0,
+                   "encoder_padded_length_sum": 0, "encoder_padded_length_max": 0,
+                   "encoder_padded_tokens": 0, "encoder_valid_tokens": 0}
+                    for depth in range(4)}
 
     for epoch in range(1, max_epochs + 1):
         if device.type == "cuda":
@@ -429,6 +485,8 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
         optimizer.zero_grad(set_to_none=True)
         running_loss = 0.0
         batches = 0
+        epoch_depth_stats = {depth: {key: 0.0 if key == "loss_sum" else 0 for key in values}
+                             for depth, values in depth_totals.items()}
         for batch_index, (item_ids, valid_mask, targets, gap_ids) in enumerate(
             islice(training_loader, training_batches), start=1
         ):
@@ -439,6 +497,9 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
             valid_mask = valid_mask.to(device, non_blocking=True)
             targets = targets.to(device, non_blocking=True)
             gap_ids = gap_ids.to(device, non_blocking=True) if use_time_features else None
+            if mixed_depth is not None:
+                depth = _sample_mixed_depth(mixed_depth[0], depth_generator)
+                model.set_compression_depth(depth)
             with torch.autocast(device_type=device.type, dtype=torch.float16, enabled=amp):
                 encoded, compressed_mask, source_positions = model.encode(item_ids, valid_mask, gap_ids)
                 loss = next_item_loss(
@@ -453,6 +514,10 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
                     original_lengths=valid_mask.sum(dim=1),
                     negative_generator=negative_generator,
                 )
+            if mixed_depth is not None:
+                batch_loss = float(loss.detach().item())
+                if not math.isfinite(batch_loss):
+                    raise FloatingPointError(f"non-finite mixed-depth loss at epoch {epoch}, batch {batch_index}, depth {depth}")
             group_start = ((batch_index - 1) // accumulation_steps) * accumulation_steps + 1
             group_size = min(accumulation_steps, training_batches - group_start + 1)
             scaler.scale(loss / group_size).backward()
@@ -462,7 +527,18 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
                 scaler.step(optimizer)
                 scaler.update()
                 optimizer.zero_grad(set_to_none=True)
-            running_loss += float(loss.detach().item())
+            if mixed_depth is None:
+                batch_loss = float(loss.detach().item())
+            running_loss += batch_loss
+            if mixed_depth is not None:
+                stats = epoch_depth_stats[str(depth)]
+                stats["batches"] += 1
+                stats["users"] += int(item_ids.shape[0])
+                stats["loss_sum"] += batch_loss
+                stats["encoder_padded_length_sum"] += int(encoded.shape[1])
+                stats["encoder_padded_length_max"] = max(stats["encoder_padded_length_max"], int(encoded.shape[1]))
+                stats["encoder_padded_tokens"] += int(encoded.shape[0] * encoded.shape[1])
+                stats["encoder_valid_tokens"] += int(compressed_mask.sum().item())
             batches += 1
             if training_progress_interval and batch_index % training_progress_interval == 0:
                 print(
@@ -491,6 +567,61 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
             training_peak_reserved_gib = max(
                 training_peak_reserved_gib, torch.cuda.max_memory_reserved(device) / 2**30
             )
+        if mixed_depth is not None:
+            training_seconds += epoch_training_seconds
+            for depth, values in epoch_depth_stats.items():
+                for key, value in values.items():
+                    if key == "encoder_padded_length_max":
+                        depth_totals[depth][key] = max(depth_totals[depth][key], value)
+                    else:
+                        depth_totals[depth][key] += value
+                values["mean_loss"] = values["loss_sum"] / values["batches"] if values["batches"] else None
+            entry: dict[str, Any] = {
+                "epoch": epoch, "train_loss": train_loss,
+                "training_seconds": epoch_training_seconds, "validation_seconds": 0.0,
+                "validation_performed": False, "mixed_depth_training": epoch_depth_stats,
+            }
+            if epoch % mixed_depth[1] == 0 or epoch == max_epochs:
+                validation_started = time.perf_counter()
+                depth_validation: dict[str, Any] = {}
+                for depth in range(4):
+                    model.set_compression_depth(depth)
+                    print(json.dumps({"phase": "depth_validation_started", "epoch": epoch,
+                                      "compression_depth": depth}), flush=True)
+                    details: dict[str, Any] = {}
+                    depth_started = time.perf_counter()
+                    ndcg, examples = _full_catalog_ndcg(
+                        model, validation_loader, device=device, k=k, item_chunk_size=item_chunk_size,
+                        amp=amp, phase="validation", max_batches=max_validation_batches,
+                        progress_interval_batches=evaluation_progress_interval, details=details,
+                    )
+                    if depth and examples != validation_examples:
+                        raise ValueError("mixed depth validation modes must evaluate the same users")
+                    validation_examples = examples
+                    depth_validation[str(depth)] = {"ndcg_at_10": ndcg,
+                        "recall_at_10": details["recall_at_10"], "examples": examples,
+                        "seconds": time.perf_counter() - depth_started, "groups": details["groups"]}
+                    entry[f"depth_{depth}_validation_ndcg_at_10"] = ndcg
+                    entry[f"depth_{depth}_validation_recall_at_10"] = details["recall_at_10"]
+                validation_ndcg = sum(value["ndcg_at_10"] for value in depth_validation.values()) / 4
+                validation_recall = sum(value["recall_at_10"] for value in depth_validation.values()) / 4
+                elapsed = time.perf_counter() - validation_started
+                validation_seconds += elapsed
+                entry.update({"validation_performed": True, "validation_seconds": elapsed,
+                    "validation_ndcg_at_10": validation_ndcg, "validation_recall_at_10": validation_recall,
+                    "validation_mean_ndcg_at_10": validation_ndcg,
+                    "validation_mean_recall_at_10": validation_recall, "validation_depths": depth_validation})
+                if validation_ndcg > best_validation + min_delta:
+                    best_validation, best_epoch = validation_ndcg, epoch
+                    train_loss_at_best, best_validation_recall = train_loss, validation_recall
+                    best_depth_validation = depth_validation
+                    torch.save(model.state_dict(), checkpoint_path)
+            history.append(entry)
+            _save_history(output_dir, history)
+            print(json.dumps(entry, sort_keys=True), flush=True)
+            # Mixed screening always completes its configured epoch budget.
+            continue
+
         validation_started = time.perf_counter()
         print(json.dumps({"phase": "validation_started", "epoch": epoch}, sort_keys=True), flush=True)
         validation_ndcg, validation_examples = _full_catalog_ndcg(
@@ -543,12 +674,93 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
     benchmark_config = dict(config.get("benchmark", {}))
     benchmark_enabled = bool(benchmark_config.get("enabled", False))
     prediction_rows: list[dict[str, Any]] = []
+    mixed_metrics: dict[str, int | float | str | bool] = {}
     label = "pairmlp" if str(model_config.get("compressor_type", "identity")) == "pair_mlp" else "full"
-    if evaluate_test or diagnostics_enabled or benchmark_enabled:
+    if mixed_depth is not None or evaluate_test or diagnostics_enabled or benchmark_enabled:
         best_state = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
         model.load_state_dict(best_state)
         del best_state
-    if diagnostics_enabled:
+    if mixed_depth is not None:
+        checksum = _checkpoint_sha256(checkpoint_path)
+        mixed_metrics.update({"mixed_depth_training": True, "early_stopping_enabled": False,
+            "checkpoint_selection_metric": "validation_mean_ndcg_at_10",
+            "validation_mean_ndcg_at_10": best_validation,
+            "validation_mean_recall_at_10": best_validation_recall,
+            "mixed_depth_validation_interval": mixed_depth[1], "checkpoint_sha256": checksum,
+            "test_evaluated": False})
+        contexts: list[np.ndarray] = []
+        gaps = None
+        if benchmark_enabled:
+            sample_size = int(benchmark_config.get("real_sample_size", 200))
+            selected = np.random.default_rng(seed).choice(len(dataset.splits),
+                        size=min(sample_size, len(dataset.splits)), replace=False)
+            contexts = [validation_example(dataset.splits[int(i)], max_seq_len)[0] for i in selected]
+            if use_time_features:
+                gaps = [evaluation_gap_ids(dataset.splits[int(i)], max_seq_len, "validation",
+                        time_unit=time_unit, num_buckets=num_gap_buckets - 1) for i in selected]
+        final_validation_seconds = 0.0
+        for depth in range(4):
+            model.set_compression_depth(depth)
+            label = f"depth_{depth}"
+            directory = output_dir / "runs" / label
+            directory.mkdir(parents=True, exist_ok=True)
+            details = {}
+            first_row = len(prediction_rows)
+            started = time.perf_counter()
+            print(json.dumps({"phase": "depth_predictions_started", "compression_depth": depth,
+                              "best_epoch": best_epoch}), flush=True)
+            ndcg, examples = _full_catalog_ndcg(
+                model, validation_loader, device=device, k=k, item_chunk_size=item_chunk_size,
+                amp=amp, phase="validation", progress_interval_batches=evaluation_progress_interval,
+                details=details, prediction_rows=prediction_rows, model_label=label, seed=seed,
+            )
+            elapsed = time.perf_counter() - started
+            final_validation_seconds += elapsed
+            for row in prediction_rows[first_row:]:
+                row["compression_depth"] = depth
+            values: dict[str, int | float | str | bool] = {
+                "compression_depth": depth, "best_epoch": best_epoch,
+                "checkpoint": str(checkpoint_path), "checkpoint_sha256": checksum,
+                "checkpoint_selection_metric": "validation_mean_ndcg_at_10",
+                "validation_ndcg_at_10": ndcg, "validation_recall_at_10": details["recall_at_10"],
+                "validation_examples": examples, "final_validation_seconds": elapsed,
+            }
+            for group, group_values in details["groups"].items():
+                for key, value in group_values.items():
+                    values[f"validation_{group}_{key}"] = value
+            if benchmark_enabled:
+                # Each forced depth warms its own shapes; do not inherit depth0's free cache.
+                if device.type == "cuda":
+                    torch.cuda.empty_cache()
+                options = dict(benchmark_config)
+                options.update({"seed": seed, "checkpoint": str(checkpoint_path),
+                    "checkpoint_sha256": checksum, "compression_depth": depth,
+                    "revision": os.environ.get("GITHUB_SHA", "local")})
+                print(json.dumps({"phase": "benchmark_started", "model": label,
+                                  "compression_depth": depth}), flush=True)
+                values.update(benchmark_inference(model, contexts, device=device, amp=amp,
+                    item_chunk_size=item_chunk_size, config=options, output_dir=directory, k=k, gap_ids=gaps))
+            (directory / "metrics.json").write_text(json.dumps(values, indent=2) + "\n", encoding="utf-8")
+            for key, value in values.items():
+                mixed_metrics[f"{label}_{key}"] = value
+        mixed_metrics["final_validation_seconds"] = final_validation_seconds
+        for depth, values in depth_totals.items():
+            for key, value in values.items():
+                mixed_metrics[f"depth_{depth}_training_{key}"] = value
+            if values["batches"]:
+                mixed_metrics[f"depth_{depth}_training_mean_loss"] = values["loss_sum"] / values["batches"]
+                mixed_metrics[f"depth_{depth}_training_encoder_padded_length_mean"] = (
+                    values["encoder_padded_length_sum"] / values["batches"])
+            mixed_metrics[f"depth_{depth}_training_probability"] = float(mixed_depth[0][int(depth)].item())
+        (output_dir / "mixed-depth-selection.json").write_text(json.dumps({
+            "criterion": "validation_mean_ndcg_at_10", "best_epoch": best_epoch,
+            "checkpoint": str(checkpoint_path), "checkpoint_sha256": checksum,
+            "validation_mean_ndcg_at_10": best_validation,
+            "validation_mean_recall_at_10": best_validation_recall,
+            "validation_depths": best_depth_validation,
+            "training_depths": depth_totals,
+        }, indent=2) + "\n", encoding="utf-8")
+    if diagnostics_enabled and mixed_depth is None:
         _full_catalog_ndcg(
             model, validation_loader, device=device, k=k, item_chunk_size=item_chunk_size,
             amp=amp, phase="validation", max_batches=max_validation_batches,
@@ -575,11 +787,11 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
         test_seconds = time.perf_counter() - test_started
     (output_dir / "history.json").write_text(json.dumps(history, indent=2) + "\n", encoding="utf-8")
     (output_dir / "model-config.json").write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
-    if diagnostics_enabled:
+    if diagnostics_enabled or mixed_depth is not None:
         import polars as pl
         pl.DataFrame(prediction_rows, infer_schema_length=None).write_parquet(output_dir / "predictions.parquet")
     benchmark_metrics: dict[str, Any] = {}
-    if benchmark_enabled:
+    if benchmark_enabled and mixed_depth is None:
         benchmark_config.update({"seed": seed, "checkpoint": str(checkpoint_path),
                                  "revision": os.environ.get("GITHUB_SHA", "local")})
         sample_size = int(benchmark_config.get("real_sample_size", 200))
@@ -593,7 +805,7 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
         benchmark_metrics = benchmark_inference(model, contexts, device=device, amp=amp,
                              item_chunk_size=item_chunk_size, config=benchmark_config,
                              output_dir=output_dir, k=k, gap_ids=gaps)
-    if not bool(training_config.get("keep_checkpoint", False)):
+    if not bool(training_config.get("keep_checkpoint", False)) and mixed_depth is None:
         checkpoint_path.unlink()
 
     metrics: dict[str, int | float | str | bool] = {
@@ -633,6 +845,7 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
         "effective_batch_size": effective_batch_size,
         "best_at_epoch_limit": best_epoch == max_epochs,
         **benchmark_metrics,
+        **mixed_metrics,
     }
     if evaluate_test:
         metrics.update(
