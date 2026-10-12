@@ -1,4 +1,4 @@
-"""One recursive compressor/backbone evaluated at four fixed depth budgets."""
+"""One recursive compressor/backbone evaluated at its trained depth budgets."""
 from __future__ import annotations
 
 import copy
@@ -32,7 +32,7 @@ def _positive_integer(value: Any, name: str) -> int:
 
 
 def validate_mixed_depth_config(config: dict[str, Any]) -> None:
-    """Reject changes that would confound the first global-depth experiment."""
+    """Retain the common objective and evaluate only depths trained jointly."""
     if config.get("kind") != "yambda_mixed_depth":
         raise ValueError("kind must be yambda_mixed_depth")
     if not isinstance(config.get("name"), str) or not config["name"].strip():
@@ -51,8 +51,6 @@ def validate_mixed_depth_config(config: dict[str, Any]) -> None:
     if model.get("use_time_features", False) is not False:
         raise ValueError("the first depth experiment uses Time OFF")
     depth = model.get("compression_depth", 1)
-    if isinstance(depth, bool) or not isinstance(depth, int) or depth not in range(4):
-        raise ValueError("compression_depth must be an integer between zero and three")
     if model.get("tail_size") != 128 or loss.get("tail_size") != 128:
         raise ValueError("model and loss must preserve the same raw tail128")
     _positive_integer(model.get("max_seq_len"), "max_seq_len")
@@ -76,11 +74,13 @@ def validate_mixed_depth_config(config: dict[str, Any]) -> None:
     if not isinstance(mixed, dict):
         raise ValueError("training.mixed_depth must configure the depth distribution")
     probabilities = mixed.get("probabilities")
-    if not isinstance(probabilities, list) or len(probabilities) != 4:
-        raise ValueError("provide four probabilities for depths0..3")
+    if not isinstance(probabilities, list) or not 4 <= len(probabilities) <= 7:
+        raise ValueError("provide four to seven probabilities for consecutive depths starting at zero")
     if any(isinstance(p, bool) or not isinstance(p, (int, float)) or not math.isfinite(p) or p <= 0
            for p in probabilities) or not math.isclose(sum(probabilities), 1.0, rel_tol=0, abs_tol=1e-8):
         raise ValueError("depth probabilities must be finite, positive and sum to one")
+    if isinstance(depth, bool) or not isinstance(depth, int) or depth not in range(len(probabilities)):
+        raise ValueError("compression_depth must belong to the trained depth distribution (maximum six)")
     interval = _positive_integer(mixed.get("validation_interval"), "validation_interval")
     if interval > epochs:
         raise ValueError("validation_interval cannot exceed max_epochs")
@@ -94,7 +94,7 @@ def validate_mixed_depth_config(config: dict[str, Any]) -> None:
 @torch.no_grad()
 def _representation_rows(
     dataset: YambdaSequences, state: dict[str, torch.Tensor], *, max_seq_len: int,
-    tail_size: int, sample_size: int, seed: int,
+    tail_size: int, sample_size: int, seed: int, depths: tuple[int, ...] = (0, 1, 2, 3),
 ) -> list[dict[str, Any]]:
     """Inspect old summaries on CPU, outside every inference timer."""
     table = state["item_embedding.weight"]
@@ -112,7 +112,7 @@ def _representation_rows(
         old = max(0, n - tail_size)
         embeddings = table[torch.from_numpy(items)].unsqueeze(0)
         valid = torch.ones((1, n), dtype=torch.bool)
-        for depth in range(4):
+        for depth in depths:
             output, mask, endpoints, counts = compressor.forward_with_metadata(embeddings, valid, depth=depth)
             sources = endpoints[0, mask[0]]
             spans = counts[0, mask[0]]
@@ -146,7 +146,7 @@ def _representation_rows(
 
 def run_mixed_depth(config: dict[str, Any], output_dir: Path, *,
                     dataset: YambdaSequences | None = None) -> dict[str, int | float | str | bool]:
-    """Train once, keep one checkpoint, and describe four deterministic modes."""
+    """Train once, keep one checkpoint, and describe each deterministic mode."""
     validate_mixed_depth_config(config)
     from rhpr.sasrec.depth_diagnostics import analyze_depth_cohorts
     import polars as pl
@@ -156,6 +156,8 @@ def run_mixed_depth(config: dict[str, Any], output_dir: Path, *,
     started = time.time()
     seed = config["seed"]
     candidate = copy.deepcopy(config["base"])
+    depths = tuple(range(len(candidate["training"]["mixed_depth"]["probabilities"])))
+    depth_range = f"0..{depths[-1]}"
     candidate["name"] = config["name"]
     candidate["training"].update(keep_checkpoint=True,
         deadline_unix_seconds=started + config.get("training_budget_seconds", 7200))
@@ -165,11 +167,12 @@ def run_mixed_depth(config: dict[str, Any], output_dir: Path, *,
     def persist(complete: bool, results: dict[str, Any] | None = None) -> dict[str, Any]:
         metrics = validate_metrics({**(results or {}), "experiment": config["name"], "seed": seed,
             "mixed_depth_complete": complete, "test_evaluated": False,
-            "planned_depths": 4, "mixed_depth_seconds": time.time() - started})
+            "planned_depths": len(depths), "mixed_depth_seconds": time.time() - started})
         _json(output_dir / "metrics.json", metrics)
         _json(output_dir / "run-manifest.json", {"git_sha": os.environ.get("GITHUB_SHA", "local"),
             "config": config, "started_at": datetime.fromtimestamp(started, UTC).isoformat(),
-            "updated_at": datetime.now(UTC).isoformat(), "mixed_depth_complete": complete})
+            "updated_at": datetime.now(UTC).isoformat(), "planned_depths": list(depths),
+            "mixed_depth_complete": complete})
         (output_dir / "summary.md").write_text(f"# MixedDepth\n\nComplete: {complete}; one shared checkpoint; test reserved.\n", encoding="utf-8")
         return metrics
 
@@ -180,6 +183,12 @@ def run_mixed_depth(config: dict[str, Any], output_dir: Path, *,
             timestamp_unit=data.get("timestamp_unit", "seconds"))
     results = validate_metrics(run_yambda_experiment(candidate, output_dir, dataset=dataset))
     persist(False, results)
+    for depth in depths:
+        per_depth = json.loads((output_dir / "runs" / f"depth_{depth}" / "metrics.json").read_text())
+        if (per_depth.get("checkpoint_sha256") != results.get("checkpoint_sha256")
+                or per_depth.get("best_epoch") != results.get("best_epoch")
+                or per_depth.get("compression_depth") != depth):
+            raise RuntimeError("all trained depth modes must use the same selected checkpoint")
     gc.collect()
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
@@ -190,15 +199,17 @@ def run_mixed_depth(config: dict[str, Any], output_dir: Path, *,
         num_gap_buckets=candidate["model"].get("num_gap_buckets", 33) - 1,
         time_unit=candidate["data"].get("gap_time_unit", 1.0))
     for row in features:
-        for depth in range(4):
+        for depth in depths:
             row[f"output_length_depth_{depth}"] = row["tail_length"] + (row["old_length"] + 2**depth - 1) // 2**depth
     representation_rows = _representation_rows(dataset, state,
         max_seq_len=candidate["model"]["max_seq_len"], tail_size=128,
-        sample_size=config.get("diagnostics", {}).get("representation_sample_size", 200), seed=seed)
+        sample_size=config.get("diagnostics", {}).get("representation_sample_size", 200), seed=seed,
+        depths=depths)
     del state
     _json(output_dir / "compression-representations.json", {"schema_version": 1,
         "checkpoint": "best-model.pt", "checkpoint_sha256": results["checkpoint_sha256"],
-        "selection_seed": seed, "sample_size": len(representation_rows) // 4,
+        "selection_seed": seed, "sample_size": len(representation_rows) // len(depths),
+        "depths": list(depths),
         "basis": "CPU FP32 compressor outputs before PE and input LayerNorm; old-prefix statistics only",
         "rows": representation_rows})
     pl.DataFrame(representation_rows, infer_schema_length=None,
@@ -211,17 +222,18 @@ def run_mixed_depth(config: dict[str, Any], output_dir: Path, *,
         "checkpoint_sha256": results["checkpoint_sha256"],
         "git_sha": os.environ.get("GITHUB_SHA", "local"), "best_epoch": results["best_epoch"],
         "basis": "one shared MixedDepth checkpoint item embedding table before PE",
-        "feature_output_length_basis": "depth1; explicit output_length_depth_0..3 provided",
+        "feature_output_length_basis": f"depth1; explicit output_length_depth_{depth_range} provided",
         "target_fields": "prediction-only; excluded from history-features",
-        "checkpoint_selection": "unweighted mean validation NDCG@10 of forced depths0..3"})
+        "trained_depths": list(depths),
+        "checkpoint_selection": f"unweighted mean validation NDCG@10 of forced depths{depth_range}"})
     analysis = analyze_depth_cohorts(features, predictions, output_dir,
-        bootstrap_seed=seed, bootstrap_samples=config.get("bootstrap_samples", 1000))
+        bootstrap_seed=seed, bootstrap_samples=config.get("bootstrap_samples", 1000), depths=depths)
     metrics = results
     lines = ["# MixedDepth comparison", "", "One jointly trained model; all modes use the same validation-selected checkpoint.",
-        "Checkpoint selection: unweighted mean NDCG@10 at forced depths0..3. Test reserved; one seed.", "",
+        f"Checkpoint selection: unweighted mean NDCG@10 at forced depths{depth_range}. Test reserved; one seed.", "",
         "| Depth | Old-prefix reduction | NDCG@10 | Recall@10 | History B1 p50 ms | Full B1 p50 ms | B32 users/s |",
         "| ---: | ---: | ---: | ---: | ---: | ---: | ---: |"]
-    for depth in range(4):
+    for depth in depths:
         prefix = f"depth_{depth}_"
         values = [str(depth), f"x{2**depth}", f"{metrics[prefix + 'validation_ndcg_at_10']:.6f}",
                   f"{metrics[prefix + 'validation_recall_at_10']:.6f}"]
@@ -235,6 +247,6 @@ def run_mixed_depth(config: dict[str, Any], output_dir: Path, *,
         "See compression-representations.json for actual raw spans, norms and spread; these diagnostics are outside latency timing."])
     (output_dir / "comparison.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     _json(output_dir / "depth-results.json", {"checkpoint": "best-model.pt", "best_epoch": metrics["best_epoch"],
-        "checkpoint_selection": "mean_forced_depth_validation_ndcg_at_10", "depths": list(range(4)),
+        "checkpoint_selection": "mean_forced_depth_validation_ndcg_at_10", "depths": list(depths),
         "cohort_count": len(analysis["cohorts"]), "complete": True})
     return persist(True, results)

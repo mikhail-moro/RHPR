@@ -108,4 +108,10 @@ def run_experiment(
         from rhpr.sasrec.tail_ablation import run_tail_ablation
 
         return run_tail_ablation(config, output_dir)
+    if kind == "yambda_recent128":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_recent128")
+        from rhpr.sasrec.recent128 import run_recent128
+
+        return run_recent128(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")

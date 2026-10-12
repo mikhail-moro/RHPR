@@ -36,7 +36,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: kaggle-${{ github.repository }}
+  group: kaggle-${{ github.repository }}-${{ inputs.kernel_id || vars.KAGGLE_KERNEL_ID }}
   cancel-in-progress: false
 
 jobs:
