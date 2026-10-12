@@ -102,4 +102,10 @@ def run_experiment(
         from rhpr.sasrec.mixed_depth import run_mixed_depth
 
         return run_mixed_depth(config, output_dir)
+    if kind == "yambda_tail_ablation":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_tail_ablation")
+        from rhpr.sasrec.tail_ablation import run_tail_ablation
+
+        return run_tail_ablation(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")
