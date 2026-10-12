@@ -27,6 +27,29 @@ def dense_encoder_flops(
     )
 
 
+def hstu_encoder_flops(
+    *, batch_size: int, sequence_length: int, valid_tokens: int,
+    layers: Sequence[nn.Module],
+) -> int:
+    """Executed HSTU matmuls: jagged projections and padded dense attention.
+
+    The official reference projects only valid tokens. Its two attention GEMMs
+    still execute over the padded width, including the masked causal triangle.
+    Count the native UVQK and output weight shapes instead of assuming a
+    Transformer FFN or that HSTU has the same parameter count as SASRec.
+    """
+    if batch_size < 1 or sequence_length < 1 or not 1 <= valid_tokens <= batch_size * sequence_length:
+        raise ValueError("HSTU FLOP dimensions and valid token count must be positive and consistent")
+    if not layers:
+        raise ValueError("HSTU FLOPs require at least one native layer")
+    total = 0
+    for layer in layers:
+        total += 2 * valid_tokens * (layer._uvqk.numel() + layer._o.weight.numel())
+        total += (2 * batch_size * sequence_length**2 * layer._num_heads
+                  * (layer._attention_dim + layer._linear_dim))
+    return int(total)
+
+
 @torch.no_grad()
 def score_catalogue(
     model: nn.Module,
@@ -116,15 +139,25 @@ def _profile_shapes(model: nn.Module, batch: dict[str, Any], device: torch.devic
     finally:
         for handle in handles:
             handle.remove()
-    layer = model.encoder.layers[0]
     d_model = observed["d_model"]
-    observed["encoder_flops"] = dense_encoder_flops(
-        batch_size=batch["batch_size"],
-        sequence_length=observed["encoder_length"],
-        d_model=d_model,
-        n_layers=len(model.encoder.layers),
-        ffn_multiplier=layer.linear1.out_features // d_model,
-    )
+    if getattr(model, "architecture", "sasrec") == "hstu":
+        # Outside the timed region. Identity and tail-only gatherers preserve
+        # contiguous valid rows; HSTU's native projection works on their packing.
+        lengths = batch["mask"].sum(dim=1)
+        if model.compressor_type == "tail_only":
+            lengths = lengths.clamp(max=model.tail_size)
+        observed["encoder_projection_rows"] = int(lengths.sum().item())
+        observed["encoder_flops"] = hstu_encoder_flops(
+            batch_size=batch["batch_size"], sequence_length=observed["encoder_length"],
+            valid_tokens=observed["encoder_projection_rows"], layers=model.encoder.layers,
+        )
+    else:
+        layer = model.encoder.layers[0]
+        observed["encoder_flops"] = dense_encoder_flops(
+            batch_size=batch["batch_size"], sequence_length=observed["encoder_length"],
+            d_model=d_model, n_layers=len(model.encoder.layers),
+            ffn_multiplier=layer.linear1.out_features // d_model,
+        )
     observed["scoring_flops"] = 2 * batch["batch_size"] * int(model.num_items) * d_model
     batch["nominal"] = observed
 
@@ -298,8 +331,10 @@ def _metadata(device: torch.device, amp: bool, model: nn.Module) -> dict[str, An
         "encoder_amp": bool(amp and device.type == "cuda"), "scoring_dtype": "float32",
         "item_embedding_dtype": str(model.item_embedding.weight.dtype),
         "num_items": int(model.num_items), "multiply_add_flops": 2,
-        "flop_method": "analytic dense-equivalent matmuls using observed padded encoder and projection shapes",
-        "flop_excludes": ["embedding lookup", "bias/add", "GELU", "softmax", "LayerNorm", "packing", "masking", "top-k"],
+        "architecture": getattr(model, "architecture", "sasrec"),
+        "attention_implementation": getattr(model, "attention_implementation", "torch_transformer_sdpa"),
+        "flop_method": "analytic matmuls using observed padded attention widths and executed projection shapes",
+        "flop_excludes": ["embedding lookup", "bias/add", "GELU", "SiLU", "gating", "softmax", "LayerNorm", "packing", "masking", "top-k"],
         "timer": "perf_counter wall time, CUDA synchronize immediately before and after measured range",
         "latency_includes": ["Python/host orchestration", "GPU compressor packing", "all selected stage calls"],
         "latency_excludes": ["parquet/DataLoader", "CPU collate", "gap construction", "input H2D transfer",
@@ -307,7 +342,8 @@ def _metadata(device: torch.device, amp: bool, model: nn.Module) -> dict[str, An
         "kv_cache": False,
         "model": {name: getattr(model, name, None) for name in
                   ("d_model", "n_heads", "n_layers", "ffn_multiplier", "max_seq_len", "compressor_type",
-                   "tail_size", "use_time_features", "num_gap_buckets", "compression_depth")},
+                   "tail_size", "use_time_features", "num_gap_buckets", "compression_depth",
+                   "hstu_dv", "hstu_dqk", "hstu_normalization_length")},
         "precision": {"matmul_float32_precision": torch.get_float32_matmul_precision(),
                       "cuda_matmul_allow_tf32": bool(torch.backends.cuda.matmul.allow_tf32),
                       "cudnn_allow_tf32": bool(torch.backends.cudnn.allow_tf32)},
@@ -342,7 +378,11 @@ def _optional_profiler(
         "potentially_uncounted_fused_ops": [row["operator"] for row in rows if not row["reported_flops"]
                                             and any(part in row["operator"] for part in
                                                     ("scaled_dot_product", "transformer", "multi_head_attention"))],
-        "attention_manual_method": "4*B*T*T*d per layer in separate analytic count; do not add profiler total to it.",
+        "attention_manual_method": (
+            "2*B*T*T*heads*(dqk+dv) per HSTU layer; jagged UVQK/output projections counted separately"
+            if getattr(model, "architecture", "sasrec") == "hstu" else
+            "4*B*T*T*d per Transformer layer; do not add profiler total to analytic count"
+        ),
     })
     profiler.export_chrome_trace(str(output_dir / "benchmark_profiler_trace.json"))
 

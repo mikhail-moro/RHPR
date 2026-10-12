@@ -17,7 +17,15 @@ def _embedded_package() -> str:
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         source_root = ROOT / "src"
-        for source in sorted((source_root / "rhpr").rglob("*.py")):
+        package_root = source_root / "rhpr"
+        for source in sorted(package_root.rglob("*")):
+            if not source.is_file():
+                continue
+            vendor_resource = ("vendor" in source.relative_to(package_root).parts
+                               and (source.name in {"LICENSE", "NOTICE"}
+                                    or source.suffix in {".md", ".json", ".txt"}))
+            if source.suffix != ".py" and not vendor_resource:
+                continue
             archive.writestr(source.relative_to(source_root).as_posix(), source.read_bytes())
     return base64.b64encode(buffer.getvalue()).decode("ascii")
 
