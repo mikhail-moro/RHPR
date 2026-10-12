@@ -44,6 +44,7 @@
     "wheel_path": "/kaggle/input/datasets/carasik/rhpr-cp313-torch210-mamba-runtime",
     "requirements_file": "requirements-lock.txt",
     "requirements_sha256": "7403aec00eb0ce74b03e06b062a4e382d54e59e2b9fff94f9f84f949fc6521cb",
+    "manifest_sha256": "cb1cd1421931548762bd02636771e9927ae7e6993a4dfe7df51810a874baa643",
     "target_torch_version": "2.10.0+cu128",
     "target_python_minor": "3.13",
     "target_site": "/kaggle/temp/rhpr-runtime-site"

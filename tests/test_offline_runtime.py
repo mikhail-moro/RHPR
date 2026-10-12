@@ -11,7 +11,7 @@ from unittest.mock import patch
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 
-from rhpr.offline_runtime import install_offline_runtime,resolve_dataset_directory
+from rhpr.offline_runtime import install_offline_runtime,resolve_dataset_directory,prepare_wheel_links
 from scripts.build_kaggle_bundle import build
 
 
@@ -51,6 +51,33 @@ class OfflineRuntimeTest(unittest.TestCase):
             ast.parse(source)
             self.assertLess(source.index('install_offline_runtime(json.loads'),source.index('from rhpr.runner import execute'))
             self.assertEqual(len(metadata['dataset_sources']),2)
+
+    def test_sanitized_cuda_wheel_names_are_restored_without_copying_or_changing_bytes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            source=Path(temporary)/'source';source.mkdir()
+            actual=source/'torch-2.10.0cu128-cp313-cp313-linux_x86_64.whl'
+            actual.write_bytes(b'original wheel bytes')
+            wanted=actual.name.replace('2.10.0cu128','2.10.0+cu128')
+            manifest={'wheels':[{'filename':wanted,'size_bytes':actual.stat().st_size}]}
+            destination=Path(temporary)/'links'
+            repairs=prepare_wheel_links(source,destination,manifest)
+            self.assertEqual(repairs,[{'mounted_name':actual.name,'restored_name':wanted}])
+            self.assertTrue((destination/wanted).is_symlink())
+            self.assertTrue((destination/wanted).samefile(actual))
+            self.assertEqual((destination/wanted).read_bytes(),b'original wheel bytes')
+            self.assertEqual(prepare_wheel_links(source,destination,manifest),repairs)
+
+    def test_runtime_links_reject_unsafe_names_wrong_sizes_and_wrong_existing_targets(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            source=Path(temporary)/'source';source.mkdir();(source/'package.whl').write_bytes(b'x')
+            destination=Path(temporary)/'links'
+            for row in [{'filename':'../package.whl','size_bytes':1},
+                        {'filename':'package.whl','size_bytes':2}]:
+                with self.assertRaises(ValueError):prepare_wheel_links(source,destination,{'wheels':[row]})
+            destination.mkdir(exist_ok=True)
+            (destination/'package.whl').write_bytes(b'wrong existing file')
+            with self.assertRaises(ValueError):
+                prepare_wheel_links(source,destination,{'wheels':[{'filename':'package.whl','size_bytes':1}]})
 
 
 if __name__=='__main__':unittest.main()

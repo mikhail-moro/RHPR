@@ -59,8 +59,8 @@ import sys
 from pathlib import Path
 
 wheel_root = Path("/kaggle/input/rhpr-cp313-torch210-mamba-runtime")
-runtime_site = Path("/kaggle/working/rhpr-runtime-site")
-install_tmp = Path("/kaggle/working/rhpr-runtime-install-tmp")
+runtime_site = Path("/kaggle/temp/rhpr-runtime-site")
+install_tmp = Path("/kaggle/temp/rhpr-runtime-install-tmp")
 install_tmp.mkdir(parents=True, exist_ok=True)
 environment = os.environ.copy()
 environment["TMPDIR"] = str(install_tmp)
@@ -74,6 +74,11 @@ subprocess.run([
 ], env=environment, check=True)
 sys.path.insert(0, str(runtime_site))
 ```
+
+Wheel links use the filenames from the pinned manifest. Kaggle strips '+' from
+uploaded filenames; bootstrap restores the expected names with local links
+before pip resolution. The wheel bytes and required hashes remain unchanged.
+Installed files and links stay under `/kaggle/temp`, outside collected outputs.
 
 The concrete mount path can have additional Kaggle directory levels; resolve
 the declared Dataset through its manifest instead of relying on a universal
