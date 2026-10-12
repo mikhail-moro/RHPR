@@ -306,6 +306,93 @@ def _checkpoint_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _model_architecture(model_config: dict[str, Any]) -> str:
+    architecture = model_config.get("architecture", "sasrec")
+    if not isinstance(architecture, str) or architecture not in {"sasrec", "hstu"}:
+        raise ValueError("model architecture must be sasrec or hstu")
+    if architecture == "hstu":
+        if model_config.get("use_time_features", False):
+            raise ValueError("the HSTU comparison requires time features OFF")
+        compressor = model_config.get("compressor_type", "identity")
+        if not isinstance(compressor, str) or compressor not in {"identity", "tail_only"}:
+            raise ValueError("the HSTU comparison supports identity or tail_only inputs")
+    return architecture
+
+
+def _build_model(model_config: dict[str, Any], *, num_items: int) -> nn.Module:
+    """Select the backbone while retaining the shared data and training contract."""
+    architecture = _model_architecture(model_config)
+    arguments: dict[str, Any] = {
+        "num_items": num_items,
+        "max_seq_len": _positive_int(model_config, "max_seq_len", 1028),
+        "d_model": _positive_int(model_config, "d_model", 256),
+        "n_heads": _positive_int(model_config, "n_heads", 4),
+        "n_layers": _positive_int(model_config, "n_layers", 4),
+        "ffn_multiplier": _positive_int(model_config, "ffn_multiplier", 4),
+        "dropout": float(model_config.get("dropout", 0.2)),
+        "compressor_type": str(model_config.get("compressor_type", "identity")),
+        "tail_size": _positive_int(model_config, "tail_size", 128),
+        "use_time_features": bool(model_config.get("use_time_features", False)),
+        "num_gap_buckets": _positive_int(model_config, "num_gap_buckets", 33),
+    }
+    if "compression_depth" in model_config or arguments["compressor_type"] == "recursive_pair_mlp":
+        arguments["compression_depth"] = model_config.get("compression_depth", 1)
+    for optional in ("layer_norm_eps", "initializer_range"):
+        if optional in model_config:
+            arguments[optional] = float(model_config[optional])
+    if architecture == "hstu":
+        from rhpr.sasrec.hstu import HSTUModel
+
+        for optional in ("hstu_linear_dim", "hstu_attention_dim"):
+            if optional in model_config:
+                arguments[optional] = _positive_int(model_config, optional, 1)
+        model = HSTUModel(**arguments)
+    else:
+        model = SASRecModel(**arguments)
+    model.architecture = architecture
+    return model
+
+
+def _model_label(model_config: dict[str, Any]) -> str:
+    architecture = _model_architecture(model_config)
+    compressor = str(model_config.get("compressor_type", "identity"))
+    if "architecture" in model_config and compressor in {"identity", "tail_only"}:
+        context = _positive_int(model_config, "max_seq_len", 1028)
+        if compressor == "tail_only":
+            context = min(context, _positive_int(model_config, "tail_size", 128))
+        return f"{architecture}_{context}"
+    return {"pair_mlp": "pairmlp", "tail_only": "recent128"}.get(compressor, "full")
+
+
+def _parameter_counts(model: nn.Module) -> dict[str, int]:
+    total = sum(parameter.numel() for parameter in model.parameters())
+    items = sum(parameter.numel() for parameter in model.item_embedding.parameters())
+    return {
+        "num_model_parameters": total,
+        "num_trainable_parameters": sum(parameter.numel() for parameter in model.parameters()
+                                        if parameter.requires_grad),
+        "num_item_embedding_parameters": items,
+        "num_trainable_item_embedding_parameters": sum(
+            parameter.numel() for parameter in model.item_embedding.parameters() if parameter.requires_grad),
+        "num_non_item_parameters": total - items,
+        "num_encoder_parameters": sum(parameter.numel() for parameter in model.encoder.parameters()),
+        "num_trainable_encoder_parameters": sum(
+            parameter.numel() for parameter in model.encoder.parameters() if parameter.requires_grad),
+    }
+
+
+def _backbone_provenance(model: nn.Module) -> dict[str, int | str]:
+    provenance: dict[str, int | str] = {
+        "attention_implementation": getattr(model, "attention_implementation", "torch_transformer_sdpa"),
+    }
+    if hasattr(model, "upstream_revision"):
+        provenance["backbone_upstream_revision"] = model.upstream_revision
+    for name in ("hstu_linear_dim", "hstu_attention_dim", "hstu_normalization_length"):
+        if hasattr(model, name):
+            provenance[name] = int(getattr(model, name))
+    return provenance
+
+
 def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
                           dataset: YambdaSequences | None = None) -> dict[str, int | float | str | bool]:
     """Train SASRec and evaluate leave-two-out targets against the full catalogue."""
@@ -316,6 +403,7 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
 
     data_config = dict(config.get("data", {}))
     model_config = dict(config.get("model", {}))
+    architecture = _model_architecture(model_config)
     training_config = dict(config.get("training", {}))
     evaluation_config = dict(config.get("evaluation", {}))
     loss_config = dict(config.get("loss", {}))
@@ -365,22 +453,9 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
     n_heads = _positive_int(model_config, "n_heads", 4)
     if d_model // n_heads < 32:
         raise ValueError("d_model / n_heads must be at least 32")
-    depth_arguments = ({"compression_depth": model_config.get("compression_depth", 1)}
-                       if model_config.get("compressor_type") == "recursive_pair_mlp" else {})
-    model = SASRecModel(
-        num_items=dataset.num_items,
-        max_seq_len=max_seq_len,
-        d_model=d_model,
-        n_heads=n_heads,
-        n_layers=_positive_int(model_config, "n_layers", 4),
-        ffn_multiplier=_positive_int(model_config, "ffn_multiplier", 4),
-        dropout=float(model_config.get("dropout", 0.2)),
-        compressor_type=str(model_config.get("compressor_type", "identity")),
-        tail_size=_positive_int(model_config, "tail_size", 128),
-        use_time_features=use_time_features,
-        num_gap_buckets=num_gap_buckets,
-        **depth_arguments,
-    ).to(device)
+    model = _build_model(model_config, num_items=dataset.num_items).to(device)
+    parameter_counts = _parameter_counts(model)
+    backbone_provenance = _backbone_provenance(model)
 
     physical_batch_size = _positive_int(training_config, "physical_batch_size", 4)
     effective_batch_size = _positive_int(training_config, "effective_batch_size", 128)
@@ -693,8 +768,7 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
     benchmark_enabled = bool(benchmark_config.get("enabled", False))
     prediction_rows: list[dict[str, Any]] = []
     mixed_metrics: dict[str, int | float | str | bool] = {}
-    label = {"pair_mlp": "pairmlp", "tail_only": "recent128"}.get(
-        str(model_config.get("compressor_type", "identity")), "full")
+    label = _model_label(model_config)
     checksum = _checkpoint_sha256(checkpoint_path)
     if mixed_depth is not None or evaluate_test or diagnostics_enabled or benchmark_enabled:
         best_state = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
@@ -754,6 +828,7 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
                 options = dict(benchmark_config)
                 options.update({"seed": seed, "checkpoint": str(checkpoint_path),
                     "checkpoint_sha256": checksum, "compression_depth": depth,
+                    "architecture": architecture, **parameter_counts, **backbone_provenance,
                     "revision": os.environ.get("GITHUB_SHA", "local")})
                 print(json.dumps({"phase": "benchmark_started", "model": label,
                                   "compression_depth": depth}), flush=True)
@@ -813,6 +888,8 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
     if benchmark_enabled and mixed_depth is None:
         benchmark_config.update({"seed": seed, "checkpoint": str(checkpoint_path),
                                  "checkpoint_sha256": checksum,
+                                 "architecture": architecture, "model_label": label,
+                                 **parameter_counts, **backbone_provenance,
                                  "revision": os.environ.get("GITHUB_SHA", "local")})
         sample_size = int(benchmark_config.get("real_sample_size", 200))
         selected = np.random.default_rng(seed).choice(len(dataset.splits),
@@ -859,6 +936,10 @@ def run_yambda_experiment(config: dict[str, Any], output_dir: Path, *,
         "amp": amp,
         "device": str(device),
         "compressor_type": str(model_config.get("compressor_type", "identity")),
+        "architecture": architecture,
+        "model_label": label,
+        **parameter_counts,
+        **backbone_provenance,
         "time_features": use_time_features,
         "loss_tail_size": loss_tail_size or 0,
         "physical_batch_size": physical_batch_size,
@@ -910,7 +991,7 @@ def evaluate_saved_checkpoint(config: dict[str, Any], checkpoint: Path) -> dict[
     training = config["training"]
     evaluation = config["evaluation"]
     device = torch.device(training.get("device", "cuda"))
-    model = SASRecModel(num_items=dataset.num_items, **model_config).to(device)
+    model = _build_model(model_config, num_items=dataset.num_items).to(device)
     model.load_state_dict(torch.load(checkpoint, map_location=device, weights_only=True))
     loader = _loader(
         _EvaluationDataset(dataset.splits, model_config["max_seq_len"], "test",

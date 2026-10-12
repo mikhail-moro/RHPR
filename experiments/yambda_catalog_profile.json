@@ -1,0 +1,24 @@
+{
+  "name": "yambda-50m-catalog-train-events-profile",
+  "kind": "yambda_catalog_profile",
+  "seed": 42,
+  "data": {
+    "format": "sequential",
+    "path": "/kaggle/input/datasets/ploshkin/yambda/sequential/50m/listens.parquet",
+    "timestamp_unit": "seconds"
+  },
+  "profile": {
+    "event_coverage": 0.99,
+    "diagnostic_coverages": [0.95, 0.99, 0.995, 0.999],
+    "max_seq_len": 1028,
+    "tail_size": 128,
+    "embedding_dimension": 256,
+    "num_negatives": 512
+  },
+  "kaggle": {
+    "dataset_sources": ["ploshkin/yambda"],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": []
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "name": "yambda-50m-backbone-sasrec-15ep",
+  "kind": "yambda_backbone_context",
+  "seed": 42,
+  "training_budget_seconds": 14400,
+  "bootstrap_samples": 1000,
+  "initialization": "fresh_seed42_no_pretrained_weights",
+  "base": {
+    "data": {
+      "format": "sequential",
+      "path": "/kaggle/input/datasets/ploshkin/yambda/sequential/50m/listens.parquet",
+      "timestamp_unit": "seconds",
+      "gap_time_unit": 1.0
+    },
+    "deterministic": true,
+    "evaluation": {
+      "batch_size": 32,
+      "evaluate_test": false,
+      "item_chunk_size": 65536,
+      "k": 10
+    },
+    "kind": "yambda_sasrec",
+    "loss": {
+      "name": "sampled_softmax",
+      "num_negatives": 512,
+      "tail_size": 128
+    },
+    "model": {
+      "d_model": 256,
+      "dropout": 0.2,
+      "ffn_multiplier": 4,
+      "max_seq_len": 1028,
+      "n_heads": 4,
+      "n_layers": 4,
+      "tail_size": 128,
+      "num_gap_buckets": 33,
+      "compressor_type": "identity",
+      "use_time_features": false,
+      "architecture": "sasrec"
+    },
+    "name": "sasrec-context-common-recipe",
+    "seed": 42,
+    "training": {
+      "amp": true,
+      "device": "cuda",
+      "early_stopping_min_delta": 0.0,
+      "early_stopping_patience": 16,
+      "effective_batch_size": 128,
+      "grad_clip_norm": 1.0,
+      "keep_checkpoint": true,
+      "learning_rate": 0.001129959000566945,
+      "max_epochs": 15,
+      "physical_batch_size": 8,
+      "weight_decay": 1e-05,
+      "workers": 2,
+      "validation_interval": 5
+    },
+    "benchmark": {
+      "enabled": true,
+      "warmup": 30,
+      "iterations": 200,
+      "batch_size": 32,
+      "throughput_iterations": 20,
+      "real_sample_size": 200,
+      "fixed_lengths": [
+        128,
+        512,
+        1028
+      ],
+      "profile": false,
+      "allow_oom_fallback": false
+    }
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "ploshkin/yambda"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": []
+  },
+  "contexts": [
+    128,
+    1028
+  ],
+  "comparison_protocol": "common_recipe_fixed15epoch_single_seed_screen_not_per_architecture_HPO"
+}

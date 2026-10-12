@@ -114,4 +114,16 @@ def run_experiment(
         from rhpr.sasrec.recent128 import run_recent128
 
         return run_recent128(config, output_dir)
+    if kind == "yambda_backbone_context":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_backbone_context")
+        from rhpr.sasrec.backbone_comparison import run_backbone_context
+
+        return run_backbone_context(config, output_dir)
+    if kind == "yambda_catalog_profile":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_catalog_profile")
+        from rhpr.sasrec.catalog_profile import run_catalog_profile
+
+        return run_catalog_profile(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")
