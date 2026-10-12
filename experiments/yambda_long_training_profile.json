@@ -1,0 +1,60 @@
+{
+  "name": "yambda-500m-long-training-profile",
+  "kind": "yambda_long_training_profile",
+  "seed": 42,
+  "architectures": ["sasrec", "hstu", "mamba4rec", "fuxi_linear"],
+  "data": {
+    "prepared_path": "/kaggle/input/datasets/carasik/rhpr-yambda500m-train16k-profile",
+    "train_end_timestamp": 24710400,
+    "cohort_uid_length_sha256": "389eb71cc019879a91bf6a9ee9fcff7fc86ae77fdd5137544a380ffaf71c0446",
+    "catalog_sha256": "527dd7772d84afcaf32a1886726b34884d129adb72d5702d2847a466840f8cf7",
+    "cohort_mapped_train_items_sha256": "e84f8431274a185b4d1e8ff0f39427edf6f1c78a86fa92c2de375794ce3cff45",
+    "source": "yandex/yambda",
+    "source_revision": "dd6f3a19eef5866e346c3270e098baa641a44948"
+  },
+  "model": {
+    "d_model": 128,
+    "n_layers": 2,
+    "n_heads": 4,
+    "ffn_multiplier": 4,
+    "dropout": 0.2,
+    "use_time_features": false
+  },
+  "profile": {
+    "device": "cuda",
+    "amp": true,
+    "cpu_threads": 2,
+    "raw_context_length": 16384,
+    "tail_size": 128,
+    "num_negatives": 512,
+    "physical_batch_sizes": [1, 2, 4, 8],
+    "effective_batch_size": 128,
+    "update_repetitions": 1,
+    "warmup_microbatches": 4,
+    "learning_rate": 0.001,
+    "weight_decay": 0.00001,
+    "grad_clip_norm": 1.0,
+    "initial_loss_scale": 1024.0,
+    "inference_batch_sizes": [1, 8, 32],
+    "inference_warmup": 4,
+    "inference_iterations": 8,
+    "item_chunk_size": 65536
+  },
+  "runtime": {
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-cp313-torch210-mamba-runtime",
+    "requirements_file": "requirements-lock.txt",
+    "requirements_sha256": "7403aec00eb0ce74b03e06b062a4e382d54e59e2b9fff94f9f84f949fc6521cb",
+    "target_torch_version": "2.10.0+cu128",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-runtime-site"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-yambda500m-train16k-profile",
+      "carasik/rhpr-cp313-torch210-mamba-runtime"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": []
+  }
+}

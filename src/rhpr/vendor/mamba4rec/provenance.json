@@ -1,0 +1,41 @@
+{
+  "repository": "https://github.com/chengkai-liu/Mamba4Rec",
+  "revision": "44a0c8432b34e3b89d46035b10e8525b1bd368dc",
+  "source_path": "mamba4rec.py",
+  "source_git_blob": "d75ae50fec7823022ed4a26bd76f0119247f295d",
+  "license": "MIT",
+  "native_mamba_repository": "https://github.com/state-spaces/mamba",
+  "native_mamba_version": "2.3.1",
+  "native_mamba_revision": "c5afbdf3bda1a09d68f65181ae3a43ec71079820",
+  "native_mamba_license": "Apache-2.0",
+  "native_mamba_git_blob": "4c8a388217c4cd4d21d5ea4704a5d571be294781",
+  "native_selective_scan_git_blob": "a41f1359c2463e69a2a8e52035749893f126769a",
+  "source_sha256": {
+    "upstream_mamba4rec.py.txt": "5cfb15241ad3608ef21e7abd9739ad03b363c10759dcdf136aa02305392c91f2",
+    "upstream_config.yaml.txt": "9dbb89480691415235d6d54b0fc6baa3ac6380c60efe85857e88d47a52329a9d",
+    "upstream_mamba_simple.py.txt": "a17e4c51b582dc0d4d690a649eba521cd0c1ee3dc8f0473a0967cdc9ec0874e3",
+    "upstream_selective_scan_interface.py.txt": "543edd077f11c80cccd5c5e2f926420d9105fd238d9e8960e53660cfa234dce8"
+  },
+  "vendored_runtime_classes": [
+    "MambaLayer",
+    "FeedForward"
+  ],
+  "profile_defaults": {
+    "d_model": 128,
+    "n_layers": 2,
+    "d_state": 32,
+    "d_conv": 4,
+    "expand": 2,
+    "ffn_multiplier": 4,
+    "layer_norm_eps": 1e-12
+  },
+  "integration_changes": [
+    "RecBole data/loss/evaluator replaced with common RHPR next-item API and sampled-softmax.",
+    "Official MambaLayer and FeedForward math copied exactly, dependency imported lazily.",
+    "Only recommendation embedding and FFN Linear layers use normal(std=0.02); all native SSM parameters retain constructor initialization.",
+    "PAD embedding zeroed; histories use contiguous right padding; padded outputs masked after each causal layer.",
+    "Expose all causal states for last-128-position loss instead of only the last gathered state.",
+    "No positional embedding or timestamp features, matching original Mamba4Rec input policy.",
+    "Production requires native CUDA selective_scan fwd/bwd; test-only exact official CPU reference never used for GPU timing."
+  ]
+}
