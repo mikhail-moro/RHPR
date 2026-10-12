@@ -1,0 +1,44 @@
+{
+  "name": "yambda-50m-mixed-depth-tail128-ablation",
+  "kind": "yambda_tail_ablation",
+  "seed": 42,
+  "tail_size": 128,
+  "bootstrap_samples": 1000,
+  "source": {
+    "kernel_id": "carasik/rhpr-mixed-depth-15ep",
+    "path": "/kaggle/input/rhpr-mixed-depth-15ep",
+    "checkpoint_sha256": "edbda99d5b2140621b5c61ad0134b080f7adbda2cc5743933f28582266e70871",
+    "git_sha": "f7e093c521d61a95e925511b546715ac91750fbf",
+    "expected_best_epoch": 15,
+    "expected_validation_users": 9238
+  },
+  "runtime": {
+    "device": "cuda",
+    "amp": true,
+    "workers": 2,
+    "deterministic": true
+  },
+  "evaluation": {
+    "batch_size": 32,
+    "k": 10,
+    "item_chunk_size": 65536,
+    "evaluate_test": false
+  },
+  "benchmark": {
+    "enabled": true,
+    "warmup": 30,
+    "iterations": 200,
+    "batch_size": 32,
+    "throughput_iterations": 20,
+    "real_sample_size": 200,
+    "fixed_lengths": [128, 512, 1028],
+    "profile": false,
+    "allow_oom_fallback": false
+  },
+  "kaggle": {
+    "dataset_sources": ["ploshkin/yambda"],
+    "competition_sources": [],
+    "kernel_sources": ["carasik/rhpr-mixed-depth-15ep"],
+    "model_sources": []
+  }
+}
