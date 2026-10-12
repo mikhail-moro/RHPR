@@ -87,7 +87,7 @@ class SASRecCompressionTest(unittest.TestCase):
         full = self._model().eval()
         backbone = {name: value for name, value in full.state_dict().items() if not name.startswith(("compressor.", "gap_embedding."))}
         expected_rng = torch.get_rng_state()
-        for kind in ("identity", "recent", "mean", "pair_mlp", "recursive_pair_mlp"):
+        for kind in ("identity", "recent", "tail_only", "mean", "pair_mlp", "recursive_pair_mlp"):
             for use_time in (False, True):
                 with self.subTest(kind=kind, time=use_time):
                     torch.manual_seed(314)
@@ -436,15 +436,15 @@ class SASRecCompressionTest(unittest.TestCase):
         model = self._model("recursive_pair_mlp", depth=2)
         ids, mask, _ = self._batch()
         embeddings = model.item_embedding(ids)
-        for invalid_depth in (-1, 4, 1.0, True):
+        for invalid_depth in (-1, 7, 1.0, True):
             with self.subTest(depth=invalid_depth):
-                with self.assertRaisesRegex(ValueError, "integer between 0 and 3"):
+                with self.assertRaisesRegex(ValueError, "integer between 0 and 6"):
                     RecursivePairMLPSequenceCompressor(4, depth=invalid_depth)
-                with self.assertRaisesRegex(ValueError, "integer between 0 and 3"):
+                with self.assertRaisesRegex(ValueError, "integer between 0 and 6"):
                     self._model("recursive_pair_mlp", depth=invalid_depth)
-                with self.assertRaisesRegex(ValueError, "integer between 0 and 3"):
+                with self.assertRaisesRegex(ValueError, "integer between 0 and 6"):
                     model.set_compression_depth(invalid_depth)
-                with self.assertRaisesRegex(ValueError, "integer between 0 and 3"):
+                with self.assertRaisesRegex(ValueError, "integer between 0 and 6"):
                     model.compressor.forward_with_metadata(embeddings, mask, invalid_depth)
                 self.assertEqual(model.compressor.depth, 2)
                 self.assertEqual(model.compression_depth, 2)

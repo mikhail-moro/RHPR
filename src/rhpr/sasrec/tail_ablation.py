@@ -14,45 +14,16 @@ from typing import Any
 
 import numpy as np
 import torch
-from torch import nn
 
 from rhpr.metrics import validate_metrics
 from rhpr.sasrec.benchmark import benchmark_inference
 from rhpr.sasrec.data import YambdaSequences, load_yambda_sequences, resolve_yambda_parquet_path, validation_example
 from rhpr.sasrec.diagnostics import context_hash, write_diagnostic_rows
 from rhpr.sasrec.experiment import _EvaluationDataset, _collate_evaluation, _full_catalog_ndcg, _loader, _seed_everything
-from rhpr.sasrec.model import SASRecModel
+from rhpr.sasrec.model import SASRecModel, TailOnlySequenceCompressor
 
 
 MODES = (("depth_0", 0), ("depth_3", 3), ("tail_128", 0))
-
-
-class TailOnlySequenceCompressor(nn.Module):
-    """Retain the raw recent tail with positions in the original full history."""
-
-    def __init__(self, tail_size: int = 128) -> None:
-        super().__init__()
-        if isinstance(tail_size, bool) or not isinstance(tail_size, int) or tail_size < 1:
-            raise ValueError("tail_size must be a positive integer")
-        self.tail_size = tail_size
-
-    def forward(self, embeddings: torch.Tensor, valid_mask: torch.Tensor
-                ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        if embeddings.ndim != 3 or valid_mask.shape != embeddings.shape[:2] or valid_mask.dtype != torch.bool:
-            raise ValueError("embeddings and boolean valid_mask must have matching batch/length shapes")
-        lengths = valid_mask.sum(dim=1)
-        if torch.any(lengths < 1):
-            raise ValueError("tail compression requires nonempty histories")
-        raw_offsets = torch.arange(valid_mask.shape[1], device=embeddings.device)
-        if not torch.equal(valid_mask, raw_offsets[None, :] < lengths[:, None]):
-            raise ValueError("tail compression requires contiguous histories with right padding")
-        tail_lengths = lengths.clamp(max=self.tail_size)
-        offsets = torch.arange(int(tail_lengths.max().item()), device=embeddings.device)
-        output_mask = offsets[None, :] < tail_lengths[:, None]
-        sources = offsets[None, :] + (lengths - tail_lengths)[:, None]
-        sources = sources.masked_fill(~output_mask, -1)
-        output = torch.gather(embeddings, 1, sources.clamp(min=0).unsqueeze(-1).expand(-1, -1, embeddings.shape[2]))
-        return output.masked_fill(~output_mask.unsqueeze(-1), 0), output_mask, sources
 
 
 def _positive_int(value: Any, name: str) -> int:

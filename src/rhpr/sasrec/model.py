@@ -67,6 +67,34 @@ class RecentSequenceCompressor(nn.Module):
         return output, output_mask, source_positions
 
 
+class TailOnlySequenceCompressor(nn.Module):
+    """Retain the raw recent tail with positions in the original full history."""
+
+    def __init__(self, tail_size: int = 128) -> None:
+        super().__init__()
+        if isinstance(tail_size, bool) or not isinstance(tail_size, int) or tail_size < 1:
+            raise ValueError("tail_size must be a positive integer")
+        self.tail_size = tail_size
+
+    def forward(self, embeddings: torch.Tensor, valid_mask: torch.Tensor
+                ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        if embeddings.ndim != 3 or valid_mask.shape != embeddings.shape[:2] or valid_mask.dtype != torch.bool:
+            raise ValueError("embeddings and boolean valid_mask must have matching batch/length shapes")
+        lengths = valid_mask.sum(dim=1)
+        if torch.any(lengths < 1):
+            raise ValueError("tail compression requires nonempty histories")
+        raw_offsets = torch.arange(valid_mask.shape[1], device=embeddings.device)
+        if not torch.equal(valid_mask, raw_offsets[None, :] < lengths[:, None]):
+            raise ValueError("tail compression requires contiguous histories with right padding")
+        tail_lengths = lengths.clamp(max=self.tail_size)
+        offsets = torch.arange(int(tail_lengths.max().item()), device=embeddings.device)
+        output_mask = offsets[None, :] < tail_lengths[:, None]
+        sources = offsets[None, :] + (lengths - tail_lengths)[:, None]
+        sources = sources.masked_fill(~output_mask, -1)
+        output = _gather_embeddings(embeddings, sources)
+        return output.masked_fill(~output_mask.unsqueeze(-1), 0), output_mask, sources
+
+
 class MeanSequenceCompressor(nn.Module):
     """Merge adjacent old pairs and retain an odd singleton and recent tail."""
 
@@ -141,8 +169,8 @@ class RecursivePairMLPSequenceCompressor(PairMLPSequenceCompressor):
 
     @staticmethod
     def validate_depth(depth: int) -> int:
-        if isinstance(depth, bool) or not isinstance(depth, int) or not 0 <= depth <= 3:
-            raise ValueError("compression depth must be an integer between 0 and 3")
+        if isinstance(depth, bool) or not isinstance(depth, int) or not 0 <= depth <= 6:
+            raise ValueError("compression depth must be an integer between 0 and 6")
         return depth
 
     @property
@@ -220,7 +248,7 @@ class SASRecModel(nn.Module):
             raise ValueError("d_model must be divisible by n_heads")
         if max_seq_len < 1 or n_layers < 1 or ffn_multiplier < 1:
             raise ValueError("max_seq_len, n_layers, and ffn_multiplier must be positive")
-        if compressor_type not in {"identity", "recent", "mean", "pair_mlp", "recursive_pair_mlp"}:
+        if compressor_type not in {"identity", "recent", "tail_only", "mean", "pair_mlp", "recursive_pair_mlp"}:
             raise ValueError(f"unknown compressor_type: {compressor_type}")
         if compressor is not None and compressor_type != "identity":
             raise ValueError("choose a custom compressor or compressor_type, not both")
@@ -259,6 +287,8 @@ class SASRecModel(nn.Module):
             if compressor is None:
                 if compressor_type == "recent":
                     self.compressor = RecentSequenceCompressor(tail_size)
+                elif compressor_type == "tail_only":
+                    self.compressor = TailOnlySequenceCompressor(tail_size)
                 elif compressor_type == "mean":
                     self.compressor = MeanSequenceCompressor(tail_size)
                 elif compressor_type == "pair_mlp":

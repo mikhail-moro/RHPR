@@ -50,8 +50,8 @@ def prediction(
     }
 
 
-def predictions(features: list[dict]) -> list[dict]:
-    return [prediction(row, depth) for row in features for depth in range(4)]
+def predictions(features: list[dict], depths=range(4)) -> list[dict]:
+    return [prediction(row, depth) for row in features for depth in depths]
 
 
 def cohort(summary: dict, *, reference: int = 0, depth: int = 1, kind: str = "all", **filters) -> dict:
@@ -93,6 +93,14 @@ class SASRecDepthDiagnosticsTest(unittest.TestCase):
             "depth_1_minus_depth_0", "depth_2_minus_depth_0", "depth_3_minus_depth_0",
             "depth_2_minus_depth_1", "depth_3_minus_depth_1",
         ])
+        self.assertEqual(len(summary["cohorts"]), 125)
+
+    def test_original_140_cohorts_preserved_with_short_and_long_histories(self) -> None:
+        features = [feature(1, length=128), feature(2, length=1028)]
+        summary = self.analyze(features, predictions(features))
+        self.assertEqual(len(summary["cohorts"]), 140)
+        explicit = self.analyze(features, predictions(features), depths=(0, 1, 2, 3))
+        self.assertEqual(summary, explicit)
 
     def test_paired_bootstrap_preserves_constant_differences_across_all_depths(self) -> None:
         features = [feature(1), feature(2)]
@@ -109,6 +117,87 @@ class SASRecDepthDiagnosticsTest(unittest.TestCase):
             self.assertEqual(result["both_hit"], 2)
         self.assertNotEqual(cohort(summary)["reference_ndcg_at_10_ci95"][0],
                             cohort(summary)["reference_ndcg_at_10_ci95"][1])
+
+    def test_seven_depths_share_user_bootstrap_and_keep_bounded_contrasts(self) -> None:
+        features = [feature(1, length=1028), feature(2, length=129)]
+        rows = [prediction(row, depth, row["user_id"] / 16 + depth / 8, 1)
+                for row in features for depth in range(7)]
+        summary = self.analyze(features, rows, depths=range(7))
+        pairs = tuple((0, depth) for depth in range(1, 7)) + ((3, 4), (3, 5), (3, 6), (4, 5), (5, 6))
+        self.assertEqual(summary["depths"], list(range(7)))
+        self.assertEqual(summary["comparisons"], [f"depth_{depth}_minus_depth_{reference}"
+                                                   for reference, depth in pairs])
+        self.assertEqual(summary["paired_user_rows"], 2)
+        self.assertEqual(len(summary["cohorts"]), 286)
+        for reference, depth in pairs:
+            result = cohort(summary, reference=reference, depth=depth)
+            expected = (depth - reference) / 8
+            np.testing.assert_allclose(result["delta_ndcg_at_10_ci95"], [expected, expected])
+            self.assertEqual(result["delta_recall_at_10_ci95"], [0.0, 0.0])
+            self.assertEqual(result["both_hit"], 2)
+        self.assertEqual(cohort(summary, depth=6)["depth_mean_encoder_length"], (143 + 129) / 2)
+        reordered = self.analyze(list(reversed(features)), list(reversed(rows)), depths=list(reversed(range(7))))
+        self.assertEqual(summary["cohorts"], reordered["cohorts"])
+        # Changing only which contrasts are emitted preserves the joint draws.
+        limited = self.analyze(features, rows, depths=range(7), comparisons=((3, 6),))
+        self.assertEqual(cohort(summary, reference=3, depth=6), cohort(limited, reference=3, depth=6))
+
+    def test_selected_depths_require_every_mode_and_strict_shared_identities(self) -> None:
+        features = [feature(1), feature(2)]
+        rows = predictions(features, range(7))
+        cases = [([row for row in rows if row["compression_depth"] != 6], "missing depth_6"),
+                 (rows[:-1], "missing depth_6")]
+        for field, value, error in (("context_hash", "different", "context_hash differs"),
+                                    ("target", 999, "target differs"),
+                                    ("seed", 43, "paired user IDs differ"),
+                                    ("time_enabled", True, "paired user IDs differ"),
+                                    ("model", "depth_5", "model must match")):
+            changed = copy.deepcopy(rows)
+            changed[-1][field] = value
+            cases.append((changed, error))
+        cases.append((rows + rows[-1:], "duplicate prediction key"))
+        for changed, error in cases:
+            with self.subTest(error=error), self.assertRaisesRegex(ValueError, error):
+                self.analyze(features, changed, depths=range(7))
+        # Omitting an explicit depth contract must not silently infer modes.
+        with self.assertRaisesRegex(ValueError, "model must match"):
+            self.analyze(features, rows)
+
+    def test_custom_nonconsecutive_depths_use_column_positions(self) -> None:
+        features = [feature(1)]
+        rows = [prediction(features[0], depth, depth / 8, int(depth > 0)) for depth in (0, 3, 6)]
+        summary = self.analyze(features, rows, depths=(0, 3, 6), comparisons=((3, 6), (6, 0)))
+        deeper = cohort(summary, reference=3, depth=6)
+        self.assertEqual(deeper["delta_ndcg_at_10"], 3 / 8)
+        self.assertEqual(deeper["reference_mean_encoder_length"], 150)
+        self.assertEqual(deeper["depth_mean_encoder_length"], 131)
+        reverse = cohort(summary, reference=6, depth=0)
+        self.assertEqual(reverse["delta_ndcg_at_10"], -6 / 8)
+        self.assertEqual(reverse["reference_hit_depth_miss"], 1)
+
+    def test_invalid_depth_and_comparison_contracts_fail_before_writing(self) -> None:
+        features = [feature(1)]
+        rows = predictions(features)
+        for depths in ((), (0,), (0, 0), (0, 7), (0, True), (0, -1)):
+            with self.subTest(depths=depths), self.assertRaises(ValueError):
+                self.analyze(features, rows, depths=depths)
+        for comparisons in ((), ((0, 0),), ((0, 6),), ((0, True),), ((0, 1), (0, 1)), ((0,),)):
+            with self.subTest(comparisons=comparisons), self.assertRaises(ValueError):
+                self.analyze(features, rows, comparisons=comparisons)
+
+    def test_optional_feature_identity_fields_are_strictly_typed_and_match(self) -> None:
+        for field, bad in (("target", True), ("seed", True), ("time_enabled", 0)):
+            features = [feature(1)]
+            features[0][field] = bad
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                self.analyze(features, predictions(features, range(7)), depths=range(7))
+        for field, value, error in (("target", 999, "feature target differs"),
+                                    ("seed", 43, "feature seed differs"),
+                                    ("time_enabled", True, "feature time_enabled differs")):
+            features = [feature(1)]
+            features[0][field] = value
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, error):
+                self.analyze(features, predictions(features, range(7)), depths=range(7))
 
     def test_missing_modes_and_wholly_missing_feature_users_are_rejected(self) -> None:
         features = [feature(1), feature(2)]
@@ -249,6 +338,25 @@ class SASRecDepthDiagnosticsTest(unittest.TestCase):
             table = pl.read_parquet(output / summary["artifacts"]["cohort_results"])
             self.assertEqual(table.schema["delta_ndcg_at_10_ci95"], pl.List(pl.Float64))
             self.assertNotIn("old_gap_seconds_p90", summary["feature_bins"]["quantile_features"])
+
+    def test_deep_artifacts_preserve_raw_history_geometry(self) -> None:
+        try:
+            import polars as pl
+        except ImportError:
+            self.skipTest("polars is not installed")
+        features = [feature(1, length=1028), feature(2, length=128)]
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            summary = analyze_depth_cohorts(features, predictions(features, range(7)), output,
+                                           depths=range(7), bootstrap_samples=10)
+            paired = pl.read_parquet(output / summary["artifacts"]["paired_predictions"])
+            self.assertEqual(paired["window_length"].to_list(), [1028, 128])
+            self.assertEqual(paired["old_length"].to_list(), [900, 0])
+            self.assertEqual([paired[f"depth_{depth}_encoder_length"][0] for depth in range(7)],
+                             [1028, 578, 353, 241, 185, 157, 143])
+            self.assertEqual([paired[f"depth_{depth}_encoder_length"][1] for depth in range(7)], [128] * 7)
+            self.assertEqual(len(summary["cohorts"]), 308)
+            self.assertEqual(json.loads((output / "depth-cohorts.json").read_text()), summary)
 
     def test_json_fallback_and_nonfinite_preserved_feature(self) -> None:
         real_import = builtins.__import__

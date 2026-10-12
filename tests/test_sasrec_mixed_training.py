@@ -33,7 +33,13 @@ class MixedDepthSettingsTest(unittest.TestCase):
         self.assertEqual(interval, 5)
         self.assertEqual(probabilities.tolist(), [0.25] * 4)
         self.assertIsNone(_mixed_depth_settings({}, {}, {}))
-        for values in ([0.5, 0.5], [0.25] * 3 + [float("nan")],
+        for count in (5, 6, 7):
+            with self.subTest(count=count):
+                probabilities, interval = _mixed_depth_settings(
+                    {"mixed_depth": {"probabilities": [1 / count] * count}}, model, evaluation)
+                self.assertEqual(len(probabilities), count)
+                self.assertEqual(interval, 5)
+        for values in ([0.5, 0.5], [1 / 3] * 3, [1 / 8] * 8, [0.25] * 3 + [float("nan")],
                        [float("inf"), 0.25, 0.25, 0.25], [0.5, 0.5, 0, 0],
                        [-0.25, 0.25, 0.5, 0.5], [0.2] * 4, [True, 0.25, 0.25, 0.25]):
             with self.subTest(probabilities=values), self.assertRaises(ValueError):
@@ -68,6 +74,19 @@ class MixedDepthSettingsTest(unittest.TestCase):
             replay.append(_sample_mixed_depth(probabilities, replay_rng))
         self.assertEqual(draws, replay)
         self.assertEqual(set(draws), {0, 1, 2, 3})
+
+    def test_seven_mode_depth_rng_is_independent_and_reproducible(self) -> None:
+        from rhpr.sasrec.experiment import _sample_mixed_depth
+
+        probabilities = torch.tensor([0.25, 0.125, 0.125, 0.25, 1 / 12, 1 / 12, 1 / 12],
+                                     dtype=torch.float64)
+        initial_global_state = torch.get_rng_state().clone()
+        generator = torch.Generator().manual_seed(42 + 271)
+        draws = [_sample_mixed_depth(probabilities, generator) for _ in range(200)]
+        self.assertTrue(torch.equal(initial_global_state, torch.get_rng_state()))
+        replay = torch.Generator().manual_seed(42 + 271)
+        self.assertEqual(draws, [_sample_mixed_depth(probabilities, replay) for _ in range(200)])
+        self.assertEqual(set(draws), set(range(7)))
 
 
 @unittest.skipIf(torch is None or pl is None, "Torch and Polars are required")
@@ -106,9 +125,27 @@ class MixedDepthTrainingTest(unittest.TestCase):
                     save.assert_not_called()
 
     def test_real_training_mean_checkpoint_schedule_predictions_and_deterministic_benchmarks(self) -> None:
+        self._exercise_real_training(
+            probabilities=[0.25] * 4,
+            scores=([0.2, 0.5, 0.5, 0.5], [0.6, 0.1, 0.1, 0.1], [0.7, 0.1, 0.1, 0.1]),
+            max_epochs=11)
+
+    def test_seven_depths_use_one_checkpoint_unweighted_mean_and_full_epoch_budget(self) -> None:
+        self._exercise_real_training(
+            probabilities=[0.25, 0.125, 0.125, 0.25, 1 / 12, 1 / 12, 1 / 12],
+            # Weighted means favour epoch10, unweighted means correctly select epoch5.
+            scores=([0.01, 0.01, 0.01, 0.01, 0.9, 0.9, 0.9],
+                    [0.7, 0.01, 0.01, 0.7, 0.01, 0.01, 0.01],
+                    [0.8, 0.01, 0.01, 0.4, 0.01, 0.01, 0.01]),
+            max_epochs=15)
+
+    def _exercise_real_training(self, *, probabilities, scores, max_epochs) -> None:
         from rhpr.sasrec import experiment
         from rhpr.sasrec.model import SASRecModel
 
+        mode_count = len(probabilities)
+        evaluated_epochs = [epoch for epoch in range(1, max_epochs + 1)
+                            if epoch % 5 == 0 or epoch == max_epochs]
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)
             path = directory / "listens.parquet"
@@ -123,10 +160,10 @@ class MixedDepthTrainingTest(unittest.TestCase):
                     "tail_size": 4, "compressor_type": "recursive_pair_mlp", "compression_depth": 1},
                 "loss": {"name": "sampled_softmax", "num_negatives": 4, "tail_size": 4},
                 "training": {"device": "cpu", "amp": False, "workers": 0,
-                    "physical_batch_size": 2, "effective_batch_size": 4, "max_epochs": 11,
+                    "physical_batch_size": 2, "effective_batch_size": 4, "max_epochs": max_epochs,
                     "early_stopping_patience": 1, "keep_checkpoint": True,
                     "progress_interval_batches": 0,
-                    "mixed_depth": {"probabilities": [0.25] * 4, "validation_interval": 5}},
+                    "mixed_depth": {"probabilities": probabilities, "validation_interval": 5}},
                 "evaluation": {"batch_size": 2, "item_chunk_size": 7,
                     "evaluate_test": False, "progress_interval_batches": 0},
                 "benchmark": {"enabled": True, "smoke_test": True, "warmup": 0,
@@ -140,7 +177,6 @@ class MixedDepthTrainingTest(unittest.TestCase):
             partial_history_lengths = []
             original_evaluate = experiment._full_catalog_ndcg
             original_load = torch.load
-            scores = ([0.2, 0.5, 0.5, 0.5], [0.6, 0.1, 0.1, 0.1], [0.7, 0.1, 0.1, 0.1])
 
             def build_model(**kwargs):
                 model = SASRecModel(**kwargs)
@@ -160,7 +196,7 @@ class MixedDepthTrainingTest(unittest.TestCase):
                                          for name, value in model.state_dict().items()})
                     return original_evaluate(model, loader, **kwargs)
                 partial_history_lengths.append(len(json.loads((output / "history.json").read_text())))
-                row = len(validation_calls) // 4
+                row = len(validation_calls) // mode_count
                 validation_calls.append(depth)
                 kwargs["details"].update({"recall_at_10": scores[row][depth], "groups": {}})
                 return scores[row][depth], len(loader.dataset)
@@ -173,13 +209,14 @@ class MixedDepthTrainingTest(unittest.TestCase):
                 self.assertEqual(load.call_count, 1)
 
             history = json.loads((output / "history.json").read_text())
-            self.assertEqual(len(history), 11)  # patience=1 must not stop this screen.
-            self.assertEqual([entry["epoch"] for entry in history if entry["validation_performed"]], [5, 10, 11])
-            self.assertEqual(validation_calls, [0, 1, 2, 3] * 3)
-            self.assertEqual(partial_history_lengths, [4] * 4 + [9] * 4 + [10] * 4)
+            self.assertEqual(len(history), max_epochs)  # patience=1 must not stop this screen.
+            self.assertEqual([entry["epoch"] for entry in history if entry["validation_performed"]], evaluated_epochs)
+            self.assertEqual(validation_calls, list(range(mode_count)) * len(evaluated_epochs))
+            self.assertEqual(partial_history_lengths,
+                             [epoch - 1 for epoch in evaluated_epochs for _ in range(mode_count)])
             self.assertEqual(metrics["best_epoch"], 5)  # depth0 alone would select epoch11.
-            self.assertAlmostEqual(metrics["validation_mean_ndcg_at_10"], 0.425)
-            self.assertEqual(metrics["epochs_trained"], 11)
+            self.assertAlmostEqual(metrics["validation_mean_ndcg_at_10"], sum(scores[0]) / mode_count)
+            self.assertEqual(metrics["epochs_trained"], max_epochs)
             self.assertFalse(metrics["early_stopping_enabled"])
             self.assertFalse(metrics["test_evaluated"])
             self.assertNotIn("test_ndcg_at_10", metrics)
@@ -189,7 +226,7 @@ class MixedDepthTrainingTest(unittest.TestCase):
                 self.assertEqual(sum(row["users"] for row in stats.values()), 4)
                 for row in stats.values():
                     self.assertLessEqual(row["encoder_valid_tokens"], row["encoder_padded_tokens"])
-            for depth in range(4):
+            for depth in range(mode_count):
                 shapes = [(batch, width) for mode, batch, width in training_shapes if mode == depth]
                 self.assertEqual(metrics[f"depth_{depth}_training_batches"], len(shapes))
                 self.assertEqual(metrics[f"depth_{depth}_training_users"], sum(batch for batch, _ in shapes))
@@ -197,16 +234,17 @@ class MixedDepthTrainingTest(unittest.TestCase):
                                  sum(batch * width for batch, width in shapes))
 
             checkpoint = original_load(output / "best-model.pt", map_location="cpu", weights_only=True)
-            self.assertEqual(len(final_states), 4)
+            self.assertEqual(len(final_states), mode_count)
             for state in final_states:
                 self.assertEqual(state.keys(), checkpoint.keys())
                 self.assertTrue(all(torch.equal(state[name], checkpoint[name]) for name in state))
             predictions = pl.read_parquet(output / "predictions.parquet")
-            self.assertEqual(predictions.height, 16)
-            self.assertEqual(set(predictions["compression_depth"].to_list()), {0, 1, 2, 3})
-            self.assertEqual(set(predictions["model"].to_list()), {f"depth_{depth}" for depth in range(4)})
+            self.assertEqual(predictions.height, 4 * mode_count)
+            self.assertEqual(set(predictions["compression_depth"].to_list()), set(range(mode_count)))
+            self.assertEqual(set(predictions["model"].to_list()), {f"depth_{depth}" for depth in range(mode_count)})
             checksum = hashlib.sha256((output / "best-model.pt").read_bytes()).hexdigest()
-            for depth in range(4):
+            self.assertEqual(metrics["checkpoint_sha256"], checksum)
+            for depth in range(mode_count):
                 run = output / "runs" / f"depth_{depth}"
                 benchmark = json.loads((run / "benchmark.json").read_text())
                 provenance = benchmark["metadata"]["config"]

@@ -72,6 +72,23 @@ class MixedDepthIntegrationTest(unittest.TestCase):
             with self.subTest(label=label), self.assertRaises(ValueError):
                 validate_mixed_depth_config(candidate)
 
+    def test_config_accepts_all_trained_depths_through_six(self) -> None:
+        from rhpr.sasrec.mixed_depth import validate_mixed_depth_config
+
+        for count in (4, 5, 6, 7):
+            config = self.config()
+            config["base"]["training"]["mixed_depth"]["probabilities"] = [1 / count] * count
+            config["base"]["model"]["compression_depth"] = count - 1
+            with self.subTest(count=count):
+                validate_mixed_depth_config(config)
+            invalid = copy.deepcopy(config)
+            invalid["base"]["model"]["compression_depth"] = count
+            with self.subTest(untrained_depth=count), self.assertRaises(ValueError):
+                validate_mixed_depth_config(invalid)
+        config["base"]["training"]["mixed_depth"]["probabilities"] = [0.125] * 8
+        with self.assertRaises(ValueError):
+            validate_mixed_depth_config(config)
+
     def test_shared_checkpoint_selection_uses_mean_even_when_depth_zero_gets_worse(self) -> None:
         import numpy as np
 
@@ -128,11 +145,20 @@ class MixedDepthIntegrationTest(unittest.TestCase):
                 self.assertEqual(metrics[f"depth_{depth}_best_epoch"], 2)
 
     def test_cpu_training_uses_one_checkpoint_for_four_modes_and_common_targets(self) -> None:
+        self._check_cpu_training_modes(4)
+
+    def test_cpu_training_uses_one_checkpoint_for_seven_modes_and_common_targets(self) -> None:
+        self._check_cpu_training_modes(7)
+
+    def _check_cpu_training_modes(self, depth_count: int) -> None:
         from rhpr.runner import execute
         from rhpr.sasrec.losses import build_loss_mask, supervised_state_tensors
         from rhpr.sasrec.model import SASRecModel
 
         config = self.config()
+        depths = tuple(range(depth_count))
+        config["base"]["training"]["mixed_depth"]["probabilities"] = [1 / depth_count] * depth_count
+        config["base"]["model"]["compression_depth"] = depth_count - 1
         lengths = [2, 24, 132, 140]
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)
@@ -164,6 +190,7 @@ class MixedDepthIntegrationTest(unittest.TestCase):
             result = execute(config_path, output)
             metrics = result["metrics"]
             self.assertTrue(metrics["mixed_depth_complete"])
+            self.assertEqual(metrics["planned_depths"], depth_count)
             self.assertFalse(metrics["test_evaluated"])
             self.assertEqual(metrics["loss_tail_size"], 128)
             self.assertTrue((output / "run-manifest.json").is_file())
@@ -181,21 +208,21 @@ class MixedDepthIntegrationTest(unittest.TestCase):
             for row in evaluated:
                 self.assertAlmostEqual(
                     row["validation_mean_ndcg_at_10"],
-                    sum(row[f"depth_{depth}_validation_ndcg_at_10"] for depth in range(4)) / 4,
+                    sum(row[f"depth_{depth}_validation_ndcg_at_10"] for depth in depths) / depth_count,
                 )
             self.assertAlmostEqual(
                 metrics["validation_mean_ndcg_at_10"],
-                sum(metrics[f"depth_{depth}_validation_ndcg_at_10"] for depth in range(4)) / 4,
+                sum(metrics[f"depth_{depth}_validation_ndcg_at_10"] for depth in depths) / depth_count,
             )
 
             predictions = pl.read_parquet(output / "predictions.parquet")
-            self.assertEqual(predictions.height, 4 * len(lengths))
+            self.assertEqual(predictions.height, depth_count * len(lengths))
             self.assertEqual(set(predictions["split"].to_list()), {"validation"})
-            self.assertEqual(set(predictions["model"].to_list()), {f"depth_{depth}" for depth in range(4)})
-            self.assertEqual(set(predictions["compression_depth"].to_list()), set(range(4)))
+            self.assertEqual(set(predictions["model"].to_list()), {f"depth_{depth}" for depth in depths})
+            self.assertEqual(set(predictions["compression_depth"].to_list()), set(depths))
             self.assertEqual(set(predictions["time_enabled"].to_list()), {False})
             for user_rows in predictions.partition_by("user_id"):
-                self.assertEqual(user_rows.height, 4)
+                self.assertEqual(user_rows.height, depth_count)
                 self.assertEqual(user_rows["context_hash"].n_unique(), 1)
                 self.assertEqual(user_rows["target"].n_unique(), 1)
 
@@ -204,8 +231,9 @@ class MixedDepthIntegrationTest(unittest.TestCase):
             representations = json.loads((output / "compression-representations.json").read_text())
             self.assertEqual(representations["checkpoint"], "best-model.pt")
             self.assertEqual(representations["sample_size"], len(lengths))
+            self.assertEqual(representations["depths"], list(depths))
             representation_rows = representations["rows"]
-            self.assertEqual(len(representation_rows), 4 * len(lengths))
+            self.assertEqual(len(representation_rows), depth_count * len(lengths))
             self.assertEqual(pl.read_parquet(output / "compression-representations.parquet").height,
                              len(representation_rows))
             for row in representation_rows:
@@ -216,6 +244,16 @@ class MixedDepthIntegrationTest(unittest.TestCase):
                 self.assertEqual(row["output_length"], min(row["window_length"], 128) + expected_old)
                 self.assertEqual(sum(row["source_counts"]), row["window_length"])
                 self.assertEqual(row["source_endpoints"][-1], row["window_length"] - 1)
+
+            reference = json.loads((output / "diagnostic-reference.json").read_text())
+            self.assertEqual(reference["trained_depths"], list(depths))
+            self.assertIn(f"depths0..{depth_count - 1}", reference["checkpoint_selection"])
+            features = json.loads((output / "history-features.json").read_text())
+            for row in features:
+                for depth in depths:
+                    expected = row["tail_length"] + (row["old_length"] + 2 ** depth - 1) // 2 ** depth
+                    self.assertEqual(row[f"output_length_depth_{depth}"], expected)
+            self.assertEqual(json.loads((output / "depth-results.json").read_text())["depths"], list(depths))
 
             saved = json.loads((output / "model-config.json").read_text())
             state = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
@@ -228,7 +266,7 @@ class MixedDepthIntegrationTest(unittest.TestCase):
             selected_targets_reference = selected_mask_reference = None
             short_states = None
             revision = result["manifest"]["git_sha"]
-            for depth in range(4):
+            for depth in depths:
                 with self.subTest(depth=depth):
                     run = output / "runs" / f"depth_{depth}"
                     per_depth = json.loads((run / "metrics.json").read_text())
