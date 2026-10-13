@@ -192,6 +192,7 @@ class LongQualityTest(unittest.TestCase):
             self.assertEqual(len(report['models']), 13)
             self.assertEqual(result['labels_per_model'], 40)
             self.assertEqual(len(list(Path(temp).glob('*-test-users.json'))), 13)
+            self.assertEqual(len(list(Path(temp).glob('*-validation-users.json'))), 13)
             self.assertFalse(list(Path(temp).rglob('*.pt')))
             for record in report['models'].values():
                 self.assertIn(record['best_epoch'], (1, 2))

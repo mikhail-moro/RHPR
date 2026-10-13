@@ -359,6 +359,7 @@ def run_long_quality(config: dict[str, Any], output_dir: Path) -> dict[str, int 
                         best = val["metrics"]["ndcg10"]
                         result["best_epoch"] = epoch
                         torch.save({k: v.detach().cpu() for k, v in model.state_dict().items()}, checkpoint)
+                        _json(output_dir / f"{name}-validation-users.json", val["per_user"])
                 result["passes"].append(row)
                 persist()
                 print(json.dumps({"phase": "quality_train", "model": name, **row}), flush=True)
