@@ -132,4 +132,10 @@ def run_experiment(
         from rhpr.sasrec.long_training_profile import run_long_training_profile
 
         return run_long_training_profile(config, output_dir)
+    if kind == "yambda_long_compression_quality":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_long_compression_quality")
+        from rhpr.sasrec.long_quality import run_long_quality
+
+        return run_long_quality(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")
