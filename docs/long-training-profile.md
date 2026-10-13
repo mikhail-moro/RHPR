@@ -70,3 +70,6 @@ No model checkpoint or raw event data is emitted as kernel output.
 Extrapolated seconds per pass use one new window per user and measured training
 windows per second; they exclude setup/evaluation and do not predict convergence
 or HPO quality.
+
+The first completed T4 measurements are recorded in
+[long-training-profile-results.md](long-training-profile-results.md).
