@@ -23,7 +23,20 @@ ARM_LABELS = (4, 8, 16)
 COMPRESSION_CONTRASTS = ("pair16_minus_pair4", "pair16_minus_pair8", "pair8_minus_pair4")
 
 
-def load_paired_scores(directory: Path) -> tuple[np.ndarray, np.ndarray, dict[str, np.ndarray]]:
+def _metric_cutoff(k: int) -> int:
+    if type(k) is not int or k < 1:
+        raise ValueError("metric cutoff must be a positive integer")
+    return k
+
+
+def load_paired_scores(directory: Path, *, k: int = 10) -> tuple[np.ndarray, np.ndarray, dict[str, np.ndarray]]:
+    """Load paired saved utilities without extrapolating censored target ranks.
+
+    Legacy records contain only top-10 ranks and remain valid at the default
+    cutoff. Larger cutoffs require an explicitly saved ranking horizon and
+    metrics at that cutoff; a top-10 miss cannot be treated as a top-100 miss.
+    """
+    k = _metric_cutoff(k)
     names = ["recent128"] + [f"{kind}_m{budget}" for kind in ("mean", "uniform", "pair_mlp", "qformer")
                               for budget in (16, 8, 4)]
     reference_ids, reference_known, scores = None, None, {}
@@ -36,16 +49,25 @@ def load_paired_scores(directory: Path) -> tuple[np.ndarray, np.ndarray, dict[st
         known = np.array([r["target_known"] for r in rows], dtype=np.bool_)
         if len(np.unique(ids)) != len(ids) or any(type(r["target_known"]) is not bool for r in rows):
             raise ValueError("duplicate user IDs or invalid target support flags")
-        values = np.array([r["ndcg10"] for r in rows], dtype=np.float64)
+        metric_name, hit_name = f"ndcg{k}", f"hr{k}"
+        if any(metric_name not in row or hit_name not in row for row in rows):
+            raise ValueError(f"saved {metric_name}/{hit_name} are required; censored ranks cannot be extrapolated")
+        values = np.array([r[metric_name] for r in rows], dtype=np.float64)
         if not np.isfinite(values).all():
             raise ValueError("nonfinite user utilities")
         for row in rows:
-            rank = row.get("rank")
-            if type(rank) is not int or not 0 <= rank <= 10:
-                raise ValueError("invalid top10 rank")
-            expected = 1 / math.log2(rank + 1) if rank else 0.
-            if (not math.isclose(row["ndcg10"], expected, abs_tol=1e-12)
-                    or row["hr10"] != float(rank > 0) or (not row["target_known"] and rank)):
+            if k == 10:
+                rank = row.get("rank")
+                if type(rank) is not int or not 0 <= rank <= 10:
+                    raise ValueError("invalid top10 rank")
+            else:
+                cutoff, rank = row.get("rank_cutoff"), row.get("rank_at_max_k")
+                if type(cutoff) is not int or cutoff < k or type(rank) is not int or not 0 <= rank <= cutoff:
+                    raise ValueError(f"NDCG@{k} requires rank_cutoff >= {k} and a valid rank_at_max_k")
+            included = 0 < rank <= k
+            expected = 1 / math.log2(rank + 1) if included else 0.
+            if (not math.isclose(row[metric_name], expected, abs_tol=1e-12)
+                    or row[hit_name] != float(included) or (not row["target_known"] and rank)):
                 raise ValueError("rank, support and metric records disagree")
         if reference_ids is None:
             reference_ids, reference_known = ids, known
@@ -205,7 +227,8 @@ def oracle_summary(utilities: np.ndarray) -> dict[str, Any]:
 
 
 def run_history_budget_analysis(run_directory: Path, feature_path: Path, output_directory: Path, *,
-                                seed: int = 42, permutations: int = 5000, bootstrap_draws: int = 2000) -> dict[str, Any]:
+                                seed: int = 42, permutations: int = 5000, bootstrap_draws: int = 2000,
+                                metric_k: int = 10) -> dict[str, Any]:
     import pyarrow.parquet as pq
     from rhpr.sasrec.history_features import HISTORY_FEATURE_FIELDS, CATALOGUE_FREQUENCY_FEATURE_FIELDS
     from rhpr.sasrec.compression_routing import (
@@ -213,7 +236,9 @@ def run_history_budget_analysis(run_directory: Path, feature_path: Path, output_
         crossfit_stump_router, matched_mixture_bootstrap, fit_interval_router,
     )
 
-    ids, warm, scores = load_paired_scores(run_directory)
+    metric_k = _metric_cutoff(metric_k)
+    metric_name = f"ndcg{metric_k}"
+    ids, warm, scores = load_paired_scores(run_directory, k=metric_k)
     rows = pq.read_table(feature_path).to_pylist()
     features_by_user = {int(row["user_id"]): row for row in rows}
     if len(features_by_user) != len(rows) or set(features_by_user) != set(ids.tolist()):
@@ -227,8 +252,21 @@ def run_history_budget_analysis(run_directory: Path, feature_path: Path, output_
     run = json.loads((Path(run_directory) / "long-quality.json").read_text())
     if not run["complete"] or any(m["test"]["anchor_count"] != len(ids) for m in run["models"].values()):
         raise ValueError("incomplete or mismatched source run")
-    validation_scores = {arm: max(row["validation"]["ndcg10"] for row in run["models"][f"pair_mlp_m{arm}"]["passes"]
-                                  if "validation" in row) for arm in ARM_LABELS}
+    validation_scores = {}
+    for arm in ARM_LABELS:
+        model_result = run["models"][f"pair_mlp_m{arm}"]
+        candidates = [row for row in model_result["passes"] if "validation" in row]
+        if not candidates:
+            raise ValueError("validation metrics are required for fixed-arm selection")
+        # Test rows come from the checkpoint selected by the original NDCG@10
+        # rule. An exploratory cutoff must not silently select another epoch.
+        selected_pass = max(candidates, key=lambda row: row["validation"]["ndcg10"])
+        if metric_k != 10 and metric_name not in selected_pass["validation"]:
+            raise ValueError(f"saved validation {metric_name} is required at the NDCG@10-selected checkpoint")
+        score = selected_pass["validation"][metric_name]
+        if not isinstance(score, (int, float)) or not math.isfinite(score) or not 0 <= score <= 1:
+            raise ValueError("invalid validation utility")
+        validation_scores[arm] = score
     reference_arm = int(np.argmax([validation_scores[arm] for arm in ARM_LABELS]))
     dev = user_hash_split(ids, seed=seed, train_fraction=.5)
     policy = fit_stump_router(x[dev], y[dev], CORE_FEATURES, min_leaf=200, arm_labels=ARM_LABELS)
@@ -263,6 +301,11 @@ def run_history_budget_analysis(run_directory: Path, feature_path: Path, output_
         held_scores, interval_selected, seed=seed + 7, draws=bootstrap_draws)
     report = {
         "analysis_kind": "exploratory_existing_test_users_not_new_confirmatory_test",
+        "metric_k": metric_k, "utility_metric": f"NDCG@{metric_k}",
+        "metric_cutoff_status": ("original_pilot_cutoff" if metric_k == 10
+                                 else "secondary_exploratory_cutoff_selected_after_inspecting_pilot_results"),
+        "checkpoint_selection_metric": "NDCG@10",
+        "fixed_arm_selection_metric": f"validation NDCG@{metric_k} at NDCG@10-selected checkpoints",
         "seed": seed, "source_code_sha": run["code_sha"], "users": len(ids), "warm_users": int(warm.sum()),
         "core_features_fixed_before_joining_outcomes": list(CORE_FEATURES),
         "feature_provenance": "past-only item identities and observed timestamps; no target features, no learned embedding features",

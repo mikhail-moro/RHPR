@@ -200,6 +200,8 @@ class LongQualityTest(unittest.TestCase):
                 self.assertEqual(record['test']['anchor_count'], 5)
                 self.assertEqual(record['test']['oov_target_count'], 1)
                 self.assertEqual(record['test']['num_items'], 11)
+                self.assertIn('ndcg100', record['test'])
+                self.assertEqual(record['test']['warm_hr100'], 1.)
                 self.assertEqual(record['trained_inference']['metadata']['retained_tail_tokens'], 8)
 
 

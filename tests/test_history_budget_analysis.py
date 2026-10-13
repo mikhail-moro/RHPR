@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 import sys
 import tempfile
@@ -59,6 +60,97 @@ class HistoryBudgetAnalysisTest(unittest.TestCase):
             (directory / 'pair_mlp_m4-test-users.json').write_text(json.dumps(records[:1]))
             with self.assertRaises(ValueError):
                 load_paired_scores(directory)
+
+    def test_larger_cutoff_requires_uncensored_saved_ranks_and_metrics(self):
+        from rhpr.sasrec.history_budget_analysis import load_paired_scores
+        names = ['recent128'] + [f'{kind}_m{budget}' for kind in ('mean', 'uniform', 'pair_mlp', 'qformer')
+                                for budget in (16, 8, 4)]
+        legacy = [dict(user_id=1, target_known=True, rank=0, hr10=0., ndcg10=0.)]
+        with tempfile.TemporaryDirectory() as temp:
+            directory = Path(temp)
+            for name in names:
+                (directory / f'{name}-test-users.json').write_text(json.dumps(legacy))
+            with self.assertRaisesRegex(ValueError, 'saved ndcg100/hr100'):
+                load_paired_scores(directory, k=100)
+            # A fabricated zero at the larger cutoff still cannot establish
+            # where a legacy top-10 miss actually ranked.
+            fabricated = [dict(legacy[0], hr100=0., ndcg100=0.)]
+            (directory / 'recent128-test-users.json').write_text(json.dumps(fabricated))
+            with self.assertRaisesRegex(ValueError, 'rank_cutoff >= 100'):
+                load_paired_scores(directory, k=100)
+
+    def test_top100_ranks_preserve_legacy_scores_and_exclude_rank101(self):
+        from rhpr.sasrec.history_budget_analysis import load_paired_scores
+        names = ['recent128'] + [f'{kind}_m{budget}' for kind in ('mean', 'uniform', 'pair_mlp', 'qformer')
+                                for budget in (16, 8, 4)]
+        records = [dict(user_id=uid, target_known=rank != 0, rank=0, hr10=0., ndcg10=0.,
+                        rank_cutoff=200, rank_at_max_k=rank, hr100=float(0 < rank <= 100),
+                        ndcg100=1 / math.log2(rank + 1) if 0 < rank <= 100 else 0.)
+                   for uid, rank in enumerate((11, 100, 101, 0), 1)]
+        with tempfile.TemporaryDirectory() as temp:
+            directory = Path(temp)
+            for name in names:
+                (directory / f'{name}-test-users.json').write_text(json.dumps(records))
+            _, _, old_scores = load_paired_scores(directory)
+            np.testing.assert_equal(old_scores['pair_mlp_m8'], np.zeros(4))
+            ids, known, scores = load_paired_scores(directory, k=100)
+            np.testing.assert_equal(ids, [1, 2, 3, 4])
+            np.testing.assert_equal(known, [True, True, True, False])
+            np.testing.assert_allclose(scores['pair_mlp_m8'], [1 / math.log2(12), 1 / math.log2(101), 0., 0.])
+            for field, value in [('rank_cutoff', 10), ('rank_at_max_k', 201),
+                                 ('ndcg100', 0.), ('target_known', False)]:
+                changed = [dict(row) for row in records]
+                changed[0][field] = value
+                (directory / 'recent128-test-users.json').write_text(json.dumps(changed))
+                with self.assertRaises(ValueError):
+                    load_paired_scores(directory, k=100)
+            (directory / 'recent128-test-users.json').write_text(json.dumps(records))
+            for cutoff in (0, -1, True, 100.):
+                with self.assertRaisesRegex(ValueError, 'positive integer'):
+                    load_paired_scores(directory, k=cutoff)
+
+    def test_analysis_routes_using_selected_cutoff_at_original_checkpoint(self):
+        try:
+            import pyarrow as pa
+            import pyarrow.parquet as pq
+        except ImportError:
+            self.skipTest('pyarrow required')
+        from rhpr.sasrec.history_budget_analysis import run_history_budget_analysis
+        from rhpr.sasrec.history_features import HISTORY_FEATURE_FIELDS, CATALOGUE_FREQUENCY_FEATURE_FIELDS
+        names = ['recent128'] + [f'{kind}_m{budget}' for kind in ('mean', 'uniform', 'pair_mlp', 'qformer')
+                                for budget in (16, 8, 4)]
+        records = [dict(user_id=uid, target_known=True, rank=0, hr10=0., ndcg10=0.,
+                        rank_cutoff=100, rank_at_max_k=11, hr100=1., ndcg100=1 / math.log2(12))
+                   for uid in range(30)]
+        with tempfile.TemporaryDirectory() as temp:
+            directory = Path(temp)
+            run = dict(complete=True, code_sha='test-source', models={})
+            for name in names:
+                (directory / f'{name}-test-users.json').write_text(json.dumps(records))
+                run['models'][name] = dict(test=dict(anchor_count=len(records)), best_epoch=2, passes=[
+                    dict(epoch=1, validation=dict(ndcg10=.1, ndcg100=.99)),
+                    dict(epoch=2, validation=dict(ndcg10=.2, ndcg100=.3 if name == 'pair_mlp_m8' else .2))])
+            (directory / 'long-quality.json').write_text(json.dumps(run))
+            feature_path = directory / 'features.parquet'
+            pq.write_table(pa.Table.from_pylist([
+                dict(user_id=row['user_id'], **{field: float(row['user_id'])
+                     for field in HISTORY_FEATURE_FIELDS + CATALOGUE_FREQUENCY_FEATURE_FIELDS})
+                for row in records]), feature_path)
+            report = run_history_budget_analysis(directory, feature_path, directory / 'analysis',
+                                                metric_k=100, permutations=2, bootstrap_draws=2)
+            self.assertEqual(report['metric_k'], 100)
+            self.assertEqual(report['utility_metric'], 'NDCG@100')
+            self.assertIn('secondary_exploratory', report['metric_cutoff_status'])
+            self.assertEqual(report['checkpoint_selection_metric'], 'NDCG@10')
+            self.assertEqual(report['heldout_router']['reference_summary_tokens'], 8)
+            self.assertAlmostEqual(report['oracle']['best_fixed_ndcg'], 1 / math.log2(12))
+            # Saved test utilities alone do not substitute for validation at
+            # the checkpoint whose weights produced those utilities.
+            del run['models']['pair_mlp_m8']['passes'][1]['validation']['ndcg100']
+            (directory / 'long-quality.json').write_text(json.dumps(run))
+            with self.assertRaisesRegex(ValueError, 'NDCG@10-selected checkpoint'):
+                run_history_budget_analysis(directory, feature_path, directory / 'analysis-missing',
+                                            metric_k=100, permutations=2, bootstrap_draws=2)
 
     def test_oracle_does_not_assign_tied_zero_users_a_required_budget(self):
         from rhpr.sasrec.history_budget_analysis import oracle_summary

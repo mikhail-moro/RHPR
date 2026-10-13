@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 
@@ -26,13 +27,13 @@ class LongQualityBenchmarkTest(unittest.TestCase):
     def tearDown(self):
         torch.set_num_threads(self.threads)
 
-    def ranking_model(self):
+    def ranking_model(self, num_items=11):
         class RankingModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
-                self.num_items, self.max_seq_len = 11, 8
-                self.item_embedding = torch.nn.Embedding(12, 1, padding_idx=0)
-                self.item_embedding.weight.data[:, 0] = torch.arange(12)
+                self.num_items, self.max_seq_len = num_items, 8
+                self.item_embedding = torch.nn.Embedding(num_items + 1, 1, padding_idx=0)
+                self.item_embedding.weight.data[:, 0] = torch.arange(num_items + 1)
                 self.masks = []
 
             def last_state(self, ids, mask):
@@ -60,6 +61,34 @@ class LongQualityBenchmarkTest(unittest.TestCase):
         self.assertEqual([record["rank"] for record in result["per_user"]], [1, 2, 0])
         self.assertNotIn("target", result["per_user"][0])
         json.dumps(result, allow_nan=False)
+
+    def test_top100_reuses_catalogue_scoring_and_preserves_top10_with_boundary_ranks(self):
+        from rhpr.sasrec.long_quality_benchmark import evaluate_long_quality
+        from rhpr.sasrec.benchmark import score_catalogue
+        model = self.ranking_model(num_items=200)
+        examples = [SimpleNamespace(user_id=i, context=np.asarray([1]), target=target)
+                    for i, target in enumerate((200, 190, 101, 100, 0))]
+        with patch('rhpr.sasrec.long_quality_benchmark.score_catalogue', wraps=score_catalogue) as scoring:
+            result = evaluate_long_quality(model, examples, device=torch.device('cpu'), batch_size=5,
+                                           additional_cutoffs=(100,), item_chunk_size=31)
+        self.assertEqual(scoring.call_count, 1)
+        self.assertEqual(scoring.call_args.kwargs['k'], 100)
+        rows = result['per_user']
+        self.assertEqual([r['rank_at_max_k'] for r in rows], [1, 11, 100, 0, 0])
+        self.assertEqual([r['rank'] for r in rows], [1, 0, 0, 0, 0])
+        self.assertTrue(all(r['rank_cutoff'] == 100 for r in rows))
+        self.assertEqual(result['metadata']['cutoffs'], [10, 100])
+        self.assertEqual(result['metrics']['hr10'], .2)
+        self.assertEqual(result['metrics']['hr100'], .6)
+        self.assertEqual(result['metrics']['warm_hr100'], .75)
+        self.assertAlmostEqual(rows[1]['ndcg100'], 1 / math.log2(12))
+        self.assertAlmostEqual(rows[2]['ndcg100'], 1 / math.log2(101))
+        self.assertEqual(rows[3]['ndcg100'], 0)
+        legacy = evaluate_long_quality(model, examples, device=torch.device('cpu'), batch_size=5,
+                                       item_chunk_size=31)
+        self.assertEqual([r['ndcg10'] for r in rows], [r['ndcg10'] for r in legacy['per_user']])
+        with self.assertRaises(ValueError):
+            evaluate_long_quality(model, examples, device=torch.device('cpu'), additional_cutoffs=(True,))
 
     def test_invalid_duplicate_anchor_and_empty_iterator_are_rejected(self):
         from rhpr.sasrec.long_quality_benchmark import evaluate_long_quality
