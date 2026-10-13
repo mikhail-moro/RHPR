@@ -1,0 +1,31 @@
+{
+  "name": "yambda500m-hstu-long-compression-quality",
+  "kind": "yambda_long_compression_quality",
+  "seed": 42,
+  "summary_budgets": [16, 8, 4],
+  "group_arity": 4,
+  "data": {
+    "prepared_path": "/kaggle/input/datasets/carasik/rhpr-yambda500m-train16k-profile",
+    "evaluation_path": "/kaggle/input/datasets/carasik/rhpr-yambda500m-long-evaluation",
+    "train_end_timestamp": 24710400,
+    "evaluation_content_sha256": "ef6c6ca2e48b3980295b7f678ee74b80b42fc31327084857411f2b39d7f4a0b1",
+    "cohort_uid_length_sha256": "389eb71cc019879a91bf6a9ee9fcff7fc86ae77fdd5137544a380ffaf71c0446",
+    "catalog_sha256": "527dd7772d84afcaf32a1886726b34884d129adb72d5702d2847a466840f8cf7",
+    "cohort_mapped_train_items_sha256": "e84f8431274a185b4d1e8ff0f39427edf6f1c78a86fa92c2de375794ce3cff45",
+    "source_revision": "dd6f3a19eef5866e346c3270e098baa641a44948"
+  },
+  "model": {"d_model": 128, "n_layers": 2, "n_heads": 4, "ffn_multiplier": 4, "dropout": 0.2, "use_time_features": false},
+  "training": {
+    "device": "cuda", "amp": true, "cpu_threads": 2,
+    "raw_context_length": 16384, "raw_tail_size": 128, "supervised_targets": 32,
+    "effective_batch_size": 128, "physical_batch_sizes": [8, 16, 32], "num_negatives": 512,
+    "learning_rate": 0.001, "weight_decay": 0.00001, "grad_clip_norm": 1.0,
+    "initial_loss_scale": 1024.0, "min_passes": 5, "max_passes": 20, "validation_interval": 5,
+    "budget_seconds": 14400, "budget_safety_factor": 1.25
+  },
+  "benchmark": {"batch_sizes": [1, 8, 32], "evaluation_batch_size": 32, "warmup": 3, "iterations": 8, "item_chunk_size": 65536},
+  "kaggle": {
+    "dataset_sources": ["carasik/rhpr-yambda500m-train16k-profile", "carasik/rhpr-yambda500m-long-evaluation"],
+    "competition_sources": [], "kernel_sources": [], "model_sources": []
+  }
+}

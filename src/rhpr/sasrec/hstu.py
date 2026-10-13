@@ -83,7 +83,13 @@ class HSTUEncoder(nn.Module):
 
 
 class HSTUModel(nn.Module):
-    """Expose our next-item model API using official HSTU transduction blocks."""
+    """Expose our next-item model API using official HSTU transduction blocks.
+
+    max_seq_len limits raw history and indexes raw-recency position embeddings.
+    normalization_length independently fixes the attention divisor and relative
+    bias table for experiments that compress that raw history before attention.
+    Omitting it retains the original raw-width normalization exactly.
+    """
 
     def __init__(self, *, num_items: int, max_seq_len: int, d_model: int,
                  n_heads: int, n_layers: int, ffn_multiplier: int, dropout: float,
@@ -91,7 +97,9 @@ class HSTUModel(nn.Module):
                  tail_size: int = 128, use_time_features: bool = False,
                  num_gap_buckets: int = 33, layer_norm_eps: float = 1e-9,
                  initializer_range: float = 0.02, hstu_linear_dim: int | None = None,
-                 hstu_attention_dim: int | None = None) -> None:
+                 hstu_attention_dim: int | None = None,
+                 custom_sequence_compressor: nn.Module | None = None,
+                 normalization_length: int | None = None) -> None:
         super().__init__()
         if min(num_items, max_seq_len, d_model, n_heads, n_layers, ffn_multiplier, tail_size) < 1:
             raise ValueError("model dimensions and tail_size must be positive")
@@ -99,6 +107,10 @@ class HSTUModel(nn.Module):
             raise ValueError("d_model must be divisible by n_heads")
         if compressor_type not in {"identity", "tail_only"}:
             raise ValueError("HSTU supports only identity and tail_only inputs in this experiment")
+        if custom_sequence_compressor is not None and compressor_type != "identity":
+            raise ValueError("choose a custom_sequence_compressor or compressor_type, not both")
+        if custom_sequence_compressor is not None and not isinstance(custom_sequence_compressor, nn.Module):
+            raise ValueError("custom_sequence_compressor must be a torch nn.Module")
         if use_time_features:
             raise ValueError("HSTU comparison requires Time OFF")
         if num_gap_buckets < 2 or not 0 <= dropout < 1:
@@ -108,12 +120,16 @@ class HSTUModel(nn.Module):
         if any(isinstance(value, bool) or not isinstance(value, int) or value < 1
                for value in (linear_dim, attention_dim)):
             raise ValueError("HSTU per-head linear and attention dimensions must be positive integers")
+        selected_normalization = max_seq_len if normalization_length is None else normalization_length
+        if (isinstance(selected_normalization, bool) or not isinstance(selected_normalization, int)
+                or selected_normalization < 1):
+            raise ValueError("normalization_length must be a positive integer")
         self.architecture = "hstu"
         self.attention_implementation = HSTU_IMPLEMENTATION
         self.upstream_revision = HSTU_UPSTREAM_REVISION
         self.num_items, self.max_seq_len, self.d_model = int(num_items), int(max_seq_len), int(d_model)
         self.n_heads, self.n_layers, self.ffn_multiplier = int(n_heads), int(n_layers), int(ffn_multiplier)
-        self.compressor_type = compressor_type
+        self.compressor_type = "custom" if custom_sequence_compressor is not None else compressor_type
         self.compression_depth = RecursivePairMLPSequenceCompressor.validate_depth(compression_depth)
         self.tail_size = int(tail_size)
         self.use_time_features = False
@@ -121,13 +137,21 @@ class HSTUModel(nn.Module):
         self.gap_embedding = None
         self.hstu_linear_dim = self.hstu_dv = linear_dim
         self.hstu_attention_dim = self.hstu_dqk = attention_dim
-        self.hstu_normalization_length = self.max_seq_len
-        self.hstu_context_len = min(self.max_seq_len, tail_size) if compressor_type == "tail_only" else self.max_seq_len
+        self.hstu_normalization_length = selected_normalization
+        if custom_sequence_compressor is not None:
+            self.hstu_context_len = min(
+                self.max_seq_len,
+                int(getattr(custom_sequence_compressor, "tail_size", tail_size))
+                + int(getattr(custom_sequence_compressor, "summary_tokens", 0)),
+            )
+        else:
+            self.hstu_context_len = min(self.max_seq_len, tail_size) if compressor_type == "tail_only" else self.max_seq_len
         self.item_embedding = nn.Embedding(num_items + 1, d_model, padding_idx=0)
         self.position_embedding = nn.Embedding(max_seq_len, d_model)
         self.input_norm = nn.LayerNorm(d_model, eps=layer_norm_eps)
         self.input_dropout = nn.Dropout(dropout)
-        self.compressor = (TailOnlySequenceCompressor(tail_size)
+        self.compressor = (custom_sequence_compressor if custom_sequence_compressor is not None
+                           else TailOnlySequenceCompressor(tail_size)
                            if compressor_type == "tail_only" else IdentitySequenceCompressor())
         # Both input budgets instantiate the same tables and official block shapes,
         # so a matching seed produces identical parameter state and sampling RNG.
@@ -139,7 +163,7 @@ class HSTUModel(nn.Module):
         self.encoder = HSTUEncoder(
             d_model=d_model, n_layers=n_layers, n_heads=n_heads,
             linear_dim=linear_dim, attention_dim=attention_dim, dropout=dropout,
-            normalization_length=max_seq_len,
+            normalization_length=selected_normalization,
         )
 
     def encode(self, item_ids: torch.Tensor, valid_mask: torch.Tensor,
@@ -157,6 +181,8 @@ class HSTUModel(nn.Module):
         if not torch.equal(valid_mask, torch.arange(item_ids.shape[1], device=item_ids.device)[None, :] < lengths[:, None]):
             raise ValueError("HSTU requires contiguous histories with right padding")
         embeddings, output_mask, sources = self.compressor(self.item_embedding(item_ids), valid_mask)
+        if embeddings.shape[1] > self.hstu_normalization_length:
+            raise ValueError("compressed sequence exceeds normalization_length")
         positions = (lengths[:, None] - 1 - sources).clamp(min=0, max=self.max_seq_len - 1)
         positions = positions.masked_fill(~output_mask, 0)
         embeddings = self.input_dropout(self.input_norm(embeddings + self.position_embedding(positions)))
