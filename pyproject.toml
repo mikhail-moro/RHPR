@@ -12,6 +12,7 @@ dependencies = []
 [project.optional-dependencies]
 sasrec = ["numpy>=1.26", "polars>=1.0", "torch>=2.2"]
 search = ["optuna>=4.0,<5"]
+long-history = ["numpy>=1.26", "polars>=1.0", "pyarrow>=18", "einops>=0.8.1", "torch>=2.2"]
 
 [tool.setuptools]
 package-dir = {"" = "src"}

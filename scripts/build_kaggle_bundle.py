@@ -35,6 +35,7 @@ def _render_runner(config_text: str, git_sha: str) -> str:
     return f'''from __future__ import annotations
 
 import base64
+import json
 import os
 import sys
 from pathlib import Path
@@ -52,6 +53,9 @@ PACKAGE_ARCHIVE.write_bytes(base64.b64decode(EMBEDDED_PACKAGE))
 CONFIG_PATH.write_text(EXPERIMENT_CONFIG, encoding="utf-8")
 os.environ["GITHUB_SHA"] = GIT_SHA
 sys.path.insert(0, str(PACKAGE_ARCHIVE))
+
+from rhpr.offline_runtime import install_offline_runtime
+install_offline_runtime(json.loads(EXPERIMENT_CONFIG).get("runtime"), WORKING)
 
 from rhpr.runner import execute  # noqa: E402
 

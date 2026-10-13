@@ -126,4 +126,10 @@ def run_experiment(
         from rhpr.sasrec.catalog_profile import run_catalog_profile
 
         return run_catalog_profile(config, output_dir)
+    if kind == "yambda_long_training_profile":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_long_training_profile")
+        from rhpr.sasrec.long_training_profile import run_long_training_profile
+
+        return run_long_training_profile(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")

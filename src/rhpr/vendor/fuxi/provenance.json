@@ -1,0 +1,68 @@
+{
+  "upstream_repository": "https://github.com/USTC-StarTeam/fuxi-linear",
+  "upstream_revision": "5a704061a7ebf0b81afb465f12f93f2747ba4667",
+  "license": "Apache-2.0",
+  "copyright": "USTC-StarTeam; includes original Meta attribution in NOTICE",
+  "implementation": "official_native_pytorch_chunkwise_with_scoped_packing",
+  "local_changes": [
+    "exclude full framework wrapper and unused imports",
+    "redirect FBGEMM jagged packing to existing one-axis PyTorch shim",
+    "crop positional-channel table to runtime padded prefix (same first-N positions)",
+    "no global sequence-square mask on chunkwise path",
+    "custom state scan saves unrounded states in promoted input dtype (at least FP32) and returns original KV dtype",
+    "custom backward explicitly uses saved accumulator dtype outside forward autocast, preserves input gradient dtypes and keeps broadcast reduction axes"
+  ],
+  "wrapper_adaptations": [
+    "shared catalog embedding and next-item model API",
+    "Time OFF keeps all three official channels, supplies zero timestamp shape carrier; no future timestamp information",
+    "round runtime width up to chunk_size; no padding states are trained or scored",
+    "caller AMP; native Python chunk scan with local promoted-state/mixed-precision backward correction"
+  ],
+  "source_files": {
+    "LICENSE": {
+      "fixture": "LICENSE",
+      "git_blob": "2f52cc45ce355852c9a303bbe965415c7ff74745",
+      "sha256": "5f8963ab6b84a822649c75e2dd4801a4ae1537870ae6ad796df9c63496f52cf5"
+    },
+    "NOTICE": {
+      "fixture": "NOTICE.txt",
+      "git_blob": "12d109f5814aef4d4526f8fa8c9b69f27b7d4ed5",
+      "sha256": "e7e4fc6fd2f01fcb69949873b10b20d4e2ddc87dd19970912b5a6da08dd7a46d"
+    },
+    "configs/kuairand-27k/linear-4b-l1024-b64x2.gin": {
+      "fixture": "upstream_kuairand_config.gin.txt",
+      "git_blob": "5c95ffd19d65da66693c95f519ecc061c7f63246",
+      "sha256": "52f9e10a7499a45ae89b4f1c9604a2a5c0d1bacbea978dca2392a6d2ba55187a"
+    },
+    "generative_recommenders/modeling/sequential/fuxi_linear.py": {
+      "fixture": "upstream_fuxi_linear.py.txt",
+      "git_blob": "5e2455ca24a2d3b40ac68118835eb9c62a3dad8c",
+      "sha256": "191b03705a07d89735cb12ecc4dc3c0c7ee2f014102174a2a295d1903da6671a"
+    },
+    "generative_recommenders/modeling/sequential/fuxi_modules/__init__.py": {
+      "fixture": "upstream_modules_init.py.txt",
+      "git_blob": "03126af007324cd060c663495e38628d0ec30be3",
+      "sha256": "e2c06a5ea3dd99e6b8bfb18e392b89fa316140ce128347a5e2c0205c31db5d12"
+    },
+    "generative_recommenders/modeling/sequential/fuxi_modules/attn.py": {
+      "fixture": "upstream_attn.py.txt",
+      "git_blob": "d5d250a848b841d0008f3276e03b8bb0ed5cedd7",
+      "sha256": "bcd20ce72284b5584c71a0738d024ada0463fb868109677a6d7cc52f989bcd39"
+    },
+    "generative_recommenders/modeling/sequential/fuxi_modules/linear_attn.py": {
+      "fixture": "upstream_linear_attn.py.txt",
+      "git_blob": "4e0635ea93d1324ac6a1ac2249312e2faad06c4d",
+      "sha256": "1731bcb1f44fd98f762e75aae2e6fe7826627f3ebe709f838ff2feb0d1e138c6"
+    },
+    "generative_recommenders/modeling/sequential/fuxi_modules/linear_attn_fn.py": {
+      "fixture": "upstream_linear_attn_fn.py.txt",
+      "git_blob": "5072526467bb18f1a503538369e1ec96595486f4",
+      "sha256": "09b0e4e044e70485b4dfaf7452b9a7b0179bcbaba0ebc589172bbd2afad54aaf"
+    },
+    "generative_recommenders/modeling/sequential/fuxi_modules/rab.py": {
+      "fixture": "upstream_rab.py.txt",
+      "git_blob": "7c939977993bc430e223ad462a0942be3e3b2509",
+      "sha256": "7dd1eb103327f9fe18f1d8003325165c70952d21e2210e3fbf503e997bbb68fd"
+    }
+  }
+}

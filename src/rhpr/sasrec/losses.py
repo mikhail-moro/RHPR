@@ -98,6 +98,7 @@ def sampled_softmax_next_item_loss(
     targets: torch.Tensor,
     num_negatives: int,
     negative_generator: torch.Generator | None = None,
+    negative_ids: torch.Tensor | None = None,
 ) -> torch.Tensor:
     """Sampled CE with one catalogue-uniform negative set shared within each sequence."""
 
@@ -105,9 +106,14 @@ def sampled_softmax_next_item_loss(
         raise ValueError("num_negatives must be positive")
     states, aligned, loss_mask = supervised_state_tensors(encoded, valid_mask, source_positions, targets)
     batch_size = encoded.shape[0]
-    negative_ids = torch.randint(
-        1, model.num_items + 1, (batch_size, num_negatives), device=encoded.device, generator=negative_generator
-    )
+    if negative_ids is None:
+        negative_ids = torch.randint(
+            1, model.num_items + 1, (batch_size, num_negatives), device=encoded.device, generator=negative_generator
+        )
+    elif (negative_ids.shape != (batch_size, num_negatives)
+          or negative_ids.dtype != torch.long or negative_ids.device != encoded.device
+          or torch.any(negative_ids < 1) or torch.any(negative_ids > model.num_items)):
+        raise ValueError("fixed negatives must be catalogue IDs with [batch,num_negatives] shape on the state device")
     positive_scores = (states * model.item_embedding(aligned)).sum(dim=-1, keepdim=True)
     negative_embeddings = model.item_embedding(negative_ids)
     negative_scores = torch.einsum("bld,bkd->blk", states, negative_embeddings)
@@ -131,12 +137,15 @@ def next_item_loss(
     loss_tail_size: int | None = None,
     original_lengths: torch.Tensor | None = None,
     negative_generator: torch.Generator | None = None,
+    negative_ids: torch.Tensor | None = None,
 ) -> torch.Tensor:
     loss_mask = build_loss_mask(valid_mask, source_positions, original_lengths, loss_tail_size)
     if name == "bce":
+        if negative_ids is not None:
+            raise ValueError("fixed negative sets are supported only for sampled_softmax")
         return bce_next_item_loss(model, encoded, loss_mask, source_positions, targets, negative_generator)
     if name == "sampled_softmax":
         return sampled_softmax_next_item_loss(
-            model, encoded, loss_mask, source_positions, targets, num_negatives, negative_generator
+            model, encoded, loss_mask, source_positions, targets, num_negatives, negative_generator, negative_ids
         )
     raise ValueError(f"unsupported loss: {name}")
