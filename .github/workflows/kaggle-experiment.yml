@@ -31,6 +31,11 @@ on:
         required: true
         default: "360"
         type: string
+      output_file_pattern:
+        description: Optional output filename regex; other files remain on private Kaggle
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: read
@@ -82,12 +87,15 @@ jobs:
           --output build/kaggle
 
       - name: Submit, wait, and download outputs
+        env:
+          OUTPUT_FILE_PATTERN: ${{ inputs.output_file_pattern }}
         run: >-
           python3 scripts/kaggle_job.py
           --bundle build/kaggle
           --kernel-id "$KAGGLE_KERNEL_ID"
           --output artifacts/kaggle
           --timeout-minutes "${{ inputs.timeout_minutes }}"
+          --output-file-pattern "$OUTPUT_FILE_PATTERN"
 
       - name: Write job summary
         if: always()

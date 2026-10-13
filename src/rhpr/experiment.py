@@ -138,4 +138,10 @@ def run_experiment(
         from rhpr.sasrec.long_quality import run_long_quality
 
         return run_long_quality(config, output_dir)
+    if kind == "yambda_hstu_mixed_budget_daily":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_hstu_mixed_budget_daily")
+        from rhpr.sasrec.long_mixed_quality import run_mixed_daily_quality
+
+        return run_mixed_daily_quality(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")

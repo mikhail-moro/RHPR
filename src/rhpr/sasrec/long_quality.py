@@ -144,7 +144,8 @@ def _scaler(device: torch.device, train: dict[str, Any]) -> Any:
 
 def train_quality_pass(model: torch.nn.Module, cohort: Any, windows: tuple[Any, ...], *,
                        config: dict[str, Any], variant: dict[str, Any], physical_batch: int,
-                       device: torch.device, optimizer: torch.optim.Optimizer, scaler: Any) -> dict[str, Any]:
+                       device: torch.device, optimizer: torch.optim.Optimizer, scaler: Any,
+                       budget_sequence: tuple[int, ...] | None = None) -> dict[str, Any]:
     from rhpr.sasrec.long_quality_schedule import quality_batch_arrays
 
     train = config["training"]
@@ -152,8 +153,19 @@ def train_quality_pass(model: torch.nn.Module, cohort: Any, windows: tuple[Any, 
     model.train()
     started, total_loss, successful, skipped = time.perf_counter(), 0.0, 0, 0
     effective = train["effective_batch_size"]
+    budget_counts: dict[str, dict[str, int]] = {}
+    if budget_sequence is not None:
+        from rhpr.sasrec.mixed_budget import select_summary_budget
+        if len(budget_sequence) != math.ceil(len(windows) / effective):
+            raise ValueError("one Mixed budget is required per effective update")
+        choices = model.compressor.mixed_budget_choices
+        if any(type(b) is not int or b not in choices for b in budget_sequence):
+            raise ValueError("Mixed schedule contains an undeclared budget")
     for first in range(0, len(windows), effective):
         group = windows[first:first + effective]
+        if budget_sequence is not None:
+            budget = budget_sequence[first // effective]
+            select_summary_budget(model, budget)
         cpu_rng = torch.get_rng_state()
         cuda_rng = torch.cuda.get_rng_state(device) if device.type == "cuda" else None
         for attempt in range(5):
@@ -188,6 +200,11 @@ def train_quality_pass(model: torch.nn.Module, cohort: Any, windows: tuple[Any, 
                 scaler.update()
                 successful += 1
                 total_loss += group_loss * len(group)
+                if budget_sequence is not None:
+                    counts = budget_counts.setdefault(str(budget), {"updates": 0, "windows": 0, "labels": 0})
+                    counts["updates"] += 1
+                    counts["windows"] += len(group)
+                    counts["labels"] += len(group) * train["supervised_targets"]
                 break
             skipped += 1
             if not scaler.is_enabled() or attempt == 4:
@@ -197,10 +214,13 @@ def train_quality_pass(model: torch.nn.Module, cohort: Any, windows: tuple[Any, 
             scaler.update(new_scale=float(scaler.get_scale()) / 2)
         optimizer.zero_grad(set_to_none=True)
     _sync(device)
-    return {"loss": total_loss / len(windows), "windows": len(windows),
+    result = {"loss": total_loss / len(windows), "windows": len(windows),
             "labels": len(windows) * train["supervised_targets"], "successful_updates": successful,
             "amp_skipped_update_attempts": skipped, "seconds": time.perf_counter() - started,
             "loss_scale": float(scaler.get_scale())}
+    if budget_sequence is not None:
+        result["budget_exposures"] = budget_counts
+    return result
 
 
 def _preflight_variant(config: dict[str, Any], variant: dict[str, Any], cohort: Any,
