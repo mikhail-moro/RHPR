@@ -96,6 +96,82 @@ class FuXiModelTest(unittest.TestCase):
                                n_heads=4, n_layers=n_layers, ffn_multiplier=2,
                                dropout=0.0, chunk_size=4)
 
+    def test_chunkwise_scan_mixed_precision_gradients_match_autograd_recurrence(self):
+        from rhpr.vendor.fuxi.linear_attn_fn import eval_chunkwise_hidden_state_fn
+
+        # Four chunks exercise the recurrence after FP32 decay promotes the
+        # reverse accumulator; two chunks would miss the original dtype error.
+        for kv_dtype, decay_dtype in ((torch.float16, torch.float32),
+                                      (torch.bfloat16, torch.float32),
+                                      (torch.float32, torch.float32),
+                                      (torch.float64, torch.float64),
+                                      (torch.float32, torch.float64)):
+            for decay_shape in ((4, 2, 3), (4, 1, 3), (4, 2, 1), (4, 1, 1)):
+                with self.subTest(kv_dtype=kv_dtype, decay_dtype=decay_dtype,
+                                  decay_shape=decay_shape):
+                    torch.manual_seed(93)
+                    kv = (torch.randn(4, 2, 3, 2, 3, dtype=kv_dtype) * 0.1).requires_grad_()
+                    decay = (torch.rand(decay_shape, dtype=decay_dtype) * 0.3 + 0.5).requires_grad_()
+                    reference_kv = kv.detach().clone().requires_grad_()
+                    reference_decay = decay.detach().clone().requires_grad_()
+                    accumulator_dtype = torch.promote_types(kv_dtype, decay_dtype)
+                    state = torch.zeros_like(reference_kv[0], dtype=accumulator_dtype)
+                    reference_states = [state]
+                    for index in range(3):
+                        state = (reference_kv[index].to(accumulator_dtype)
+                                 + state * reference_decay[index].to(accumulator_dtype)[..., None, None])
+                        reference_states.append(state)
+                    expected = torch.stack(reference_states).to(kv_dtype)
+                    actual = eval_chunkwise_hidden_state_fn(kv, decay)
+                    self.assertEqual(actual.dtype, kv_dtype)
+                    tolerance = {torch.float16: 2e-3, torch.bfloat16: 2e-2,
+                                 torch.float32: 1e-6, torch.float64: 1e-12}[kv_dtype]
+                    torch.testing.assert_close(actual, expected, rtol=tolerance, atol=tolerance * 0.01)
+                    # Different weights at each output check every dependency,
+                    # including zero gradients for the unused final KV/decay.
+                    objective = torch.linspace(-0.7, 0.9, actual.numel()).reshape_as(actual)
+                    (actual.float() * objective).sum().backward()
+                    (expected.float() * objective).sum().backward()
+                    self.assertEqual(kv.grad.dtype, kv_dtype)
+                    self.assertEqual(decay.grad.dtype, decay_dtype)
+                    self.assertTrue(bool(torch.isfinite(kv.grad).all()))
+                    self.assertTrue(bool(torch.isfinite(decay.grad).all()))
+                    torch.testing.assert_close(kv.grad, reference_kv.grad,
+                                               rtol=tolerance, atol=tolerance * 0.01)
+                    torch.testing.assert_close(decay.grad, reference_decay.grad,
+                                               rtol=1e-6, atol=1e-7)
+                    self.assertEqual(int(kv.grad[-1].count_nonzero()), 0)
+                    self.assertEqual(int(decay.grad[-1].count_nonzero()), 0)
+
+    def test_chunkwise_scan_double_gradcheck_with_broadcast_decay(self):
+        from rhpr.vendor.fuxi.linear_attn_fn import eval_chunkwise_hidden_state_fn
+        torch.manual_seed(94)
+        kv = torch.randn(4, 2, 3, 2, 2, dtype=torch.float64, requires_grad=True)
+        decay = torch.full((4, 2, 1), 0.5, dtype=torch.float64, requires_grad=True)
+        self.assertTrue(torch.autograd.gradcheck(eval_chunkwise_hidden_state_fn,
+                                                (kv, decay), eps=1e-6,
+                                                atol=1e-5, rtol=1e-3))
+
+    def test_amp_forward_and_backward_outside_autocast_have_finite_gradients(self):
+        items = torch.arange(1, 17)[None, :].expand(2, -1).clone()
+        mask = torch.ones_like(items, dtype=torch.bool)
+        for dtype in (torch.float16, torch.bfloat16):
+            with self.subTest(dtype=dtype):
+                torch.manual_seed(95)
+                model = self.model()
+                with torch.autocast(device_type="cpu", dtype=dtype):
+                    states, _, _ = model.encode(items, mask)
+                    loss = states[:, -4:].float().square().mean()
+                # Match normal AMP training: forward is autocast; backward runs
+                # outside it. This covers semantic, temporal and position scans.
+                loss.backward()
+                self.assertTrue(bool(torch.isfinite(loss)))
+                self.assertTrue(bool(torch.isfinite(states).all()))
+                self.assertIsNotNone(model.item_embedding.weight.grad)
+                for name, parameter in model.named_parameters():
+                    if parameter.grad is not None:
+                        self.assertTrue(bool(torch.isfinite(parameter.grad).all()), name)
+
     def test_pinned_official_block_forward_backward_parity_without_global_mask(self):
         from rhpr.vendor.fuxi.native import FuXiLinearBlockJagged
         official_class = _official_block_class()

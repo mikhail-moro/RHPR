@@ -32,17 +32,24 @@ class ChunkwiseHiddenStateFunction(Function):
             hidden_states: [num_chunks, B, h, d_attn, d_v] 隐藏状态序列
         """
         num_chunks, B, h, d_attn, d_v = inchunk_kv.shape
+
+        # RHPR: AMP KV products can be FP16/BF16 while learned decay remains
+        # FP32. Accumulate and save states in the promoted dtype so backward
+        # uses the unrounded recurrence, independently of its autocast context.
+        state_dtype = torch.promote_types(inchunk_kv.dtype, chunkwise_decay.dtype)
+        if state_dtype in (torch.float16, torch.bfloat16):
+            state_dtype = torch.float32
         
         # 初始化隐藏状态
         current_hidden_state = torch.zeros(
             B, h, d_attn, d_v, 
-            dtype=inchunk_kv.dtype, 
+            dtype=state_dtype,
             device=inchunk_kv.device
         )
         
         hidden_states = torch.zeros(
             num_chunks, B, h, d_attn, d_v,
-            dtype=inchunk_kv.dtype, 
+            dtype=state_dtype,
             device=inchunk_kv.device
         )
         
@@ -65,7 +72,7 @@ class ChunkwiseHiddenStateFunction(Function):
         # 保存中间结果用于反向传播
         ctx.save_for_backward(inchunk_kv, chunkwise_decay, hidden_states)
         
-        return hidden_states
+        return hidden_states.to(dtype=inchunk_kv.dtype)
 
     @staticmethod
     def backward(ctx, grad_hidden_states):
@@ -82,6 +89,11 @@ class ChunkwiseHiddenStateFunction(Function):
         inchunk_kv, chunkwise_decay, state_list = ctx.saved_tensors
         num_chunks = ctx.num_chunks
         B, h, d_attn, d_v = inchunk_kv.shape[1:]
+
+        # Autograd calls backward outside the forward autocast block. Match the
+        # saved accumulator dtype explicitly; never downcast FP32 decay or its
+        # reduction to work around mixed-dtype einsum errors.
+        grad_hidden_states = grad_hidden_states.to(dtype=state_list.dtype)
         
         # 初始化梯度
         grad_inchunk_kv = torch.zeros_like(inchunk_kv)
@@ -116,7 +128,7 @@ class ChunkwiseHiddenStateFunction(Function):
                 grad_decay = torch.einsum('bhkv,bhkv->bh', grad_current_hidden, prev_hidden)
                 # grad_decay = (grad_current_hidden * prev_hidden).sum(dim=[-1, -2])  # 求和到[B, h]
                 if len(broadcast_dims) > 0 :
-                    grad_decay = grad_decay.sum(dim=broadcast_dims)
+                    grad_decay = grad_decay.sum(dim=broadcast_dims, keepdim=True)
                 # print(grad_chunkwise_decay.shape)
                 grad_chunkwise_decay[i] = grad_decay
                 

@@ -8,13 +8,15 @@
     "exclude full framework wrapper and unused imports",
     "redirect FBGEMM jagged packing to existing one-axis PyTorch shim",
     "crop positional-channel table to runtime padded prefix (same first-N positions)",
-    "no global sequence-square mask on chunkwise path"
+    "no global sequence-square mask on chunkwise path",
+    "custom state scan saves unrounded states in promoted input dtype (at least FP32) and returns original KV dtype",
+    "custom backward explicitly uses saved accumulator dtype outside forward autocast, preserves input gradient dtypes and keeps broadcast reduction axes"
   ],
   "wrapper_adaptations": [
     "shared catalog embedding and next-item model API",
     "Time OFF keeps all three official channels, supplies zero timestamp shape carrier; no future timestamp information",
     "round runtime width up to chunk_size; no padding states are trained or scored",
-    "caller AMP; original native Python chunk scan/custom backward"
+    "caller AMP; native Python chunk scan with local promoted-state/mixed-precision backward correction"
   ],
   "source_files": {
     "LICENSE": {
