@@ -53,15 +53,23 @@ def _encode(model: nn.Module, batch: tuple[torch.Tensor, torch.Tensor],
 @torch.inference_mode()
 def evaluate_long_quality(model: nn.Module, examples: Iterable[Any], *,
                           device: torch.device, amp: bool = False, batch_size: int = 32,
-                          k: int = 10, item_chunk_size: int = 65_536) -> dict[str, Any]:
+                          k: int = 10, item_chunk_size: int = 65_536,
+                          additional_cutoffs: Sequence[int] = ()) -> dict[str, Any]:
     """One final-state prediction per anchor; exact top-k over items 1..N.
 
     ``examples`` supplies ``user_id``, ``context`` and ``target`` attributes.
     It may be a lazy iterator. No target timestamp or future event is read.
     Seen items remain eligible. Returned per-user records contain no item IDs.
+    Additional cutoffs reuse one catalogue pass at the largest requested k.
+    ``rank`` preserves the primary-k censoring contract; ``rank_at_max_k`` is
+    zero only when the target lies outside the saved ``rank_cutoff`` or is OOV.
     """
     for value, name in ((batch_size, "batch_size"), (k, "k"), (item_chunk_size, "item_chunk_size")):
         _positive_integer(value, name)
+    for cutoff in additional_cutoffs:
+        _positive_integer(cutoff, "additional cutoff")
+    cutoffs = tuple(sorted(set((k, *additional_cutoffs))))
+    max_cutoff = max(cutoffs)
     device = torch.device(device)
     iterator = iter(examples)
     was_training = model.training
@@ -88,7 +96,7 @@ def evaluate_long_quality(model: nn.Module, examples: Iterable[Any], *,
             states = _encode(model, _batch([example.context for example in block], model, device), device, amp)
             if not bool(torch.isfinite(states).all()):
                 raise RuntimeError("evaluation produced nonfinite final states")
-            scores, top_ids = score_catalogue(model, states, k=k, item_chunk_size=item_chunk_size)
+            scores, top_ids = score_catalogue(model, states, k=max_cutoff, item_chunk_size=item_chunk_size)
             if not bool(torch.isfinite(scores).all()):
                 raise RuntimeError("evaluation produced nonfinite catalogue scores")
             matches = top_ids == torch.tensor(targets, device=device)[:, None]
@@ -96,9 +104,14 @@ def evaluate_long_quality(model: nn.Module, examples: Iterable[Any], *,
             hit = matches.any(dim=1)
             ranks = torch.where(hit, matches.long().argmax(dim=1) + 1, 0).cpu().tolist()
             for example, target, rank in zip(block, targets, ranks):
-                records.append({"user_id": int(example.user_id), "target_known": target > 0,
-                                "rank": int(rank), f"hr{k}": float(rank > 0),
-                                f"ndcg{k}": 1.0 / math.log2(rank + 1) if rank else 0.0})
+                record = {"user_id": int(example.user_id), "target_known": target > 0,
+                          "rank": int(rank) if rank <= k else 0,
+                          "rank_at_max_k": int(rank), "rank_cutoff": max_cutoff}
+                for cutoff in cutoffs:
+                    inside = 0 < rank <= cutoff
+                    record[f"hr{cutoff}"] = float(inside)
+                    record[f"ndcg{cutoff}"] = 1.0 / math.log2(rank + 1) if inside else 0.0
+                records.append(record)
     finally:
         model.train(was_training)
     if not records:
@@ -107,12 +120,15 @@ def evaluate_long_quality(model: nn.Module, examples: Iterable[Any], *,
     metrics: dict[str, int | float] = {
         "anchor_count": len(records), "warm_anchor_count": len(warm),
         "oov_target_count": len(records) - len(warm), "num_items": int(model.num_items),
-        f"hr{k}": float(np.mean([record[f"hr{k}"] for record in records])),
-        f"ndcg{k}": float(np.mean([record[f"ndcg{k}"] for record in records])),
-        f"warm_hr{k}": float(np.mean([record[f"hr{k}"] for record in warm])) if warm else 0.0,
-        f"warm_ndcg{k}": float(np.mean([record[f"ndcg{k}"] for record in warm])) if warm else 0.0,
         "evaluation_wall_seconds": time.perf_counter() - started,
     }
+    for cutoff in cutoffs:
+        metrics.update({
+            f"hr{cutoff}": float(np.mean([record[f"hr{cutoff}"] for record in records])),
+            f"ndcg{cutoff}": float(np.mean([record[f"ndcg{cutoff}"] for record in records])),
+            f"warm_hr{cutoff}": float(np.mean([record[f"hr{cutoff}"] for record in warm])) if warm else 0.0,
+            f"warm_ndcg{cutoff}": float(np.mean([record[f"ndcg{cutoff}"] for record in warm])) if warm else 0.0,
+        })
     return {"metrics": metrics, "per_user": records, "metadata": {
         "prediction": "single final state per chronological anchor",
         "catalogue": "all train-only items 1..num_items; no seen-item filtering",
@@ -121,6 +137,8 @@ def evaluate_long_quality(model: nn.Module, examples: Iterable[Any], *,
         "zero_warm_count_policy": "warm metrics set to zero; warm_anchor_count records absent support",
         "unknown_context": "zero item embedding in an observed valid chronological slot",
         "batch_size": batch_size, "item_chunk_size": item_chunk_size, "k": k,
+        "cutoffs": list(cutoffs), "rank_cutoff": max_cutoff,
+        "rank_zero_policy": "outside rank_cutoff or unsupported target; legacy rank is censored at primary k",
         "encoder_amp": bool(amp and device.type == "cuda"), "scoring_dtype": "float32",
     }}
 

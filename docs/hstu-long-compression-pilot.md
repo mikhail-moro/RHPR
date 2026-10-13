@@ -89,3 +89,26 @@ insufficient.
 The kernel uses the base Kaggle PyTorch/PyArrow runtime and records its versions;
 no Mamba/CUDA extension installation or4.9GB wheel dataset is needed. This saves
 runtime preparation but does not pin Kaggle's base image. Internet remains off.
+
+## Additional quality cutoff for future runs
+
+The registered config now evaluates NDCG/HR at both10 and100. All scores still
+come from the full training catalogue;100 is a ranking cutoff, not a sampled
+candidate count. One catalogue scoring pass keeps top100, from which both
+cutoffs are derived. All-anchor/OOV and warm-only denominators are unchanged.
+Checkpoint selection remains validation NDCG@10. NDCG@100 is a secondary
+diagnostic to reduce censored zero utilities, not a replacement for more targets
+per user or independent validation of adaptive routing.
+
+Per-user records preserve primary `rank` (zero outside top10) and add
+`rank_at_max_k`, `rank_cutoff`, `hr100` and `ndcg100`. A maximum-rank value of zero
+means outside the saved cutoff or an unsupported target, never an exact rank.
+The already completed pilot saved only top10 ranks and removed temporary
+checkpoints, so its@100 cannot be reconstructed. Its existing@10 report stays
+unchanged.
+
+With expanded outputs, repeat the history-budget analysis using
+`scripts/analyze_history_budgets.py --metric-k 100` and a separate output
+directory. The fixed reference uses each model's original NDCG@10-selected
+checkpoint and that checkpoint's validation NDCG@100. Both analysis and figures
+record the chosen cutoff; missing@100 inputs fail rather than becoming zeros.

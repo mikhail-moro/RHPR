@@ -86,6 +86,11 @@ def validate_long_quality_config(config: dict[str, Any]) -> None:
             or any(type(v) is not int or v < 1 for v in bench.get("batch_sizes", []))
             or not bench.get("batch_sizes")):
         raise ValueError("valid benchmark warmup and batch sizes are required")
+    cutoffs = bench.get("quality_cutoffs", [10])
+    if (not isinstance(cutoffs, list) or not cutoffs or cutoffs[0] != 10
+            or len(set(cutoffs)) != len(cutoffs)
+            or any(type(v) is not int or v < 1 for v in cutoffs)):
+        raise ValueError("quality_cutoffs must contain unique positive integers with primary10 first")
 
 
 def build_quality_model(config: dict[str, Any], variant: dict[str, Any], num_items: int) -> HSTUModel:
@@ -258,6 +263,7 @@ def run_long_quality(config: dict[str, Any], output_dir: Path) -> dict[str, int 
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     train, bench = config["training"], config["benchmark"]
+    extra_cutoffs = tuple(k for k in bench.get("quality_cutoffs", [10]) if k != 10)
     torch.set_num_threads(train["cpu_threads"])
     torch.backends.cuda.matmul.allow_tf32 = False
     started = time.monotonic()
@@ -353,12 +359,14 @@ def run_long_quality(config: dict[str, Any], output_dir: Path) -> dict[str, int 
                     model.compressor.tail_size = train["raw_tail_size"]
                     val = evaluate_long_quality(model, iter_long_evaluation_examples(
                         cohort, evaluation, split_name="validation", max_seq_len=raw_length), device=device,
-                        amp=train["amp"], batch_size=preflight["selected_evaluation_batch"], item_chunk_size=bench["item_chunk_size"])
+                        amp=train["amp"], batch_size=preflight["selected_evaluation_batch"], item_chunk_size=bench["item_chunk_size"],
+                        additional_cutoffs=extra_cutoffs)
                     row["validation"] = val["metrics"]
                     if val["metrics"]["ndcg10"] > best:
                         best = val["metrics"]["ndcg10"]
                         result["best_epoch"] = epoch
                         torch.save({k: v.detach().cpu() for k, v in model.state_dict().items()}, checkpoint)
+                        _json(output_dir / f"{name}-validation-users.json", val["per_user"])
                 result["passes"].append(row)
                 persist()
                 print(json.dumps({"phase": "quality_train", "model": name, **row}), flush=True)
@@ -369,7 +377,8 @@ def run_long_quality(config: dict[str, Any], output_dir: Path) -> dict[str, int 
             model.compressor.tail_size = train["raw_tail_size"]
             test = evaluate_long_quality(model, iter_long_evaluation_examples(
                 cohort, evaluation, split_name="test", max_seq_len=raw_length), device=device,
-                amp=train["amp"], batch_size=preflight["selected_evaluation_batch"], item_chunk_size=bench["item_chunk_size"])
+                amp=train["amp"], batch_size=preflight["selected_evaluation_batch"], item_chunk_size=bench["item_chunk_size"],
+                additional_cutoffs=extra_cutoffs)
             result["test"] = test["metrics"]
             _json(output_dir / f"{name}-test-users.json", test["per_user"])
             from itertools import islice
@@ -386,6 +395,9 @@ def run_long_quality(config: dict[str, Any], output_dir: Path) -> dict[str, int 
                 reference = test["per_user"]
             else:
                 result["paired_test_ndcg_vs_recent"] = paired_ndcg_bootstrap(reference, test["per_user"], seed=config["seed"])
+                for cutoff in extra_cutoffs:
+                    result[f"paired_test_ndcg{cutoff}_vs_recent"] = paired_ndcg_bootstrap(
+                        reference, test["per_user"], seed=config["seed"], k=cutoff)
             for key, value in test["metrics"].items():
                 if isinstance(value, (str, bool, int, float)):
                     metrics[f"{name}_test_{key}"] = value
