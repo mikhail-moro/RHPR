@@ -144,4 +144,10 @@ def run_experiment(
         from rhpr.sasrec.long_mixed_quality import run_mixed_daily_quality
 
         return run_mixed_daily_quality(config, output_dir)
+    if kind == "yambda_query_ssm_block_pilot":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_query_ssm_block_pilot")
+        from rhpr.sasrec.query_pilot import run_query_pilot
+
+        return run_query_pilot(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")

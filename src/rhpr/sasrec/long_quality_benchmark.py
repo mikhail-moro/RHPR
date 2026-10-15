@@ -229,12 +229,28 @@ def _observe_flops(model: nn.Module, batch: tuple[torch.Tensor, torch.Tensor],
     finally:
         for handle in handles:
             handle.remove()
+    # Native selective scan is not an nn.Linear/MHA module. Keep its explicit
+    # recurrence arithmetic separate from GEMMs, and include the bias-free
+    # delta F.linear which intentionally bypasses nn.Linear hooks.
+    scan_cost = getattr(model.compressor, "scan_compute_flops", None)
+    if callable(scan_cost):
+        old_width = max(1, int(batch[1].sum(dim=1).max().item()) - int(model.compressor.tail_size))
+        scan = scan_cost(old_width, batch_size=len(batch[0]))
+        observed["compressor_flops"] += int(scan["unhooked_delta_projection_flops"])
+        observed["scan_arithmetic_flops"] = int(scan["scan_arithmetic_flops"])
+        observed["scan_exp_evaluations"] = int(scan["scan_exp_evaluations"])
+        observed["scan_softplus_evaluations"] = int(scan["scan_softplus_evaluations"])
+    else:
+        observed.update(scan_arithmetic_flops=0, scan_exp_evaluations=0, scan_softplus_evaluations=0)
     observed["encoder_flops"] = hstu_encoder_flops(
         batch_size=len(batch[0]), sequence_length=observed["encoder_length"],
         valid_tokens=observed["encoder_valid_tokens"], layers=model.encoder.layers)
     observed["scoring_flops"] = 2 * len(batch[0]) * int(model.num_items) * observed["d_model"]
     observed["history_flops"] = observed["compressor_flops"] + observed["encoder_flops"]
     observed["full_flops"] = observed["history_flops"] + observed["scoring_flops"]
+    observed["compressor_arithmetic_including_scan_flops"] = observed["compressor_flops"] + observed["scan_arithmetic_flops"]
+    observed["history_arithmetic_including_scan_flops"] = observed["history_flops"] + observed["scan_arithmetic_flops"]
+    observed["full_arithmetic_including_scan_flops"] = observed["full_flops"] + observed["scan_arithmetic_flops"]
     return states, observed
 
 
@@ -286,7 +302,9 @@ def benchmark_long_quality(model: nn.Module, contexts: Sequence[np.ndarray], *,
         "timer": "synchronized perf_counter wall and CUDA events on current stream",
         "cuda_event_scope": "elapsed stream interval, including host-induced gaps between kernels",
         "multiply_add_flops": 2,
-        "flop_method": "estimated matmuls from observed executed Linear/MHA shapes and native HSTU dimensions",
+        "flop_method": "estimated executed Linear/MHA/native HSTU GEMMs; native SSM delta projection added explicitly; scan arithmetic and transcendentals reported separately",
+        "scan_cost_scope": "analytical sequential recurrence and readout; parallel CUDA scan may execute extra work; exp/softplus are operation counts rather than FLOPs",
+        "flop_excludes_scope": "matmul-only metrics; analytical scan arithmetic is an explicitly separate estimate",
         "flop_excludes": ["embedding lookup", "packing", "masking", "reductions", "position sin/cos",
                           "bias/add", "softmax", "GELU", "SiLU", "gating", "LayerNorm", "top-k"],
         "latency_includes": ["compressor", "HSTU encoding", "full-catalogue scoring and top-k in full stage"],
@@ -340,6 +358,10 @@ def benchmark_long_quality(model: nn.Module, contexts: Sequence[np.ndarray], *,
                                           if not key.endswith("samples_ms")})
             for component in ("compressor", "encoder", "scoring", "history", "full"):
                 result["metrics"][f"{component}_{label}_estimated_matmul_flops_per_user"] = flops[component + "_flops"] / size
+            for component in ("compressor", "history", "full"):
+                result["metrics"][f"{component}_{label}_estimated_arithmetic_including_scan_flops_per_user"] = flops[component + "_arithmetic_including_scan_flops"] / size
+            for key in ("scan_arithmetic_flops", "scan_exp_evaluations", "scan_softplus_evaluations"):
+                result["metrics"][f"{label}_{key}_per_user"] = flops[key] / size
             result["cases"][label] = case
     finally:
         model.train(was_training)
