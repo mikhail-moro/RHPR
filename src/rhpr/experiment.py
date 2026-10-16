@@ -162,4 +162,10 @@ def run_experiment(
         from rhpr.sasrec.query_prefix_pilot import run_query_prefix_pilot
 
         return run_query_prefix_pilot(config, output_dir)
+    if kind == "yambda_query_history_ablation":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_query_history_ablation")
+        from rhpr.sasrec.query_history_ablation import run_query_history_ablation
+
+        return run_query_history_ablation(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")
