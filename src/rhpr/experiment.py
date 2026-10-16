@@ -168,4 +168,10 @@ def run_experiment(
         from rhpr.sasrec.query_history_ablation import run_query_history_ablation
 
         return run_query_history_ablation(config, output_dir)
+    if kind == "yambda_query_only_control":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_query_only_control")
+        from rhpr.sasrec.query_only_control import run_query_only_control
+
+        return run_query_only_control(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")

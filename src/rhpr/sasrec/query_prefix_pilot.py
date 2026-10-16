@@ -14,7 +14,7 @@ from pathlib import Path
 import platform
 import random
 import time
-from typing import Any
+from typing import Any, Callable
 
 import numpy as np
 import torch
@@ -40,7 +40,8 @@ from rhpr.sasrec.query_restart_state import ValidationEarlyStopping, reset_resta
 
 def train_prefix_pass(model: torch.nn.Module, cohort: Any, windows: tuple[Any, ...], *,
                       config: dict[str, Any], variant: dict[str, Any], physical_batch: int,
-                      device: torch.device, optimizer: torch.optim.Optimizer, scaler: Any) -> dict[str, Any]:
+                      device: torch.device, optimizer: torch.optim.Optimizer, scaler: Any,
+                      batch_builder: Callable[..., dict[str, np.ndarray]] | None = None) -> dict[str, Any]:
     """One successful effective update per group, with bounded overflow replay.
 
     Every microbatch uses exactly the same identity-bound labels and negatives
@@ -48,6 +49,7 @@ def train_prefix_pass(model: torch.nn.Module, cohort: Any, windows: tuple[Any, .
     attempts also restore dropout RNG, so they cannot silently discard data.
     """
     train = config["training"]
+    make_batch = prefix_batch_arrays if batch_builder is None else batch_builder
     if not windows or type(physical_batch) is not int or physical_batch < 1:
         raise ValueError("nonempty windows and a positive physical batch are required")
     effective = train["effective_batch_size"]
@@ -69,7 +71,7 @@ def train_prefix_pass(model: torch.nn.Module, cohort: Any, windows: tuple[Any, .
             group_loss = 0.0
             for offset in range(0, len(group), physical_batch):
                 chunk = group[offset:offset + physical_batch]
-                arrays = prefix_batch_arrays(cohort, chunk, config, variant)
+                arrays = make_batch(cohort, chunk, config, variant)
                 batch = {key: torch.from_numpy(value).to(device) for key, value in arrays.items()}
                 with torch.autocast(device_type=device.type, dtype=torch.float16,
                                     enabled=train["amp"] and device.type == "cuda"):
