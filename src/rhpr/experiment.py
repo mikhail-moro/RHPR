@@ -156,4 +156,10 @@ def run_experiment(
         from rhpr.sasrec.query_lr_restart import run_query_lr_restart
 
         return run_query_lr_restart(config, output_dir)
+    if kind == "yambda_sasrec_prefix_query_pilot":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_sasrec_prefix_query_pilot")
+        from rhpr.sasrec.query_prefix_pilot import run_query_prefix_pilot
+
+        return run_query_prefix_pilot(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")
