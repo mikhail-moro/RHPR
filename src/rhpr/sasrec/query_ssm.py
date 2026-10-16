@@ -1,9 +1,14 @@
-"""Recent-conditioned fixed-budget prefix compressors.
+"""Query-conditioned fixed-budget prefix compressors.
 
-Training queries see the first ``query_context_size`` events of the raw tail,
+By default, training queries see the first ``query_context_size`` events of the raw tail,
 not its later supervised events.  With a 159-event tail and 128-event query
 context this permits 32 causal next-item losses after a single prefix scan.
 At evaluation the 128-event tail supplies a fresh query for the next item.
+
+The optional ``old_suffix`` query source instead reads the last available
+``query_context_size`` old-prefix events. Its summaries depend only on the old
+prefix, so every raw-tail state can receive a causal next-item loss in parallel.
+Those summaries can be reused while that prefix and model weights stay fixed.
 
 The selective recurrence uses Mamba's native CUDA selective-scan operator.  A
 small, differentiable CPU implementation exists for numerical/unit checks only;
@@ -88,7 +93,7 @@ def native_selective_scan_available() -> bool:
 
 
 class RecentQueryGenerator(nn.Module):
-    """Learned slots cross-attend to the available beginning of the raw tail."""
+    """Learned slots cross-attend to an occupied, chronological query context."""
 
     def __init__(self, d_model: int, summary_tokens: int, n_heads: int = 4,
                  dropout: float = 0.0) -> None:
@@ -133,13 +138,18 @@ class _RecentQueryPrefixCompressor(_FixedBudgetPrefixCompressor):
 
     def __init__(self, d_model: int, summary_tokens: int, tail_size: int = 159,
                  query_context_size: int = 128, n_heads: int = 4,
-                 dropout: float = 0.0) -> None:
+                 dropout: float = 0.0, query_source: str = "recent_start") -> None:
         super().__init__(summary_tokens, tail_size)
         _positive_integer(d_model, "d_model")
         _positive_integer(query_context_size, "query_context_size")
-        if query_context_size > tail_size:
+        if query_source not in {"recent_start", "old_suffix"}:
+            raise ValueError("query_source must be recent_start or old_suffix")
+        if query_source == "recent_start" and query_context_size > tail_size:
             raise ValueError("query_context_size must not exceed tail_size")
         self.d_model, self.query_context_size = d_model, query_context_size
+        self.query_source = query_source
+        if query_source == "old_suffix":
+            self.source_position_policy = "latest_input_of_global_old_prefix"
         self.query_generator = RecentQueryGenerator(d_model, summary_tokens, n_heads, dropout)
         self.memory_norm = nn.LayerNorm(d_model)
         self.readout_norm = nn.LayerNorm(d_model)
@@ -152,18 +162,24 @@ class _RecentQueryPrefixCompressor(_FixedBudgetPrefixCompressor):
                 ) -> tuple[torch.Tensor, ...]:
         if embeddings.ndim != 3 or embeddings.shape[-1] != self.d_model:
             raise ValueError("embedding width must match d_model")
-        if self.tail_size < self.query_context_size:
+        if self.query_source == "recent_start" and self.tail_size < self.query_context_size:
             raise ValueError("tail_size must not be smaller than query_context_size")
         lengths, old_lengths, summary_lengths = self._lengths(embeddings, valid_mask)
         rows = torch.arange(embeddings.shape[0], device=embeddings.device)[:, None]
         context_width = min(self.query_context_size, embeddings.shape[1])
         context_offsets = torch.arange(context_width, device=embeddings.device)[None, :]
-        context_lengths = (lengths - old_lengths).clamp(max=self.query_context_size)
+        if self.query_source == "old_suffix":
+            context_lengths = old_lengths.clamp(max=self.query_context_size)
+            context_starts = old_lengths - context_lengths
+        else:
+            context_lengths = (lengths - old_lengths).clamp(max=self.query_context_size)
+            context_starts = old_lengths
         context_mask = context_offsets < context_lengths[:, None]
-        context_sources = (old_lengths[:, None] + context_offsets).clamp(max=embeddings.shape[1] - 1)
+        context_sources = (context_starts[:, None] + context_offsets).clamp(max=embeddings.shape[1] - 1)
         context = embeddings[rows, context_sources].masked_fill(~context_mask[:, :, None], 0)
         queries = self.query_generator(context, context_mask)
-        query_endpoints = old_lengths + context_lengths - 1
+        query_endpoints = (old_lengths - 1 if self.query_source == "old_suffix"
+                           else old_lengths + context_lengths - 1)
         width = max(1, int(old_lengths.max().item()))
         offsets = torch.arange(width, device=embeddings.device)[None, :]
         memory_mask = offsets < old_lengths[:, None]
@@ -182,7 +198,7 @@ class _RecentQueryPrefixCompressor(_FixedBudgetPrefixCompressor):
         slots = torch.arange(self.summary_tokens, device=embeddings.device)[None, :]
         active = slots < summary_lengths[:, None]
         summaries = summaries.masked_fill(~active[:, :, None], 0)
-        # Recent conditioning makes the query endpoint the latest raw input.
+        # The endpoint covers both query support and global old-memory support.
         # These are feature/position metadata, never additional loss targets.
         sources = query_endpoints[:, None].expand(-1, self.summary_tokens).masked_fill(~active, -1)
         return self._pack(summaries, sources, embeddings, lengths, old_lengths, summary_lengths)
@@ -193,8 +209,11 @@ class QueryCrossAttentionCompressor(_RecentQueryPrefixCompressor):
 
     def __init__(self, d_model: int, summary_tokens: int, tail_size: int = 159,
                  query_context_size: int = 128, n_heads: int = 4,
-                 dropout: float = 0.0) -> None:
-        super().__init__(d_model, summary_tokens, tail_size, query_context_size, n_heads, dropout)
+                 dropout: float = 0.0, query_source: str = "recent_start") -> None:
+        super().__init__(d_model, summary_tokens, tail_size, query_context_size, n_heads, dropout,
+                         query_source=query_source)
+        if query_source == "old_suffix":
+            self.implementation = "old_suffix_query_global_cross_attention"
         self.cross_query_norm = nn.LayerNorm(d_model)
         self.cross_attention = nn.MultiheadAttention(d_model, n_heads, dropout=dropout, batch_first=True)
 
@@ -209,16 +228,16 @@ class QueryCrossAttentionCompressor(_RecentQueryPrefixCompressor):
 
 
 class QuerySSMCompressor(_RecentQueryPrefixCompressor):
-    """Zero-state diagonal SSM, with recent-conditioned writes or readout only.
+    """Zero-state diagonal SSM, with context-conditioned writes or readout only.
 
     For each slot j, r_tj=SiLU(W_x memory_t + W_q write_query_j).
     Delta_tj=softplus(W_delta r_tj + dt_bias), B_tj=W_B r_tj,
-    A=-exp(A_log), and C_j=W_C recent_query_j.  The recurrence is
+    A=-exp(A_log), and C_j=W_C context_query_j.  The recurrence is
     h_tj=exp(Delta_tj A) h_(t-1)j + Delta_tj B_tj u_t.
     The final *output* y_Nj=C_j h_Nj carries gradients through the native scan.
 
     ``slot_only`` keeps exactly the same parameterization and uses static slot
-    queries for Delta/B, while the recent query still supplies C and the common
+    queries for Delta/B, while the context query still supplies C and the common
     residual/readout block.  History value/input projections are shared over K.
     """
 
@@ -226,8 +245,10 @@ class QuerySSMCompressor(_RecentQueryPrefixCompressor):
                  query_context_size: int = 128, n_heads: int = 4,
                  d_state: int = 16, d_inner: int = 128, gate_rank: int = 32,
                  write_conditioning: str = "recent", dropout: float = 0.0,
-                 dt_min: float = 1e-4, dt_max: float = 0.1) -> None:
-        super().__init__(d_model, summary_tokens, tail_size, query_context_size, n_heads, dropout)
+                 dt_min: float = 1e-4, dt_max: float = 0.1,
+                 query_source: str = "recent_start") -> None:
+        super().__init__(d_model, summary_tokens, tail_size, query_context_size, n_heads, dropout,
+                         query_source=query_source)
         for value, name in ((d_state, "d_state"), (d_inner, "d_inner"), (gate_rank, "gate_rank")):
             _positive_integer(value, name)
         if d_state > 256:
@@ -244,6 +265,9 @@ class QuerySSMCompressor(_RecentQueryPrefixCompressor):
         self.write_conditioning = write_conditioning
         self.implementation = ("recent_query_selective_ssm" if write_conditioning == "recent"
                                else "recent_query_readout_static_write_ssm")
+        if query_source == "old_suffix":
+            self.implementation = ("old_suffix_query_selective_ssm" if write_conditioning == "recent"
+                                   else "old_suffix_query_readout_static_write_ssm")
         self.value_projection = nn.Linear(d_model, d_inner)
         self.input_gate = nn.Linear(d_model, gate_rank)
         self.query_gate = nn.Linear(d_model, gate_rank, bias=False)
@@ -359,11 +383,11 @@ def make_query_compressor(*, kind: str, d_model: int, summary_tokens: int,
                           n_heads: int = 4, d_state: int = 16,
                           d_inner: int = 128, gate_rank: int = 32,
                           dropout: float = 0.0, dt_min: float = 1e-4,
-                          dt_max: float = 0.1) -> nn.Module:
+                          dt_max: float = 0.1, query_source: str = "recent_start") -> nn.Module:
     """Construct independently without advancing shared-backbone CPU RNG."""
     shared: dict[str, Any] = dict(d_model=d_model, summary_tokens=summary_tokens,
                                   tail_size=tail_size, query_context_size=query_context_size,
-                                  n_heads=n_heads, dropout=dropout)
+                                  n_heads=n_heads, dropout=dropout, query_source=query_source)
     with torch.random.fork_rng(devices=[]):
         if kind == "query_cross_attention":
             return QueryCrossAttentionCompressor(**shared)

@@ -36,7 +36,10 @@ def _comparison(reference: torch.Tensor, candidate: torch.Tensor, *,
 
 
 def _critical_gradient_norms(model: torch.nn.Module, inputs: torch.Tensor,
-                             old_lengths: tuple[int, ...], query_size: int) -> dict[str, float]:
+                             old_lengths: tuple[int, ...], query_size: int,
+                             query_source: str = "recent_start") -> dict[str, float]:
+    if query_source not in {"recent_start", "old_suffix"}:
+        raise ValueError("query_source must be recent_start or old_suffix")
     parameters = dict(model.named_parameters())
     names = ("A_log", "write_projection.weight", "delta_projection.weight",
              "delta_projection.bias", "query_gate.weight", "query_generator.queries",
@@ -51,21 +54,37 @@ def _critical_gradient_norms(model: torch.nn.Module, inputs: torch.Tensor,
         raise RuntimeError("native Query SSM audit: missing or nonfinite input gradient")
     norms["old_input"] = float(torch.cat([
         inputs.grad[index, :old].flatten() for index, old in enumerate(old_lengths)]).float().norm())
+    support = [(old, old + query_size) if query_source == "recent_start"
+               else (max(0, old - query_size), old) for old in old_lengths]
     norms["query_context_input"] = float(torch.cat([
-        inputs.grad[index, old:old + query_size].flatten()
-        for index, old in enumerate(old_lengths)]).float().norm())
+        inputs.grad[index, start:stop].flatten()
+        for index, (start, stop) in enumerate(support)]).float().norm())
+    if query_source == "old_suffix":
+        # The query overlaps H. Check an earlier, disjoint part of H as well:
+        # a nonzero query gradient alone would not demonstrate scan backward.
+        norms["old_input_before_query"] = float(torch.cat([
+            inputs.grad[index, :start].flatten()
+            for index, (start, _) in enumerate(support)]).float().norm())
+    for index, old in enumerate(old_lengths):
+        future_start = old if query_source == "old_suffix" else old + query_size
+        if torch.count_nonzero(inputs.grad[index, future_start:]):
+            raise RuntimeError("native Query SSM audit: summary depends on future raw tail")
     if any(not math.isfinite(norm) or norm <= 0 for norm in norms.values()):
         raise RuntimeError("native Query SSM audit: a critical recurrence/query/input gradient is zero or nonfinite")
     return norms
 
 
-def audit_native_query_scan(device: torch.device) -> dict[str, Any]:
+def audit_native_query_scan(device: torch.device,
+                            query_source: str = "recent_start") -> dict[str, Any]:
     """Check actual CUDA output/backward against CPU recurrence before data load.
 
     Both write-conditioning variants are audited end to end. The loss touches
-    only summary outputs, so nonzero old-history gradients cannot come from the
-    untouched raw tail. Native failure aborts; GPU reference fallback is forbidden.
+    only summary outputs. For old-suffix queries, gradient must reach H before
+    the query support while the entire raw tail has exactly zero gradient.
+    Native failure aborts; GPU reference fallback is forbidden.
     """
+    if query_source not in {"recent_start", "old_suffix"}:
+        raise ValueError("query_source must be recent_start or old_suffix")
     device = torch.device(device)
     if device.type != "cuda" or not torch.cuda.is_available():
         raise RuntimeError("native Query SSM audit requires an actual CUDA device")
@@ -95,7 +114,7 @@ def audit_native_query_scan(device: torch.device) -> dict[str, Any]:
         for conditioning in ("recent", "slot_only"):
             reference = QuerySSMCompressor(d_model=8, summary_tokens=2, tail_size=6,
                 query_context_size=4, n_heads=2, d_state=4, d_inner=8, gate_rank=4,
-                write_conditioning=conditioning, dropout=0.0)
+                write_conditioning=conditioning, dropout=0.0, query_source=query_source)
             native = copy.deepcopy(reference).to(device)
             values = torch.randn(2, 13, 8)
             mask = torch.arange(13)[None, :] < torch.tensor([13, 11])[:, None]
@@ -120,7 +139,7 @@ def audit_native_query_scan(device: torch.device) -> dict[str, Any]:
                     raise RuntimeError(f"native Query SSM audit: disconnected parameter {name}")
                 checks.append(_comparison(parameter.grad, gradient,
                     name=f"parameter_gradient:{name}", atol=2e-4, rtol=3e-3))
-            critical = _critical_gradient_norms(native, gpu_input, (7, 5), 4)
+            critical = _critical_gradient_norms(native, gpu_input, (7, 5), 4, query_source)
 
             # The real run uses autocast FP16. Check its actual native forward
             # and backward as well, against the same FP32 native model/output.
@@ -136,8 +155,13 @@ def audit_native_query_scan(device: torch.device) -> dict[str, Any]:
             for name, parameter in half_model.named_parameters():
                 if parameter.grad is None or not torch.isfinite(parameter.grad).all():
                     raise RuntimeError(f"native Query SSM audit: missing/nonfinite FP16 gradient {name}")
-            half_critical = _critical_gradient_norms(half_model, half_input, (7, 5), 4)
+            half_critical = _critical_gradient_norms(half_model, half_input, (7, 5), 4, query_source)
             rows.append({"write_conditioning": conditioning, "passed": True,
+                         "query_source": query_source,
+                         "query_support_intervals": ([[7, 11], [5, 9]]
+                             if query_source == "recent_start" else [[3, 7], [1, 5]]),
+                         "future_raw_tail_gradient_zero": True,
+                         "entire_raw_tail_gradient_zero": query_source == "old_suffix",
                          "native_backend": native.last_scan_backend,
                          "reference_backend": reference.last_scan_backend,
                          "checks": checks, "critical_native_gradient_norms": critical,
@@ -151,6 +175,7 @@ def audit_native_query_scan(device: torch.device) -> dict[str, Any]:
             "torch_version": str(torch.__version__), "torch_cuda_version": str(torch.version.cuda),
             "mamba_ssm_version": version, "native_extension_path": native_path,
             "native_extension_fwd_bwd_verified": True, "python_gpu_fallback": False,
+            "query_source": query_source,
             "summary_uses_differentiable_scan_output": True,
             "tiny_shape": {"batch_size": 2, "d_model": 8, "summary_tokens": 2,
                 "old_lengths": [7, 5], "raw_tail_size": 6, "query_context_size": 4,
