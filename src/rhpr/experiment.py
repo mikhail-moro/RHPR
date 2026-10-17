@@ -174,4 +174,10 @@ def run_experiment(
         from rhpr.sasrec.query_only_control import run_query_only_control
 
         return run_query_only_control(config, output_dir)
+    if kind == "yambda_query_prefix_proxy_hpo":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_query_prefix_proxy_hpo")
+        from rhpr.sasrec.query_proxy_hpo import run_query_proxy_hpo
+
+        return run_query_proxy_hpo(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")
