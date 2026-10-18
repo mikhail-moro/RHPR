@@ -155,9 +155,21 @@ def _timed(operation: Any, device: torch.device) -> tuple[Any, float]:
 def _loss(model: torch.nn.Module, encoded: tuple[torch.Tensor, ...],
           batch: dict[str, torch.Tensor], tail_size: int, num_negatives: int) -> torch.Tensor:
     states, mask, sources = encoded
-    # All four profile backbones preserve the temporal axis. Select before the
-    # FP32 cast so long models do not allocate FP32 copies of all 16K states.
-    states, mask, sources = states[:, -tail_size:], mask[:, -tail_size:], sources[:, -tail_size:]
+    if type(tail_size) is not int or tail_size < 1:
+        raise ValueError("tail_size must be a positive integer")
+    # Sequence-preserving backbones right-pad variable histories, whereas the
+    # compressors may place summaries before a common raw tail. Select the last
+    # occupied *slots per row*, not the last batch columns or source positions:
+    # summary endpoints can overlap scored sources without being scored states.
+    # Gather before casting so full-history FP32 state copies are never needed.
+    width = min(tail_size, states.shape[1])
+    columns = torch.arange(states.shape[1], device=states.device).expand_as(mask)
+    selected = columns.masked_fill(~mask, -1).topk(width, dim=1).values.flip(1)
+    occupied = selected >= 0
+    selected = selected.clamp(min=0)
+    states = states.gather(1, selected.unsqueeze(-1).expand(-1, -1, states.shape[-1]))
+    mask = mask.gather(1, selected) & occupied
+    sources = sources.gather(1, selected).masked_fill(~mask, -1)
     return next_item_loss(name="sampled_softmax", model=model, encoded=states.float(),
         valid_mask=mask, source_positions=sources, targets=batch["targets"],
         original_lengths=batch["valid_mask"].sum(dim=1), loss_tail_size=tail_size,

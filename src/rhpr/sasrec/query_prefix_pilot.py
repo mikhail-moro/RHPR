@@ -55,7 +55,9 @@ def train_prefix_pass(model: torch.nn.Module, cohort: Any, windows: tuple[Any, .
     effective = train["effective_batch_size"]
     if physical_batch > effective or effective % physical_batch:
         raise ValueError("physical batch must divide the effective batch")
-    model.compressor.tail_size = train["raw_tail_size"]
+    compressor = getattr(model, "compressor", None)
+    if compressor is not None:
+        compressor.tail_size = train["raw_tail_size"]
     model.train()
     _sync(device)
     started, total_loss, successful, retries = time.perf_counter(), 0.0, 0, 0

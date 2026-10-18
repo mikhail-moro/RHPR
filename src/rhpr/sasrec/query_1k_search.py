@@ -146,6 +146,18 @@ class QuerySearchDefinition:
     profile_each_trial: bool = False
     load_controls: Callable[..., dict[str, Any]] | None = None
     isolate_preflight_failures: bool = False
+    variants: Callable[..., list[dict[str, Any]]] | None = None
+    batch_arrays: Callable[..., dict[str, Any]] | None = None
+    optimizer: Callable[..., torch.optim.Optimizer] | None = None
+    training_batch: Callable[..., int] | None = None
+    evaluation_examples: Callable[..., Any] | None = None
+    evaluation_batch: Callable[..., int] | None = None
+    full_transfer_required: Callable[..., bool] | None = None
+    protocol_metadata: Callable[..., dict[str, Any]] | None = None
+    select_candidate: Callable[..., dict[str, Any] | None] | None = None
+    paired_short_validation: bool = False
+    hpo_performed: bool = True
+    optional_full_transfer: bool = False
 
 
 def run_query_1k_search(config: dict[str, Any], output_dir: Path) -> dict[str, int | float | str | bool]:
@@ -167,13 +179,13 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
     checkpoints = output_dir / "checkpoints"
     checkpoints.mkdir(parents=True, exist_ok=True)
     train, bench, hpo = config["training"], config["benchmark"], config["hpo"]
-    variants = hpo_variants(config)
+    variants = (definition.variants or hpo_variants)(config)
     trials_by_family = {variant["name"]: definition.trials(config, variant) for variant in variants}
     total_configurations = sum(map(len, trials_by_family.values()))
     torch.set_num_threads(train["cpu_threads"])
     torch.backends.cuda.matmul.allow_tf32 = False
     metrics: dict[str, int | float | str | bool] = {"experiment": config["name"], "seed": config["seed"],
-        "quality_complete": False, "hpo_performed": True, "proxy_training_models": total_configurations,
+        "quality_complete": False, "hpo_performed": definition.hpo_performed, "proxy_training_models": total_configurations,
         "full_training_models": 0, "test_evaluations": 0, "train_is_exhaustive_event_epoch": False,
         "exploratory_previously_inspected_holdout": True}
     report: dict[str, Any] = {"complete": False, "config": config,
@@ -257,6 +269,8 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
             "new_training_configurations": total_configurations - reused_count, "reused_controls": reused_count}
         report["protocol"]["control_reuse"] = "verified completed current_lr trials; no repeated training or full validation"
         report["protocol"]["architecture"] = "SASRec and K4 fixed; only registered compressor shapes change"
+    if definition.protocol_metadata is not None:
+        report["protocol"].update(definition.protocol_metadata(config))
     for variant in variants:
         name = variant["name"]
         pending = [trial for trial in trials_by_family[name]
@@ -315,22 +329,29 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
         "proxy_input_old_length_cap": hpo["proxy_old_length"], "proxy_retains_all_old_events": False,
         "full_length_training_performed": False, "raw_tail_size": train["raw_tail_size"]})
 
-    def evaluate(model: torch.nn.Module, old: int | None, label: str) -> dict[str, Any]:
+    def evaluate(model: torch.nn.Module, variant: dict[str, Any], old: int | None,
+                 label: str) -> dict[str, Any]:
         guard()
         rows: list[dict[str, Any]] = []
         examples = iter_daily_evaluation_examples(cohort, evaluation, split_name="validation",
             max_seq_len=train["serving_context_length"])
-        audited = audited_hpo_examples(examples, old, contexts["validation"]["rows"], rows, guard)
+        audited = (definition.evaluation_examples(examples, old, variant,
+            contexts["validation"]["rows"], rows, guard)
+            if definition.evaluation_examples is not None else
+            audited_hpo_examples(examples, old, contexts["validation"]["rows"], rows, guard))
+        evaluation_batch = (definition.evaluation_batch(config, variant, old)
+            if definition.evaluation_batch is not None else bench["evaluation_batch_size"])
         before = time.monotonic()
         try:
             result = evaluate_daily_quality(model, audited, device=device, amp=train["amp"],
-                batch_size=bench["evaluation_batch_size"], item_chunk_size=bench["item_chunk_size"])
+                batch_size=evaluation_batch, item_chunk_size=bench["item_chunk_size"])
         except RuntimeError as error:
             if str(error) in ("evaluation produced nonfinite final states", "evaluation produced nonfinite catalogue scores"):
                 raise FloatingPointError(str(error)) from error
             raise
         _finite_validation(result)
         result["wall_seconds"] = time.monotonic() - before
+        result["evaluation_batch_size"] = evaluation_batch
         _gzip_json(output_dir / f"{label}-input-contexts.json.gz", rows)
         _gzip_json(output_dir / f"{label}-anchors.json.gz", result["per_anchor"])
         _json(output_dir / f"{label}-users.json", result["per_user"])
@@ -341,9 +362,11 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
         guard()
         name, trial_name = variant["name"], trial["name"]
         label = f"{name}-{trial_name}"
+        physical_batch = (definition.training_batch(config, variant)
+            if definition.training_batch is not None else hpo["physical_batch_size"])
         result: dict[str, Any] = {"status": "training", "complete": False, "trial_name": trial_name,
             "trial": dict(trial), "old_length": hpo["proxy_old_length"], "passes": [], "passes_completed": 0,
-            "from_scratch": True, "physical_batch_size": hpo["physical_batch_size"],
+            "from_scratch": True, "physical_batch_size": physical_batch,
             "full_length_training_performed": False, "test_evaluations": 0}
         report["trials"].setdefault(name, {})[trial_name] = result
         persist()
@@ -359,7 +382,8 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
             max_additional_passes=hpo["max_passes"])
 
         def batch_builder(*args: Any, **kwargs: Any) -> dict[str, Any]:
-            arrays = hpo_batch_arrays(*args, **kwargs, old_length=hpo["proxy_old_length"])
+            arrays = (definition.batch_arrays or hpo_batch_arrays)(*args, **kwargs,
+                old_length=hpo["proxy_old_length"])
             last.update(arrays=arrays, rng=capture_training_rng(device))
             return arrays
 
@@ -375,23 +399,35 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
 
         try:
             model = definition.build_model(config, variant, trial, cohort.num_items).to(device)
-            optimizer, scaler = hpo_optimizer(model, train, trial), _scaler(device, train)
+            optimizer, scaler = (definition.optimizer or hpo_optimizer)(model, train, trial), _scaler(device, train)
             reset_restart_rng(config["seed"])
+            compressor = getattr(model, "compressor", None)
             result.update(optimizer_groups=[{key: group[key] for key in ("component", "lr", "weight_decay")}
                 for group in optimizer.param_groups], total_parameters=sum(p.numel() for p in model.parameters()),
-                compressor_parameters=sum(p.numel() for p in model.compressor.parameters()))
+                compressor_parameters=(sum(p.numel() for p in compressor.parameters())
+                    if compressor is not None else 0))
+            if definition.variants is not None:
+                result["model_metadata"] = {"architecture": getattr(model, "architecture", "sasrec"),
+                    "upstream_revision": getattr(model, "upstream_revision", None),
+                    "native_runtime": getattr(model, "native_runtime", None),
+                    "implementation": getattr(model, "attention_implementation", None),
+                    "baseline_metadata": getattr(model, "baseline_metadata", {}),
+                    "has_compressor": compressor is not None,
+                    "initialization": "original matched SASRec initializer" if variant["kind"] in
+                        ("recent", "query_only", "query_cross_attention", "query_ssm") else
+                        "native backbone initialization; seed matched, architecture weights not shared"}
             for attempted, windows in enumerate(schedules, 1):
                 guard()
                 stage = "training"
                 row = {"epoch": attempted, **train_prefix_pass(model, cohort, windows, config=config,
-                    variant=variant, physical_batch=hpo["physical_batch_size"], device=device,
+                    variant=variant, physical_batch=physical_batch, device=device,
                     optimizer=optimizer, scaler=scaler, batch_builder=batch_builder)}
                 result["passes"].append(row)
                 result["passes_completed"] = attempted
                 if attempted % hpo["validation_interval"] == 0:
                     stage = "proxy_validation"
                     with _preserve_rng(device):
-                        validation = evaluate(model, hpo["proxy_old_length"], f"{label}-p{attempted}-validation")
+                        validation = evaluate(model, variant, hpo["proxy_old_length"], f"{label}-p{attempted}-validation")
                     decision = stopping.observe(attempted, validation["metrics"]["ndcg10"])
                     row.update(validation=validation["metrics"], selection=decision,
                         validation_wall_seconds=validation["wall_seconds"])
@@ -453,6 +489,30 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
                 continue
             guard()
             label = f"{variant['name']}-{trial['name']}"
+            if (definition.full_transfer_required is not None
+                    and not definition.full_transfer_required(config, variant)):
+                # The model's exact input is already R128 or Q128+R128 in both
+                # conditions. Reuse the selected native validation ranks, not
+                # the final pass ranks, and avoid an identical second forward.
+                result.update(status="success", best_full_validation=dict(result["best_validation"]),
+                    full_validation_rank_file=result["best_validation_rank_file"],
+                    full_validation_wall_seconds=0., full_validation_reuses_best_proxy=True,
+                    effective_model_input_unchanged=True,
+                    full_validation_is_frozen_1k_checkpoint=True)
+                persist()
+                continue
+            profile_label = label if definition.profile_each_trial else variant["name"]
+            full_preflight = report["preflight"].get(profile_label, {}).get("full_evaluation", {})
+            if (definition.optional_full_transfer and full_preflight.get("status") in
+                    ("out_of_memory", "numerical_failed")):
+                result.update(status="full_transfer_failed", full_transfer_failure={
+                    "stage": "preflight_full_length_evaluation", "preflight_result": full_preflight,
+                    "primary_short_validation_retained": True, "full_evaluation_attempted": False})
+                print(json.dumps({"phase": definition.phase + "_full_validation_skipped",
+                    "model": variant["name"], "trial": trial["name"],
+                    "reason": "registered full-shape preflight failed; primary result retained"}), flush=True)
+                persist()
+                continue
             model = None
             try:
                 model = definition.build_model(config, variant, trial, cohort.num_items).to(device)
@@ -465,7 +525,7 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
                 del saved
                 print(json.dumps({"phase": definition.phase + "_full_validation_trial_start",
                     "model": variant["name"], "trial": trial["name"]}), flush=True)
-                full = evaluate(model, None, f"{label}-full-validation")
+                full = evaluate(model, variant, None, f"{label}-full-validation")
                 result.update(status="success", best_full_validation=full["metrics"],
                     full_validation_rank_file=f"{label}-full-validation-anchors.json.gz",
                     full_validation_wall_seconds=full["wall_seconds"],
@@ -489,25 +549,42 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
         name = variant["name"]
         trials = trials_by_family[name]
         results = [report["trials"][name][trial["name"]] for trial in trials]
-        selected = select_1k_candidate(trials, results)
+        selected = (definition.select_candidate or select_1k_candidate)(trials, results)
         if selected is None:
             missing.append(name)
             continue
         result = report["trials"][name][selected["name"]]
         report["selected_trials"][name] = dict(selected)
         report["cases"][name] = {key: result[key] for key in ("trial", "best_epoch", "best_validation",
-            "best_full_validation", "best_validation_rank_file", "full_validation_rank_file", "best_checkpoint")}
-        with gzip.open(output_dir / result["full_validation_rank_file"], "rt", encoding="utf-8") as stream:
-            ranks = json.load(stream)
+            "best_full_validation", "best_validation_rank_file", "full_validation_rank_file", "best_checkpoint")
+            if key in result}
         print(json.dumps({"phase": definition.phase + "_paired_statistics_family_start",
             "model": name, "trial": selected["name"]}), flush=True)
-        report["cases"][name]["paired_parent_full_validation_contrasts"] = [
-            {"reference": reference, "training_seed_uncertainty_included": False,
-             "selection_uncertainty_included": False, "exploratory_validation_selection": True,
-             "cutoffs": {str(k): paired_daily_ndcg_bootstrap(baseline, ranks, k=k,
-                 seed=config["seed"], draws=hpo["bootstrap_draws"]) for k in (10, 100)}}
-            for reference, baseline in validation_baselines.items()]
-        for prefix, quality in (("proxy", result["best_validation"]), ("full_transfer", result["best_full_validation"])):
+        if "full_validation_rank_file" in result:
+            with gzip.open(output_dir / result["full_validation_rank_file"], "rt", encoding="utf-8") as stream:
+                ranks = json.load(stream)
+            report["cases"][name]["paired_parent_full_validation_contrasts"] = [
+                {"reference": reference, "training_seed_uncertainty_included": False,
+                 "selection_uncertainty_included": False, "exploratory_validation_selection": True,
+                 "cutoffs": {str(k): paired_daily_ndcg_bootstrap(baseline, ranks, k=k,
+                     seed=config["seed"], draws=hpo["bootstrap_draws"]) for k in (10, 100)}}
+                for reference, baseline in validation_baselines.items()]
+        if definition.paired_short_validation:
+            with gzip.open(output_dir / result["best_validation_rank_file"], "rt", encoding="utf-8") as stream:
+                short_ranks = json.load(stream)
+            contrasts = []
+            for reference, control in controls.items():
+                with gzip.open(output_dir / control["best_validation_rank_file"], "rt", encoding="utf-8") as stream:
+                    baseline = json.load(stream)
+                contrasts.append({"reference": reference, "training_seed_uncertainty_included": False,
+                    "selection_uncertainty_included": False, "exploratory_validation_selection": True,
+                    "evaluation_condition": "registered native short input for both arms",
+                    "cutoffs": {str(k): paired_daily_ndcg_bootstrap(baseline, short_ranks, k=k,
+                        seed=config["seed"], draws=hpo["bootstrap_draws"]) for k in (10, 100)}})
+            report["cases"][name]["paired_matched_short_validation_contrasts"] = contrasts
+            report["cases"][name]["full_transfer_status"] = (
+                "success" if "best_full_validation" in result else result["status"])
+        for prefix, quality in (("proxy", result["best_validation"]), ("full_transfer", result.get("best_full_validation", {}))):
             metrics.update({f"{name}_{prefix}_{key}": value for key, value in quality.items()})
         metrics[f"{name}_best_epoch"] = result["best_epoch"]
         metrics[f"{name}_passes_completed"] = result["passes_completed"]
@@ -515,15 +592,23 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
             "model": name}), flush=True)
         persist()
     print(json.dumps({"phase": definition.phase + "_paired_statistics_complete"}), flush=True)
-    report["families_without_finite_full_candidate"] = missing
+    report["families_without_finite_short_candidate" if definition.select_candidate is not None
+        else "families_without_finite_full_candidate"] = missing
     _json(output_dir / "final-selection.json", {"selected_trials": report["selected_trials"],
-        "selection_split": "validation", "selection_input": "full_history",
-        "checkpoint_training_input": "H1024+R128", "test_evaluations": 0})
+        "selection_split": "validation", "selection_input": (
+            "registered_native_short_context" if definition.select_candidate is not None else "full_history"),
+        "checkpoint_training_input": ("per-family native short input; long arms H1024+R128"
+            if definition.variants is not None else "H1024+R128"), "test_evaluations": 0})
     metrics.update(successful_trials=sum(row["status"] == "success" for family in report["trials"].values() for row in family.values()),
         failed_trials=sum(row["status"] != "success" for family in report["trials"].values() for row in family.values()))
+    if definition.optional_full_transfer:
+        metrics.update(primary_successful_families=len(report["selected_trials"]),
+            full_transfer_failed_trials=sum(row["status"] == "full_transfer_failed"
+                for family in report["trials"].values() for row in family.values()))
     persist()
     if missing:
-        raise RuntimeError("no finite full-H validation candidate for family: " + ", ".join(missing))
+        condition = "native short-context" if definition.select_candidate is not None else "full-H"
+        raise RuntimeError("no finite " + condition + " validation candidate for family: " + ", ".join(missing))
     guard()
     report["complete"] = True
     metrics.update(quality_complete=True, suite_seconds=time.monotonic() - started)

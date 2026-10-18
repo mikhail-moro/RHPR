@@ -89,7 +89,9 @@ def _replay(model: torch.nn.Module, batch: dict[str, torch.Tensor], *,
                 encoded = model.encode(batch["item_ids"], batch["valid_mask"])
             result["encoded"] = [{"tensor_path": path, **_stats(tensor)}
                                  for path, tensor in _tensors(encoded) if tensor.is_floating_point()]
-            loss = _loss(model, encoded, batch, model.compressor.tail_size, batch["negative_ids"].shape[-1])
+            compressor = getattr(model, "compressor", None)
+            tail_size = compressor.tail_size if compressor is not None else model.tail_size
+            loss = _loss(model, encoded, batch, tail_size, batch["negative_ids"].shape[-1])
             result["loss_finite"] = bool(torch.isfinite(loss))
             result["loss"] = float(loss) if result["loss_finite"] else None
     except Exception as error:

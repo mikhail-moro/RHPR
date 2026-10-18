@@ -1,0 +1,846 @@
+{
+  "benchmark": {
+    "batch_sizes": [
+      1,
+      8,
+      32
+    ],
+    "evaluation_batch_size": 32,
+    "item_chunk_size": 65536,
+    "iterations": 8,
+    "quality_cutoffs": [
+      10,
+      100
+    ],
+    "warmup": 3
+  },
+  "compressor": {
+    "d_inner": 128,
+    "d_state": 16,
+    "dropout": 0.0,
+    "dt_max": 0.1,
+    "dt_min": 0.0001,
+    "gate_rank": 32,
+    "query_context_size": 128,
+    "query_source": "old_suffix"
+  },
+  "data": {
+    "catalog_sha256": "527dd7772d84afcaf32a1886726b34884d129adb72d5702d2847a466840f8cf7",
+    "cohort_mapped_train_items_sha256": "e84f8431274a185b4d1e8ff0f39427edf6f1c78a86fa92c2de375794ce3cff45",
+    "cohort_train_timestamps_sha256": "2857d39b1aa90ae92f4fa6eb688a700c8102d991a3b8afc73d59bf05f0e2f3bf",
+    "cohort_uid_length_sha256": "389eb71cc019879a91bf6a9ee9fcff7fc86ae77fdd5137544a380ffaf71c0446",
+    "day_seconds": 86400,
+    "evaluation_content_sha256": "c274171b1c7fbf480636579eec774f71d89540a2e966e1a1a2871a76bc85ae6d",
+    "evaluation_path": "/kaggle/input/datasets/carasik/rhpr-yambda500m-daily-evaluation",
+    "evaluation_protocol": "first_listen_per_user_day_v1",
+    "prepared_path": "/kaggle/input/datasets/carasik/rhpr-yambda500m-train16k-profile",
+    "source_revision": "dd6f3a19eef5866e346c3270e098baa641a44948",
+    "test_end_timestamp": 25920000,
+    "train_end_timestamp": 24710400,
+    "validation_end_timestamp": 25315200
+  },
+  "model": {
+    "d_model": 128,
+    "dropout": 0.2,
+    "ffn_multiplier": 4,
+    "n_heads": 4,
+    "n_layers": 2,
+    "use_time_features": false
+  },
+  "parent": {
+    "baselines": {
+      "query_cross_attention_m4": {
+        "test": {
+          "file": "query_cross_attention_m4-test-anchors.json.gz",
+          "sha256": "ef728591c86eff9caece0c9b29acfbed1264f3a7fe21ecdb2e30499f6a6c5a6e"
+        },
+        "validation": {
+          "file": "query_cross_attention_m4-validation-anchors.json.gz",
+          "sha256": "3aecade0dc581f79918aae959a5168878c9483e18368251e85f346c54f61e283"
+        }
+      },
+      "query_ssm_m4": {
+        "test": {
+          "file": "query_ssm_m4-test-anchors.json.gz",
+          "sha256": "3768cbb6f7ef229b6a6fa0603177b36dedf421c7a69453137aea81a4acd546b4"
+        },
+        "validation": {
+          "file": "query_ssm_m4-validation-anchors.json.gz",
+          "sha256": "f834ded3c107000c9d35a0cf8d03cc3d7e938ecefd5ae05de9dbb1db237626ff"
+        }
+      },
+      "recent128": {
+        "test": {
+          "file": "recent128-test-anchors.json.gz",
+          "sha256": "0f1299cbb02a4f9bda3471ed23f6cbaa04402b58d5a111b66df8b0a287c3757c"
+        },
+        "validation": {
+          "file": "recent128-validation-anchors.json.gz",
+          "sha256": "71d59986a0adb7182703ea53b1f8c99b88886c2b051464a3177008f27302356b"
+        }
+      }
+    },
+    "checkpoint_root": "/kaggle/input/rhpr-sasrec-prefix-query-pilot",
+    "checkpoints": {
+      "query_cross_attention_m4": {
+        "best_epoch": 30,
+        "file": "checkpoints/query_cross_attention_m4.pt",
+        "sha256": "636586c0f605e85c05c6512687eb0e21fb6b7716107729eb4eb97deeff961eca",
+        "size_bytes": 556851552,
+        "validation_anchors_sha256": "3aecade0dc581f79918aae959a5168878c9483e18368251e85f346c54f61e283",
+        "validation_ndcg10": 0.06323377392648971
+      },
+      "query_ssm_m4": {
+        "best_epoch": 20,
+        "file": "checkpoints/query_ssm_m4.pt",
+        "sha256": "8034d3645314d2c96d6bd322f6947ca3bba7252c3f3849ff5fff757cf6f47c89",
+        "size_bytes": 556787642,
+        "validation_anchors_sha256": "f834ded3c107000c9d35a0cf8d03cc3d7e938ecefd5ae05de9dbb1db237626ff",
+        "validation_ndcg10": 0.0636044804198412
+      }
+    },
+    "context_manifest_sha256": "e33bdbf050e95d32cb88b40a6ea8b8d46c8ed26a4025b59b1543101528635110",
+    "experiment_config": {
+      "benchmark": {
+        "batch_sizes": [
+          1,
+          8,
+          32
+        ],
+        "evaluation_batch_size": 32,
+        "item_chunk_size": 65536,
+        "iterations": 8,
+        "quality_cutoffs": [
+          10,
+          100
+        ],
+        "warmup": 3
+      },
+      "compressor": {
+        "d_inner": 128,
+        "d_state": 16,
+        "dropout": 0.0,
+        "dt_max": 0.1,
+        "dt_min": 0.0001,
+        "gate_rank": 32,
+        "query_context_size": 128,
+        "query_source": "old_suffix"
+      },
+      "data": {
+        "catalog_sha256": "527dd7772d84afcaf32a1886726b34884d129adb72d5702d2847a466840f8cf7",
+        "cohort_mapped_train_items_sha256": "e84f8431274a185b4d1e8ff0f39427edf6f1c78a86fa92c2de375794ce3cff45",
+        "cohort_train_timestamps_sha256": "2857d39b1aa90ae92f4fa6eb688a700c8102d991a3b8afc73d59bf05f0e2f3bf",
+        "cohort_uid_length_sha256": "389eb71cc019879a91bf6a9ee9fcff7fc86ae77fdd5137544a380ffaf71c0446",
+        "day_seconds": 86400,
+        "evaluation_content_sha256": "c274171b1c7fbf480636579eec774f71d89540a2e966e1a1a2871a76bc85ae6d",
+        "evaluation_path": "/kaggle/input/datasets/carasik/rhpr-yambda500m-daily-evaluation",
+        "evaluation_protocol": "first_listen_per_user_day_v1",
+        "prepared_path": "/kaggle/input/datasets/carasik/rhpr-yambda500m-train16k-profile",
+        "source_revision": "dd6f3a19eef5866e346c3270e098baa641a44948",
+        "test_end_timestamp": 25920000,
+        "train_end_timestamp": 24710400,
+        "validation_end_timestamp": 25315200
+      },
+      "kaggle": {
+        "competition_sources": [],
+        "dataset_sources": [
+          "carasik/rhpr-yambda500m-train16k-profile",
+          "carasik/rhpr-yambda500m-daily-evaluation",
+          "carasik/rhpr-cp313-torch210-mamba-runtime"
+        ],
+        "kernel_sources": [],
+        "model_sources": []
+      },
+      "kind": "yambda_sasrec_prefix_query_pilot",
+      "model": {
+        "d_model": 128,
+        "dropout": 0.2,
+        "ffn_multiplier": 4,
+        "n_heads": 4,
+        "n_layers": 2,
+        "use_time_features": false
+      },
+      "name": "yambda500m-sasrec-prefix-query-pilot",
+      "runtime": {
+        "manifest_sha256": "cb1cd1421931548762bd02636771e9927ae7e6993a4dfe7df51810a874baa643",
+        "requirements_file": "requirements-lock.txt",
+        "requirements_sha256": "7403aec00eb0ce74b03e06b062a4e382d54e59e2b9fff94f9f84f949fc6521cb",
+        "target_python_minor": "3.13",
+        "target_site": "/kaggle/temp/rhpr-runtime-site",
+        "target_torch_version": "2.10.0+cu128",
+        "wheel_path": "/kaggle/input/datasets/carasik/rhpr-cp313-torch210-mamba-runtime"
+      },
+      "seed": 42,
+      "summary_budgets": [
+        4
+      ],
+      "training": {
+        "amp": true,
+        "budget_safety_factor": 1.25,
+        "budget_seconds": 10800,
+        "cpu_threads": 2,
+        "device": "cuda",
+        "early_stopping_min_passes": 30,
+        "early_stopping_patience": 3,
+        "effective_batch_size": 128,
+        "grad_clip_norm": 1.0,
+        "initial_loss_scale": 1024.0,
+        "learning_rate": 0.001,
+        "max_passes": 100,
+        "min_passes": 30,
+        "num_negatives": 512,
+        "physical_batch_sizes": [
+          8,
+          16,
+          32
+        ],
+        "query_context_size": 128,
+        "raw_context_length": 32768,
+        "raw_tail_size": 128,
+        "serving_context_length": 32768,
+        "supervised_targets": 128,
+        "validation_interval": 10,
+        "weight_decay": 1e-05
+      },
+      "variants": [
+        "recent128",
+        "query_cross_attention_m4",
+        "query_ssm_m4"
+      ]
+    },
+    "kernel": "carasik/rhpr-sasrec-prefix-query-pilot",
+    "manifest_sha256": "7962c22fec6079c6fd1dfa5bd082caa28274a2dc1f89b2caff21dbc20f9a4774",
+    "source_code_sha": "660c7705ed3e005f35b339313c8c865255e36ede"
+  },
+  "runtime": {
+    "manifest_sha256": "cb1cd1421931548762bd02636771e9927ae7e6993a4dfe7df51810a874baa643",
+    "requirements_file": "requirements-lock.txt",
+    "requirements_sha256": "7403aec00eb0ce74b03e06b062a4e382d54e59e2b9fff94f9f84f949fc6521cb",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-runtime-site",
+    "target_torch_version": "2.10.0+cu128",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-cp313-torch210-mamba-runtime"
+  },
+  "seed": 42,
+  "summary_budgets": [
+    4
+  ],
+  "training": {
+    "amp": true,
+    "budget_safety_factor": 1.25,
+    "budget_seconds": 21600,
+    "cpu_threads": 2,
+    "device": "cuda",
+    "early_stopping_min_passes": 20,
+    "early_stopping_patience": 2,
+    "effective_batch_size": 128,
+    "grad_clip_norm": 1.0,
+    "initial_loss_scale": 1024.0,
+    "learning_rate": 0.001,
+    "max_passes": 60,
+    "min_passes": 20,
+    "num_negatives": 512,
+    "physical_batch_sizes": [
+      8,
+      16,
+      32
+    ],
+    "query_context_size": 128,
+    "raw_context_length": 32768,
+    "raw_tail_size": 128,
+    "serving_context_length": 32768,
+    "supervised_targets": 128,
+    "validation_interval": 10,
+    "weight_decay": 1e-05
+  },
+  "name": "yambda500m-matched-query-baselines",
+  "kind": "yambda_query_baseline_screen",
+  "hpo": {
+    "bootstrap_draws": 5000,
+    "full_length_validation": true,
+    "max_passes": 60,
+    "min_passes": 20,
+    "patience": 2,
+    "physical_batch_size": 32,
+    "proxy_old_length": 1024,
+    "test_evaluations": 0,
+    "trials": [
+      {
+        "name": "fixed_lr",
+        "backbone_lr": 0.001,
+        "compressor_lr": 0.001
+      }
+    ],
+    "validation_interval": 10
+  },
+  "variants": [
+    "query_cross_attention_m4",
+    "query_ssm_m4",
+    "recent128",
+    "query_only_m4",
+    "mamba4rec",
+    "fuxi_linear"
+  ],
+  "baseline_batches": {
+    "query_cross_attention_m4": {
+      "training": 32,
+      "proxy": 32,
+      "full": 32
+    },
+    "query_ssm_m4": {
+      "training": 32,
+      "proxy": 32,
+      "full": 32
+    },
+    "recent128": {
+      "training": 32,
+      "proxy": 32,
+      "full": 32
+    },
+    "query_only_m4": {
+      "training": 32,
+      "proxy": 32,
+      "full": 32
+    },
+    "mamba4rec": {
+      "training": 32,
+      "proxy": 32,
+      "full": 8
+    },
+    "fuxi_linear": {
+      "training": 16,
+      "proxy": 32,
+      "full": 4
+    }
+  },
+  "standalone_models": {
+    "mamba4rec": {
+      "d_state": 32,
+      "d_conv": 4,
+      "expand": 2
+    },
+    "fuxi_linear": {
+      "chunk_size": 128,
+      "temporal_heads": 8,
+      "positional_dim": 32
+    }
+  },
+  "reference_search": {
+    "kernel": "carasik/rhpr-query-compressor-architecture",
+    "source_code_sha": "a8f6f0dc760624e83d1f8261bd19333cfbd4dc02",
+    "checkpoint_root": "/kaggle/input/rhpr-query-compressor-architecture",
+    "experiment_config": {
+      "architecture_trials": {
+        "query_cross_attention_m4": [
+          {
+            "backbone_lr": 0.001,
+            "compressor_lr": 0.001,
+            "cross_attention_heads": 4,
+            "name": "ca_base",
+            "readout_depth": 1
+          },
+          {
+            "backbone_lr": 0.001,
+            "compressor_lr": 0.001,
+            "cross_attention_heads": 4,
+            "name": "ca_read2",
+            "readout_depth": 2
+          },
+          {
+            "backbone_lr": 0.001,
+            "compressor_lr": 0.001,
+            "cross_attention_heads": 8,
+            "name": "ca_heads8",
+            "readout_depth": 1
+          }
+        ],
+        "query_ssm_m4": [
+          {
+            "backbone_lr": 0.001,
+            "compressor_lr": 0.001,
+            "d_inner": 128,
+            "d_state": 16,
+            "gate_rank": 32,
+            "name": "q_base"
+          },
+          {
+            "backbone_lr": 0.001,
+            "compressor_lr": 0.001,
+            "d_inner": 64,
+            "d_state": 16,
+            "gate_rank": 32,
+            "name": "q_inner64"
+          },
+          {
+            "backbone_lr": 0.001,
+            "compressor_lr": 0.001,
+            "d_inner": 128,
+            "d_state": 32,
+            "gate_rank": 32,
+            "name": "q_state32"
+          }
+        ]
+      },
+      "benchmark": {
+        "batch_sizes": [
+          1,
+          8,
+          32
+        ],
+        "evaluation_batch_size": 32,
+        "item_chunk_size": 65536,
+        "iterations": 8,
+        "quality_cutoffs": [
+          10,
+          100
+        ],
+        "warmup": 3
+      },
+      "compressor": {
+        "d_inner": 128,
+        "d_state": 16,
+        "dropout": 0.0,
+        "dt_max": 0.1,
+        "dt_min": 0.0001,
+        "gate_rank": 32,
+        "query_context_size": 128,
+        "query_source": "old_suffix"
+      },
+      "data": {
+        "catalog_sha256": "527dd7772d84afcaf32a1886726b34884d129adb72d5702d2847a466840f8cf7",
+        "cohort_mapped_train_items_sha256": "e84f8431274a185b4d1e8ff0f39427edf6f1c78a86fa92c2de375794ce3cff45",
+        "cohort_train_timestamps_sha256": "2857d39b1aa90ae92f4fa6eb688a700c8102d991a3b8afc73d59bf05f0e2f3bf",
+        "cohort_uid_length_sha256": "389eb71cc019879a91bf6a9ee9fcff7fc86ae77fdd5137544a380ffaf71c0446",
+        "day_seconds": 86400,
+        "evaluation_content_sha256": "c274171b1c7fbf480636579eec774f71d89540a2e966e1a1a2871a76bc85ae6d",
+        "evaluation_path": "/kaggle/input/datasets/carasik/rhpr-yambda500m-daily-evaluation",
+        "evaluation_protocol": "first_listen_per_user_day_v1",
+        "prepared_path": "/kaggle/input/datasets/carasik/rhpr-yambda500m-train16k-profile",
+        "source_revision": "dd6f3a19eef5866e346c3270e098baa641a44948",
+        "test_end_timestamp": 25920000,
+        "train_end_timestamp": 24710400,
+        "validation_end_timestamp": 25315200
+      },
+      "hpo": {
+        "bootstrap_draws": 5000,
+        "full_length_validation": true,
+        "max_passes": 60,
+        "min_passes": 20,
+        "patience": 2,
+        "physical_batch_size": 32,
+        "proxy_old_length": 1024,
+        "test_evaluations": 0,
+        "trials": [
+          {
+            "backbone_lr": 0.001,
+            "compressor_lr": 0.001,
+            "name": "architecture"
+          }
+        ],
+        "validation_interval": 10
+      },
+      "kaggle": {
+        "competition_sources": [],
+        "dataset_sources": [
+          "carasik/rhpr-yambda500m-train16k-profile",
+          "carasik/rhpr-yambda500m-daily-evaluation",
+          "carasik/rhpr-cp313-torch210-mamba-runtime"
+        ],
+        "kernel_sources": [
+          "carasik/rhpr-sasrec-prefix-query-pilot",
+          "carasik/rhpr-query-prefix-1k-search"
+        ],
+        "model_sources": []
+      },
+      "kind": "yambda_query_compressor_architecture",
+      "model": {
+        "d_model": 128,
+        "dropout": 0.2,
+        "ffn_multiplier": 4,
+        "n_heads": 4,
+        "n_layers": 2,
+        "use_time_features": false
+      },
+      "name": "yambda500m-query-compressor-architecture",
+      "parent": {
+        "baselines": {
+          "query_cross_attention_m4": {
+            "test": {
+              "file": "query_cross_attention_m4-test-anchors.json.gz",
+              "sha256": "ef728591c86eff9caece0c9b29acfbed1264f3a7fe21ecdb2e30499f6a6c5a6e"
+            },
+            "validation": {
+              "file": "query_cross_attention_m4-validation-anchors.json.gz",
+              "sha256": "3aecade0dc581f79918aae959a5168878c9483e18368251e85f346c54f61e283"
+            }
+          },
+          "query_ssm_m4": {
+            "test": {
+              "file": "query_ssm_m4-test-anchors.json.gz",
+              "sha256": "3768cbb6f7ef229b6a6fa0603177b36dedf421c7a69453137aea81a4acd546b4"
+            },
+            "validation": {
+              "file": "query_ssm_m4-validation-anchors.json.gz",
+              "sha256": "f834ded3c107000c9d35a0cf8d03cc3d7e938ecefd5ae05de9dbb1db237626ff"
+            }
+          },
+          "recent128": {
+            "test": {
+              "file": "recent128-test-anchors.json.gz",
+              "sha256": "0f1299cbb02a4f9bda3471ed23f6cbaa04402b58d5a111b66df8b0a287c3757c"
+            },
+            "validation": {
+              "file": "recent128-validation-anchors.json.gz",
+              "sha256": "71d59986a0adb7182703ea53b1f8c99b88886c2b051464a3177008f27302356b"
+            }
+          }
+        },
+        "checkpoint_root": "/kaggle/input/rhpr-sasrec-prefix-query-pilot",
+        "checkpoints": {
+          "query_cross_attention_m4": {
+            "best_epoch": 30,
+            "file": "checkpoints/query_cross_attention_m4.pt",
+            "sha256": "636586c0f605e85c05c6512687eb0e21fb6b7716107729eb4eb97deeff961eca",
+            "size_bytes": 556851552,
+            "validation_anchors_sha256": "3aecade0dc581f79918aae959a5168878c9483e18368251e85f346c54f61e283",
+            "validation_ndcg10": 0.06323377392648971
+          },
+          "query_ssm_m4": {
+            "best_epoch": 20,
+            "file": "checkpoints/query_ssm_m4.pt",
+            "sha256": "8034d3645314d2c96d6bd322f6947ca3bba7252c3f3849ff5fff757cf6f47c89",
+            "size_bytes": 556787642,
+            "validation_anchors_sha256": "f834ded3c107000c9d35a0cf8d03cc3d7e938ecefd5ae05de9dbb1db237626ff",
+            "validation_ndcg10": 0.0636044804198412
+          }
+        },
+        "context_manifest_sha256": "e33bdbf050e95d32cb88b40a6ea8b8d46c8ed26a4025b59b1543101528635110",
+        "experiment_config": {
+          "benchmark": {
+            "batch_sizes": [
+              1,
+              8,
+              32
+            ],
+            "evaluation_batch_size": 32,
+            "item_chunk_size": 65536,
+            "iterations": 8,
+            "quality_cutoffs": [
+              10,
+              100
+            ],
+            "warmup": 3
+          },
+          "compressor": {
+            "d_inner": 128,
+            "d_state": 16,
+            "dropout": 0.0,
+            "dt_max": 0.1,
+            "dt_min": 0.0001,
+            "gate_rank": 32,
+            "query_context_size": 128,
+            "query_source": "old_suffix"
+          },
+          "data": {
+            "catalog_sha256": "527dd7772d84afcaf32a1886726b34884d129adb72d5702d2847a466840f8cf7",
+            "cohort_mapped_train_items_sha256": "e84f8431274a185b4d1e8ff0f39427edf6f1c78a86fa92c2de375794ce3cff45",
+            "cohort_train_timestamps_sha256": "2857d39b1aa90ae92f4fa6eb688a700c8102d991a3b8afc73d59bf05f0e2f3bf",
+            "cohort_uid_length_sha256": "389eb71cc019879a91bf6a9ee9fcff7fc86ae77fdd5137544a380ffaf71c0446",
+            "day_seconds": 86400,
+            "evaluation_content_sha256": "c274171b1c7fbf480636579eec774f71d89540a2e966e1a1a2871a76bc85ae6d",
+            "evaluation_path": "/kaggle/input/datasets/carasik/rhpr-yambda500m-daily-evaluation",
+            "evaluation_protocol": "first_listen_per_user_day_v1",
+            "prepared_path": "/kaggle/input/datasets/carasik/rhpr-yambda500m-train16k-profile",
+            "source_revision": "dd6f3a19eef5866e346c3270e098baa641a44948",
+            "test_end_timestamp": 25920000,
+            "train_end_timestamp": 24710400,
+            "validation_end_timestamp": 25315200
+          },
+          "kaggle": {
+            "competition_sources": [],
+            "dataset_sources": [
+              "carasik/rhpr-yambda500m-train16k-profile",
+              "carasik/rhpr-yambda500m-daily-evaluation",
+              "carasik/rhpr-cp313-torch210-mamba-runtime"
+            ],
+            "kernel_sources": [],
+            "model_sources": []
+          },
+          "kind": "yambda_sasrec_prefix_query_pilot",
+          "model": {
+            "d_model": 128,
+            "dropout": 0.2,
+            "ffn_multiplier": 4,
+            "n_heads": 4,
+            "n_layers": 2,
+            "use_time_features": false
+          },
+          "name": "yambda500m-sasrec-prefix-query-pilot",
+          "runtime": {
+            "manifest_sha256": "cb1cd1421931548762bd02636771e9927ae7e6993a4dfe7df51810a874baa643",
+            "requirements_file": "requirements-lock.txt",
+            "requirements_sha256": "7403aec00eb0ce74b03e06b062a4e382d54e59e2b9fff94f9f84f949fc6521cb",
+            "target_python_minor": "3.13",
+            "target_site": "/kaggle/temp/rhpr-runtime-site",
+            "target_torch_version": "2.10.0+cu128",
+            "wheel_path": "/kaggle/input/datasets/carasik/rhpr-cp313-torch210-mamba-runtime"
+          },
+          "seed": 42,
+          "summary_budgets": [
+            4
+          ],
+          "training": {
+            "amp": true,
+            "budget_safety_factor": 1.25,
+            "budget_seconds": 10800,
+            "cpu_threads": 2,
+            "device": "cuda",
+            "early_stopping_min_passes": 30,
+            "early_stopping_patience": 3,
+            "effective_batch_size": 128,
+            "grad_clip_norm": 1.0,
+            "initial_loss_scale": 1024.0,
+            "learning_rate": 0.001,
+            "max_passes": 100,
+            "min_passes": 30,
+            "num_negatives": 512,
+            "physical_batch_sizes": [
+              8,
+              16,
+              32
+            ],
+            "query_context_size": 128,
+            "raw_context_length": 32768,
+            "raw_tail_size": 128,
+            "serving_context_length": 32768,
+            "supervised_targets": 128,
+            "validation_interval": 10,
+            "weight_decay": 1e-05
+          },
+          "variants": [
+            "recent128",
+            "query_cross_attention_m4",
+            "query_ssm_m4"
+          ]
+        },
+        "kernel": "carasik/rhpr-sasrec-prefix-query-pilot",
+        "manifest_sha256": "7962c22fec6079c6fd1dfa5bd082caa28274a2dc1f89b2caff21dbc20f9a4774",
+        "source_code_sha": "660c7705ed3e005f35b339313c8c865255e36ede"
+      },
+      "reused_controls": {
+        "checkpoint_root": "/kaggle/input/rhpr-query-prefix-1k-search",
+        "experiment": {
+          "file": "experiment.json",
+          "sha256": "a003522b9fcde6bb7c31ae567cbe3794adbfeaaf2b3a50836ef8731b398f8820"
+        },
+        "kernel": "carasik/rhpr-query-prefix-1k-search",
+        "manifest": {
+          "file": "checkpoint-manifest.json",
+          "sha256": "07ddc15ec708e4bbadcac56fef50ef496c6cdb3cff10e76f0dcbc21ba0297450"
+        },
+        "models": {
+          "query_cross_attention_m4": {
+            "best_validation": {
+              "file": "query_cross_attention_m4-current_lr-p50-validation-anchors.json.gz",
+              "sha256": "d964edccff3bc500c11e7344c383e74159a89d4e3ecd0f22559860b7e43358d1"
+            },
+            "best_validation_contexts": {
+              "file": "query_cross_attention_m4-current_lr-p50-validation-input-contexts.json.gz",
+              "sha256": "9142e65efd2737adb12d18ada03a4b636878f6ffe03bd97a15d505e5b7fb013b"
+            },
+            "checkpoint": {
+              "best_epoch": 50,
+              "file": "checkpoints/query_cross_attention_m4-current_lr.pt",
+              "sha256": "f5d774c7c483484037144b78db264f0c3362d70f498e6a53b7773780dd50c6f3",
+              "size_bytes": 556857385
+            },
+            "full_validation": {
+              "file": "query_cross_attention_m4-current_lr-full-validation-anchors.json.gz",
+              "sha256": "15c057f694a797bfd5bb987fd9363100661486746c8491e1f6157e0f111a4d10"
+            },
+            "full_validation_contexts": {
+              "file": "query_cross_attention_m4-current_lr-full-validation-input-contexts.json.gz",
+              "sha256": "8dcaa0fdbd88b42a4a016c0b48d0902ca9e15ea643b267a0bffb4c399908ed33"
+            },
+            "original_trial": "current_lr"
+          },
+          "query_ssm_m4": {
+            "best_validation": {
+              "file": "query_ssm_m4-current_lr-p50-validation-anchors.json.gz",
+              "sha256": "ab10661bd0e9ca61bd70644fcf431018c2ab14e6ff439aeec23c990163c96172"
+            },
+            "best_validation_contexts": {
+              "file": "query_ssm_m4-current_lr-p50-validation-input-contexts.json.gz",
+              "sha256": "9142e65efd2737adb12d18ada03a4b636878f6ffe03bd97a15d505e5b7fb013b"
+            },
+            "checkpoint": {
+              "best_epoch": 50,
+              "file": "checkpoints/query_ssm_m4-current_lr.pt",
+              "sha256": "466c6924a4e10e81c789bd5fea0582e3bac24b75e3bb41750c25d9732f7c0ff8",
+              "size_bytes": 556793733
+            },
+            "full_validation": {
+              "file": "query_ssm_m4-current_lr-full-validation-anchors.json.gz",
+              "sha256": "3b911757093ee726f059ed3caeb9980c708b7f503353f9a4e405694cf72e77c9"
+            },
+            "full_validation_contexts": {
+              "file": "query_ssm_m4-current_lr-full-validation-input-contexts.json.gz",
+              "sha256": "8dcaa0fdbd88b42a4a016c0b48d0902ca9e15ea643b267a0bffb4c399908ed33"
+            },
+            "original_trial": "current_lr"
+          }
+        },
+        "report": {
+          "file": "query-1k-search.json",
+          "sha256": "0827fab7c42d4f61f7ec719ae1aa7802b22569f8745e9c1432e3aab1d5f14786"
+        },
+        "source_code_sha": "66a0322b46b17cf9b480952512d49810c1efcd8e"
+      },
+      "runtime": {
+        "manifest_sha256": "cb1cd1421931548762bd02636771e9927ae7e6993a4dfe7df51810a874baa643",
+        "requirements_file": "requirements-lock.txt",
+        "requirements_sha256": "7403aec00eb0ce74b03e06b062a4e382d54e59e2b9fff94f9f84f949fc6521cb",
+        "target_python_minor": "3.13",
+        "target_site": "/kaggle/temp/rhpr-runtime-site",
+        "target_torch_version": "2.10.0+cu128",
+        "wheel_path": "/kaggle/input/datasets/carasik/rhpr-cp313-torch210-mamba-runtime"
+      },
+      "seed": 42,
+      "summary_budgets": [
+        4
+      ],
+      "training": {
+        "amp": true,
+        "budget_safety_factor": 1.25,
+        "budget_seconds": 14400,
+        "cpu_threads": 2,
+        "device": "cuda",
+        "early_stopping_min_passes": 20,
+        "early_stopping_patience": 2,
+        "effective_batch_size": 128,
+        "grad_clip_norm": 1.0,
+        "initial_loss_scale": 1024.0,
+        "learning_rate": 0.001,
+        "max_passes": 60,
+        "min_passes": 20,
+        "num_negatives": 512,
+        "physical_batch_sizes": [
+          8,
+          16,
+          32
+        ],
+        "query_context_size": 128,
+        "raw_context_length": 32768,
+        "raw_tail_size": 128,
+        "serving_context_length": 32768,
+        "supervised_targets": 128,
+        "validation_interval": 10,
+        "weight_decay": 1e-05
+      },
+      "variants": [
+        "query_cross_attention_m4",
+        "query_ssm_m4"
+      ]
+    },
+    "documents": {
+      "experiment.json": {
+        "sha256": "1e523051392aee862f9b8ebe05d9801bf5be9653e0a6fd3a26f30c9f02506237"
+      },
+      "checkpoint-manifest.json": {
+        "sha256": "5b237c7a7ff7e6cbabb8ebc1c98d07a47f37b6e1cf27cbeb04abb98c970187e9"
+      },
+      "query-compressor-architecture.json": {
+        "sha256": "7537a139eb0d5184f446e78d1d016db14ecf67e20fff8aeb8f1b89a1d9d4f70f"
+      }
+    },
+    "models": {
+      "query_cross_attention_m4": {
+        "trial": {
+          "backbone_lr": 0.001,
+          "compressor_lr": 0.001,
+          "cross_attention_heads": 4,
+          "name": "ca_base",
+          "readout_depth": 1
+        },
+        "weight_kernel": "carasik/rhpr-query-prefix-1k-search",
+        "weight_source_code_sha": "66a0322b46b17cf9b480952512d49810c1efcd8e",
+        "weight_root": "/kaggle/input/rhpr-query-prefix-1k-search",
+        "checkpoint": {
+          "file": "checkpoints/query_cross_attention_m4-current_lr.pt",
+          "sha256": "f5d774c7c483484037144b78db264f0c3362d70f498e6a53b7773780dd50c6f3",
+          "size_bytes": 556857385,
+          "best_epoch": 50
+        },
+        "artifacts": {
+          "best_validation_rank_file": {
+            "file": "query_cross_attention_m4-current_lr-p50-validation-anchors.json.gz",
+            "sha256": "d964edccff3bc500c11e7344c383e74159a89d4e3ecd0f22559860b7e43358d1"
+          },
+          "best_validation_rank_file_contexts": {
+            "file": "query_cross_attention_m4-current_lr-p50-validation-input-contexts.json.gz",
+            "sha256": "9142e65efd2737adb12d18ada03a4b636878f6ffe03bd97a15d505e5b7fb013b"
+          },
+          "full_validation_rank_file": {
+            "file": "query_cross_attention_m4-current_lr-full-validation-anchors.json.gz",
+            "sha256": "15c057f694a797bfd5bb987fd9363100661486746c8491e1f6157e0f111a4d10"
+          },
+          "full_validation_rank_file_contexts": {
+            "file": "query_cross_attention_m4-current_lr-full-validation-input-contexts.json.gz",
+            "sha256": "8dcaa0fdbd88b42a4a016c0b48d0902ca9e15ea643b267a0bffb4c399908ed33"
+          }
+        }
+      },
+      "query_ssm_m4": {
+        "trial": {
+          "backbone_lr": 0.001,
+          "compressor_lr": 0.001,
+          "d_inner": 64,
+          "d_state": 16,
+          "gate_rank": 32,
+          "name": "q_inner64"
+        },
+        "weight_kernel": "carasik/rhpr-query-compressor-architecture",
+        "weight_source_code_sha": "a8f6f0dc760624e83d1f8261bd19333cfbd4dc02",
+        "weight_root": "/kaggle/input/rhpr-query-compressor-architecture",
+        "checkpoint": {
+          "file": "checkpoints/query_ssm_m4-q_inner64.pt",
+          "sha256": "cbf956b800e9363a6a6ca8053971ebc21eb3718862e5c04575eecb2c40d58c83",
+          "size_bytes": 556718212,
+          "best_epoch": 50
+        },
+        "artifacts": {
+          "best_validation_rank_file": {
+            "file": "query_ssm_m4-q_inner64-p50-validation-anchors.json.gz",
+            "sha256": "9f8c71bb1489f52c38f220142de39575d4bad2d462cefba7eecb396caf886efd"
+          },
+          "best_validation_rank_file_contexts": {
+            "file": "query_ssm_m4-q_inner64-p50-validation-input-contexts.json.gz",
+            "sha256": "9142e65efd2737adb12d18ada03a4b636878f6ffe03bd97a15d505e5b7fb013b"
+          },
+          "full_validation_rank_file": {
+            "file": "query_ssm_m4-q_inner64-full-validation-anchors.json.gz",
+            "sha256": "2867f1dd8f4992ed673b346205af7089002e0be781e58dc7a36c004f8ae4bfd7"
+          },
+          "full_validation_rank_file_contexts": {
+            "file": "query_ssm_m4-q_inner64-full-validation-input-contexts.json.gz",
+            "sha256": "8dcaa0fdbd88b42a4a016c0b48d0902ca9e15ea643b267a0bffb4c399908ed33"
+          }
+        }
+      }
+    }
+  },
+  "kaggle": {
+    "competition_sources": [],
+    "dataset_sources": [
+      "carasik/rhpr-yambda500m-train16k-profile",
+      "carasik/rhpr-yambda500m-daily-evaluation",
+      "carasik/rhpr-cp313-torch210-mamba-runtime"
+    ],
+    "kernel_sources": [
+      "carasik/rhpr-sasrec-prefix-query-pilot",
+      "carasik/rhpr-query-prefix-1k-search",
+      "carasik/rhpr-query-compressor-architecture"
+    ],
+    "model_sources": []
+  }
+}
