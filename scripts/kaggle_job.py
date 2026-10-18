@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import time
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 
 STATUS_PATTERN = re.compile(r"status\s+[\"']?([a-z0-9_.-]+)", re.IGNORECASE)
@@ -48,6 +48,83 @@ def copy_result_file(search_root: Path, name: str, destination: Path) -> None:
     shutil.copy2(matches[0], destination / name)
 
 
+def _external_checkpoint_reference(checkpoint: dict, config: dict) -> dict:
+    """Describe a pinned input checkpoint without resolving it on the collector host."""
+    def reject() -> None:
+        raise ValueError("external checkpoint must match pinned reused_controls metadata and input mount")
+
+    controls = config.get("reused_controls", {})
+    kernel = controls.get("kernel")
+    source_sha = controls.get("source_code_sha")
+    if (checkpoint.get("reused") is not True or not isinstance(kernel, str)
+            or re.fullmatch(r"[A-Za-z0-9_-]+/[A-Za-z0-9_-]+", kernel) is None
+            or not isinstance(source_sha, str) or re.fullmatch(r"[0-9a-f]{40}", source_sha) is None
+            or checkpoint.get("external_kernel") != kernel
+            or checkpoint.get("source_code_sha") != source_sha):
+        reject()
+    family = checkpoint.get("training_model")
+    spec = controls.get("models", {}).get(family, {})
+    expected = spec.get("checkpoint", {})
+    original = checkpoint.get("original_path")
+    digest, size = expected.get("sha256"), expected.get("size_bytes")
+    original_trial = checkpoint.get("original_trial")
+    registered_trials = config.get("architecture_trials", {}).get(family, [])
+    if (not isinstance(original, str) or not original or "\\" in original
+            or any(part in {"", ".", ".."} for part in original.split("/"))
+            or PurePosixPath(original).is_absolute() or original != expected.get("file")
+            or not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+            or type(size) is not int or size <= 0
+            or type(checkpoint.get("size_bytes")) is not int
+            or checkpoint.get("sha256") != digest or checkpoint.get("size_bytes") != size
+            or not isinstance(original_trial, dict)
+            or original_trial.get("name") != spec.get("original_trial")
+            or not isinstance(spec.get("original_trial"), str)
+            or not registered_trials or checkpoint.get("trial") != registered_trials[0]
+            or ("best_epoch" in expected and checkpoint.get("best_epoch") != expected["best_epoch"])):
+        reject()
+
+    # Kaggle varies the input mount layout. Only known roots or the explicitly
+    # configured, bounded input root are accepted; no filesystem lookup is needed.
+    owner, slug = kernel.split("/")
+    base = PurePosixPath("/kaggle/input")
+    roots = {base / slug, base / owner / slug,
+             base / "notebooks" / owner / slug, base / "kernels" / owner / slug}
+    configured = controls.get("checkpoint_root")
+    if not isinstance(configured, str) or not configured or "\\" in configured:
+        reject()
+    configured_path = PurePosixPath(configured)
+    if ".." in configured_path.parts or "." in configured.split("/"):
+        reject()
+    if not configured_path.is_absolute():
+        configured_path = base / configured_path
+    try:
+        configured_parts = configured_path.relative_to(base).parts
+    except ValueError:
+        reject()
+    if not 1 <= len(configured_parts) <= 4 or configured_parts[-1] != slug:
+        reject()
+    roots.add(configured_path)
+    mounted = checkpoint.get("path")
+    if (not isinstance(mounted, str) or checkpoint.get("verified_mount_path") != mounted
+            or mounted not in {str(root / original) for root in roots}):
+        reject()
+    return {
+        "path": mounted,
+        "original_path": original,
+        "verified_mount_path": mounted,
+        "external_kernel": kernel,
+        "source_code_sha": source_sha,
+        "training_model": family,
+        "original_trial": original_trial,
+        "reused": True,
+        "sha256": digest,
+        "kaggle_size_bytes": size,
+        "downloaded": False,
+        "downloaded_size_bytes": None,
+        "storage": "retained_on_private_parent_kaggle",
+    }
+
+
 def write_collection_manifest(
     downloaded: Path,
     output: Path,
@@ -70,6 +147,11 @@ def write_collection_manifest(
         try:
             checkpoint_manifest = json.loads(checkpoint_manifest_path.read_text(encoding="utf-8"))
             for checkpoint in checkpoint_manifest.get("checkpoints", []):
+                if checkpoint.get("reused") is True:
+                    checkpoints.append(_external_checkpoint_reference(checkpoint, checkpoint_manifest.get("config", {})))
+                    continue
+                if any(key in checkpoint for key in ("external_kernel", "verified_mount_path", "original_path")):
+                    raise ValueError("external checkpoint requires explicit reused=true metadata")
                 relative_path = checkpoint["path"]
                 path = Path(relative_path)
                 if path.is_absolute() or ".." in path.parts:

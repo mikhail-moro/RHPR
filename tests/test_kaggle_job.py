@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 import tempfile
+import copy
 import json
 import re
 import subprocess
@@ -12,6 +13,40 @@ from scripts.kaggle_job import copy_result_file, execute, parse_kernel_status, w
 
 
 class KaggleJobTest(unittest.TestCase):
+    @staticmethod
+    def reused_checkpoint_manifest() -> dict:
+        kernel = "carasik/rhpr-query-prefix-1k-search"
+        source = "66a0322b46b17cf9b480952512d49810c1efcd8e"
+        checkpoints, models, trials = [], {}, {}
+        for family, name, digest, size in (
+            ("query_cross_attention_m4", "ca_base",
+             "f5d774c7c483484037144b78db264f0c3362d70f498e6a53b7773780dd50c6f3", 556857385),
+            ("query_ssm_m4", "q_base",
+             "466c6924a4e10e81c789bd5fea0582e3bac24b75e3bb41750c25d9732f7c0ff8", 556793733),
+        ):
+            original = f"checkpoints/{family}-current_lr.pt"
+            mounted = f"/kaggle/input/notebooks/{kernel}/{original}"
+            trial = {"name": name, "backbone_lr": 0.001, "compressor_lr": 0.001}
+            original_trial = dict(trial, name="current_lr")
+            checkpoints.append({
+                "active_old_length": 1024, "best_epoch": 50, "precision": "float32",
+                "training_model": family, "trial": trial, "path": mounted,
+                "sha256": digest, "size_bytes": size, "reused": True,
+                "external_kernel": kernel, "source_code_sha": source,
+                "original_path": original, "original_trial": original_trial,
+                "verified_mount_path": mounted,
+            })
+            models[family] = {"original_trial": "current_lr", "checkpoint": {
+                "file": original, "sha256": digest, "size_bytes": size, "best_epoch": 50,
+            }}
+            trials[family] = [trial]
+        return {"format_version": 3, "checkpoints": checkpoints, "config": {
+            "reused_controls": {"kernel": kernel, "source_code_sha": source,
+                                "checkpoint_root": "/kaggle/input/rhpr-query-prefix-1k-search",
+                                "models": models},
+            "architecture_trials": trials,
+        }}
+
     def test_parses_plain_status(self) -> None:
         self.assertEqual(parse_kernel_status('kernel has status "complete"'), "complete")
 
@@ -277,6 +312,157 @@ class KaggleJobTest(unittest.TestCase):
             }))
             with self.assertRaisesRegex(ValueError, "within kernel outputs"):
                 write_collection_manifest(root, root, "owner/kernel", None)
+
+    def test_collection_manifest_records_reused_input_weights_separately_from_current_outputs(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = self.reused_checkpoint_manifest()
+            # The completed architecture run has two reused controls and four new checkpoints.
+            for name in ("ca_read2", "ca_heads8", "q_inner64", "q_state32"):
+                source["checkpoints"].append({"path": f"checkpoints/{name}.pt", "size_bytes": 100,
+                                              "sha256": "a" * 64})
+            (root / "checkpoints").mkdir()
+            (root / "checkpoints" / "ca_read2.pt").write_bytes(b"new weights")
+            # A similarly named local file must never turn an external input into a downloaded output.
+            (root / source["checkpoints"][0]["original_path"]).write_bytes(b"unrelated output")
+            (root / "checkpoint-manifest.json").write_text(json.dumps(source))
+            write_collection_manifest(root, root, "owner/current-run", r".*\.json$")
+            rows = json.loads((root / "output-collection-manifest.json").read_text())["checkpoints"]
+            self.assertEqual(len(rows), 6)
+            for expected, collected in zip(source["checkpoints"][:2], rows[:2]):
+                self.assertEqual(collected["storage"], "retained_on_private_parent_kaggle")
+                self.assertFalse(collected["downloaded"])
+                self.assertIsNone(collected["downloaded_size_bytes"])
+                for key in ("path", "original_path", "verified_mount_path", "external_kernel",
+                            "source_code_sha", "training_model", "original_trial", "sha256", "reused"):
+                    self.assertEqual(collected[key], expected[key])
+                self.assertEqual(collected["kaggle_size_bytes"], expected["size_bytes"])
+            self.assertEqual(rows[2]["storage"], "downloaded")
+            self.assertEqual(rows[2]["downloaded_size_bytes"], len(b"new weights"))
+            self.assertEqual(rows[3]["storage"], "retained_on_private_kaggle")
+
+    def test_reused_checkpoint_accepts_only_bounded_input_mount_layouts_without_resolving_them(self) -> None:
+        for mount in ("/kaggle/input/rhpr-query-prefix-1k-search",
+                      "/kaggle/input/carasik/rhpr-query-prefix-1k-search",
+                      "/kaggle/input/notebooks/carasik/rhpr-query-prefix-1k-search",
+                      "/kaggle/input/kernels/carasik/rhpr-query-prefix-1k-search"):
+            with self.subTest(mount=mount), tempfile.TemporaryDirectory() as temporary:
+                root, source = Path(temporary), self.reused_checkpoint_manifest()
+                for row in source["checkpoints"]:
+                    row["path"] = row["verified_mount_path"] = f"{mount}/{row['original_path']}"
+                (root / "checkpoint-manifest.json").write_text(json.dumps(source))
+                with patch.object(Path, "resolve", side_effect=AssertionError("must not resolve input mount")):
+                    write_collection_manifest(root, root, "owner/current-run", None)
+
+    def test_reused_checkpoint_rejects_mismatched_source_or_checkpoint_metadata(self) -> None:
+        changes = {"external_kernel": "wrong/kernel", "source_code_sha": "b" * 40,
+                   "sha256": "b" * 64, "size_bytes": 12,
+                   "original_path": "checkpoints/other.pt", "best_epoch": 40,
+                   "training_model": "other_model", "original_trial": {"name": "other_trial"},
+                   "trial": {"name": "ca_heads8"}, "verified_mount_path": "/kaggle/input/other.pt"}
+        for field, value in changes.items():
+            with self.subTest(field=field), tempfile.TemporaryDirectory() as temporary:
+                root, source = Path(temporary), self.reused_checkpoint_manifest()
+                source["checkpoints"][0][field] = value
+                (root / "checkpoint-manifest.json").write_text(json.dumps(source))
+                with self.assertRaisesRegex(ValueError, "pinned reused_controls"):
+                    write_collection_manifest(root, root, "owner/current-run", None)
+
+    def test_reused_checkpoint_requires_explicit_boolean_and_all_provenance_fields(self) -> None:
+        fixture = self.reused_checkpoint_manifest()
+        changes = [{"reused": flag} for flag in (False, 1, "true", None)]
+        changes.extend({field: None} for field in ("external_kernel", "source_code_sha", "original_path",
+                                                  "original_trial", "verified_mount_path"))
+        changes.append({"reused": "missing"})
+        for change in changes:
+            with self.subTest(change=change), tempfile.TemporaryDirectory() as temporary:
+                root, source = Path(temporary), copy.deepcopy(fixture)
+                if change == {"reused": "missing"}:
+                    del source["checkpoints"][0]["reused"]
+                else:
+                    source["checkpoints"][0].update(change)
+                (root / "checkpoint-manifest.json").write_text(json.dumps(source))
+                with self.assertRaises(ValueError):
+                    write_collection_manifest(root, root, "owner/current-run", None)
+
+    def test_reused_checkpoint_rejects_escaping_mounts_and_unpinned_configurations(self) -> None:
+        mounts = ("/tmp/weights.pt", "/kaggle/input/../outside.pt",
+                  "/kaggle/input/notebooks/wrong-owner/rhpr-query-prefix-1k-search/checkpoints/weights.pt",
+                  "/kaggle/input/unknown/rhpr-query-prefix-1k-search/checkpoints/weights.pt",
+                  "/kaggle/input/rhpr-query-prefix-1k-search/../checkpoints/weights.pt")
+        fixtures = []
+        for mount in mounts:
+            source = self.reused_checkpoint_manifest()
+            source["checkpoints"][0]["path"] = source["checkpoints"][0]["verified_mount_path"] = mount
+            fixtures.append(source)
+        for missing in ("config", "reused_controls", "models", "architecture_trials"):
+            source = self.reused_checkpoint_manifest()
+            if missing == "config":
+                del source["config"]
+            elif missing in ("reused_controls", "architecture_trials"):
+                del source["config"][missing]
+            else:
+                del source["config"]["reused_controls"][missing]
+            fixtures.append(source)
+        for invalid_root in ("/tmp/rhpr-query-prefix-1k-search",
+                             "/kaggle/input/../rhpr-query-prefix-1k-search"):
+            source = self.reused_checkpoint_manifest()
+            source["config"]["reused_controls"]["checkpoint_root"] = invalid_root
+            fixtures.append(source)
+        source = self.reused_checkpoint_manifest()
+        row = source["checkpoints"][0]
+        row["original_path"] = source["config"]["reused_controls"]["models"][row["training_model"]][
+            "checkpoint"]["file"] = "../weights.pt"
+        fixtures.append(source)
+        for index, source in enumerate(fixtures):
+            with self.subTest(index=index), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                (root / "checkpoint-manifest.json").write_text(json.dumps(source))
+                with self.assertRaises(ValueError):
+                    write_collection_manifest(root, root, "owner/current-run", None)
+
+    def test_invalid_reused_checkpoint_preserves_strict_and_best_effort_collection_semantics(self) -> None:
+        for strict in (True, False):
+            with self.subTest(strict=strict), tempfile.TemporaryDirectory() as temporary:
+                root, source = Path(temporary), self.reused_checkpoint_manifest()
+                source["checkpoints"].insert(0, {"path": "checkpoints/valid.pt", "size_bytes": 7})
+                source["checkpoints"][1]["sha256"] = "wrong-hash"
+                (root / "checkpoint-manifest.json").write_text(json.dumps(source))
+                if strict:
+                    with self.assertRaises(ValueError):
+                        write_collection_manifest(root, root, "owner/current-run", None)
+                    self.assertFalse((root / "output-collection-manifest.json").exists())
+                else:
+                    write_collection_manifest(root, root, "owner/current-run", None,
+                                              strict_checkpoint_manifest=False)
+                    result = json.loads((root / "output-collection-manifest.json").read_text())
+                    self.assertEqual(result["checkpoints"], [])
+                    self.assertEqual(result["checkpoint_manifest_error_type"], "ValueError")
+                    self.assertTrue(result["checkpoint_manifest_downloaded"])
+                    self.assertEqual(result["downloaded_file_count"], 1)
+
+    def test_completed_kernel_collection_succeeds_with_pinned_reused_checkpoint_inputs(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            output = root / "artifacts"
+
+            def fake_run(command, *, check=True):
+                if command[2] == "output":
+                    for name, contents in {"metrics.json": '{"complete": true}', "summary.md": "Done",
+                                           "run-manifest.json": "{}",
+                                           "checkpoint-manifest.json": json.dumps(self.reused_checkpoint_manifest())}.items():
+                        (output / "downloaded" / name).write_text(contents)
+                return subprocess.CompletedProcess(command, 0, stdout="Kernel version 1 successfully pushed.", stderr="")
+
+            with patch("scripts.kaggle_job.run", side_effect=fake_run), patch(
+                "scripts.kaggle_job.kernel_status", return_value=("complete", "complete")
+            ), patch("scripts.kaggle_job.time.sleep"):
+                execute(root / "bundle", "owner/current-run", output, 1)
+            result = json.loads((output / "output-collection-manifest.json").read_text())
+            self.assertEqual(result["kernel_version"], 1)
+            self.assertEqual(len(result["checkpoints"]), 2)
+            self.assertTrue(all(row["storage"] == "retained_on_private_parent_kaggle"
+                                for row in result["checkpoints"]))
 
 
 if __name__ == "__main__":
