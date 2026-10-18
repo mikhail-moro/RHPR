@@ -164,13 +164,17 @@ def _resolve_kernel_root(kernel: str, configured: str, input_root: str | Path = 
     return next(iter(found))
 
 
-def load_baseline_controls(config: dict[str, Any], evaluation: Any, output_dir: Path) -> dict[str, Any]:
+def load_baseline_controls(config: dict[str, Any], evaluation: Any, output_dir: Path, *,
+                           model_names: tuple[str, ...] | None = None) -> dict[str, Any]:
     """Verify both source generations; copy selected weights for portable output."""
     from rhpr.sasrec.query_history_ablation import _verified_file
     from rhpr.sasrec.query_prefix_pilot import _checkpoint_record
 
     validate_baseline_config(config)
     reference = config["reference_search"]
+    if model_names is not None and (not model_names or len(set(model_names)) != len(model_names)
+            or any(name not in reference["models"] for name in model_names)):
+        raise ValueError("requested controls must be distinct registered reference models")
     root = _resolve_kernel_root(reference["kernel"], reference["checkpoint_root"])
     documents = {name: json.loads(_verified_file(root, name, spec["sha256"]).read_text())
                  for name, spec in reference["documents"].items()}
@@ -187,6 +191,8 @@ def load_baseline_controls(config: dict[str, Any], evaluation: Any, output_dir: 
     (output_dir / "checkpoints").mkdir(parents=True, exist_ok=True)
     controls = {}
     for name, spec in reference["models"].items():
+        if model_names is not None and name not in model_names:
+            continue
         trial = spec["trial"]
         result = copy.deepcopy(report["trials"][name][trial["name"]])
         if (result.get("status") != "success" or result.get("complete") is not True

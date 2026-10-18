@@ -128,6 +128,10 @@ def _finite_validation(result: dict[str, Any]) -> None:
         raise FloatingPointError("validation NDCG10 must be finite")
 
 
+class _OptionalFullTransferTimeout(TimeoutError):
+    """The registered secondary diagnostic allowance was exhausted."""
+
+
 @dataclass(frozen=True)
 class QuerySearchDefinition:
     """Explicit differences between a registered LR grid and architecture grid.
@@ -158,6 +162,9 @@ class QuerySearchDefinition:
     paired_short_validation: bool = False
     hpo_performed: bool = True
     optional_full_transfer: bool = False
+    full_transfer_candidates: Callable[..., set[tuple[str, str]]] | None = None
+    retained_trial_resumes: int = 0
+    full_transfer_budget_seconds: int | None = None
 
 
 def run_query_1k_search(config: dict[str, Any], output_dir: Path) -> dict[str, int | float | str | bool]:
@@ -207,6 +214,11 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
         "config": config, "optimizer_state_saved": True, "best_checkpoint_optimizer_state_saved": False,
         "proxy_checkpoints_saved": True, "checkpoints": [], "resume_checkpoints": [],
         "resume_retention": "one last successful completed-pass checkpoint per family; active_trial identifies ownership"}
+    if definition.retained_trial_resumes:
+        policy = (f"top{definition.retained_trial_resumes} completed fresh trials by primary short NDCG10; "
+                  "one additional active trial; exact Adam/scaler/RNG state at completed-pass boundary")
+        report["protocol"]["resume"] = manifest["resume_retention"] = policy
+    optional_transfer_deadline: float | None = None
 
     def persist() -> None:
         _json(output_dir / definition.report_file, report)
@@ -214,6 +226,8 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
         _json(output_dir / "metrics.json", validate_metrics(metrics))
 
     def guard() -> None:
+        if optional_transfer_deadline is not None and time.monotonic() > optional_transfer_deadline:
+            raise _OptionalFullTransferTimeout("registered optional full-transfer allowance exhausted; primary results retained")
         if time.monotonic() - started > train["budget_seconds"]:
             persist()
             raise TimeoutError("query search exceeded registered budget; partial outputs retained")
@@ -374,7 +388,7 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
         last: dict[str, Any] = {}
         attempted, stage = 0, "model_initialization"
         best = checkpoints / f"{label}.pt"
-        resume = checkpoints / f"{name}-resume.pt"
+        resume = checkpoints / f"{label if definition.retained_trial_resumes else name}-resume.pt"
         checkpoint_config = {**config, "active_trial": dict(trial), "active_stage": definition.checkpoint_stage,
             "active_old_length": hpo["proxy_old_length"], "active_pass_cap": hpo["max_passes"]}
         stopping = ValidationEarlyStopping(-1., minimum_additional_passes=hpo["min_passes"],
@@ -393,9 +407,12 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
             result["resumable_checkpoint"] = record_checkpoint("resume_checkpoints", resume,
                 training_model=name, epoch=epoch, next_epoch=epoch + 1, trial=dict(trial),
                 active_old_length=hpo["proxy_old_length"], optimizer_state_saved=True)
-            for other in report["trials"][name].values():
-                if "resumable_checkpoint" in other:
-                    other["resume_checkpoint_retained"] = other is result
+            if definition.retained_trial_resumes:
+                result["resume_checkpoint_retained"] = True
+            else:
+                for other in report["trials"][name].values():
+                    if "resumable_checkpoint" in other:
+                        other["resume_checkpoint_retained"] = other is result
 
         try:
             model = definition.build_model(config, variant, trial, cohort.num_items).to(device)
@@ -472,6 +489,10 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
             last.clear()
             del model, optimizer, scaler
             _cleanup()
+            if definition.retained_trial_resumes:
+                from rhpr.sasrec.query_search_retention import prune_trial_resumes
+                manifest["resume_checkpoints"] = prune_trial_resumes(output_dir,
+                    report["trials"], manifest["resume_checkpoints"], definition.retained_trial_resumes)
             persist()
 
     # Every short training job is resolved before the full-length transfer stage.
@@ -480,14 +501,30 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
             if trial["name"] not in report["trials"].get(variant["name"], {}):
                 fit(variant, trial)
     report["all_short_training_trials_resolved_before_full_validation"] = True
+    full_candidates = (definition.full_transfer_candidates(config, variants, trials_by_family, report)
+                       if definition.full_transfer_candidates is not None else None)
+    if full_candidates is not None:
+        registered_pairs = {(variant["name"], trial["name"]) for variant in variants
+                            for trial in trials_by_family[variant["name"]]}
+        if not full_candidates <= registered_pairs:
+            raise ValueError("full-transfer candidates must be registered trials")
+        report["full_transfer_candidates"] = [list(pair) for pair in sorted(full_candidates)]
     persist()
     print(json.dumps({"phase": definition.phase + "_full_validation_start"}), flush=True)
+    if definition.full_transfer_budget_seconds is not None:
+        if not definition.optional_full_transfer or definition.full_transfer_budget_seconds <= 0:
+            raise ValueError("a positive full-transfer allowance requires optional secondary evaluation")
+        optional_transfer_deadline = time.monotonic() + definition.full_transfer_budget_seconds
     for variant in variants:
         for trial in trials_by_family[variant["name"]]:
             result = report["trials"][variant["name"]][trial["name"]]
             if result["status"] != "training_completed":
                 continue
-            guard()
+            if full_candidates is not None and (variant["name"], trial["name"]) not in full_candidates:
+                result.update(status="success", full_transfer_not_requested=True,
+                    full_transfer_selection_metric="short_validation_ndcg10")
+                persist()
+                continue
             label = f"{variant['name']}-{trial['name']}"
             if (definition.full_transfer_required is not None
                     and not definition.full_transfer_required(config, variant)):
@@ -515,6 +552,7 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
                 continue
             model = None
             try:
+                guard()
                 model = definition.build_model(config, variant, trial, cohort.num_items).to(device)
                 saved = torch.load(checkpoints / f"{label}.pt", map_location="cpu", weights_only=True)
                 if (saved["best_epoch"] != result["best_epoch"]
@@ -533,7 +571,7 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
                 print(json.dumps({"phase": definition.phase + "_full_validation_trial_complete",
                     "model": variant["name"], "trial": trial["name"], "metrics": full["metrics"],
                     "wall_seconds": full["wall_seconds"]}), flush=True)
-            except (FloatingPointError, torch.OutOfMemoryError) as error:
+            except (FloatingPointError, torch.OutOfMemoryError, _OptionalFullTransferTimeout) as error:
                 result.update(status="full_transfer_failed", failure=_failure(error,
                     stage="full_length_validation", completed=result["passes_completed"]))
                 print(json.dumps({"phase": definition.phase + "_trial_failed", "model": variant["name"],
@@ -542,6 +580,7 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
                 del model
                 _cleanup()
                 persist()
+    optional_transfer_deadline = None
     print(json.dumps({"phase": definition.phase + "_full_validation_complete"}), flush=True)
     missing = []
     print(json.dumps({"phase": definition.phase + "_paired_statistics_start"}), flush=True)
@@ -583,6 +622,7 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
                         seed=config["seed"], draws=hpo["bootstrap_draws"]) for k in (10, 100)}})
             report["cases"][name]["paired_matched_short_validation_contrasts"] = contrasts
             report["cases"][name]["full_transfer_status"] = (
+                "not_requested" if result.get("full_transfer_not_requested") else
                 "success" if "best_full_validation" in result else result["status"])
         for prefix, quality in (("proxy", result["best_validation"]), ("full_transfer", result.get("best_full_validation", {}))):
             metrics.update({f"{name}_{prefix}_{key}": value for key, value in quality.items()})

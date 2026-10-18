@@ -198,4 +198,10 @@ def run_experiment(
         from rhpr.sasrec.query_baseline_screen import run_query_baseline_screen
 
         return run_query_baseline_screen(config, output_dir)
+    if kind == "yambda_query_qssm_search":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_query_qssm_search")
+        from rhpr.sasrec.query_qssm_search import run_query_qssm_search
+
+        return run_query_qssm_search(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")
