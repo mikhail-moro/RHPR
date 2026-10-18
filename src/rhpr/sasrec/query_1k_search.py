@@ -6,6 +6,7 @@ No full-history optimization or test-rank deserialization occurs in this run.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 from functools import partial
 import gzip
 import json
@@ -14,7 +15,7 @@ import os
 from pathlib import Path
 import platform
 import time
-from typing import Any
+from typing import Any, Callable
 
 import torch
 
@@ -127,26 +128,60 @@ def _finite_validation(result: dict[str, Any]) -> None:
         raise FloatingPointError("validation NDCG10 must be finite")
 
 
+@dataclass(frozen=True)
+class QuerySearchDefinition:
+    """Explicit differences between a registered LR grid and architecture grid.
+
+    The training/data/evaluation engine remains shared. Callbacks keep the
+    original 1K public API and its registration independent of newer searches.
+    """
+    validate: Callable[..., Any]
+    trials: Callable[..., list[dict[str, Any]]]
+    build_model: Callable[..., torch.nn.Module]
+    preflight: Callable[..., dict[str, Any]]
+    budget: Callable[..., dict[str, Any]]
+    report_file: str = "query-1k-search.json"
+    phase: str = "one_k"
+    checkpoint_stage: str = "one_k_search"
+    profile_each_trial: bool = False
+    load_controls: Callable[..., dict[str, Any]] | None = None
+    isolate_preflight_failures: bool = False
+
+
 def run_query_1k_search(config: dict[str, Any], output_dir: Path) -> dict[str, int | float | str | bool]:
-    validate_1k_config(config)
+    definition = QuerySearchDefinition(validate=validate_1k_config,
+        trials=lambda current, _variant: hpo_trials(current),
+        build_model=lambda current, variant, _trial, items: build_hpo_model(current, variant, items),
+        preflight=lambda current, cohort, evaluation, variant, _trial, device:
+            _preflight_1k(current, cohort, evaluation, variant, device),
+        budget=conservative_1k_budget)
+    return run_registered_query_search(config, output_dir, definition=definition)
+
+
+def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
+        definition: QuerySearchDefinition) -> dict[str, int | float | str | bool]:
+    """Run the shared, validation-only short-history search with explicit recipes."""
+    definition.validate(config)
     started, device = time.monotonic(), _registered_device()
     output_dir = Path(output_dir)
     checkpoints = output_dir / "checkpoints"
     checkpoints.mkdir(parents=True, exist_ok=True)
     train, bench, hpo = config["training"], config["benchmark"], config["hpo"]
-    variants, trials = hpo_variants(config), hpo_trials(config)
+    variants = hpo_variants(config)
+    trials_by_family = {variant["name"]: definition.trials(config, variant) for variant in variants}
+    total_configurations = sum(map(len, trials_by_family.values()))
     torch.set_num_threads(train["cpu_threads"])
     torch.backends.cuda.matmul.allow_tf32 = False
     metrics: dict[str, int | float | str | bool] = {"experiment": config["name"], "seed": config["seed"],
-        "quality_complete": False, "hpo_performed": True, "proxy_training_models": len(variants) * len(trials),
+        "quality_complete": False, "hpo_performed": True, "proxy_training_models": total_configurations,
         "full_training_models": 0, "test_evaluations": 0, "train_is_exhaustive_event_epoch": False,
         "exploratory_previously_inspected_holdout": True}
     report: dict[str, Any] = {"complete": False, "config": config,
         "source_code_sha": os.environ.get("GITHUB_SHA", "local"),
         "environment": {"python": platform.python_version(), "torch": str(torch.__version__),
             "cuda": torch.version.cuda, "gpu": torch.cuda.get_device_name(device) if device.type == "cuda" else "cpu"},
-        "protocol": {"training": "six fresh H1024+R128 models, minimum30 maximum60 passes, validation every10",
-            "stopping": "strict macro-user NDCG10 improvement; patience3 checks; no stop before30",
+        "protocol": {"training": f"H1024+R128 models, minimum{hpo['min_passes']} maximum{hpo['max_passes']} passes, validation every{hpo['validation_interval']}",
+            "stopping": f"strict macro-user NDCG10 improvement; patience{hpo['patience']} checks; no stop before{hpo['min_passes']}",
             "proxy_selection": "earliest strictly best 1K validation weights within each trial",
             "family_selection": "all trials complete before choosing finite full-H validation winner; ties keep registered order",
             "full_history": "one validation-only frozen-weight inference-length transfer per completed short trial; no full training",
@@ -162,14 +197,14 @@ def run_query_1k_search(config: dict[str, Any], output_dir: Path) -> dict[str, i
         "resume_retention": "one last successful completed-pass checkpoint per family; active_trial identifies ownership"}
 
     def persist() -> None:
-        _json(output_dir / "query-1k-search.json", report)
+        _json(output_dir / definition.report_file, report)
         _json(output_dir / "checkpoint-manifest.json", manifest)
         _json(output_dir / "metrics.json", validate_metrics(metrics))
 
     def guard() -> None:
         if time.monotonic() - started > train["budget_seconds"]:
             persist()
-            raise TimeoutError("1K search exceeded registered four-hour budget; partial outputs retained")
+            raise TimeoutError("query search exceeded registered budget; partial outputs retained")
 
     def record_checkpoint(key: str, path: Path, **metadata: Any) -> dict[str, Any]:
         record = _checkpoint_record(path, output_dir, **metadata)
@@ -200,18 +235,78 @@ def run_query_1k_search(config: dict[str, Any], output_dir: Path) -> dict[str, i
     report["saved_baseline_validation"] = {name: _aggregate(rows)[0] for name, rows in validation_baselines.items()}
     metrics.update(cohort_users=len(cohort.users), num_items=cohort.num_items,
         unique_supervised_target_positions_per_model=len(cohort.users) * train["supervised_targets"])
+    controls = (definition.load_controls(config, evaluation, output_dir)
+                if definition.load_controls is not None else {})
+    for name, control in controls.items():
+        registered = trials_by_family.get(name, [])
+        if (control.get("status") != "success"
+                or control.get("trial") not in registered
+                or control.get("trial_name") != control["trial"]["name"]):
+            raise ValueError("reused architecture control does not match a successful registered recipe")
+        report["trials"].setdefault(name, {})[control["trial_name"]] = control
+        manifest["checkpoints"].append(control["best_checkpoint"])
+        if definition.load_controls is not None:
+            with gzip.open(output_dir / control["full_validation_rank_file"], "rt", encoding="utf-8") as stream:
+                validation_baselines[f"reused_1k_{name}"] = json.load(stream)
+    reused_count = len(controls)
+    if definition.load_controls is not None:
+        metrics.update(registered_configurations=total_configurations,
+            proxy_training_models=total_configurations - reused_count, reused_controls=reused_count,
+            backbone_lr=.001, compressor_lr=.001)
+        report["configuration_counts"] = {"total": total_configurations,
+            "new_training_configurations": total_configurations - reused_count, "reused_controls": reused_count}
+        report["protocol"]["control_reuse"] = "verified completed current_lr trials; no repeated training or full validation"
+        report["protocol"]["architecture"] = "SASRec and K4 fixed; only registered compressor shapes change"
     for variant in variants:
-        guard()
-        with _preserve_rng(device):
-            row = _preflight_1k(config, cohort, evaluation, variant, device)
-        report["preflight"][variant["name"]] = row
-        print(json.dumps({"phase": "one_k_preflight", "model": variant["name"], **row}), flush=True)
-        persist()
-    report["budget"] = conservative_1k_budget(config, report["preflight"], time.monotonic() - started,
+        name = variant["name"]
+        pending = [trial for trial in trials_by_family[name]
+                   if trial["name"] not in report["trials"].get(name, {})]
+        for trial in (pending if definition.profile_each_trial else pending[:1]):
+            guard()
+            label = f"{name}-{trial['name']}" if definition.profile_each_trial else name
+            print(json.dumps({"phase": definition.phase + "_preflight_start", "model": name,
+                "trial": trial["name"]}), flush=True)
+            try:
+                with _preserve_rng(device):
+                    row = definition.preflight(config, cohort, evaluation, variant, trial, device)
+                if name in controls:
+                    reference = controls[name]
+                    relative = {"reference": "verified reused control",
+                        "timing_comparison": "different runs; descriptive, not controlled latency evidence"}
+                    if reference.get("compressor_parameters") and row.get("compressor_parameters"):
+                        relative["compressor_parameter_ratio"] = row["compressor_parameters"] / reference["compressor_parameters"]
+                    prior = reference.get("source_preflight", {})
+                    for phase, rate in (("training", "windows_per_second"),
+                                        ("proxy_evaluation", "anchors_per_second"),
+                                        ("full_evaluation", "anchors_per_second")):
+                        old_rate, new_rate = prior.get(phase, {}).get(rate), row.get(phase, {}).get(rate)
+                        if (isinstance(old_rate, (float, int)) and not isinstance(old_rate, bool)
+                                and math.isfinite(old_rate) and old_rate > 0
+                                and isinstance(new_rate, (float, int)) and not isinstance(new_rate, bool)
+                                and math.isfinite(new_rate) and new_rate > 0):
+                            relative[phase + "_seconds_per_example_ratio"] = old_rate / new_rate
+                    row["relative_to_reused_control"] = relative
+                report["preflight"][label] = row
+                print(json.dumps({"phase": definition.phase + "_preflight", "model": name,
+                    "trial": trial["name"], **row}), flush=True)
+            except (FloatingPointError, torch.OutOfMemoryError) as error:
+                if not definition.isolate_preflight_failures:
+                    raise
+                status = "preflight_numerical_failed" if isinstance(error, FloatingPointError) else "preflight_out_of_memory"
+                report["trials"].setdefault(name, {})[trial["name"]] = {
+                    "status": status, "complete": False, "trial_name": trial["name"], "trial": dict(trial),
+                    "passes": [], "passes_completed": 0, "from_scratch": True,
+                    "test_evaluations": 0, "failure": _failure(error, stage="preflight", completed=0)}
+                report["preflight"][label] = {"status": status, "trial": dict(trial)}
+                print(json.dumps({"phase": definition.phase + "_trial_failed", "model": name,
+                    "trial": trial["name"], "status": status}), flush=True)
+                _cleanup()
+            persist()
+    report["budget"] = definition.budget(config, report["preflight"], time.monotonic() - started,
         len(cohort.users), evaluation.summary)
     persist()
     if not report["budget"]["fits"]:
-        raise RuntimeError("measured cost cannot support all six maximum60-pass trials and six full-H validations")
+        raise RuntimeError("measured cost cannot support all registered maximum-pass trials and full-H validations")
     schedules = [fixed_prefix_schedule(cohort, seed=config["seed"], epoch=epoch)
                  for epoch in range(1, hpo["max_passes"] + 1)]
     _json(output_dir / "window-schedules.json", {
@@ -257,7 +352,7 @@ def run_query_1k_search(config: dict[str, Any], output_dir: Path) -> dict[str, i
         attempted, stage = 0, "model_initialization"
         best = checkpoints / f"{label}.pt"
         resume = checkpoints / f"{name}-resume.pt"
-        checkpoint_config = {**config, "active_trial": dict(trial), "active_stage": "one_k_search",
+        checkpoint_config = {**config, "active_trial": dict(trial), "active_stage": definition.checkpoint_stage,
             "active_old_length": hpo["proxy_old_length"], "active_pass_cap": hpo["max_passes"]}
         stopping = ValidationEarlyStopping(-1., minimum_additional_passes=hpo["min_passes"],
             patience=hpo["patience"], validation_interval=hpo["validation_interval"],
@@ -279,7 +374,7 @@ def run_query_1k_search(config: dict[str, Any], output_dir: Path) -> dict[str, i
                     other["resume_checkpoint_retained"] = other is result
 
         try:
-            model = build_hpo_model(config, variant, cohort.num_items).to(device)
+            model = definition.build_model(config, variant, trial, cohort.num_items).to(device)
             optimizer, scaler = hpo_optimizer(model, train, trial), _scaler(device, train)
             reset_restart_rng(config["seed"])
             result.update(optimizer_groups=[{key: group[key] for key in ("component", "lr", "weight_decay")}
@@ -310,7 +405,7 @@ def run_query_1k_search(config: dict[str, Any], output_dir: Path) -> dict[str, i
                             active_old_length=hpo["proxy_old_length"], precision="float32")
                     stage = "completed_pass_checkpoint"
                     save_resume(attempted)
-                print(json.dumps({"phase": "one_k_search_train", "model": name, "trial": trial_name, **row}), flush=True)
+                print(json.dumps({"phase": definition.phase + "_search_train", "model": name, "trial": trial_name, **row}), flush=True)
                 persist()
                 if stopping.stopped:
                     break
@@ -335,7 +430,7 @@ def run_query_1k_search(config: dict[str, Any], output_dir: Path) -> dict[str, i
                     result["failure_diagnostics"] = {"complete": False,
                         "exception_type": type(diagnostic_error).__name__, "message": str(diagnostic_error),
                         "original_trial_failure_preserved": True}
-            print(json.dumps({"phase": "one_k_trial_failed", "model": name, "trial": trial_name,
+            print(json.dumps({"phase": definition.phase + "_trial_failed", "model": name, "trial": trial_name,
                 "status": result["status"], "failure": result["failure"]}), flush=True)
         finally:
             last.clear()
@@ -345,12 +440,14 @@ def run_query_1k_search(config: dict[str, Any], output_dir: Path) -> dict[str, i
 
     # Every short training job is resolved before the full-length transfer stage.
     for variant in variants:
-        for trial in trials:
-            fit(variant, trial)
+        for trial in trials_by_family[variant["name"]]:
+            if trial["name"] not in report["trials"].get(variant["name"], {}):
+                fit(variant, trial)
     report["all_short_training_trials_resolved_before_full_validation"] = True
     persist()
+    print(json.dumps({"phase": definition.phase + "_full_validation_start"}), flush=True)
     for variant in variants:
-        for trial in trials:
+        for trial in trials_by_family[variant["name"]]:
             result = report["trials"][variant["name"]][trial["name"]]
             if result["status"] != "training_completed":
                 continue
@@ -358,7 +455,7 @@ def run_query_1k_search(config: dict[str, Any], output_dir: Path) -> dict[str, i
             label = f"{variant['name']}-{trial['name']}"
             model = None
             try:
-                model = build_hpo_model(config, variant, cohort.num_items).to(device)
+                model = definition.build_model(config, variant, trial, cohort.num_items).to(device)
                 saved = torch.load(checkpoints / f"{label}.pt", map_location="cpu", weights_only=True)
                 if (saved["best_epoch"] != result["best_epoch"]
                         or saved["experiment_config"]["active_trial"] != trial
@@ -366,21 +463,31 @@ def run_query_1k_search(config: dict[str, Any], output_dir: Path) -> dict[str, i
                     raise ValueError("1K checkpoint trial, input length or selected epoch mismatch")
                 model.load_state_dict(saved["state_dict"], strict=True)
                 del saved
+                print(json.dumps({"phase": definition.phase + "_full_validation_trial_start",
+                    "model": variant["name"], "trial": trial["name"]}), flush=True)
                 full = evaluate(model, None, f"{label}-full-validation")
                 result.update(status="success", best_full_validation=full["metrics"],
                     full_validation_rank_file=f"{label}-full-validation-anchors.json.gz",
                     full_validation_wall_seconds=full["wall_seconds"],
                     full_validation_is_frozen_1k_checkpoint=True)
+                print(json.dumps({"phase": definition.phase + "_full_validation_trial_complete",
+                    "model": variant["name"], "trial": trial["name"], "metrics": full["metrics"],
+                    "wall_seconds": full["wall_seconds"]}), flush=True)
             except (FloatingPointError, torch.OutOfMemoryError) as error:
                 result.update(status="full_transfer_failed", failure=_failure(error,
                     stage="full_length_validation", completed=result["passes_completed"]))
+                print(json.dumps({"phase": definition.phase + "_trial_failed", "model": variant["name"],
+                    "trial": trial["name"], "status": result["status"], "failure": result["failure"]}), flush=True)
             finally:
                 del model
                 _cleanup()
                 persist()
+    print(json.dumps({"phase": definition.phase + "_full_validation_complete"}), flush=True)
     missing = []
+    print(json.dumps({"phase": definition.phase + "_paired_statistics_start"}), flush=True)
     for variant in variants:
         name = variant["name"]
+        trials = trials_by_family[name]
         results = [report["trials"][name][trial["name"]] for trial in trials]
         selected = select_1k_candidate(trials, results)
         if selected is None:
@@ -392,6 +499,8 @@ def run_query_1k_search(config: dict[str, Any], output_dir: Path) -> dict[str, i
             "best_full_validation", "best_validation_rank_file", "full_validation_rank_file", "best_checkpoint")}
         with gzip.open(output_dir / result["full_validation_rank_file"], "rt", encoding="utf-8") as stream:
             ranks = json.load(stream)
+        print(json.dumps({"phase": definition.phase + "_paired_statistics_family_start",
+            "model": name, "trial": selected["name"]}), flush=True)
         report["cases"][name]["paired_parent_full_validation_contrasts"] = [
             {"reference": reference, "training_seed_uncertainty_included": False,
              "selection_uncertainty_included": False, "exploratory_validation_selection": True,
@@ -402,6 +511,10 @@ def run_query_1k_search(config: dict[str, Any], output_dir: Path) -> dict[str, i
             metrics.update({f"{name}_{prefix}_{key}": value for key, value in quality.items()})
         metrics[f"{name}_best_epoch"] = result["best_epoch"]
         metrics[f"{name}_passes_completed"] = result["passes_completed"]
+        print(json.dumps({"phase": definition.phase + "_paired_statistics_family_complete",
+            "model": name}), flush=True)
+        persist()
+    print(json.dumps({"phase": definition.phase + "_paired_statistics_complete"}), flush=True)
     report["families_without_finite_full_candidate"] = missing
     _json(output_dir / "final-selection.json", {"selected_trials": report["selected_trials"],
         "selection_split": "validation", "selection_input": "full_history",

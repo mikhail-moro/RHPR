@@ -186,4 +186,10 @@ def run_experiment(
         from rhpr.sasrec.query_1k_search import run_query_1k_search
 
         return run_query_1k_search(config, output_dir)
+    if kind == "yambda_query_compressor_architecture":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_query_compressor_architecture")
+        from rhpr.sasrec.query_architecture_search import run_query_architecture_search
+
+        return run_query_architecture_search(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")
