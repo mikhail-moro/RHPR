@@ -1,8 +1,8 @@
 """Loaded-checkpoint models and exact-shape gates for history continuation.
 
-The short and complete-history arms share a selected source checkpoint. Timing
-uses disposable copies of those actual weights and a fresh AdamW, never an
-untrained stand-in. No timing update can become a quality checkpoint.
+All registered arms use one selected source checkpoint. Timing uses disposable
+copies of those actual weights and a fresh AdamW, never an untrained stand-in.
+No timing update can become a quality checkpoint.
 """
 from __future__ import annotations
 
@@ -72,7 +72,7 @@ def build_history_model(config: dict[str, Any], num_items: int) -> torch.nn.Modu
 
 
 def history_optimizer(model: torch.nn.Module, training: dict[str, Any]) -> torch.optim.Optimizer:
-    """Restart both arms with identical LR/decay and complete parameter ownership."""
+    """Restart registered arms with identical LR/decay and complete parameter ownership."""
     if training["learning_rate"] != .001 or training["weight_decay"] != .00001:
         raise ValueError("history continuation preserves learning_rate=.001 and weight_decay=1e-5")
     return baseline_optimizer(model, training, dict(_FIXED_TRIAL))
@@ -136,12 +136,12 @@ def preflight_history(config: dict[str, Any], cohort: Any, evaluation: Any,
     ``history_source_checkpoint_loaded=True``. Each call returns a disposable
     model; it is never reused for the quality continuation. A separate longest
     microbatch backward precedes two complete effective Adam updates. RNG from
-    profiling is isolated from both actual training arms.
+    profiling is isolated from all actual training arms.
     """
     from rhpr.sasrec.query_history_protocol import history_arms, history_batch_arrays, history_variant
 
     if arm not in history_arms(config):
-        raise ValueError("a registered short or complete-history arm is required")
+        raise ValueError("a registered history-continuation arm is required")
     if not callable(load_model):
         raise ValueError("preflight requires a verified source-checkpoint model loader")
     device = torch.device(device)
@@ -243,7 +243,7 @@ def preflight_history(config: dict[str, Any], cohort: Any, evaluation: Any,
 
 def conservative_history_budget(config: dict[str, Any], profiles: dict[str, Any], elapsed: float,
                                  users: int, evaluation_summary: dict[str, Any]) -> dict[str, Any]:
-    """Price both fixed-pass arms, including their zero-step baseline evaluation."""
+    """Price all registered fixed-pass arms, including zero-step evaluation."""
     from rhpr.sasrec.query_history_protocol import history_arms
 
     train, continuation = config["training"], config["continuation"]
@@ -253,7 +253,7 @@ def conservative_history_budget(config: dict[str, Any], profiles: dict[str, Any]
     for arm in history_arms(config):
         row = profiles[arm["name"]]
         if row.get("status") != "success":
-            raise ValueError("both registered history shapes must pass preflight before training")
+            raise ValueError("all registered history shapes must pass preflight before training")
         rates = row["training"]["windows_per_second"], row["evaluation"]["anchors_per_second"]
         if any(type(rate) not in (int, float) or not math.isfinite(rate) or rate <= 0 for rate in rates):
             raise ValueError("positive finite exact-history-shape preflight rates are required")

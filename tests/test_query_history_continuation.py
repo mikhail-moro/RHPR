@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from contextlib import ExitStack, redirect_stdout
 import copy
+import gzip
 import io
 import json
 from pathlib import Path
@@ -53,7 +54,7 @@ class QueryHistoryContinuationTest(unittest.TestCase):
     def test_qssm_paired_real_adam_restart_fixed_endpoint_and_portable_checkpoints(self):
         self.exercise_suite("qssm")
 
-    def test_fuxi_without_compressor_obeys_the_same_history_continuation_contract(self):
+    def test_fuxi_trains_only_full_history_and_compares_saved_short_source_ranks(self):
         self.exercise_suite("fuxi")
 
     def test_all_loaded_preflights_precede_budget_gate_and_failed_gate_never_trains(self):
@@ -65,7 +66,7 @@ class QueryHistoryContinuationTest(unittest.TestCase):
     def test_required_full_preflight_failure_prohibits_all_quality_training(self):
         self.exercise_suite("fuxi", fail_preflight=True)
 
-    def test_nonfinite_full_validation_retains_finished_short_without_faking_full_quality(self):
+    def test_nonfinite_full_only_validation_does_not_claim_any_completed_history_training(self):
         self.exercise_suite("fuxi", fail_full_validation=True)
 
     def exercise_suite(self, family, *, budget_fits=True, fail_full=False,
@@ -78,6 +79,8 @@ class QueryHistoryContinuationTest(unittest.TestCase):
 
         config = self.config(family)
         arms = history_arms(config)
+        arm_names = [arm["name"] for arm in arms]
+        self.assertEqual(arm_names, ["short", "full"] if family == "qssm" else ["full"])
         by_name = {arm["name"]: arm for arm in arms}
         users = tuple(LongHistoryUser(i, (np.arange(length) % 41 + 1).astype(np.int32),
             np.arange(length, dtype=np.uint32)) for i, length in enumerate((1400, 1450, 1500)))
@@ -125,13 +128,22 @@ class QueryHistoryContinuationTest(unittest.TestCase):
                 "weight_bytes_verified": True, "test_ranks_read": False,
                 "optimizer_state_inherited": False, "scaler_state_inherited": False,
                 "rng_state_inherited": False}
+            historical_path = output / "source-validation" / "historical-short-anchors.json.gz"
+            historical_path.parent.mkdir(parents=True, exist_ok=True)
+            historical_rows = [{"user_id": user.user_id, "day": 286,
+                "anchor_id": f"{user.user_id}:286", "reference_context_hash": "c" * 64,
+                "target_known": True, "rank_cutoff": 100, "ndcg10": .60, "ndcg100": .61,
+                "hr10": 1., "hr100": 1.} for user in users]
+            with gzip.open(historical_path, "wt", encoding="utf-8") as stream:
+                json.dump(historical_rows, stream)
             return {"checkpoint_path": str(destination),
                 "checkpoint_record": _checkpoint_record(destination, output, copied_reference=True,
                     training_model=variant["name"], best_epoch=best_epoch),
                 "source_config": source_config, "source_checkpoint_config": checkpoint_config,
                 "source_variant": variant, "source_trial": copy.deepcopy(config["selected_source"]["trial"]),
-                "source_best_validation": {"ndcg10": .60}, "source_best_epoch": best_epoch,
-                "provenance": provenance, "validation_artifacts": {}, "stopping_policy_replay": {}}
+                "source_best_validation": {"ndcg10": .60, "ndcg100": .61}, "source_best_epoch": best_epoch,
+                "provenance": provenance, "validation_artifacts": {"validation_ranks": {
+                    "file": historical_path.relative_to(output).as_posix()}}, "stopping_policy_replay": {}}
 
         def profile(_config, _cohort, _evaluation, arm, device, *, load_model):
             self.assertIs(_cohort, cohort)
@@ -157,8 +169,8 @@ class QueryHistoryContinuationTest(unittest.TestCase):
                 "estimated_train_pass_seconds": .001, "estimated_validation_seconds": .001}
 
         def budget(_config, results, *args):
-            self.assertEqual(profiles, ["short", "full"])
-            self.assertEqual(set(results), {"short", "full"})
+            self.assertEqual(profiles, arm_names)
+            self.assertEqual(set(results), set(arm_names))
             self.assertEqual(trained, {})
             events.append(("budget",))
             return {"fits": budget_fits, "estimated_total_seconds": .1}
@@ -176,6 +188,7 @@ class QueryHistoryContinuationTest(unittest.TestCase):
             self.assertIs(_cohort, cohort)
             arrays = batch_builder(cohort, windows, config, variant)
             name = "short" if arrays["item_ids"].shape[1] == 1152 else "full"
+            self.assertIn(name, arm_names, "FuXi must not perform new short-history training")
             model_arms[id(model)] = name
             self.assertEqual(physical_batch, by_name[name]["physical_batch_size"])
             epoch = windows[0].epoch
@@ -209,6 +222,7 @@ class QueryHistoryContinuationTest(unittest.TestCase):
             self.assertEqual(len(examples_list), len(users))
             lengths = [len(example.context) for example in examples_list]
             name = "short" if max(lengths) == 1152 else "full"
+            self.assertIn(name, arm_names, "FuXi reuses its saved short ranks without a short forward")
             model_arms[id(model)] = name
             self.assertEqual(batch_size, by_name[name]["evaluation_batch_size"])
             if name == "short":
@@ -239,6 +253,12 @@ class QueryHistoryContinuationTest(unittest.TestCase):
             "serving_context_length": len(example.context),
             "serving_context_sha256": daily_context_sha256(example.user_id, example.context, example.timestamps)}
             for example in examples(cohort, evaluation, split_name="validation", max_seq_len=32768)]
+        def paired(first, second, *, k, **kwargs):
+            self.assertEqual([row["anchor_id"] for row in first], [row["anchor_id"] for row in second])
+            key = f"ndcg{k}"
+            delta = sum(after[key] - before[key] for before, after in zip(first, second)) / len(first)
+            return {"delta_ndcg": delta}
+
         module = "rhpr.sasrec.query_history_continuation."
         with tempfile.TemporaryDirectory() as temporary, ExitStack() as stack:
             output = Path(temporary)
@@ -259,7 +279,7 @@ class QueryHistoryContinuationTest(unittest.TestCase):
                 ("iter_daily_evaluation_examples", {"side_effect": examples}),
                 ("train_prefix_pass", {"side_effect": train}),
                 ("evaluate_daily_quality", {"side_effect": evaluate}),
-                ("paired_daily_ndcg_bootstrap", {"return_value": {"delta_ndcg": .01}}),
+                ("paired_daily_ndcg_bootstrap", {"side_effect": paired}),
                 ("diagnose_nonfinite_batch", {"return_value": {"captured": True}}),
             ):
                 stack.enter_context(patch(module + name, **kwargs))
@@ -272,60 +292,80 @@ class QueryHistoryContinuationTest(unittest.TestCase):
                     metrics = run_history_continuation(config, output)
             report = json.loads((output / "history-continuation.json").read_text())
             self.assertEqual(metrics["test_evaluations"], 0)
-            self.assertEqual(profiles, ["short", "full"])
+            self.assertEqual(metrics["training_models"], len(arms))
+            self.assertEqual(profiles, arm_names)
+            profile_events = [("profile", name) for name in arm_names]
             if fail_preflight:
-                self.assertEqual(events, [("profile", "short"), ("profile", "full")])
+                self.assertEqual(events, profile_events)
                 self.assertEqual(trained, {})
                 self.assertEqual(evaluated, {})
                 self.assertFalse(metrics["quality_complete"])
                 self.assertEqual(report["preflight"]["full"]["status"], "numerical_failed")
                 return
-            self.assertEqual(events[:3], [("profile", "short"), ("profile", "full"), ("budget",)])
+            self.assertEqual(events[:len(arms) + 1], profile_events + [("budget",)])
             if not budget_fits:
                 self.assertEqual(trained, {})
                 self.assertEqual(evaluated, {})
                 self.assertFalse(metrics["quality_complete"])
                 return
-            self.assertEqual(evaluated["short"], [0, 10, 20])
-            self.assertEqual(len(trained["short"]), 20)
-            self.assertEqual([windows[0][0] for windows in trained["short"]], list(range(61, 81)))
-            short_result = report["arms"]["short"]
-            self.assertEqual(short_result["evaluations"]["20"]["metrics"]["ndcg10"], .65)
-            self.assertEqual(short_result["evaluations"]["10"]["metrics"]["ndcg10"], .80)
-            self.assertTrue((output / short_result["endpoint_checkpoint"]["path"]).is_file())
+            if family == "qssm":
+                self.assertEqual(evaluated["short"], [0, 10, 20])
+                self.assertEqual(len(trained["short"]), 20)
+                self.assertEqual([windows[0][0] for windows in trained["short"]], list(range(61, 81)))
+                short_result = report["arms"]["short"]
+                self.assertEqual(short_result["evaluations"]["20"]["metrics"]["ndcg10"], .65)
+                self.assertEqual(short_result["evaluations"]["10"]["metrics"]["ndcg10"], .80)
+                self.assertTrue((output / short_result["endpoint_checkpoint"]["path"]).is_file())
+            else:
+                self.assertNotIn("short", trained)
+                self.assertNotIn("short", evaluated)
+                self.assertEqual(set(report["arms"]), {"full"})
             self.assertEqual(metrics["quality_complete"], not (fail_full or fail_full_validation))
             if fail_full_validation:
-                self.assertEqual(len(optimizers), 1)
+                self.assertEqual(len(optimizers), 0)
                 self.assertEqual(trained["full"], [])
                 self.assertEqual(report["arms"]["full"]["failure"]["stage"], "initial_validation")
+                self.assertFalse(report["arms"]["full"]["full_length_training_performed"])
                 self.assertFalse(report["complete"])
                 return
-            self.assertEqual(len(optimizers), 2)
-            self.assertIsNot(optimizers[0], optimizers[1])
-            self.assertEqual(training_rng["short"][:len(training_rng["full"])], training_rng["full"])
-            short_arrays, full_arrays = arrays_by_arm["short"], arrays_by_arm["full"]
-            np.testing.assert_array_equal(short_arrays["negative_ids"], full_arrays["negative_ids"])
-            for row in range(len(users)):
-                short_length = int(short_arrays["valid_mask"][row].sum())
-                full_length = int(full_arrays["valid_mask"][row].sum())
-                self.assertEqual(short_length, 1152)
-                self.assertGreater(full_length, short_length)
-                for key in ("item_ids", "targets"):
-                    np.testing.assert_array_equal(short_arrays[key][row, short_length - 128:short_length],
-                        full_arrays[key][row, full_length - 128:full_length])
+            self.assertEqual(len(optimizers), len(arms))
+            if family == "qssm":
+                self.assertIsNot(optimizers[0], optimizers[1])
+                self.assertEqual(training_rng["short"][:len(training_rng["full"])], training_rng["full"])
+                short_arrays, full_arrays = arrays_by_arm["short"], arrays_by_arm["full"]
+                np.testing.assert_array_equal(short_arrays["negative_ids"], full_arrays["negative_ids"])
+                for row in range(len(users)):
+                    short_length = int(short_arrays["valid_mask"][row].sum())
+                    full_length = int(full_arrays["valid_mask"][row].sum())
+                    self.assertEqual(short_length, 1152)
+                    self.assertGreater(full_length, short_length)
+                    for key in ("item_ids", "targets"):
+                        np.testing.assert_array_equal(short_arrays[key][row, short_length - 128:short_length],
+                            full_arrays[key][row, full_length - 128:full_length])
             if fail_full:
                 self.assertEqual(len(trained["full"]), 1)
                 self.assertFalse(report["complete"])
                 return
             self.assertEqual(evaluated["full"], [0, 10, 20])
-            self.assertEqual(trained["short"], trained["full"])
+            self.assertEqual([windows[0][0] for windows in trained["full"]], list(range(61, 81)))
+            if family == "qssm":
+                self.assertEqual(trained["short"], trained["full"])
+                self.assertIn("paired_contrasts", report)
+            else:
+                self.assertNotIn("paired_contrasts", report)
+                self.assertIn("historical_source_comparisons", report)
+                self.assertIn("full_initial_to_endpoint", report)
+                self.assertFalse(any("difference_in_differences" in key for key in metrics))
+                for k in (10, 100):
+                    self.assertAlmostEqual(metrics[f"full_minus_historical_source_ndcg{k}"], .06)
+                    self.assertAlmostEqual(metrics[f"full_continuation_gain_ndcg{k}"], .05)
             self.assertTrue(report["complete"])
             self.verify_checkpoints(output, report, config)
 
     def verify_checkpoints(self, output, report, config):
         manifest = json.loads((output / "checkpoint-manifest.json").read_text())
         resumes = manifest["resume_checkpoints"]
-        self.assertEqual(len(resumes), 2)
+        self.assertEqual(len(resumes), len(report["arms"]))
         for record in resumes:
             path = Path(record["path"])
             self.assertFalse(path.is_absolute(), "all output checkpoints must be portable")
@@ -348,7 +388,8 @@ class QueryHistoryContinuationTest(unittest.TestCase):
             self.assertIn("numpy_rng_state", payload)
         # The primary result is always the fixed20 endpoint, even when p10 wins
         # the separately reported best-within-budget selection.
-        for name, expected in (("short", .65), ("full", .66)):
+        for name in report["arms"]:
+            expected = .65 if name == "short" else .66
             result = report["arms"][name]
             self.assertEqual(result["endpoint_validation"]["ndcg10"], expected)
             self.assertEqual(result["best_epoch"], 10)

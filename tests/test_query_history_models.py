@@ -110,18 +110,23 @@ class QueryHistoryModelsTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 history_optimizer(model, changed)
 
-    def tiny_model(self):
+    def tiny_model(self, family="qssm"):
         class TinyModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
                 self.num_items = 20
                 self.item_embedding = torch.nn.Embedding(21, 4)
-                self.compressor = torch.nn.Linear(4, 4)
+                if family == "qssm":
+                    self.compressor = torch.nn.Linear(4, 4)
+                else:
+                    self.projection = torch.nn.Linear(4, 4)
+                    self.architecture, self.d_model = "fuxi_linear", 4
                 self.dropout = torch.nn.Dropout(.2)
                 self.history_source_checkpoint_loaded = True
 
             def encode(self, items, mask):
-                states = self.dropout(self.compressor(self.item_embedding(items)))
+                projection = self.compressor if family == "qssm" else self.projection
+                states = self.dropout(projection(self.item_embedding(items)))
                 sources = torch.arange(items.shape[1]).expand_as(items).masked_fill(~mask, -1)
                 return states, mask, sources
 
@@ -151,16 +156,16 @@ class QueryHistoryModelsTest(unittest.TestCase):
         self.assertEqual(row["optimizer_updates"], 0)
         self.assertTrue(row["forward_and_backward_performed"])
 
-    def _preflight(self, arm_name, *, numerical=False, fresh=False, failed_update=False):
+    def _preflight(self, arm_name, *, numerical=False, fresh=False, failed_update=False, family="qssm"):
         from rhpr.sasrec.query_history_models import preflight_history
         from rhpr.sasrec.query_history_protocol import history_arms
 
-        config = self.config()
+        config = self.config(family)
         config["training"].update(amp=False, effective_batch_size=2,
                                   supervised_targets=2, num_negatives=2, raw_tail_size=2)
-        arms = [dict(row, physical_batch_size=1) for row in history_arms(config)]
+        arms = [dict(row, physical_batch_size=1) for row in history_arms(config)] if family == "qssm" else history_arms(config)
         arm = next(row for row in arms if row["name"] == arm_name)
-        model = self.tiny_model()
+        model = self.tiny_model(family)
         model.history_source_checkpoint_loaded = not fresh
         before = copy.deepcopy(model.state_dict())
         windows = (SimpleNamespace(user_id=1, end=2000), SimpleNamespace(user_id=2, end=4000))
@@ -188,6 +193,7 @@ class QueryHistoryModelsTest(unittest.TestCase):
             stack.enter_context(patch(module + "_profile_daily_rate", side_effect=daily))
             stack.enter_context(patch(module + "_batch", return_value=(torch.ones((1, 6)),)))
             stack.enter_context(patch(module + "_observe_prefix_flops", return_value=(None, {"history_flops": 123})))
+            stack.enter_context(patch(module + "_major_flops", return_value={"per_user": 123, "scope": "test_scope"}))
             if failed_update:
                 stack.enter_context(patch(module + "train_prefix_pass", return_value={
                     "successful_updates": 0, "amp_skipped_update_attempts": 1}))
@@ -213,6 +219,17 @@ class QueryHistoryModelsTest(unittest.TestCase):
                 self.assertFalse(row["fresh_initializer_profiled"])
                 self.assertFalse(row["profile_weights_reused"])
                 self.assertFalse(row["automatic_precision_or_batch_fallback"])
+
+    def test_fuxi_full_only_preflight_measures_registered_b2_without_a_short_profile(self):
+        row, calls, daily_calls = self._preflight("full", family="fuxi")
+        self.assertEqual(calls, [((4000, 2000), None), ((2000, 4000), None), ((2000, 4000), None)])
+        self.assertEqual(daily_calls, [(32768, 4)])
+        self.assertEqual(row["physical_batch_size"], 2)
+        self.assertEqual(row["capacity_warmup"]["physical_batch_size"], 2)
+        self.assertEqual(row["warmup"]["successful_updates"], 1)
+        self.assertEqual(row["training"]["successful_updates"], 1)
+        self.assertEqual(row["compressor_parameters"], 0)
+        self.assertFalse(row["automatic_precision_or_batch_fallback"])
 
     def test_preflight_restores_rng_and_rejects_fresh_models_failed_updates_and_nonfinite_evaluation(self):
         random.seed(93)
@@ -272,8 +289,65 @@ class QueryHistoryModelsTest(unittest.TestCase):
             with self.subTest(rate=invalid), self.assertRaises(ValueError):
                 conservative_history_budget(config, profiles, 100., 1000, {"validation_anchors": 100})
         profiles["full"] = {"status": "preflight_out_of_memory"}
-        with self.assertRaisesRegex(ValueError, "both registered history shapes"):
+        with self.assertRaisesRegex(ValueError, "all registered history shapes"):
             conservative_history_budget(config, profiles, 100., 1000, {"validation_anchors": 100})
+
+    def test_fuxi_full_only_budget_omits_short_work_and_replays_old_b1_cost_as_counterfactual(self):
+        from rhpr.sasrec.query_history_models import conservative_history_budget
+
+        # Actual successful T4 rates from the earlier paired B1-full run.
+        # Repricing its full work alone is only a B1 counterfactual: the new B2
+        # run must obtain fresh B2 capacity and throughput measurements before
+        # its real gate. This fixture makes no claim about B2 performance.
+        profiles = {
+            "short": {"status": "success",
+                      "training": {"windows_per_second": 115.6207218272389},
+                      "evaluation": {"anchors_per_second": 350.5684793812835}},
+            "full": {"status": "success",
+                     "training": {"windows_per_second": 4.216048214902611},
+                     "evaluation": {"anchors_per_second": 19.48255995350387}},
+        }
+        config = self.config("fuxi")
+        self.assertEqual(config["training"]["budget_seconds"], 32400)
+        self.assertEqual(config["training"]["physical_batch_sizes"], [2])
+        self.assertEqual(config["training"]["effective_batch_size"], 128)
+        self.assertEqual(config["continuation"]["short_control"], "historical_only")
+        old_config = copy.deepcopy(config)
+        old_config["training"]["budget_seconds"] = 28800
+        old_config["training"]["physical_batch_sizes"] = [1, 16]
+        old_config["continuation"].pop("short_control")
+        args = (profiles, 126.906860048, 4427, {"validation_anchors": 26335})
+        old = conservative_history_budget(old_config, *args)
+        recovered = conservative_history_budget(config, *args)
+
+        self.assertFalse(old["fits"])
+        self.assertTrue(recovered["fits"])
+        self.assertAlmostEqual(old["conservative_total_seconds"], 32985.67693579488, places=7)
+        expected_full_work = 20 * 4427 / profiles["full"]["training"]["windows_per_second"]
+        expected_full_work += 3 * 26335 / profiles["full"]["evaluation"]["anchors_per_second"]
+        self.assertAlmostEqual(recovered["estimated_remaining_work_seconds"], expected_full_work)
+        self.assertAlmostEqual(recovered["conservative_total_seconds"],
+                               126.906860048 + 1.25 * (expected_full_work + 120.))
+        self.assertEqual(recovered["registered_configurations"], 1)
+        self.assertEqual(recovered["fixed_checkpoint_statistics_overhead_seconds"], 120.)
+        self.assertEqual(recovered["passes_per_arm"], 20)
+        self.assertEqual(recovered["validation_evaluations_per_arm"], 3)
+        self.assertEqual(config["continuation"]["validation_passes"], [0, 10, 20])
+        self.assertEqual(recovered["safety_factor"], 1.25)
+        self.assertFalse(recovered["auto_reduces_arms_or_passes"])
+
+        # A historical short reference adds no new short training or validation
+        # cost. Even an unusable or absent short profile must not enter pricing.
+        for short in ({"status": "numerical_failed"},
+                      {"status": "success", "training": {"windows_per_second": 0.}}):
+            changed = dict(profiles, short=short)
+            self.assertEqual(conservative_history_budget(config, changed, *args[1:]), recovered)
+        self.assertEqual(conservative_history_budget(config, {"full": profiles["full"]}, *args[1:]), recovered)
+        for invalid in (True, 0., -1., float("nan"), float("inf")):
+            changed = copy.deepcopy(profiles)
+            changed["full"]["training"]["windows_per_second"] = invalid
+            with self.subTest(rate=invalid), self.assertRaises(ValueError):
+                conservative_history_budget(config, changed, *args[1:])
 
 
 if __name__ == "__main__":

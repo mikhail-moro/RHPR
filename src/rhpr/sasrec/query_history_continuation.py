@@ -1,4 +1,4 @@
-"""Paired short/full-history continuation from one selected checkpoint.
+"""Registered history continuation from one selected checkpoint.
 
 Every arm starts from identical family weights with fresh optimization state.
 The fixed 20-pass endpoint is primary. Intermediate validation chooses only a
@@ -50,19 +50,21 @@ def run_history_continuation(config: dict[str, Any], output_dir: Path) -> dict[s
     checkpoints.mkdir(parents=True, exist_ok=True)
     train, bench, policy = config["training"], config["benchmark"], config["continuation"]
     variant, arms = history_variant(config), history_arms(config)
+    paired = any(arm["name"] == "short" for arm in arms)
     torch.set_num_threads(train["cpu_threads"])
     torch.backends.cuda.matmul.allow_tf32 = False
     metrics: dict[str, int | float | str | bool] = {
         "experiment": config["name"], "family": config["family"], "seed": config["seed"],
         "quality_complete": False, "hpo_performed": False, "test_evaluations": 0,
-        "training_models": 2, "additional_passes_per_arm": policy["additional_passes"],
+        "training_models": len(arms), "short_control_retrained": paired,
+        "additional_passes_per_arm": policy["additional_passes"],
         "train_is_exhaustive_event_epoch": False, "exploratory_previously_inspected_holdout": True,
     }
     report: dict[str, Any] = {"complete": False, "config": config,
         "source_code_sha": os.environ.get("GITHUB_SHA", "local"),
         "environment": {"python": platform.python_version(), "torch": str(torch.__version__),
             "cuda": torch.version.cuda, "gpu": torch.cuda.get_device_name(device) if device.type == "cuda" else "cpu"},
-        "protocol": {"training": "paired weight-only continuation; fixed20 additional passes in each arm",
+        "protocol": {"training": "weight-only continuation; fixed20 additional passes per registered arm",
             "source": "one selected short-history family checkpoint, identical initial weights in both arms",
             "optimization": "fresh Adam, scaler and seed42 per arm; same schedules/targets/negative identities",
             "primary_selection": "fixed additional-pass20 endpoint; no early stopping or epoch selection",
@@ -77,6 +79,12 @@ def run_history_continuation(config: dict[str, Any], output_dir: Path) -> dict[s
         "config": config, "checkpoints": [], "resume_checkpoints": [],
         "optimizer_state_saved": True, "best_checkpoint_optimizer_state_saved": False,
         "resume_retention": "one final completed-pass Adam/scaler/RNG checkpoint for each arm"}
+    if not paired:
+        report["protocol"].update(
+            source="selected H1024 checkpoint initializes the full-history continuation",
+            optimization="fresh Adam, scaler and seed42; schedules61..80; full-history training only",
+            comparison="full-history continuation versus saved H1024 validation artifacts; includes additional optimization and precision changes",
+            short_control="historical source metrics/ranks only; no short-arm training or inference")
 
     def persist() -> None:
         _json(output_dir / "history-continuation.json", report)
@@ -116,6 +124,9 @@ def run_history_continuation(config: dict[str, Any], output_dir: Path) -> dict[s
     manifest["checkpoints"].append(source["checkpoint_record"])
     metrics.update(cohort_users=len(cohort.users), num_items=cohort.num_items,
         source_best_epoch=config["selected_source"]["checkpoint"]["best_epoch"])
+    if not paired:
+        metrics.update({f"historical_source_ndcg{k}": source["source_best_validation"][f"ndcg{k}"]
+                        for k in (10, 100)})
 
     def loaded_model() -> torch.nn.Module:
         guard()
@@ -138,15 +149,15 @@ def run_history_continuation(config: dict[str, Any], output_dir: Path) -> dict[s
             **report["preflight"][arm["name"]]}), flush=True)
         persist()
     if any(row.get("status") != "success" for row in report["preflight"].values()):
-        raise RuntimeError("both registered history shapes must pass loaded-weight preflight before any quality training")
+        raise RuntimeError("all registered history shapes must pass loaded-weight preflight before any quality training")
     report["budget"] = conservative_history_budget(config, report["preflight"],
         time.monotonic() - started, len(cohort.users), evaluation.summary)
     persist()
     if not report["budget"]["fits"]:
-        raise RuntimeError("measured full-history cost exceeds paired20 budget; no automatic trial/pass reduction")
+        raise RuntimeError("measured full-history cost exceeds registered20 budget; no automatic trial/pass reduction")
     schedules = [fixed_prefix_schedule(cohort, seed=config["seed"], epoch=policy["schedule_epoch_offset"] + extra)
                  for extra in range(1, policy["additional_passes"] + 1)]
-    _json(output_dir / "window-schedules.json", {"shared_between_arms": True,
+    _json(output_dir / "window-schedules.json", {"shared_between_arms": paired,
         "schedule_epoch_offset": policy["schedule_epoch_offset"],
         "full_history_training_registered": True, "full_arm_retains_all_observed_old_events": True,
         "schedules": [prefix_schedule_summary(cohort, rows, config["parent"]["experiment_config"])
@@ -285,22 +296,37 @@ def run_history_continuation(config: dict[str, Any], output_dir: Path) -> dict[s
             _cleanup()
             persist()
     if any(row.get("status") != "success" for row in report["arms"].values()):
-        raise RuntimeError("paired history comparison requires both complete20-pass arms; partial results retained")
+        raise RuntimeError("history comparison requires all registered complete20-pass arms; partial results retained")
 
     def ranks(name: str, extra: int) -> list[dict[str, Any]]:
         with gzip.open(output_dir / report["arms"][name]["evaluations"][str(extra)]["rank_file"], "rt") as stream:
             return json.load(stream)
-    report["paired_contrasts"] = {str(extra): {str(k): paired_daily_ndcg_bootstrap(
-        ranks("short", extra), ranks("full", extra), k=k, seed=config["seed"], draws=policy["bootstrap_draws"])
-        for k in (10, 100)} for extra in (0, policy["additional_passes"])}
-    for k in (10, 100):
-        delta = report["paired_contrasts"][str(policy["additional_passes"])][str(k)]["delta_ndcg"]
-        initial = report["paired_contrasts"]["0"][str(k)]["delta_ndcg"]
-        metrics[f"full_minus_short_endpoint_ndcg{k}"] = delta
-        metrics[f"length_adaptation_difference_in_differences_ndcg{k}"] = delta - initial
+    if paired:
+        report["paired_contrasts"] = {str(extra): {str(k): paired_daily_ndcg_bootstrap(
+            ranks("short", extra), ranks("full", extra), k=k, seed=config["seed"], draws=policy["bootstrap_draws"])
+            for k in (10, 100)} for extra in (0, policy["additional_passes"])}
+        for k in (10, 100):
+            delta = report["paired_contrasts"][str(policy["additional_passes"])][str(k)]["delta_ndcg"]
+            initial = report["paired_contrasts"]["0"][str(k)]["delta_ndcg"]
+            metrics[f"full_minus_short_endpoint_ndcg{k}"] = delta
+            metrics[f"length_adaptation_difference_in_differences_ndcg{k}"] = delta - initial
+    else:
+        with gzip.open(output_dir / source["validation_artifacts"]["validation_ranks"]["file"], "rt") as stream:
+            historical = json.load(stream)
+        report["historical_source_comparisons"] = {str(extra): {str(k): paired_daily_ndcg_bootstrap(
+            historical, ranks("full", extra), k=k, seed=config["seed"], draws=policy["bootstrap_draws"])
+            for k in (10, 100)} for extra in (0, policy["additional_passes"])}
+        report["full_initial_to_endpoint"] = {str(k): paired_daily_ndcg_bootstrap(
+            ranks("full", 0), ranks("full", policy["additional_passes"]),
+            k=k, seed=config["seed"], draws=policy["bootstrap_draws"]) for k in (10, 100)}
+        for k in (10, 100):
+            metrics[f"full_minus_historical_source_ndcg{k}"] = report["historical_source_comparisons"][
+                str(policy["additional_passes"])][str(k)]["delta_ndcg"]
+            metrics[f"full_continuation_gain_ndcg{k}"] = report["full_initial_to_endpoint"][str(k)]["delta_ndcg"]
     _json(output_dir / "final-selection.json", {"selection_split": "validation",
         "primary": "fixed20-pass endpoint in each arm", "secondary": "best within0/10/20",
-        "source_checkpoint": config["selected_source"]["checkpoint"], "test_evaluations": 0})
+        "source_checkpoint": config["selected_source"]["checkpoint"], "test_evaluations": 0,
+        "short_control_retrained": paired, "training_arms": [arm["name"] for arm in arms]})
     guard()
     report["complete"] = True
     metrics.update(quality_complete=True, suite_seconds=time.monotonic() - started)

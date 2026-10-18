@@ -44,6 +44,7 @@
       "endpoint20_ndcg100",
       "best_within_budget_ndcg10"
     ],
+    "short_control": "historical_only",
     "test_evaluations": 0,
     "training_schedule": "matched_original_final_prefix",
     "validation_passes": [
@@ -311,7 +312,7 @@
   "training": {
     "amp": true,
     "budget_safety_factor": 1.25,
-    "budget_seconds": 28800,
+    "budget_seconds": 32400,
     "cpu_threads": 2,
     "device": "cuda",
     "effective_batch_size": 128,
@@ -322,8 +323,7 @@
     "min_passes": 20,
     "num_negatives": 512,
     "physical_batch_sizes": [
-      1,
-      16
+      2
     ],
     "query_context_size": 128,
     "raw_context_length": 32768,

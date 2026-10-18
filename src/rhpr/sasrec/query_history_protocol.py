@@ -1,9 +1,10 @@
-"""Registered paired continuation isolating the effect of observed history length.
+"""Registered history continuation with paired QSSM and full-only FuXi training.
 
-Each private kernel contains one model family and two arms. Both begin with the
-same selected short-history weights, reset optimizer/scaler/RNG, and consume the
-same twenty additional schedules of users, final128 labels and negatives. Only
-the amount of observed H changes. This is continuation, not from-scratch HPO.
+QSSM has two arms beginning with identical short-history weights. FuXi continues
+only on full history and compares against historical short-history validation.
+All training uses twenty additional schedules of users, final128 labels and
+negatives. FuXi's comparison also includes optimization and precision changes;
+it does not isolate history length. Neither experiment is from-scratch HPO.
 """
 from __future__ import annotations
 
@@ -78,11 +79,12 @@ def validate_history_config(config: dict[str, Any]) -> None:
     expected_training = {key: value for key, value in original["training"].items()
                          if not key.startswith("early_stopping_")}
     expected_training.update(min_passes=20, max_passes=20,
-        budget_seconds=21600 if family == "qssm" else 28800,
-        physical_batch_sizes=[1, 32 if family == "qssm" else 16])
+        budget_seconds=21600 if family == "qssm" else 32400,
+        physical_batch_sizes=[1, 32] if family == "qssm" else [2])
     if config["training"] != expected_training:
         raise ValueError("twenty fixed paired passes retain original targets, negatives, effective batch and optimization")
-    if config["continuation"] != _POLICY:
+    expected_policy = _POLICY if family == "qssm" else dict(_POLICY, short_control="historical_only")
+    if config["continuation"] != expected_policy:
         raise ValueError("the initial/10/20 validation, reset and fixed-endpoint policy must remain exact")
     sources = dict(original["kaggle"], kernel_sources=[parent["kernel"], config["selected_source"]["kernel"]])
     if config["kaggle"] != sources:
@@ -102,8 +104,13 @@ def history_trial(config: dict[str, Any]) -> dict[str, Any]:
 
 
 def history_arms(config: dict[str, Any]) -> list[dict[str, Any]]:
-    """Short/full use independent reset training with a shared initialization."""
+    """Keep the running paired QSSM registration; FuXi trains only full history."""
     family = _family(config)
+    if config["continuation"].get("short_control", "paired") == "historical_only":
+        if family != "fuxi":
+            raise ValueError("only FuXi has a historical rather than fresh short control")
+        return [{"name": "full", "old_length": None, "physical_batch_size": 2,
+                 "evaluation_batch_size": 4, "context_length": 32768}]
     return [
         {"name": "short", "old_length": 1024,
          "physical_batch_size": 32 if family == "qssm" else 16,
