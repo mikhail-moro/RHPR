@@ -204,4 +204,10 @@ def run_experiment(
         from rhpr.sasrec.query_qssm_search import run_query_qssm_search
 
         return run_query_qssm_search(config, output_dir)
+    if kind == "yambda_query_history_continuation":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_query_history_continuation")
+        from rhpr.sasrec.query_history_continuation import run_history_continuation
+
+        return run_history_continuation(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")

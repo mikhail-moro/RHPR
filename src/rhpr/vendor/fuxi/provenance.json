@@ -9,8 +9,11 @@
     "redirect FBGEMM jagged packing to existing one-axis PyTorch shim",
     "crop positional-channel table to runtime padded prefix (same first-N positions)",
     "no global sequence-square mask on chunkwise path",
-    "custom state scan saves unrounded states in promoted input dtype (at least FP32) and returns original KV dtype",
-    "custom backward explicitly uses saved accumulator dtype outside forward autocast, preserves input gradient dtypes and keeps broadcast reduction axes"
+    "custom state scan saves unrounded states in promoted input dtype (at least FP32) and returns accumulator dtype through attention reads",
+    "custom backward explicitly uses saved accumulator dtype outside forward autocast, preserves input gradient dtypes and keeps broadcast reduction axes",
+    "disable autocast around chunk KV products, recurrent state accumulation, and local/cross attention reads; keep at least FP32 until existing per-channel normalization",
+    "use the same custom state recurrence in training and inference, including fixed queries with differentiable values",
+    "protect temporal-channel augmentation einsums from autocast downcasting of FP32 attention reads"
   ],
   "wrapper_adaptations": [
     "shared catalog embedding and next-item model API",

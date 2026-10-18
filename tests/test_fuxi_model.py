@@ -121,9 +121,9 @@ class FuXiModelTest(unittest.TestCase):
                         state = (reference_kv[index].to(accumulator_dtype)
                                  + state * reference_decay[index].to(accumulator_dtype)[..., None, None])
                         reference_states.append(state)
-                    expected = torch.stack(reference_states).to(kv_dtype)
+                    expected = torch.stack(reference_states)
                     actual = eval_chunkwise_hidden_state_fn(kv, decay)
-                    self.assertEqual(actual.dtype, kv_dtype)
+                    self.assertEqual(actual.dtype, accumulator_dtype)
                     tolerance = {torch.float16: 2e-3, torch.bfloat16: 2e-2,
                                  torch.float32: 1e-6, torch.float64: 1e-12}[kv_dtype]
                     torch.testing.assert_close(actual, expected, rtol=tolerance, atol=tolerance * 0.01)

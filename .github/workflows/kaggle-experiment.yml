@@ -36,6 +36,11 @@ on:
         required: false
         default: ""
         type: string
+      submit_only:
+        description: Submit and return without waiting; collect training results later
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -54,6 +59,9 @@ jobs:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       TELEGRAM_THREAD_ID: ${{ secrets.TELEGRAM_THREAD_ID }}
+      EXPERIMENT_CONFIG: ${{ inputs.experiment }}
+      ACCELERATOR: ${{ inputs.accelerator }}
+      TIMEOUT_MINUTES: ${{ inputs.timeout_minutes }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -66,7 +74,7 @@ jobs:
         run: |
           test -n "$KAGGLE_API_TOKEN" || { echo "Missing KAGGLE_API_TOKEN secret"; exit 1; }
           test -n "$KAGGLE_KERNEL_ID" || { echo "Missing KAGGLE_KERNEL_ID variable"; exit 1; }
-          case "${{ inputs.experiment }}" in
+          case "$EXPERIMENT_CONFIG" in
             experiments/*.json) ;;
             *) echo "Experiment must be a JSON file under experiments/"; exit 1 ;;
           esac
@@ -81,21 +89,28 @@ jobs:
       - name: Build private kernel bundle
         run: >-
           python3 scripts/build_kaggle_bundle.py
-          --experiment "${{ inputs.experiment }}"
+          --experiment "$EXPERIMENT_CONFIG"
           --kernel-id "$KAGGLE_KERNEL_ID"
-          --accelerator "${{ inputs.accelerator }}"
+          --accelerator "$ACCELERATOR"
           --output build/kaggle
 
-      - name: Submit, wait, and download outputs
+      - name: Submit kernel and optionally collect outputs
         env:
           OUTPUT_FILE_PATTERN: ${{ inputs.output_file_pattern }}
-        run: >-
-          python3 scripts/kaggle_job.py
-          --bundle build/kaggle
-          --kernel-id "$KAGGLE_KERNEL_ID"
-          --output artifacts/kaggle
-          --timeout-minutes "${{ inputs.timeout_minutes }}"
-          --output-file-pattern "$OUTPUT_FILE_PATTERN"
+          SUBMIT_ONLY: ${{ inputs.submit_only }}
+        shell: bash
+        run: |
+          kaggle_args=(
+            --bundle build/kaggle
+            --kernel-id "$KAGGLE_KERNEL_ID"
+            --output artifacts/kaggle
+            --timeout-minutes "$TIMEOUT_MINUTES"
+            --output-file-pattern "$OUTPUT_FILE_PATTERN"
+          )
+          if [[ "$SUBMIT_ONLY" == "true" ]]; then
+            kaggle_args+=(--submit-only)
+          fi
+          python3 scripts/kaggle_job.py "${kaggle_args[@]}"
 
       - name: Write job summary
         if: always()
@@ -105,7 +120,8 @@ jobs:
           python3 scripts/write_job_summary.py
           --metrics artifacts/kaggle/metrics.json
           --summary "$SUMMARY_PATH"
-          --experiment "${{ inputs.experiment }}"
+          --experiment "$EXPERIMENT_CONFIG"
+          --submission artifacts/kaggle/submission.json
 
       - name: Upload outputs
         if: always()
@@ -122,6 +138,6 @@ jobs:
         run: >-
           python3 scripts/notify_telegram.py
           --status "${{ job.status }}"
-          --experiment "${{ inputs.experiment }}"
+          --experiment "$EXPERIMENT_CONFIG"
           --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           --metrics artifacts/kaggle/metrics.json

@@ -516,9 +516,14 @@ class LinearTemporalChannel (nn.Module) :
             buffering.update(buffering_chunk)
             
             if self.use_augment_connection :
-                yh = einops.rearrange(y, 'b n (h d) -> b n h d', h=2*self._num_heads)
-                y_aug = torch.einsum('bnhd,h->bnhd', yh, self.alpha) + torch.einsum('bnhd,h->bnhd', x, self.beta)
-                y = y_aug.reshape(B, n, -1)
+                # Keep the FP32 attention read until the existing channel norm;
+                # autocast would otherwise downcast these einsums to FP16.
+                with torch.autocast(device_type=y.device.type, enabled=False):
+                    yh = einops.rearrange(y, 'b n (h d) -> b n h d', h=2*self._num_heads)
+                    dtype = linear_attn_fn.attention_accumulator_dtype(yh, x, self.alpha, self.beta)
+                    y_aug = (torch.einsum('bnhd,h->bnhd', yh.to(dtype), self.alpha.to(dtype))
+                             + torch.einsum('bnhd,h->bnhd', x.to(dtype), self.beta.to(dtype)))
+                    y = y_aug.reshape(B, n, -1)
             
         if buffered_attn_map is not None :
             buffering = buffered_attn_map

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -281,6 +283,7 @@ def execute(
     timeout_minutes: int,
     *,
     output_file_pattern: str | None = None,
+    submit_only: bool = False,
 ) -> None:
     if timeout_minutes < 1 or timeout_minutes > 720:
         raise ValueError("timeout must be between 1 and 720 minutes")
@@ -289,10 +292,38 @@ def execute(
         re.compile(output_file_pattern)
     output.mkdir(parents=True, exist_ok=True)
 
+    submission_metadata = None
+    if submit_only:
+        # Pin the submitted bundle before the external mutation. Do not copy
+        # raw CLI output, environment variables, or execution results here.
+        metadata_bytes = (bundle / "kernel-metadata.json").read_bytes()
+        metadata = json.loads(metadata_bytes)
+        if metadata.get("id") != kernel_id:
+            raise ValueError("bundle kernel id does not match the requested kernel")
+        source_sha = os.environ.get("GITHUB_SHA", "")
+        submission_metadata = {
+            "source_code_sha": source_sha if re.fullmatch(r"[0-9a-f]{40}", source_sha) else None,
+            "kernel_metadata_sha256": hashlib.sha256(metadata_bytes).hexdigest(),
+            "runner_sha256": hashlib.sha256((bundle / "run.py").read_bytes()).hexdigest(),
+        }
+
     pushed = run(["kaggle", "kernels", "push", "-p", str(bundle)])
     print(pushed.stdout, end="")
     version_match = PUSH_VERSION_PATTERN.search(pushed.stdout)
     kernel_version = int(version_match.group(1)) if version_match else None
+
+    if submit_only:
+        submission = {
+            **submission_metadata,
+            "kernel_id": kernel_id,
+            "kernel_version": kernel_version,
+            "versioned_kernel_id": f"{kernel_id}/{kernel_version}" if kernel_version is not None else None,
+            "status": "submitted",
+            "quality_complete": False,
+            "submitted_at_utc": datetime.now(timezone.utc).isoformat(),
+        }
+        (output / "submission.json").write_text(json.dumps(submission, indent=2) + "\n", encoding="utf-8")
+        return
 
     terminal_status = "status_poll_error"
     last_observed_status = None
@@ -350,6 +381,10 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--timeout-minutes", type=int, default=360)
     parser.add_argument(
+        "--submit-only", action="store_true",
+        help="Return after submission without polling, cancelling, or collecting training results",
+    )
+    parser.add_argument(
         "--output-file-pattern",
         help="Download only kernel output filenames matching this regex; unselected files stay on Kaggle",
     )
@@ -360,6 +395,7 @@ def main() -> None:
         args.output,
         args.timeout_minutes,
         output_file_pattern=args.output_file_pattern,
+        submit_only=args.submit_only,
     )
 
 

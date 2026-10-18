@@ -18,146 +18,71 @@ from torch.autograd import Function
 from typing import Tuple, Callable
 from einops import rearrange
 
+def attention_accumulator_dtype(*tensors: torch.Tensor) -> torch.dtype:
+    """Keep attention sums at least FP32, preserving FP64 reference inputs."""
+    dtype = tensors[0].dtype
+    for tensor in tensors[1:]:
+        dtype = torch.promote_types(dtype, tensor.dtype)
+    return torch.float32 if dtype in (torch.float16, torch.bfloat16) else dtype
+
+
 class ChunkwiseHiddenStateFunction(Function):
+    """The upstream recurrence with FP32-or-higher states and reads.
+
+    State ``i`` is the state *before* chunk ``i``. The final chunk KV and
+    decay therefore have no effect on the returned states.
+    """
+
     @staticmethod
     def forward(ctx, inchunk_kv, chunkwise_decay):
-        """
-        前向传播：计算分块隐藏状态
-        
-        参数:
-            inchunk_kv: [num_chunks, B, h, d_attn, d_v] 块内KV乘积
-            chunkwise_decay: [num_chunks, B, h] 块间衰减系数
-            
-        返回:
-            hidden_states: [num_chunks, B, h, d_attn, d_v] 隐藏状态序列
-        """
-        num_chunks, B, h, d_attn, d_v = inchunk_kv.shape
-
-        # RHPR: AMP KV products can be FP16/BF16 while learned decay remains
-        # FP32. Accumulate and save states in the promoted dtype so backward
-        # uses the unrounded recurrence, independently of its autocast context.
-        state_dtype = torch.promote_types(inchunk_kv.dtype, chunkwise_decay.dtype)
-        if state_dtype in (torch.float16, torch.bfloat16):
-            state_dtype = torch.float32
-        
-        # 初始化隐藏状态
-        current_hidden_state = torch.zeros(
-            B, h, d_attn, d_v, 
-            dtype=state_dtype,
-            device=inchunk_kv.device
-        )
-        
-        hidden_states = torch.zeros(
-            num_chunks, B, h, d_attn, d_v,
-            dtype=state_dtype,
-            device=inchunk_kv.device
-        )
-        
-        decay_expanded = chunkwise_decay.unsqueeze(-1).unsqueeze(-1)
-        
-        # 前向传播循环
-        for i in range(num_chunks):
-            hidden_states[i] = current_hidden_state
-            
-            if i != num_chunks - 1:
-                # 更新隐藏状态: h_t = h_{t-1} * decay_t + kv_t
-                current_hidden_state = torch.addcmul(
-                    inchunk_kv[i], 
-                    current_hidden_state, 
-                    decay_expanded[i]
-                )
-        
-        # 保存中间状态用于反向传播
-        ctx.num_chunks = num_chunks
-        # 保存中间结果用于反向传播
-        ctx.save_for_backward(inchunk_kv, chunkwise_decay, hidden_states)
-        
-        return hidden_states.to(dtype=inchunk_kv.dtype)
+        state_dtype = attention_accumulator_dtype(inchunk_kv, chunkwise_decay)
+        with torch.autocast(device_type=inchunk_kv.device.type, enabled=False):
+            kv = inchunk_kv.to(state_dtype)
+            decay = chunkwise_decay.to(state_dtype)
+            hidden_states = torch.zeros_like(kv)
+            current_hidden_state = torch.zeros_like(kv[0])
+            for i in range(kv.shape[0]):
+                hidden_states[i] = current_hidden_state
+                if i != kv.shape[0] - 1:
+                    current_hidden_state = torch.addcmul(
+                        kv[i], current_hidden_state, decay[i, ..., None, None]
+                    )
+        ctx.kv_dtype = inchunk_kv.dtype
+        ctx.decay_dtype = chunkwise_decay.dtype
+        ctx.save_for_backward(decay, hidden_states)
+        # Do not cast this state back to the autocast KV dtype: finite long
+        # prefixes can exceed FP16 range while their subsequent reads are small.
+        return hidden_states
 
     @staticmethod
     def backward(ctx, grad_hidden_states):
-        """
-        反向传播：计算梯度
-        
-        参数:
-            grad_hidden_states: [num_chunks, B, h, d_attn, d_v] 隐藏状态的梯度
-            
-        返回:
-            grad_inchunk_kv: inchunk_kv的梯度
-            grad_chunkwise_decay: chunkwise_decay的梯度
-        """
-        inchunk_kv, chunkwise_decay, state_list = ctx.saved_tensors
-        num_chunks = ctx.num_chunks
-        B, h, d_attn, d_v = inchunk_kv.shape[1:]
+        decay, state_list = ctx.saved_tensors
+        # Backward may itself run under autocast. Explicit casts alone do not
+        # protect the decay-gradient einsum from being downcast again.
+        with torch.autocast(device_type=state_list.device.type, enabled=False):
+            grad_hidden_states = grad_hidden_states.to(state_list.dtype)
+            grad_kv = torch.zeros_like(state_list)
+            grad_decay = torch.zeros_like(decay)
+            grad_current = torch.zeros_like(state_list[0])
+            for i in range(state_list.shape[0] - 1, -1, -1):
+                if i != state_list.shape[0] - 1:
+                    grad_kv[i] = grad_current
+                    contribution = torch.einsum(
+                        'bhkv,bhkv->bh', grad_current, state_list[i]
+                    )
+                    grad_decay[i] = contribution.sum_to_size(decay[i].shape)
+                    grad_current = torch.addcmul(
+                        grad_hidden_states[i], grad_current,
+                        decay[i, ..., None, None],
+                    )
+                else:
+                    grad_current = grad_hidden_states[i]
+        return grad_kv.to(ctx.kv_dtype), grad_decay.to(ctx.decay_dtype)
 
-        # Autograd calls backward outside the forward autocast block. Match the
-        # saved accumulator dtype explicitly; never downcast FP32 decay or its
-        # reduction to work around mixed-dtype einsum errors.
-        grad_hidden_states = grad_hidden_states.to(dtype=state_list.dtype)
-        
-        # 初始化梯度
-        grad_inchunk_kv = torch.zeros_like(inchunk_kv)
-        grad_chunkwise_decay = torch.zeros_like(chunkwise_decay)
-        
-        decay_expanded = chunkwise_decay.unsqueeze(-1).unsqueeze(-1)
-        
-        # 初始化隐藏状态的梯度
-        grad_current_hidden = torch.zeros(
-            B, h, d_attn, d_v, 
-            dtype=grad_hidden_states.dtype,
-            device=grad_hidden_states.device
-        )
-        
-        grad_decay_shape = [B, h]
-        broadcast_dims = [
-            i for i in range(2)
-                if grad_chunkwise_decay.shape[i+1] != grad_decay_shape[i]
-        ]
-        
-        # 反向传播循环（从最后一个时间步到第一个）
-        for i in range(num_chunks-1, -1, -1):
-            # 当前时间步的梯度来自两部分：
-            # 1. 直接来自输出的梯度 (grad_hidden_states[i])
-            # 2. 来自下一个时间步的梯度 (grad_current_hidden)
-            grad_h = grad_hidden_states[i] + grad_current_hidden
-            
-            if i != num_chunks - 1:
-                # 计算chunkwise_decay的梯度
-                # ∂L/∂decay_i = ∂L/∂h_i * ∂h_i/∂decay_i = grad_current_hidden * h_{i-1}
-                prev_hidden = state_list[i]  # h_{i-1}
-                grad_decay = torch.einsum('bhkv,bhkv->bh', grad_current_hidden, prev_hidden)
-                # grad_decay = (grad_current_hidden * prev_hidden).sum(dim=[-1, -2])  # 求和到[B, h]
-                if len(broadcast_dims) > 0 :
-                    grad_decay = grad_decay.sum(dim=broadcast_dims, keepdim=True)
-                # print(grad_chunkwise_decay.shape)
-                grad_chunkwise_decay[i] = grad_decay
-                
-                # 计算inchunk_kv的梯度
-                # ∂L/∂kv_i = ∂L/∂h_i * ∂h_i/∂kv_i = grad_current_hidden * 1
-                grad_inchunk_kv[i] = grad_current_hidden
-                
-                # 计算前一个隐藏状态的梯度
-                # ∂L/∂h_{i-1} = ∂L/∂h_i * ∂h_i/∂h_{i-1} = grad_current_hidden * decay_i
-                # grad_current_hidden = grad_current_hidden * decay_expanded[i] + grad_hidden_states[i]
-         
-                grad_current_hidden = torch.addcmul(
-                    grad_hidden_states[i], 
-                    grad_current_hidden, 
-                    decay_expanded[i]
-                )
 
-            else:
-                # 最后一个时间步没有后续状态，只来自直接梯度
-                grad_current_hidden = grad_h
-            
-            # 更新当前梯度为前一个时间步的梯度
-            grad_current_hidden = grad_h if i == num_chunks - 1 else grad_current_hidden
-        
-        return grad_inchunk_kv, grad_chunkwise_decay
-
-# 使用自定义算子的封装函数
 def eval_chunkwise_hidden_state_fn(inchunk_kv, chunkwise_decay):
     return ChunkwiseHiddenStateFunction.apply(inchunk_kv, chunkwise_decay)
+
 
 def chunkwise_parallel_forward(
     q: torch.Tensor,
@@ -168,38 +93,36 @@ def chunkwise_parallel_forward(
     inchunk_decay_frwd: torch.Tensor,
     inchunk_decay_bkwd: torch.Tensor,
     chunk_size: int,
-) :
-    B, n, h, d_v = v.shape
-    d_attn = q.size(-1)
-    assert n % chunk_size == 0, "n must be divisible by chunk_size"
-    num_chunks = n // chunk_size
-    q = rearrange(q, 'b (s c) h d -> s b c h d', c=chunk_size)
-    k = rearrange(k, 'b (s c) h d -> s b c h d', c=chunk_size)
-    v = rearrange(v, 'b (s c) h d -> s b c h d', c=chunk_size)
-    
-    tilde_k = k * inchunk_decay_bkwd.unsqueeze(-1)
-    inchunk_kv = torch.einsum('sbchk,sbchv->sbhkv', tilde_k, v)
-    
-    if q.requires_grad :
+):
+    # RHPR: an autocast einsum can downcast even explicitly FP32 operands.
+    # Protect KV products, the recurrence, both reads, and the returned sum.
+    # The existing per-channel normalization in native.py receives this FP32
+    # result; no clipping, scaling, or additional normalization is introduced.
+    dtype = attention_accumulator_dtype(
+        q, k, v, chunkwise_decay, inchunk_decay, inchunk_decay_frwd, inchunk_decay_bkwd
+    )
+    with torch.autocast(device_type=q.device.type, enabled=False):
+        q, k, v = (tensor.to(dtype) for tensor in (q, k, v))
+        chunkwise_decay = chunkwise_decay.to(dtype)
+        inchunk_decay = inchunk_decay.to(dtype)
+        inchunk_decay_frwd = inchunk_decay_frwd.to(dtype)
+        inchunk_decay_bkwd = inchunk_decay_bkwd.to(dtype)
+        n = v.shape[1]
+        assert n % chunk_size == 0, "n must be divisible by chunk_size"
+        q = rearrange(q, 'b (s c) h d -> s b c h d', c=chunk_size)
+        k = rearrange(k, 'b (s c) h d -> s b c h d', c=chunk_size)
+        v = rearrange(v, 'b (s c) h d -> s b c h d', c=chunk_size)
+        tilde_k = k * inchunk_decay_bkwd.unsqueeze(-1)
+        inchunk_kv = torch.einsum('sbchk,sbchv->sbhkv', tilde_k, v)
+        # One implementation for training and inference, including the case
+        # where q is fixed but v or a decay parameter still requires gradients.
         hidden_states = eval_chunkwise_hidden_state_fn(inchunk_kv, chunkwise_decay)
-    else :
-        state_list = []
-        current_hidden_state = torch.zeros(B, h, d_attn, d_v, dtype=q.dtype, device=q.device)
-        for i, (kv, cs_decay) in enumerate(zip(inchunk_kv, chunkwise_decay)) :
-            state_list.append(current_hidden_state)
-            if i != num_chunks - 1 :
-                current_hidden_state = current_hidden_state * cs_decay[:, :, None, None] + kv
-        hidden_states = torch.stack(state_list, dim=0)
-    
-    inchunk_attnmap = torch.einsum('sbnhd,sbmhd->sbhnm', q, k) * inchunk_decay
-    y2 = torch.einsum('sbhnm,sbmhd->sbnhd', inchunk_attnmap, v)
-    
-    tilde_q = q * inchunk_decay_frwd.unsqueeze(-1)
-    y1 = torch.einsum('sbchk,sbhkv->sbchv', tilde_q, hidden_states)
-    
-    y = rearrange(y1 + y2, 's b c h d -> b (s c) (h d)')
-    return y
-    
+        inchunk_attnmap = torch.einsum('sbnhd,sbmhd->sbhnm', q, k) * inchunk_decay
+        y2 = torch.einsum('sbhnm,sbmhd->sbnhd', inchunk_attnmap, v)
+        tilde_q = q * inchunk_decay_frwd.unsqueeze(-1)
+        y1 = torch.einsum('sbchk,sbhkv->sbchv', tilde_q, hidden_states)
+        return rearrange(y1 + y2, 's b c h d -> b (s c) (h d)')
+
 if __name__ == "__main__":
     # ==================== Consistency Check ====================
     def _test_forward_consistency():
