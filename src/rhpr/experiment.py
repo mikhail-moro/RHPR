@@ -216,4 +216,10 @@ def run_experiment(
         from rhpr.sasrec.query_mamba_ablation import run_query_mamba_ablation
 
         return run_query_mamba_ablation(config, output_dir)
+    if kind == "yambda_query_rotating_windows":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_query_rotating_windows")
+        from rhpr.sasrec.query_rotating_windows import run_query_rotating_windows
+
+        return run_query_rotating_windows(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")

@@ -165,6 +165,8 @@ class QuerySearchDefinition:
     full_transfer_candidates: Callable[..., set[tuple[str, str]]] | None = None
     retained_trial_resumes: int = 0
     full_transfer_budget_seconds: int | None = None
+    training_schedule: Callable[..., Any] | None = None
+    schedule_summary: Callable[..., dict[str, Any]] | None = None
 
 
 def run_query_1k_search(config: dict[str, Any], output_dir: Path) -> dict[str, int | float | str | bool]:
@@ -259,8 +261,13 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
     # It does not open or deserialize any parent's test-anchor rank payload.
     _, contexts, validation_baselines, _ = load_proxy_parent_artifacts(config, evaluation)
     report["saved_baseline_validation"] = {name: _aggregate(rows)[0] for name, rows in validation_baselines.items()}
-    metrics.update(cohort_users=len(cohort.users), num_items=cohort.num_items,
-        unique_supervised_target_positions_per_model=len(cohort.users) * train["supervised_targets"])
+    metrics.update(cohort_users=len(cohort.users), num_items=cohort.num_items)
+    if definition.training_schedule is None:
+        metrics["unique_supervised_target_positions_per_model"] = len(cohort.users) * train["supervised_targets"]
+    else:
+        # Changing endpoints can present new targets on later passes. Actual
+        # per-model coverage belongs to the registered schedule's audit.
+        metrics["supervised_target_positions_per_pass"] = len(cohort.users) * train["supervised_targets"]
     controls = (definition.load_controls(config, evaluation, output_dir)
                 if definition.load_controls is not None else {})
     for name, control in controls.items():
@@ -338,11 +345,18 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
     persist()
     if not report["budget"]["fits"]:
         raise RuntimeError("measured cost cannot support all registered maximum-pass trials and validations")
-    schedules = [fixed_prefix_schedule(cohort, seed=config["seed"], epoch=epoch)
+    schedule_builder = definition.training_schedule or fixed_prefix_schedule
+    schedules = [schedule_builder(cohort, seed=config["seed"], epoch=epoch)
                  for epoch in range(1, hpo["max_passes"] + 1)]
+    if definition.schedule_summary is None:
+        schedule_rows = {"original_parent_schedules": [prefix_schedule_summary(cohort, windows,
+            config["parent"]["experiment_config"]) for windows in schedules]}
+    else:
+        schedule_rows = {"registered_training_schedules": [
+            definition.schedule_summary(cohort, windows, config) for windows in schedules],
+            "shared_between_models": True, "custom_training_schedule": True}
     _json(output_dir / "window-schedules.json", {
-        "original_parent_schedules": [prefix_schedule_summary(cohort, windows,
-            config["parent"]["experiment_config"]) for windows in schedules],
+        **schedule_rows,
         "proxy_input_old_length_cap": hpo["proxy_old_length"], "proxy_retains_all_old_events": False,
         "full_length_training_performed": False, "raw_tail_size": train["raw_tail_size"]})
 
