@@ -222,4 +222,10 @@ def run_experiment(
         from rhpr.sasrec.query_rotating_windows import run_query_rotating_windows
 
         return run_query_rotating_windows(config, output_dir)
+    if kind == "yambda_query_ssm2_benchmark":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_query_ssm2_benchmark")
+        from rhpr.sasrec.query_ssm2_benchmark import run_query_ssm2_benchmark
+
+        return run_query_ssm2_benchmark(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")
