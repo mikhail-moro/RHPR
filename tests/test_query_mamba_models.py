@@ -150,7 +150,10 @@ class QueryMambaModelsTest(unittest.TestCase):
                 else:
                     complete = y * torch.nn.functional.silu(full_model.output_gate(m))[:, None, :, :]
                 expected = complete[rows, :, endpoints]
-                torch.testing.assert_close(actual, expected, rtol=0, atol=0)
+                # Endpoint and full-sequence Linear calls can select different
+                # GEMM kernels across supported Torch versions. Their FP32
+                # operation order need not be bitwise equal.
+                torch.testing.assert_close(actual, expected, rtol=2e-6, atol=2e-7)
                 weights = torch.randn_like(actual)
                 (actual * weights).square().sum().backward()
                 (expected * weights).square().sum().backward()
@@ -158,7 +161,7 @@ class QueryMambaModelsTest(unittest.TestCase):
                     if left.grad is None or right.grad is None:
                         self.assertIs(left.grad, right.grad)
                     else:
-                        torch.testing.assert_close(left.grad, right.grad, rtol=0, atol=0)
+                        torch.testing.assert_close(left.grad, right.grad, rtol=3e-6, atol=2e-6)
                 for name in ("D",) if feature == "skip_d" else ("output_gate.weight", "output_gate.bias"):
                     torch.testing.assert_close(dict(endpoint_model.named_parameters())[name].grad,
                         dict(full_model.named_parameters())[name].grad, rtol=2e-6, atol=2e-6)
