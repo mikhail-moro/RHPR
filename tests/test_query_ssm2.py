@@ -136,6 +136,45 @@ class QuerySSM2Test(unittest.TestCase):
             else:
                 self.assertFalse(torch.allclose(before["C"], after["C"]))
 
+    def test_state128_is_state_width_not_head_width_and_backpropagates(self):
+        torch.manual_seed(117)
+        model = self.compressor(summary_tokens=32, d_inner=64, head_dim=64,
+                                d_state=128, chunk_size=64)
+        memory = torch.randn(1, 5, 8, requires_grad=True)
+        queries = torch.randn(1, 32, 8, requires_grad=True)
+        inputs = model.build_scan_inputs(memory, queries)
+        self.assertEqual(inputs["x"].shape, (32, 5, 1, 64))
+        self.assertEqual(inputs["dt"].shape, (32, 5, 1))
+        self.assertEqual(inputs["B"].shape, (32, 5, 1, 128))
+        self.assertEqual(inputs["C"].shape, (32, 5, 1, 128))
+        self.assertEqual(inputs["A"].shape, (1,))
+        outputs = model.scan_output(inputs)
+        self.assertEqual(outputs.shape, (32, 5, 1, 64))
+        # An independent final-output formula sums event contributions after
+        # decay; its state contraction must use all 128 B/C coordinates.
+        steps = torch.nn.functional.softplus(inputs["dt"] + inputs["dt_bias"])
+        final_c = inputs["C"][:, -1, 0]
+        contributions = []
+        for position in range(memory.shape[1]):
+            later_time = steps[:, position + 1:, 0].sum(dim=1)
+            decay = torch.exp(later_time * inputs["A"][0])
+            similarity = (inputs["B"][:, position, 0] * final_c).sum(dim=-1)
+            contributions.append(inputs["x"][:, position, 0]
+                                 * (steps[:, position, 0] * decay * similarity)[:, None])
+        expected = torch.stack(contributions).sum(dim=0)
+        torch.testing.assert_close(outputs[:, -1, 0], expected, rtol=2e-5, atol=2e-7)
+        (outputs[:, -1].square() * torch.linspace(.3, 1.7, 64)).sum().backward()
+        self.assertGreater(float(memory.grad[:, 0].abs().sum()), 0)
+        self.assertTrue(bool(torch.isfinite(queries.grad).all()))
+        self.assertGreater(float(queries.grad.abs().sum()), 0)
+        for parameter in (model.write_projection.weight, model.read_projection.weight):
+            self.assertTrue(bool(torch.isfinite(parameter.grad).all()))
+            self.assertTrue(bool((parameter.grad.abs().sum(dim=1) > 0).all()))
+        metadata = model.architecture_metadata()
+        self.assertEqual(metadata["d_state"], 128)
+        self.assertEqual(metadata["head_dim"], 64)
+        self.assertEqual(metadata["scan_heads"], 1)
+
     def test_old_suffix_summaries_ignore_raw_tail_and_future_padding(self):
         torch.manual_seed(127)
         model = self.compressor()
@@ -190,6 +229,7 @@ class QuerySSM2Test(unittest.TestCase):
         self.compressor()
         self.assertTrue(torch.equal(before, torch.get_rng_state()))
         for kwargs in ({"head_dim": 3}, {"chunk_size": 3}, {"d_state": 0},
+                       {"d_state": True}, {"d_state": 257},
                        {"c_conditioning": "invalid"}, {"dt_min": 0.},
                        {"dt_max": float("nan")}, {"head_dim": True}):
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
@@ -200,6 +240,10 @@ class QuerySSM2Test(unittest.TestCase):
                                                        torch.randn(1, 2, 8)), backend="native")
         with self.assertRaisesRegex(ValueError, "requires a CUDA"):
             audit_native_query_ssm2("cpu")
+        for state in (0, True, 257, 128.0):
+            with self.subTest(d_state=state), self.assertRaisesRegex(ValueError, "d_state"):
+                # Validation occurs before any CUDA allocation or kernel call.
+                audit_native_query_ssm2("cuda", head_dim=64, d_state=state)
 
     @unittest.skipUnless(torch is not None and torch.cuda.is_available(), "CUDA is not available")
     def test_native_ssd_matches_cpu_and_final_output_gradients(self):
@@ -207,10 +251,11 @@ class QuerySSM2Test(unittest.TestCase):
 
         if not native_ssd_available():
             self.skipTest("native SSD kernel is not installed")
-        for head_dim in (32, 64):
-            with self.subTest(head_dim=head_dim):
-                result = audit_native_query_ssm2("cuda", head_dim=head_dim)
+        for head_dim, d_state in ((32, 16), (64, 16), (64, 128)):
+            with self.subTest(head_dim=head_dim, d_state=d_state):
+                result = audit_native_query_ssm2("cuda", head_dim=head_dim, d_state=d_state)
                 self.assertEqual(result["status"], "passed")
+                self.assertEqual(result["d_state"], d_state)
                 self.assertGreater(result["early_x_gradient_norm"], 0)
                 self.assertTrue(result["multi_chunk_checked"])
                 self.assertTrue(result["partial_chunk_checked"])

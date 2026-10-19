@@ -167,6 +167,7 @@ class QuerySearchDefinition:
     full_transfer_budget_seconds: int | None = None
     training_schedule: Callable[..., Any] | None = None
     schedule_summary: Callable[..., dict[str, Any]] | None = None
+    native_audit: Callable[..., dict[str, Any]] | None = None
 
 
 def run_query_1k_search(config: dict[str, Any], output_dir: Path) -> dict[str, int | float | str | bool]:
@@ -240,7 +241,8 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
         return record
 
     persist()
-    audit = audit_native_query_scan(device, query_source="old_suffix")
+    audit = (definition.native_audit(device) if definition.native_audit is not None
+             else audit_native_query_scan(device, query_source="old_suffix"))
     report["native_scan_audit"] = audit
     _json(output_dir / "native-query-scan-audit.json", audit)
     metrics["native_scan_audit_passed"] = True

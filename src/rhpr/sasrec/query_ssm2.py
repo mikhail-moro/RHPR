@@ -241,12 +241,13 @@ def make_query_ssm2_compressor(**kwargs: Any) -> QuerySSM2Compressor:
 
 
 def audit_native_query_ssm2(device: torch.device | str, head_dim: int = 32,
-                           chunk_size: int = 64) -> dict[str, Any]:
+                           chunk_size: int = 64, d_state: int = 16) -> dict[str, Any]:
     """Require native FP16 forward and final-output gradients to match CPU.
 
     This is an explicitly invoked, tiny CUDA audit, never an import side effect.
     Inputs span one complete chunk plus one event, checking both cross-chunk
     state-passing backward and a partial final chunk.
+    ``d_state`` selects the true B/C state width, independently of head_dim.
     All six differentiable API inputs must receive finite, nonzero gradients.
     Any unavailable/unsupported kernel or failed comparison raises immediately.
     """
@@ -255,11 +256,14 @@ def audit_native_query_ssm2(device: torch.device | str, head_dim: int = 32,
         raise ValueError("native SSD audit requires a CUDA device")
     if head_dim not in {32, 64}:
         raise ValueError("native SSD benchmark audit supports head_dim 32 or 64")
+    _positive_integer(d_state, "d_state")
+    if d_state > 256:
+        raise ValueError("SSD benchmark supports d_state at most 256")
     generator = torch.Generator(device="cpu").manual_seed(1701)
     _positive_integer(chunk_size, "chunk_size")
     if chunk_size & (chunk_size - 1):
         raise ValueError("chunk_size must be a power of two")
-    heads, state, length, batch = 64 // head_dim, 16, chunk_size + 1, 2
+    heads, state, length, batch = 64 // head_dim, d_state, chunk_size + 1, 2
     data = {
         "x": torch.randn(batch, length, heads, head_dim, generator=generator) * .5,
         "dt": torch.randn(batch, length, heads, generator=generator) * .2,
@@ -301,6 +305,7 @@ def audit_native_query_ssm2(device: torch.device | str, head_dim: int = 32,
     return {
         "status": "passed", "backend": model.last_scan_backend,
         "device": str(selected_device), "head_dim": head_dim, "chunk_size": chunk_size,
+        "d_state": d_state,
         "batch": batch, "length": length, "partial_chunk_checked": True,
         "multi_chunk_checked": True, "chunk_count": math.ceil(length / chunk_size),
         "input_dtype": "float16", "a_and_dt_bias_dtype": "float32",

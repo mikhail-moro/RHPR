@@ -228,4 +228,10 @@ def run_experiment(
         from rhpr.sasrec.query_ssm2_benchmark import run_query_ssm2_benchmark
 
         return run_query_ssm2_benchmark(config, output_dir)
+    if kind == "yambda_query_ssm2_training":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_query_ssm2_training")
+        from rhpr.sasrec.query_ssm2_training import run_query_ssm2_training
+
+        return run_query_ssm2_training(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")
