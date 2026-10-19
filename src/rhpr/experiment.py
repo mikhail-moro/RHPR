@@ -210,4 +210,10 @@ def run_experiment(
         from rhpr.sasrec.query_history_continuation import run_history_continuation
 
         return run_history_continuation(config, output_dir)
+    if kind == "yambda_query_mamba_ablation":
+        if output_dir is None:
+            raise ValueError("output_dir is required for yambda_query_mamba_ablation")
+        from rhpr.sasrec.query_mamba_ablation import run_query_mamba_ablation
+
+        return run_query_mamba_ablation(config, output_dir)
     raise ValueError(f"unsupported experiment kind: {kind}")

@@ -271,7 +271,10 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
             raise ValueError("reused architecture control does not match a successful registered recipe")
         report["trials"].setdefault(name, {})[control["trial_name"]] = control
         manifest["checkpoints"].append(control["best_checkpoint"])
-        if definition.load_controls is not None:
+        # Native-short ablations can reuse a verified short-only control. A
+        # missing full result must not be replaced with short ranks under a
+        # full-history label; existing transfer searches retain their old path.
+        if control.get("full_validation_rank_file") is not None:
             with gzip.open(output_dir / control["full_validation_rank_file"], "rt", encoding="utf-8") as stream:
                 validation_baselines[f"reused_1k_{name}"] = json.load(stream)
     reused_count = len(controls)
@@ -334,7 +337,7 @@ def run_registered_query_search(config: dict[str, Any], output_dir: Path, *,
         len(cohort.users), evaluation.summary)
     persist()
     if not report["budget"]["fits"]:
-        raise RuntimeError("measured cost cannot support all registered maximum-pass trials and full-H validations")
+        raise RuntimeError("measured cost cannot support all registered maximum-pass trials and validations")
     schedules = [fixed_prefix_schedule(cohort, seed=config["seed"], epoch=epoch)
                  for epoch in range(1, hpo["max_passes"] + 1)]
     _json(output_dir / "window-schedules.json", {
