@@ -1,5 +1,7 @@
 # Bounded old-prefix compressor tuning
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 Configuration: `experiments/yambda_query_prefix_proxy_hpo.json`, seed 42.
 The run compares the existing Cross Attention and QSSM compressors with four
 summaries each. Their architectures, common SASRec initialization, catalogue,

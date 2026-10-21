@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-21",
+  "scope": "local closure checks on the preserved research tree and archive",
+  "research_source_tip": "248b1aebcb77cc0fc400138cd2b15ebadc0ee33f",
+  "original_main_included": "72474dd1d6d4d5e4d2771606546e67e70cf251dc",
+  "unit_tests": {
+    "command": "python -m unittest discover -s tests -v",
+    "discovered": 656,
+    "skipped": 3,
+    "failures": 0,
+    "errors": 0,
+    "runtime_seconds": 79.123,
+    "environment": "Python 3.12, Torch 2.10 CPU; native CUDA checks skipped"
+  },
+  "synthetic_smoke": {
+    "command": "python scripts/run_local.py --experiment experiments/baseline.json --output <external-scratch>",
+    "accuracy": 0.945,
+    "log_loss": 0.25132674683563705,
+    "train_samples": 800,
+    "test_samples": 200,
+    "seed": 42,
+    "note": "Synthetic runner fixture, not evaluation of the research music test split"
+  },
+  "history_preservation": {
+    "original_pr_head_count": 26,
+    "all_recorded_pr_heads_are_ancestors": true,
+    "method": "git merge-base --is-ancestor for every SHA in pull-requests.json"
+  },
+  "archive_analysis": {
+    "snapshots": 10,
+    "path_literals_adapted": 47,
+    "research_ast_preserved_after_reversing_path_adapter": true,
+    "compile_passed": true,
+    "plot_from_aggregate_smoke_passed": true
+  },
+  "gpu_runs_started": 0,
+  "research_test_metrics_computed": false,
+  "ci": "See the closure pull request checks for the final pushed commit"
+}

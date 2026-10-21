@@ -1,5 +1,7 @@
 # Long-history next-item evaluation data
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 The compression pilot reuses the train-only cohort and catalogue from the
 [training-cost profile](long-history-data.md). Eligibility, mapped item IDs and
 model training depend only on events before day 286 (`24,710,400` seconds).

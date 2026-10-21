@@ -1,5 +1,7 @@
 # Matched rotating-window QSSM and FuXi experiment
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 The fixed-block experiments repeatedly supervised the same final 128 targets
 per user. This experiment changes the positive training windows while retaining
 the selected K32/slow Query SSM, the native FuXi architecture, the catalogue,

@@ -1,5 +1,7 @@
 # HSTU compressed16K quality pilot
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 This private, single-seed pilot asks whether a compressed old prefix adds quality
 to a recent-history HSTU. It is not per-architecture HPO or a convergence study.
 The earlier HSTU256×4 experiment borrowed a SASRec recipe tuned on50M; it did not

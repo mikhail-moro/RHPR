@@ -1,0 +1,57 @@
+{
+  "revision": "dd6f3a19eef5866e346c3270e098baa641a44948",
+  "mapping_files": [
+    {
+      "file": "artist_item_mapping.parquet",
+      "bytes": 38274621,
+      "downloaded_bytes": 0,
+      "sha256": "cf1110aa2413ed70008ec9232d395660b2181ffda731002fb74da54e87b6f25d",
+      "schema": "artist_id: uint32\nitem_id: uint32",
+      "rows": 9271906,
+      "row_groups": 35,
+      "seconds": 0.108567020000919,
+      "downloaded_bytes_original_fetch": 38274621
+    },
+    {
+      "file": "album_item_mapping.parquet",
+      "bytes": 54528894,
+      "downloaded_bytes": 0,
+      "sha256": "559b6576063d96280414574b32292eee7b47ee0b9f2952cb3ae670a5d19125e4",
+      "schema": "album_id: uint32\nitem_id: uint32",
+      "rows": 9651644,
+      "row_groups": 36,
+      "seconds": 0.1364481889995659,
+      "downloaded_bytes_original_fetch": 54528894
+    }
+  ],
+  "source_footer_audit": {
+    "file": "sequential/500m/listens.parquet",
+    "source_bytes": 4273773971,
+    "downloaded_bytes": 2125,
+    "schema": "uid: uint32\ntimestamp: large_list<element: uint32>\n  child 0, element: uint32\nitem_id: large_list<element: uint32>\n  child 0, element: uint32\nis_organic: large_list<element: uint8>\n  child 0, element: uint8\nplayed_ratio_pct: large_list<element: uint16>\n  child 0, element: uint16\ntrack_length_seconds: large_list<element: uint32>\n  child 0, element: uint32",
+    "columns": [
+      "uid",
+      "timestamp",
+      "item_id",
+      "is_organic",
+      "played_ratio_pct",
+      "track_length_seconds"
+    ],
+    "rows": 92085,
+    "row_groups": 1,
+    "footer_sha256": "0a25e3f3bb4d52e2eb936b96cabbf7db202ce3b7d0e644a48e418b253fa17049",
+    "column_chunk_compressed_bytes": {
+      "uid": 369824,
+      "timestamp.list.element": 1620180800,
+      "item_id.list.element": 1413583873,
+      "is_organic.list.element": 57079709,
+      "played_ratio_pct.list.element": 490233097,
+      "track_length_seconds.list.element": 692141883
+    }
+  },
+  "network_downloaded_bytes": 2125,
+  "network_downloaded_bytes_original_fetch": 92805640,
+  "network_downloaded_bytes_footer_refresh": 2125,
+  "network_downloaded_bytes_total_this_audit": 92807765,
+  "network_accounting": "Original fetch log plus exactly one cached-file footer-refresh log; no full listening file downloaded."
+}

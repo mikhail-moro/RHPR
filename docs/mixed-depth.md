@@ -1,5 +1,7 @@
 # MixedDepth compression screen
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 Run `experiments/yambda_mixed_depth_15ep.json` through the existing Kaggle
 workflow with GPU and private kernel override `carasik/rhpr-mixed-depth-15ep`.
 The experiment embeds the exact Git revision, attaches `ploshkin/yambda`, keeps

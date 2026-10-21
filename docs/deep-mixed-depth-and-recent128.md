@@ -1,5 +1,7 @@
 # Deeper MixedDepth and a trained Recent128 control
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 These two fresh 15-epoch runs distinguish stronger compression from removing
 the old prefix. They retain raw windows of 1028, the latest 128 supervised
 positions, sampled softmax with 512 negatives, Time OFF, the seed 42 backbone

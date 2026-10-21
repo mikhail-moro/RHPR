@@ -1,0 +1,345 @@
+{
+  "format_version": 1,
+  "closure_date": "2026-10-21",
+  "reason": "User ended the history-compression research direction and plans to investigate SID for GR; no new SID implementation or objective is registered.",
+  "source_report_date": "2026-10-20",
+  "private_raw_data_included": false,
+  "transformations": {
+    "markdown": "Historical closure banner; machine-local links become repository/archive-relative links; unarchived private inputs use explicit external artifact labels.",
+    "json": "Only machine-local path strings changed to archive: or external-private-artifact: labels. Unchanged aggregates retain original bytes.",
+    "registered_recipes": "Copied byte-for-byte, no normalization.",
+    "figures": "PNG and SVG preserved byte-for-byte."
+  },
+  "generated_files": [
+    {
+      "archive_path": "README.md",
+      "archive_sha256": "9090b1d5f79197ca99c14e4330f447a8934f7b711356a948ac7d19643943eb72"
+    },
+    {
+      "archive_path": "results-ledger.md",
+      "archive_sha256": "fcf293118a0a9bd050480fd9f6ee944e4aec20961e4bd1f2591cd3b95872f0d8"
+    },
+    {
+      "archive_path": "pull-requests.json",
+      "archive_sha256": "122e5e186678188ff2e6a810484e8e7474d71c0de9d6a572efaab2f6b3a768cc"
+    },
+    {
+      "archive_path": "closure-validation.json",
+      "archive_sha256": "6aa4e9153ede91aa62a0110da3aa4e194f105c131056c2ec340c0a3a388ce9e2"
+    },
+    {
+      "archive_path": "workspace-cleanup.md",
+      "archive_sha256": "20513160c340f700cf582016dc68aae0263a7323d89d41be984ffaa86af4194b"
+    },
+    {
+      "archive_path": "run-summaries/index.json",
+      "archive_sha256": "9567fef8f3f5a38cea08a444e8904bfe370207827d5532a7416b2d170cd88615"
+    }
+  ],
+  "files": [
+    {
+      "source_artifact": "music-data-audit.md",
+      "archive_path": "reports/music-data-audit.md",
+      "source_sha256": "47d78f68fd0897bb6e2d38ae5390fe3916a2cadf834fce1176e783a2851d74f1",
+      "archive_sha256": "fcb90234bc8d1259e0bf07b6ddbe72a19e04fbfaebddf45cf8dd34ab2c4e3472",
+      "source_bytes": 12513,
+      "archive_bytes": 12725,
+      "transformations": [
+        "historical_closure_banner",
+        "relative_archive_and_repository_links",
+        "external_private_artifact_labels"
+      ]
+    },
+    {
+      "source_artifact": "music-metadata-audit.md",
+      "archive_path": "reports/music-metadata-audit.md",
+      "source_sha256": "473c9f7cf95e31812b0d81091d9e02341724c31403baada6e62389ff2834fed3",
+      "archive_sha256": "a9b601a7d44b3c830bc57f86c691609483cfbec57b27f991b920725582dd63da",
+      "source_bytes": 3202,
+      "archive_bytes": 3414,
+      "transformations": [
+        "historical_closure_banner",
+        "relative_archive_and_repository_links",
+        "external_private_artifact_labels"
+      ]
+    },
+    {
+      "source_artifact": "music-objectives-literature.md",
+      "archive_path": "reports/music-objectives-literature.md",
+      "source_sha256": "864be7cd51ef8d14f5fec25f555f76634f0e6e0d17e7f61f45c4ede03eb5d66d",
+      "archive_sha256": "576a957366421726bffb5721c762f788c725d202d01e565af54005a7e81b4190",
+      "source_bytes": 21479,
+      "archive_bytes": 21684,
+      "transformations": [
+        "historical_closure_banner",
+        "relative_archive_and_repository_links",
+        "external_private_artifact_labels"
+      ]
+    },
+    {
+      "source_artifact": "music-origin-audit.md",
+      "archive_path": "reports/music-origin-audit.md",
+      "source_sha256": "6136a76ae9351540db3643678f20833d622969c1531d5c1b104ab2d09d567ea1",
+      "archive_sha256": "ac2b099c15da872f44f1ef21f5241dfeed8e34bfcf52be87c7e1e87602bb22ce",
+      "source_bytes": 2445,
+      "archive_bytes": 2657,
+      "transformations": [
+        "historical_closure_banner",
+        "relative_archive_and_repository_links",
+        "external_private_artifact_labels"
+      ]
+    },
+    {
+      "source_artifact": "music-repetition-literature.md",
+      "archive_path": "reports/music-repetition-literature.md",
+      "source_sha256": "1c1f472756587db180b97e58f2ca1e099343740ee4f863a2a81070fd3527c1f4",
+      "archive_sha256": "2c4378356339f1872a6b04b3619e2f61b5d45db92a772e76ae4018884dadad02",
+      "source_bytes": 16352,
+      "archive_bytes": 16557,
+      "transformations": [
+        "historical_closure_banner",
+        "relative_archive_and_repository_links",
+        "external_private_artifact_labels"
+      ]
+    },
+    {
+      "source_artifact": "music-research-review.md",
+      "archive_path": "reports/music-research-review.md",
+      "source_sha256": "5b010d09ec55e39fd9761ad954dfa48f996427d505cc3e0fd265b92d394879d7",
+      "archive_sha256": "9b463c8b73b42ffe8941fa9c54e12612ee7b23f919a5fa3cba5c8b80e883b8d6",
+      "source_bytes": 30585,
+      "archive_bytes": 30748,
+      "transformations": [
+        "historical_closure_banner",
+        "relative_archive_and_repository_links",
+        "external_private_artifact_labels"
+      ]
+    },
+    {
+      "source_artifact": "qssm2-repeat-heuristics.md",
+      "archive_path": "reports/qssm2-repeat-heuristics.md",
+      "source_sha256": "f17ba9789e563917ba3c722a0ba37995a1d7f5b83bb0ac01588f701c370ba3b3",
+      "archive_sha256": "61dc280d50702c80a73e41c37ef36f7edf68616ce04b7578f9318a1fd50d6f54",
+      "source_bytes": 6107,
+      "archive_bytes": 6313,
+      "transformations": [
+        "historical_closure_banner",
+        "relative_archive_and_repository_links",
+        "external_private_artifact_labels"
+      ]
+    },
+    {
+      "source_artifact": "qssm2-research-repeat-slices.md",
+      "archive_path": "reports/qssm2-research-repeat-slices.md",
+      "source_sha256": "1e4c01e6bb57b42af93e6bef1910125686d724b42c15ead1381bb51ea8a4be74",
+      "archive_sha256": "2c44a6180167c53082ad4eab2acaba74ac96438d86bf01c63d14be04fe523de0",
+      "source_bytes": 3232,
+      "archive_bytes": 3440,
+      "transformations": [
+        "historical_closure_banner",
+        "relative_archive_and_repository_links",
+        "external_private_artifact_labels"
+      ]
+    },
+    {
+      "source_artifact": "qssm2-research-review.md",
+      "archive_path": "reports/qssm2-research-review.md",
+      "source_sha256": "d95c4b30b84e4eded24f155db86d84c3752e72067a5c33d7d2941f95d72141e0",
+      "archive_sha256": "ef643a9bbe0cffa10810abc6e6e87e409c63097daf3e27529b6e80b584b272a9",
+      "source_bytes": 31150,
+      "archive_bytes": 31357,
+      "transformations": [
+        "historical_closure_banner",
+        "relative_archive_and_repository_links",
+        "external_private_artifact_labels"
+      ]
+    },
+    {
+      "source_artifact": "music-data-audit-recipe.json",
+      "archive_path": "aggregates/music-data-audit-recipe.json",
+      "source_sha256": "5e832dc2553274e7af28079f44764dbf15c05a21d6e4210604b394d27ccfe6c9",
+      "archive_sha256": "5e832dc2553274e7af28079f44764dbf15c05a21d6e4210604b394d27ccfe6c9",
+      "source_bytes": 1461,
+      "archive_bytes": 1461,
+      "transformations": [
+        "byte_for_byte_registered_recipe"
+      ]
+    },
+    {
+      "source_artifact": "music-data-audit.json",
+      "archive_path": "aggregates/music-data-audit.json",
+      "source_sha256": "23e00fe4b1bdce1e8707b63cbd86be90be63627600887c6175fea7cb60d7d811",
+      "archive_sha256": "23e00fe4b1bdce1e8707b63cbd86be90be63627600887c6175fea7cb60d7d811",
+      "source_bytes": 18693,
+      "archive_bytes": 18693,
+      "transformations": [
+        "byte_for_byte_aggregate"
+      ]
+    },
+    {
+      "source_artifact": "music-metadata-audit.json",
+      "archive_path": "aggregates/music-metadata-audit.json",
+      "source_sha256": "5c0ecf5f8617fb899eb8408f303bb2e478d8e5c4f3757148a97077256fad6500",
+      "archive_sha256": "5c0ecf5f8617fb899eb8408f303bb2e478d8e5c4f3757148a97077256fad6500",
+      "source_bytes": 10844,
+      "archive_bytes": 10844,
+      "transformations": [
+        "byte_for_byte_aggregate"
+      ]
+    },
+    {
+      "source_artifact": "music-origin-audit.json",
+      "archive_path": "aggregates/music-origin-audit.json",
+      "source_sha256": "2088bc6e0bd1a8ff8c10022162d680eaa4f236c4d7a39fe73281dc1aa57c40e0",
+      "archive_sha256": "ea07ebc2b4c300bc545a7dcbc520f82e4c03496522caecb9a6f08bedf228572d",
+      "source_bytes": 11413,
+      "archive_bytes": 11458,
+      "transformations": [
+        "machine_paths_to_archive_or_external_private_artifact_labels"
+      ]
+    },
+    {
+      "source_artifact": "music-yambda-file-inventory.json",
+      "archive_path": "aggregates/music-yambda-file-inventory.json",
+      "source_sha256": "9b21f45544fd7b17b685290e786933b09e14b29c60eacd95c8d480091c24fa80",
+      "archive_sha256": "9b21f45544fd7b17b685290e786933b09e14b29c60eacd95c8d480091c24fa80",
+      "source_bytes": 495,
+      "archive_bytes": 495,
+      "transformations": [
+        "byte_for_byte_aggregate"
+      ]
+    },
+    {
+      "source_artifact": "qssm2-repeat-heuristic-recipes.json",
+      "archive_path": "aggregates/qssm2-repeat-heuristic-recipes.json",
+      "source_sha256": "5ed810de5aeeb15b5181d383c28d191589fb1476477e103f4042321bf7a7efb9",
+      "archive_sha256": "5ed810de5aeeb15b5181d383c28d191589fb1476477e103f4042321bf7a7efb9",
+      "source_bytes": 1519,
+      "archive_bytes": 1519,
+      "transformations": [
+        "byte_for_byte_registered_recipe"
+      ]
+    },
+    {
+      "source_artifact": "qssm2-repeat-heuristics-independent-check.json",
+      "archive_path": "aggregates/qssm2-repeat-heuristics-independent-check.json",
+      "source_sha256": "06975a3ecc7723e290203b61b14c21752839b9ce998399dd5ce7e72541383b18",
+      "archive_sha256": "06975a3ecc7723e290203b61b14c21752839b9ce998399dd5ce7e72541383b18",
+      "source_bytes": 242,
+      "archive_bytes": 242,
+      "transformations": [
+        "byte_for_byte_aggregate"
+      ]
+    },
+    {
+      "source_artifact": "qssm2-repeat-heuristics.json",
+      "archive_path": "aggregates/qssm2-repeat-heuristics.json",
+      "source_sha256": "5574e9ffb84e025ade675169ded6e3c944cf95d6630e8d95bfc79f86548bb932",
+      "archive_sha256": "f3f2a425e114b563b14f3ba9758ee6eca1ad5cbe57c36f8fa6e9acfbdec93c9f",
+      "source_bytes": 17510,
+      "archive_bytes": 17526,
+      "transformations": [
+        "machine_paths_to_archive_or_external_private_artifact_labels"
+      ]
+    },
+    {
+      "source_artifact": "qssm2-research-repeat-slices.json",
+      "archive_path": "aggregates/qssm2-research-repeat-slices.json",
+      "source_sha256": "397f22a1a0bd26d6528c19108ca56e5567302194188fbf4cb01a90f98846f5db",
+      "archive_sha256": "397f22a1a0bd26d6528c19108ca56e5567302194188fbf4cb01a90f98846f5db",
+      "source_bytes": 17745,
+      "archive_bytes": 17745,
+      "transformations": [
+        "byte_for_byte_aggregate"
+      ]
+    },
+    {
+      "source_artifact": "qssm2-research-results.json",
+      "archive_path": "aggregates/qssm2-research-results.json",
+      "source_sha256": "e57217de0b48c4d38e0172ac6519b0ef44744322577015cf50f9da148f5d3fe9",
+      "archive_sha256": "e57217de0b48c4d38e0172ac6519b0ef44744322577015cf50f9da148f5d3fe9",
+      "source_bytes": 25513,
+      "archive_bytes": 25513,
+      "transformations": [
+        "byte_for_byte_aggregate"
+      ]
+    },
+    {
+      "source_artifact": "qssm2-saved-ranks-audit.json",
+      "archive_path": "aggregates/qssm2-saved-ranks-audit.json",
+      "source_sha256": "9dc29c12b93b3d0321ca5b9e749645a26433aa1ed37293043f92b31c5a421d9d",
+      "archive_sha256": "9dc29c12b93b3d0321ca5b9e749645a26433aa1ed37293043f92b31c5a421d9d",
+      "source_bytes": 2009,
+      "archive_bytes": 2009,
+      "transformations": [
+        "byte_for_byte_aggregate"
+      ]
+    },
+    {
+      "source_artifact": "music-return-patterns.png",
+      "archive_path": "figures/music-return-patterns.png",
+      "source_sha256": "3fd4061a73c592b87afa8fd4eac6621c7f13ff9cf80e8452fd2e3eaca12a3eab",
+      "archive_sha256": "3fd4061a73c592b87afa8fd4eac6621c7f13ff9cf80e8452fd2e3eaca12a3eab",
+      "source_bytes": 141503,
+      "archive_bytes": 141503,
+      "transformations": [
+        "byte_for_byte_figure"
+      ]
+    },
+    {
+      "source_artifact": "music-return-patterns.svg",
+      "archive_path": "figures/music-return-patterns.svg",
+      "source_sha256": "725a9af076c5b3da693a21664d607eecf5be56806901414339a715880a4958b9",
+      "archive_sha256": "725a9af076c5b3da693a21664d607eecf5be56806901414339a715880a4958b9",
+      "source_bytes": 91658,
+      "archive_bytes": 91658,
+      "transformations": [
+        "byte_for_byte_figure"
+      ]
+    },
+    {
+      "source_artifact": "qssm2-research-curves.png",
+      "archive_path": "figures/qssm2-research-curves.png",
+      "source_sha256": "22a9b0cdf5a08537bc7d470c02c0fd9a5d53a282f1385cab8545bd7acc0659b6",
+      "archive_sha256": "22a9b0cdf5a08537bc7d470c02c0fd9a5d53a282f1385cab8545bd7acc0659b6",
+      "source_bytes": 193112,
+      "archive_bytes": 193112,
+      "transformations": [
+        "byte_for_byte_figure"
+      ]
+    },
+    {
+      "source_artifact": "qssm2-research-curves.svg",
+      "archive_path": "figures/qssm2-research-curves.svg",
+      "source_sha256": "3879d18a873c66da0cf0f7df9c57c5112ba527551004459f44921f151f083215",
+      "archive_sha256": "3879d18a873c66da0cf0f7df9c57c5112ba527551004459f44921f151f083215",
+      "source_bytes": 33709,
+      "archive_bytes": 33709,
+      "transformations": [
+        "byte_for_byte_figure"
+      ]
+    },
+    {
+      "source_artifact": "music-metadata/fetch-manifest.json",
+      "archive_path": "aggregates/music-metadata-fetch-manifest.json",
+      "source_sha256": "d6af53e2c94bf744d2c38585eca915e39d5df5b26258afd9b2e6dab735cff7d9",
+      "archive_sha256": "d6af53e2c94bf744d2c38585eca915e39d5df5b26258afd9b2e6dab735cff7d9",
+      "source_bytes": 2280,
+      "archive_bytes": 2280,
+      "transformations": [
+        "byte_for_byte_aggregate"
+      ]
+    },
+    {
+      "source_artifact": "music-origin/fetch-manifest.json",
+      "archive_path": "aggregates/music-origin-fetch-manifest.json",
+      "source_sha256": "010e9a22d1601ffc4593b173cf22f49bbc87f1a060952d4848c3b909ceb5b507",
+      "archive_sha256": "5e226673b3d947494af35ca9dbb101e4c13b23dd4a325f58ac62a07ccc99908a",
+      "source_bytes": 1074,
+      "archive_bytes": 1119,
+      "transformations": [
+        "machine_paths_to_archive_or_external_private_artifact_labels"
+      ]
+    }
+  ]
+}

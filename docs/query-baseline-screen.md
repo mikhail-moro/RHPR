@@ -1,5 +1,7 @@
 # Matched short-history baseline screen
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 This run adds four fresh models to the completed CA/QSSM compressor comparison.
 It uses the same H1024+R128 training proxy selected for the earlier search. It is
 a fixed-recipe screen, not an independently tuned reproduction of each paper or

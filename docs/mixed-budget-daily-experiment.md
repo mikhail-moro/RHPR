@@ -1,5 +1,7 @@
 # Mixed budgets and daily evaluation of 16K histories
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 This pilot tests whether one shared PairMLP/HSTU model can retain useful quality
 at several global summary budgets. It also repeats every previous fixed model
 under the new daily evaluation and adds 32 summaries. It does not train a router,

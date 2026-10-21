@@ -1,5 +1,7 @@
 # Frozen MixedDepth checkpoint: tail128 ablation
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 This evaluation asks whether the old prefix influences next-item predictions
 of the jointly trained MixedDepth checkpoint. The new kernel performs no
 training, creates no optimizer, and leaves test untouched.

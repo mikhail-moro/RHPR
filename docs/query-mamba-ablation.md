@@ -1,5 +1,7 @@
 # Independent Mamba mechanisms in Query SSM
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 This validation-only screen adds one Mamba-inspired mechanism at a time to the
 selected Query SSM compressor on H1024+R128. It is not a cumulative staircase:
 each fresh arm differs from the same base by one mechanism. No full-history

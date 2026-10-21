@@ -1,5 +1,7 @@
 # Daily next-item evaluation on the fixed 16K cohort
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 The new evaluation keeps the same 4,427 training users, 89,191,505 pre-cutoff
 events, 1,049,612 training-catalogue items and day-286 training boundary.
 Training events and targets do not move into validation or test. The model's

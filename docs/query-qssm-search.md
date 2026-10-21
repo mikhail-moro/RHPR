@@ -1,5 +1,7 @@
 # QSSM summary-count and memory-initialization search
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 This validation-only first stage tests eight QSSM compression recipes on
 H1024+R128. It varies summary count K4/K8/K16/K32 and the log-uniform initial
 step-size range: default dt `[0.0001, 0.1]` or slower dt `[0.0001, 0.01]`.

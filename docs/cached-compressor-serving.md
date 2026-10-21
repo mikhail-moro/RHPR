@@ -1,5 +1,7 @@
 # Future cached-compressor serving evaluation
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 Caching changes the cost question: the present uncached forward and training measurements do not establish online serving efficiency. Both Cross Attention (CA) and QSSM can cache the four output summaries when their history boundary and query support stay fixed. Compare them under the same refresh and raw-tail policy; a possible QSSM streaming-state advantage would require a separate implementation and test, especially because current queries and relative memory features change when the boundary moves.
 
 ## Exact causal contract

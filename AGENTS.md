@@ -1,5 +1,13 @@
 # RHPR agent instructions
 
+## Research status
+
+- The history-compression / Query SSM track was closed on 2026-10-21. Read
+  `docs/research/closed-history-compression/README.md` for its final evidence.
+- Earlier experiment plans are historical and have no pending GPU launches.
+- SID for generative recommendation (GR) is the next user-selected direction;
+  its architecture and protocol still need a new task brief.
+
 ## Working agreement
 
 - Keep experiments reproducible: configuration, seed, code revision, and final

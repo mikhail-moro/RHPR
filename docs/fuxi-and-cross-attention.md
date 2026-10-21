@@ -1,5 +1,7 @@
 # Interpreting FuXi and cross-attention results
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 A strong FuXi-Linear result in this repository does not establish a universal
 advantage over cross-attention (CA), and industrial CA deployments do not imply
 that CA must win this experiment.

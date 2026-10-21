@@ -1,0 +1,118 @@
+{
+  "format_version": 1,
+  "snapshot_id": "history-qssm",
+  "source_artifact": "history-qssm-results/metrics.json",
+  "metrics_sha256": "ea461942e8304283d15621064cb57e3c46b6173408066ef1fde651d504b84297",
+  "metrics_bytes": 3173,
+  "metrics_preserved_byte_for_byte": true,
+  "metrics_scalar_count": 66,
+  "flat_finite_scalars_validated": true,
+  "original_run_manifest_sha256": "0847d5fdf03d22c3ef09780570f50b0c29393535dae692c2b6984224f4dba5c2",
+  "source_git_sha": "39bca1edc6bfaeba3b253f49fe9094650d0712da",
+  "source_commit_url": "https://github.com/mikhail-moro/RHPR/commit/39bca1edc6bfaeba3b253f49fe9094650d0712da",
+  "experiment_config_file": "experiments/yambda_history_continuation_qssm.json",
+  "source_config_url": "https://github.com/mikhail-moro/RHPR/blob/39bca1edc6bfaeba3b253f49fe9094650d0712da/experiments/yambda_history_continuation_qssm.json",
+  "manifest_config_canonical_sha256": "e91882fc9a684e192dfdbc6accb5678380668d344c8cc49148cac03d877de5fa",
+  "manifest_config_hash_serialization": "UTF-8 json.dumps(config,sort_keys=True,separators=(comma,colon)); default ensure_ascii=True",
+  "protocol_note": "Warm-start QSSM continuation for 20 additional passes, reset optimizer/scaler, short/full arms and fixed final-prefix targets. Endpoint results, not fresh rotating training.",
+  "metric_scope_warning": "Historical and fresh/reused control fields may coexist. Do not concatenate these snapshots into a matched leaderboard; read the registered config and protocol note.",
+  "run": {
+    "started_at": "2026-10-18T22:28:45.273809+00:00",
+    "finished_at": "2026-10-19T02:58:41.826396+00:00",
+    "duration_seconds": 16196.552587,
+    "python": "3.13.15"
+  },
+  "configuration": {
+    "name": "yambda500m-history-continuation-qssm",
+    "kind": "yambda_query_history_continuation",
+    "seed": 42,
+    "family": "qssm",
+    "summary_budgets": [
+      32
+    ],
+    "architecture": {
+      "d_inner": 64,
+      "d_state": 16,
+      "dt_max": 0.01,
+      "dt_min": 0.0001,
+      "gate_rank": 32
+    },
+    "model": {
+      "d_model": 128,
+      "dropout": 0.2,
+      "ffn_multiplier": 4,
+      "n_heads": 4,
+      "n_layers": 2,
+      "use_time_features": false
+    },
+    "compressor": {
+      "d_inner": 128,
+      "d_state": 16,
+      "dropout": 0.0,
+      "dt_max": 0.1,
+      "dt_min": 0.0001,
+      "gate_rank": 32,
+      "query_context_size": 128,
+      "query_source": "old_suffix"
+    },
+    "continuation": {
+      "additional_passes": 20,
+      "bootstrap_draws": 5000,
+      "early_stopping": false,
+      "optimizer_state": "reset",
+      "preflight_effective_updates": 2,
+      "preflight_longest_row": true,
+      "primary_metric": "endpoint20_ndcg10",
+      "rng_state": "reset_seed42_per_arm",
+      "scaler_state": "reset",
+      "schedule_epoch_offset": 60,
+      "secondary_metrics": [
+        "endpoint20_ndcg100",
+        "best_within_budget_ndcg10"
+      ],
+      "test_evaluations": 0,
+      "training_schedule": "matched_original_final_prefix",
+      "validation_passes": [
+        0,
+        10,
+        20
+      ]
+    }
+  },
+  "data_contract": {
+    "source_revision": "dd6f3a19eef5866e346c3270e098baa641a44948",
+    "train_end_timestamp": 24710400,
+    "validation_end_timestamp": 25315200,
+    "test_end_timestamp": 25920000,
+    "catalog_sha256": "527dd7772d84afcaf32a1886726b34884d129adb72d5702d2847a466840f8cf7",
+    "cohort_uid_length_sha256": "389eb71cc019879a91bf6a9ee9fcff7fc86ae77fdd5137544a380ffaf71c0446",
+    "cohort_train_timestamps_sha256": "2857d39b1aa90ae92f4fa6eb688a700c8102d991a3b8afc73d59bf05f0e2f3bf",
+    "cohort_mapped_train_items_sha256": "e84f8431274a185b4d1e8ff0f39427edf6f1c78a86fa92c2de375794ce3cff45"
+  },
+  "training_contract": {
+    "effective_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 1e-05,
+    "num_negatives": 512,
+    "raw_tail_size": 128,
+    "supervised_targets": 128,
+    "query_context_size": 128,
+    "max_passes": 20,
+    "min_passes": 20,
+    "validation_interval": 10,
+    "amp": true,
+    "grad_clip_norm": 1.0
+  },
+  "retained_source_files": [
+    {
+      "file": "metrics.json",
+      "sha256": "ea461942e8304283d15621064cb57e3c46b6173408066ef1fde651d504b84297",
+      "bytes": 3173
+    },
+    {
+      "file": "final-selection.json",
+      "sha256": "146fd3069476ad710d37aac69c7e8a81e6f1d886145d7c24780fc1d7f89847b6",
+      "bytes": 364
+    }
+  ]
+}

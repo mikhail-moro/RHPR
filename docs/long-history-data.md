@@ -1,5 +1,7 @@
 # Train-visible long-history profiling data
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 `rhpr.sasrec.long_history_data` prepares the input shared by the four initial
 training-cost measurements. Eligibility and the item mapping use training
 events only. No validation/test targets are selected by this profiling step.

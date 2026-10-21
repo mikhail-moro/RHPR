@@ -1,5 +1,7 @@
 # SASRec with an old-prefix-conditioned query
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 Configuration: `experiments/yambda_sasrec_prefix_query_pilot.json`, seed 42.
 This pilot trains Recent128, four-summary cross-attention and four-summary
 Query SSM from scratch with the same two-layer SASRec predictor. It replaces

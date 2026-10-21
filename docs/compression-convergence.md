@@ -1,5 +1,7 @@
 # Compression convergence experiment
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 Train Full/OFF and PairMLP/OFF from scratch with maximum 30 epochs and patience
 5, using `experiments/yambda_pairwise_compression_convergence_30ep.json`.
 This checks whether their similar validation quality after ten epochs persists

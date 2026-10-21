@@ -1,5 +1,7 @@
 # History-length continuation
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 The experiment follows the H1024+R128 search. The earlier frozen full-history
 inference diagnostic did not train either family on long inputs. QSSM has a
 paired short/full continuation to isolate history length at a matched update

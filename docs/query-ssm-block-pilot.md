@@ -1,5 +1,7 @@
 # Query-conditioned SSM: an 8K history pilot
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 Configuration: `experiments/yambda_query_ssm_block_pilot.json`, seed 42.
 This is a bounded comparison of five independently trained models. It tests
 whether the recent context is more useful when it changes how a state-space

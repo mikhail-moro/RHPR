@@ -1,0 +1,96 @@
+{
+  "format_version": 1,
+  "snapshot_id": "baseline-screen",
+  "source_artifact": "baseline-output/downloaded/metrics.json",
+  "metrics_sha256": "9671488d2dc52b6cdfcb65c009dabb4654cc9cedaabefafa7451071026f944ec",
+  "metrics_bytes": 17081,
+  "metrics_preserved_byte_for_byte": true,
+  "metrics_scalar_count": 298,
+  "flat_finite_scalars_validated": true,
+  "original_run_manifest_sha256": "1a88d985a1f0d544222dbdf5a4e305a2215f0c9e56f3bc126f0108a5b7a2c09a",
+  "source_git_sha": "b8a8c4eb7076734370222671f3f1d814afef6a79",
+  "source_commit_url": "https://github.com/mikhail-moro/RHPR/commit/b8a8c4eb7076734370222671f3f1d814afef6a79",
+  "experiment_config_file": "experiments/yambda_query_baseline_screen.json",
+  "source_config_url": "https://github.com/mikhail-moro/RHPR/blob/b8a8c4eb7076734370222671f3f1d814afef6a79/experiments/yambda_query_baseline_screen.json",
+  "manifest_config_canonical_sha256": "6056b9b3872eca51021e027a139d7bd78f37f4aaa7e690ad3cbe259a1afaeb43",
+  "manifest_config_hash_serialization": "UTF-8 json.dumps(config,sort_keys=True,separators=(comma,colon)); default ensure_ascii=True",
+  "protocol_note": "Fixed latest target block; native short inputs per family, H1024+R128 for long arms; CA/QSSM references can be reused. Recent128, QueryOnly, Mamba4Rec and FuXi screen; not rotating training.",
+  "metric_scope_warning": "Historical and fresh/reused control fields may coexist. Do not concatenate these snapshots into a matched leaderboard; read the registered config and protocol note.",
+  "run": {
+    "started_at": "2026-10-18T12:43:42.859987+00:00",
+    "finished_at": "2026-10-18T14:31:13.336407+00:00",
+    "duration_seconds": 6450.47642,
+    "python": "3.13.15"
+  },
+  "configuration": {
+    "name": "yambda500m-matched-query-baselines",
+    "kind": "yambda_query_baseline_screen",
+    "seed": 42,
+    "variants": [
+      "query_cross_attention_m4",
+      "query_ssm_m4",
+      "recent128",
+      "query_only_m4",
+      "mamba4rec",
+      "fuxi_linear"
+    ],
+    "summary_budgets": [
+      4
+    ],
+    "model": {
+      "d_model": 128,
+      "dropout": 0.2,
+      "ffn_multiplier": 4,
+      "n_heads": 4,
+      "n_layers": 2,
+      "use_time_features": false
+    },
+    "compressor": {
+      "d_inner": 128,
+      "d_state": 16,
+      "dropout": 0.0,
+      "dt_max": 0.1,
+      "dt_min": 0.0001,
+      "gate_rank": 32,
+      "query_context_size": 128,
+      "query_source": "old_suffix"
+    }
+  },
+  "data_contract": {
+    "source_revision": "dd6f3a19eef5866e346c3270e098baa641a44948",
+    "train_end_timestamp": 24710400,
+    "validation_end_timestamp": 25315200,
+    "test_end_timestamp": 25920000,
+    "catalog_sha256": "527dd7772d84afcaf32a1886726b34884d129adb72d5702d2847a466840f8cf7",
+    "cohort_uid_length_sha256": "389eb71cc019879a91bf6a9ee9fcff7fc86ae77fdd5137544a380ffaf71c0446",
+    "cohort_train_timestamps_sha256": "2857d39b1aa90ae92f4fa6eb688a700c8102d991a3b8afc73d59bf05f0e2f3bf",
+    "cohort_mapped_train_items_sha256": "e84f8431274a185b4d1e8ff0f39427edf6f1c78a86fa92c2de375794ce3cff45"
+  },
+  "training_contract": {
+    "effective_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 1e-05,
+    "num_negatives": 512,
+    "raw_tail_size": 128,
+    "supervised_targets": 128,
+    "query_context_size": 128,
+    "max_passes": 60,
+    "min_passes": 20,
+    "validation_interval": 10,
+    "early_stopping_patience": 2,
+    "amp": true,
+    "grad_clip_norm": 1.0
+  },
+  "retained_source_files": [
+    {
+      "file": "metrics.json",
+      "sha256": "9671488d2dc52b6cdfcb65c009dabb4654cc9cedaabefafa7451071026f944ec",
+      "bytes": 17081
+    },
+    {
+      "file": "final-selection.json",
+      "sha256": "e9859d3228a03903286646df69d99583584fcc200ed977c4b358bca717fe46a5",
+      "bytes": 1035
+    }
+  ]
+}

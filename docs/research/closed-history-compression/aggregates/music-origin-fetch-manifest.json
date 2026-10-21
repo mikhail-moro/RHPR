@@ -1,0 +1,32 @@
+{
+  "revision": "dd6f3a19eef5866e346c3270e098baa641a44948",
+  "source_file": "sequential/500m/listens.parquet",
+  "source_file_bytes": 4273773971,
+  "source_rows": 92085,
+  "downloaded_columns": [
+    {
+      "column": "uid",
+      "start": 4,
+      "end": 369827,
+      "bytes": 369824,
+      "path": "external-private-artifact:music-origin/uid.chunk",
+      "sha256": "2eb75bb0a384ee6f523204dc4341d69c9e7cd878e2c603ed2b4de0997a8bcda9"
+    },
+    {
+      "column": "is_organic",
+      "start": 3034134690,
+      "end": 3091214398,
+      "bytes": 57079709,
+      "path": "external-private-artifact:music-origin/is_organic.chunk",
+      "sha256": "2ad5f3f44c6338bc901fb3f5477e296365735aa03171dddaf6b2fb698c25e2ad"
+    }
+  ],
+  "footer_bytes_downloaded": 2125,
+  "network_bytes_downloaded": 57451658,
+  "container_path": "external-private-artifact:music-origin/listens-organic.partial.parquet",
+  "container_logical_bytes": 4273773971,
+  "container_allocated_bytes": 57462784,
+  "only_declared_columns_readable": true,
+  "seconds": 10.033245179000005,
+  "no_item_timestamp_ratio_duration_column_bytes_downloaded": true
+}

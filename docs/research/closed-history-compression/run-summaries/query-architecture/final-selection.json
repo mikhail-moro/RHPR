@@ -1,0 +1,23 @@
+{
+  "checkpoint_training_input": "H1024+R128",
+  "selected_trials": {
+    "query_cross_attention_m4": {
+      "backbone_lr": 0.001,
+      "compressor_lr": 0.001,
+      "cross_attention_heads": 4,
+      "name": "ca_base",
+      "readout_depth": 1
+    },
+    "query_ssm_m4": {
+      "backbone_lr": 0.001,
+      "compressor_lr": 0.001,
+      "d_inner": 64,
+      "d_state": 16,
+      "gate_rank": 32,
+      "name": "q_inner64"
+    }
+  },
+  "selection_input": "full_history",
+  "selection_split": "validation",
+  "test_evaluations": 0
+}

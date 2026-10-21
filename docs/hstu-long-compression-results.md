@@ -1,5 +1,7 @@
 # HSTU16K: useful old-prefix summaries, no established adaptive budget yet
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 The completed pilot supports learning a compressed old prefix. PairMLP with eight
 summaries improves test NDCG@10 by 38.83% over Recent128 and 16.74% over uniform
 sampling at the same summary budget. A user-level follow-up does not yet find a

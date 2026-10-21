@@ -1,5 +1,7 @@
 # QSSM2 native training-step benchmark
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 This short experiment checks whether Mamba2's official SSD backend can reduce
 the cost of this repository's query-conditioned history compressor on a Kaggle
 T4. It performs no quality training, validation, test evaluation, inference

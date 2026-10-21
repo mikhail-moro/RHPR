@@ -1,5 +1,7 @@
 # Matched SASRec and HSTU context screen
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 This experiment asks whether the recommendation backbone changes the benefit
 of retaining the old history. It trains four independent models: SASRec128,
 SASRec1028, HSTU128 and HSTU1028. The two context budgets for each architecture

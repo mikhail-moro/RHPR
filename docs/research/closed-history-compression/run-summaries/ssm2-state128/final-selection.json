@@ -1,0 +1,57 @@
+{
+  "checkpoint_training_input": "per-family native short input; long arms H1024+R128",
+  "full_history_evaluation_registered": false,
+  "resumable_checkpoint": {
+    "active_old_length": 1024,
+    "epoch": 60,
+    "next_epoch": 61,
+    "optimizer_state_saved": true,
+    "path": "checkpoints/query_ssm2_m32_s128-fixed_lr-resume.pt",
+    "sha256": "09434873116f4384d9a34ff1b47291856c1d4df41bf1acd999bcde51706391d5",
+    "size_bytes": 1670387759,
+    "training_model": "query_ssm2_m32_s128",
+    "trial": {
+      "backbone_lr": 0.001,
+      "compressor_lr": 0.001,
+      "name": "fixed_lr"
+    }
+  },
+  "selected_architecture": {
+    "c_conditioning": "query",
+    "chunk_size": 64,
+    "d_inner": 64,
+    "d_state": 128,
+    "dt_max": 0.01,
+    "dt_min": 0.0001,
+    "gate_rank": 32,
+    "head_dim": 64,
+    "query_source": "old_suffix",
+    "summary_tokens": 32
+  },
+  "selected_checkpoint": {
+    "active_old_length": 1024,
+    "best_epoch": 60,
+    "path": "checkpoints/query_ssm2_m32_s128-fixed_lr.pt",
+    "precision": "float32",
+    "sha256": "6fd58d395cc6c5d5208d381f2dd21b5ae3f003b0d7df08020da91960ffa155eb",
+    "size_bytes": 556797066,
+    "training_model": "query_ssm2_m32_s128",
+    "trial": {
+      "backbone_lr": 0.001,
+      "compressor_lr": 0.001,
+      "name": "fixed_lr"
+    }
+  },
+  "selected_trials": {
+    "query_ssm2_m32_s128": {
+      "backbone_lr": 0.001,
+      "compressor_lr": 0.001,
+      "name": "fixed_lr"
+    }
+  },
+  "selection_input": "registered_native_short_context",
+  "selection_split": "validation",
+  "source_checkpoint_weights_loaded": false,
+  "test_evaluations": 0,
+  "training_coverage_artifact": "ssm2-training-coverage.json"
+}

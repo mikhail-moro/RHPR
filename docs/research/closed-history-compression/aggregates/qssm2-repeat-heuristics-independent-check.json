@@ -1,0 +1,9 @@
+{
+  "users": 4384,
+  "anchors": 26335,
+  "less_than_10_unique_recent": 40,
+  "frequency_recent_ndcg10": 0.09724502983231559,
+  "mru_recent_ndcg10": 0.08791441596695404,
+  "global_catalogue_prior_used": false,
+  "seconds": 17.51057716899959
+}

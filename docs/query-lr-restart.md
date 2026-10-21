@@ -1,5 +1,7 @@
 # Learning-rate diagnostic from the Query SSM pilot checkpoints
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 Configuration: `experiments/yambda_query_lr_restart.json`, seed 42.
 This follow-up checks whether the weak cross-attention result was limited by
 training progress or the common learning rate. It changes neither compressor

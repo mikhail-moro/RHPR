@@ -1,5 +1,7 @@
 # One-arm QSSM2 state128 quality run
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 This experiment trains one fresh QSSM2 compressor plus the existing two-layer
 SASRec predictor. It checks recommendation quality after the successful native
 SSD speed screening. It is a single fixed configuration, not an HPO run or a

@@ -1,5 +1,7 @@
 # Offline runtime for the long-history architecture profile
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 The SASRec Recent128, HSTU Recent128, Mamba4Rec and FuXi profile uses one pinned
 runtime for all four architectures. Mamba executes the official Mamba1 CUDA
 selective-scan and causal-convolution extensions. It does not use a Python scan

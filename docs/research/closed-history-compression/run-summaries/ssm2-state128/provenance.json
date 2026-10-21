@@ -1,0 +1,116 @@
+{
+  "format_version": 1,
+  "snapshot_id": "ssm2-state128",
+  "source_artifact": "ssm2-state128-final-output/metrics.json",
+  "metrics_sha256": "fe14b2df9997d821a0833ac0d13e09c1603ba8d9947c01bcc7c26032c6359fbc",
+  "metrics_bytes": 2439,
+  "metrics_preserved_byte_for_byte": true,
+  "metrics_scalar_count": 51,
+  "flat_finite_scalars_validated": true,
+  "original_run_manifest_sha256": "725b4409b6c874ffe06736f821cf600d5a51740b549bbb4bab79d5b8fa0ea54b",
+  "source_git_sha": "248b1aebcb77cc0fc400138cd2b15ebadc0ee33f",
+  "source_commit_url": "https://github.com/mikhail-moro/RHPR/commit/248b1aebcb77cc0fc400138cd2b15ebadc0ee33f",
+  "experiment_config_file": "experiments/yambda_query_ssm2_training.json",
+  "source_config_url": "https://github.com/mikhail-moro/RHPR/blob/248b1aebcb77cc0fc400138cd2b15ebadc0ee33f/experiments/yambda_query_ssm2_training.json",
+  "manifest_config_canonical_sha256": "1f7b6630313c3ffefb36ffcf4cf2b28b07fef88674e063174ae8b2f50227382b",
+  "manifest_config_hash_serialization": "UTF-8 json.dumps(config,sort_keys=True,separators=(comma,colon)); default ensure_ascii=True",
+  "protocol_note": "One fresh QSSM2 state128 arm on the same rotating H1024+R128 schedule. Prior outputs mounted for provenance; no new control training. Compare against fresh rotating results, not fixed-block winners.",
+  "metric_scope_warning": "Historical and fresh/reused control fields may coexist. Do not concatenate these snapshots into a matched leaderboard; read the registered config and protocol note.",
+  "run": {
+    "started_at": "2026-10-19T22:21:28.425289+00:00",
+    "finished_at": "2026-10-19T23:49:38.567361+00:00",
+    "duration_seconds": 5290.142072,
+    "python": "3.13.15"
+  },
+  "configuration": {
+    "name": "yambda500m-query-ssm2-state128-training",
+    "kind": "yambda_query_ssm2_training",
+    "seed": 42,
+    "variants": [
+      "query_ssm2_m32_s128"
+    ],
+    "summary_budgets": [
+      32
+    ],
+    "architecture": {
+      "c_conditioning": "query",
+      "chunk_size": 64,
+      "d_inner": 64,
+      "d_state": 128,
+      "dt_max": 0.01,
+      "dt_min": 0.0001,
+      "gate_rank": 32,
+      "head_dim": 64,
+      "query_source": "old_suffix",
+      "summary_tokens": 32
+    },
+    "model": {
+      "d_model": 128,
+      "dropout": 0.2,
+      "ffn_multiplier": 4,
+      "n_heads": 4,
+      "n_layers": 2,
+      "use_time_features": false
+    },
+    "compressor": {
+      "c_conditioning": "query",
+      "chunk_size": 64,
+      "d_inner": 64,
+      "d_state": 128,
+      "dropout": 0.0,
+      "dt_max": 0.01,
+      "dt_min": 0.0001,
+      "gate_rank": 32,
+      "head_dim": 64,
+      "query_context_size": 128,
+      "query_source": "old_suffix"
+    },
+    "schedule": {
+      "first_pass": "latest_block",
+      "old_history_tokens": 1024,
+      "remaining_blocks": "uid_seed_hash_permutation_without_replacement",
+      "subsequent_cycles": "new_uid_seed_cycle_hash_permutation",
+      "target_block_size": 128,
+      "train_only": true,
+      "training_input_tokens": 1152,
+      "version": "qssm-fuxi-rotating-block128-v1"
+    }
+  },
+  "data_contract": {
+    "source_revision": "dd6f3a19eef5866e346c3270e098baa641a44948",
+    "train_end_timestamp": 24710400,
+    "validation_end_timestamp": 25315200,
+    "test_end_timestamp": 25920000,
+    "catalog_sha256": "527dd7772d84afcaf32a1886726b34884d129adb72d5702d2847a466840f8cf7",
+    "cohort_uid_length_sha256": "389eb71cc019879a91bf6a9ee9fcff7fc86ae77fdd5137544a380ffaf71c0446",
+    "cohort_train_timestamps_sha256": "2857d39b1aa90ae92f4fa6eb688a700c8102d991a3b8afc73d59bf05f0e2f3bf",
+    "cohort_mapped_train_items_sha256": "e84f8431274a185b4d1e8ff0f39427edf6f1c78a86fa92c2de375794ce3cff45"
+  },
+  "training_contract": {
+    "effective_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 1e-05,
+    "num_negatives": 512,
+    "raw_tail_size": 128,
+    "supervised_targets": 128,
+    "query_context_size": 128,
+    "max_passes": 60,
+    "min_passes": 20,
+    "validation_interval": 10,
+    "early_stopping_patience": 2,
+    "amp": true,
+    "grad_clip_norm": 1.0
+  },
+  "retained_source_files": [
+    {
+      "file": "metrics.json",
+      "sha256": "fe14b2df9997d821a0833ac0d13e09c1603ba8d9947c01bcc7c26032c6359fbc",
+      "bytes": 2439
+    },
+    {
+      "file": "final-selection.json",
+      "sha256": "cfc4659bc21eaa21fdacb639cbe81148d282838e540eea43fa0188bd0749882f",
+      "bytes": 1671
+    }
+  ]
+}

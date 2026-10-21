@@ -1,5 +1,7 @@
 # Pairwise history compression pilot
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 Run `experiments/yambda_pairwise_compression_pilot.json` through the existing
 Kaggle workflow, on GPU, with kernel override
 `carasik/rhpr-pairwise-compression-pilot`. The bundle is private, embeds the exact

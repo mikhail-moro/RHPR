@@ -1,0 +1,516 @@
+{
+  "complete": true,
+  "no_gpu_runs": true,
+  "no_model_weights_or_neural_forward": true,
+  "registered_recipes": {
+    "format_version": 1,
+    "registered_before_evaluation": true,
+    "recipes": [
+      {
+        "name": "FrequencyR128",
+        "context": "last128 occupied observed events",
+        "priority": [
+          "count_desc",
+          "last_occurrence_desc",
+          "mapped_catalogue_id_asc"
+        ]
+      },
+      {
+        "name": "FrequencyVisible1152",
+        "context": "last1152 occupied observed events",
+        "priority": [
+          "count_desc",
+          "last_occurrence_desc",
+          "mapped_catalogue_id_asc"
+        ]
+      },
+      {
+        "name": "MostRecentUniqueR128",
+        "context": "last128 occupied observed events",
+        "priority": [
+          "last_occurrence_desc",
+          "mapped_catalogue_id_asc"
+        ]
+      }
+    ],
+    "context_unknown_id_zero": "retains chronological slot but is not a candidate",
+    "fallback": "all context-unseen catalogue items ordered by global pre-cutoff cohort train count descending then mapped catalogue ID ascending",
+    "global_prior": "all events of the verified prepared training cohort only; no future or validation events",
+    "catalogue": "the full1049612-item model catalogue, no sampled candidates",
+    "target_use": "only evaluate rank in the target-independent ranking; never construct or adjust a ranking using target",
+    "oov_target_zero": "zero NDCG and HR credit",
+    "primary_metrics": [
+      "macro_user_NDCG10",
+      "macro_user_NDCG100"
+    ],
+    "groups": [
+      "seen_in_recent128",
+      "seen_only_in_old1024",
+      "not_seen_in_visible1152",
+      "oov_target"
+    ],
+    "no_hyperparameter_search": true,
+    "no_new_learned_model": true,
+    "limits": "diagnostic heuristic; global prior uses all available cohort train events, unlike the34m supervised targets of the neural runs"
+  },
+  "recipe_registration_sha256": "5ed810de5aeeb15b5181d383c28d191589fb1476477e103f4042321bf7a7efb9",
+  "train_global_prior": {
+    "events": 89191505,
+    "users": 4427,
+    "catalogue_items": 1049612,
+    "items_seen_in_cohort_train": 1049612,
+    "global_counts_sha256": "8c7024c76adab9c76b9309e7c1de04e4214c3152218795bb3ba4d22bb274d35e",
+    "global_order_sha256": "d668bebff93247b9793f9913d14473d8ea109bf99205b40e6224d3d8c559522c",
+    "future_events_used": false,
+    "same_supervised_exposure_as_neural_models": false
+  },
+  "exact_full_catalogue_rank": {
+    "formula": "if target is priority item: priority_rank0; else |S| + global_rank0(target) - number of priority items with smaller global_rank0",
+    "all_catalogue_items_are_candidates": true,
+    "seen_context_items_are_not_excluded": true,
+    "pad_id_zero_is_not_candidate": true,
+    "literal_full_catalogue_rank_spotcheck_known_anchors": 10,
+    "target_independent_priority_order_hashes": {
+      "FrequencyR128": "d2476e64257d997a19221240b546d820d46ef952bfab9f56405b450da28cd705",
+      "FrequencyVisible1152": "a9615326523819c3280b0edce535fc5df3913094442c2c49a1fb16127fb05bb2",
+      "MostRecentUniqueR128": "b6a257585e9dcf9082ef0e7fe5a05058d3d88245e60e2b2b8f41528febc03514"
+    }
+  },
+  "support": {
+    "validation_anchors": 26335,
+    "validation_users": 4384,
+    "actual_input_context_hashes_match_saved_neural_inputs": true,
+    "all_contexts_strictly_before_target": true,
+    "evaluation_content_sha256": "c274171b1c7fbf480636579eec774f71d89540a2e966e1a1a2871a76bc85ae6d"
+  },
+  "global_metrics": {
+    "FuXi": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.024251656456411735,
+      "ndcg100": 0.04038277953410625,
+      "hr10": 0.040634232707681614,
+      "hr100": 0.12421033194299616
+    },
+    "QSSM_state16": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.018300399191781162,
+      "ndcg100": 0.03361333835260419,
+      "hr10": 0.032665862877997914,
+      "hr100": 0.1120177267987487
+    },
+    "QSSM2_state128": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.017550534213842797,
+      "ndcg100": 0.0330315899699103,
+      "hr10": 0.03175019551616266,
+      "hr100": 0.11196124435175529
+    },
+    "FrequencyR128": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.09724502983231559,
+      "ndcg100": 0.1261555251525091,
+      "hr10": 0.16122968804310045,
+      "hr100": 0.30126705335418835
+    },
+    "FrequencyVisible1152": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.06411547138260731,
+      "ndcg100": 0.10595266506241105,
+      "hr10": 0.11676007994438652,
+      "hr100": 0.32464426920403194
+    },
+    "MostRecentUniqueR128": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.08791441596695405,
+      "ndcg100": 0.12103285107170746,
+      "hr10": 0.13476440302398332,
+      "hr100": 0.30033563607924924
+    }
+  },
+  "paired_heuristic_minus_FuXi": {
+    "FrequencyR128": {
+      "10": {
+        "matched_users": 4384,
+        "matched_anchors": 26335,
+        "draws": 5000,
+        "seed": 42,
+        "confidence": 0.95,
+        "reference_ndcg": 0.024251656456411735,
+        "candidate_ndcg": 0.09724502983231559,
+        "delta_ndcg": 0.07299337337590385,
+        "ci_lower": 0.06922767824191423,
+        "ci_upper": 0.07679594916909706,
+        "bootstrap_fraction_delta_le_zero": 0.0,
+        "user_win_count": 2047,
+        "user_loss_count": 337,
+        "user_tie_count": 2000,
+        "user_win_fraction": 0.4669251824817518,
+        "user_loss_fraction": 0.07687043795620438,
+        "user_tie_fraction": 0.4562043795620438,
+        "relative_delta_percent": 300.98304215671675
+      },
+      "100": {
+        "matched_users": 4384,
+        "matched_anchors": 26335,
+        "draws": 5000,
+        "seed": 42,
+        "confidence": 0.95,
+        "reference_ndcg": 0.04038277953410625,
+        "candidate_ndcg": 0.1261555251525091,
+        "delta_ndcg": 0.08577274561840285,
+        "ci_lower": 0.08192380733309056,
+        "ci_upper": 0.08972666046985531,
+        "bootstrap_fraction_delta_le_zero": 0.0,
+        "user_win_count": 2739,
+        "user_loss_count": 704,
+        "user_tie_count": 941,
+        "user_win_fraction": 0.624771897810219,
+        "user_loss_fraction": 0.16058394160583941,
+        "user_tie_fraction": 0.21464416058394162,
+        "relative_delta_percent": 212.3993113103109
+      }
+    },
+    "FrequencyVisible1152": {
+      "10": {
+        "matched_users": 4384,
+        "matched_anchors": 26335,
+        "draws": 5000,
+        "seed": 42,
+        "confidence": 0.95,
+        "reference_ndcg": 0.024251656456411735,
+        "candidate_ndcg": 0.06411547138260731,
+        "delta_ndcg": 0.03986381492619557,
+        "ci_lower": 0.03656934937546439,
+        "ci_upper": 0.04318712945138274,
+        "bootstrap_fraction_delta_le_zero": 0.0,
+        "user_win_count": 1599,
+        "user_loss_count": 497,
+        "user_tie_count": 2288,
+        "user_win_fraction": 0.364735401459854,
+        "user_loss_fraction": 0.11336678832116788,
+        "user_tie_fraction": 0.5218978102189781,
+        "relative_delta_percent": 164.3756375893088
+      },
+      "100": {
+        "matched_users": 4384,
+        "matched_anchors": 26335,
+        "draws": 5000,
+        "seed": 42,
+        "confidence": 0.95,
+        "reference_ndcg": 0.04038277953410625,
+        "candidate_ndcg": 0.10595266506241105,
+        "delta_ndcg": 0.0655698855283048,
+        "ci_lower": 0.062271920538236714,
+        "ci_upper": 0.06902811630121941,
+        "bootstrap_fraction_delta_le_zero": 0.0,
+        "user_win_count": 2718,
+        "user_loss_count": 825,
+        "user_tie_count": 841,
+        "user_win_fraction": 0.6199817518248175,
+        "user_loss_fraction": 0.18818430656934307,
+        "user_tie_fraction": 0.19183394160583941,
+        "relative_delta_percent": 162.37090731440654
+      }
+    },
+    "MostRecentUniqueR128": {
+      "10": {
+        "matched_users": 4384,
+        "matched_anchors": 26335,
+        "draws": 5000,
+        "seed": 42,
+        "confidence": 0.95,
+        "reference_ndcg": 0.024251656456411735,
+        "candidate_ndcg": 0.08791441596695405,
+        "delta_ndcg": 0.06366275951054232,
+        "ci_lower": 0.06027989730116872,
+        "ci_upper": 0.06718189211205977,
+        "bootstrap_fraction_delta_le_zero": 0.0,
+        "user_win_count": 1837,
+        "user_loss_count": 256,
+        "user_tie_count": 2291,
+        "user_win_fraction": 0.41902372262773724,
+        "user_loss_fraction": 0.058394160583941604,
+        "user_tie_fraction": 0.5225821167883211,
+        "relative_delta_percent": 262.5089120199496
+      },
+      "100": {
+        "matched_users": 4384,
+        "matched_anchors": 26335,
+        "draws": 5000,
+        "seed": 42,
+        "confidence": 0.95,
+        "reference_ndcg": 0.04038277953410625,
+        "candidate_ndcg": 0.12103285107170746,
+        "delta_ndcg": 0.08065007153760122,
+        "ci_lower": 0.07714225017851804,
+        "ci_upper": 0.0841612246722758,
+        "bootstrap_fraction_delta_le_zero": 0.0,
+        "user_win_count": 2754,
+        "user_loss_count": 672,
+        "user_tie_count": 958,
+        "user_win_fraction": 0.6281934306569343,
+        "user_loss_fraction": 0.15328467153284672,
+        "user_tie_fraction": 0.21852189781021897,
+        "relative_delta_percent": 199.71401787607576
+      }
+    }
+  },
+  "repeat_groups": {
+    "seen_in_recent128": {
+      "FuXi": {
+        "user_count": 3097,
+        "anchor_count": 8272,
+        "oov_target_count": 0,
+        "ndcg10": 0.059255908965009374,
+        "ndcg100": 0.08427010064497528,
+        "hr10": 0.09340836754462842,
+        "hr100": 0.22067207897043223
+      },
+      "QSSM_state16": {
+        "user_count": 3097,
+        "anchor_count": 8272,
+        "oov_target_count": 0,
+        "ndcg10": 0.043744339016866814,
+        "ndcg100": 0.06798602978833383,
+        "hr10": 0.07636729861463475,
+        "hr100": 0.1988514230361179
+      },
+      "QSSM2_state128": {
+        "user_count": 3097,
+        "anchor_count": 8272,
+        "oov_target_count": 0,
+        "ndcg10": 0.04257024310452465,
+        "ndcg100": 0.06724745966395665,
+        "hr10": 0.07374571397819703,
+        "hr100": 0.199179697710534
+      },
+      "FrequencyR128": {
+        "user_count": 3097,
+        "anchor_count": 8272,
+        "oov_target_count": 0,
+        "ndcg10": 0.3000913902576223,
+        "ndcg100": 0.39553501376279926,
+        "hr10": 0.5005658317573074,
+        "hr100": 0.9669411258206867
+      },
+      "FrequencyVisible1152": {
+        "user_count": 3097,
+        "anchor_count": 8272,
+        "oov_target_count": 0,
+        "ndcg10": 0.17094529592367616,
+        "ndcg100": 0.2678173578542192,
+        "hr10": 0.30955763642234424,
+        "hr100": 0.7857065977828005
+      },
+      "MostRecentUniqueR128": {
+        "user_count": 3097,
+        "anchor_count": 8272,
+        "oov_target_count": 0,
+        "ndcg10": 0.2750156238831789,
+        "ndcg100": 0.38288715225884806,
+        "hr10": 0.4179882220889647,
+        "hr100": 0.9620977289850392
+      }
+    },
+    "seen_only_in_old1024": {
+      "FuXi": {
+        "user_count": 3519,
+        "anchor_count": 8703,
+        "oov_target_count": 0,
+        "ndcg10": 0.009301052689541229,
+        "ndcg100": 0.02533475797048768,
+        "hr10": 0.01922894761769442,
+        "hr100": 0.1037869253981786
+      },
+      "QSSM_state16": {
+        "user_count": 3519,
+        "anchor_count": 8703,
+        "oov_target_count": 0,
+        "ndcg10": 0.00825793387059222,
+        "ndcg100": 0.02236840632147446,
+        "hr10": 0.01731552524391399,
+        "hr100": 0.09227323779753448
+      },
+      "QSSM2_state128": {
+        "user_count": 3519,
+        "anchor_count": 8703,
+        "oov_target_count": 0,
+        "ndcg10": 0.007454815428735862,
+        "ndcg100": 0.02201454543622888,
+        "hr10": 0.015862190286742715,
+        "hr100": 0.09308380356973707
+      },
+      "FrequencyR128": {
+        "user_count": 3519,
+        "anchor_count": 8703,
+        "oov_target_count": 0,
+        "ndcg10": 0.0,
+        "ndcg100": 0.0008070829959517751,
+        "hr10": 0.0,
+        "hr100": 0.004920905560291749
+      },
+      "FrequencyVisible1152": {
+        "user_count": 3519,
+        "anchor_count": 8703,
+        "oov_target_count": 0,
+        "ndcg10": 0.028325629850752102,
+        "ndcg100": 0.06755550347962899,
+        "hr10": 0.05715909552226687,
+        "hr100": 0.26078499032463226
+      },
+      "MostRecentUniqueR128": {
+        "user_count": 3519,
+        "anchor_count": 8703,
+        "oov_target_count": 0,
+        "ndcg10": 0.0,
+        "ndcg100": 0.0008070829959517751,
+        "hr10": 0.0,
+        "hr100": 0.004920905560291749
+      }
+    },
+    "not_seen_in_visible1152": {
+      "FuXi": {
+        "user_count": 3492,
+        "anchor_count": 7960,
+        "oov_target_count": 0,
+        "ndcg10": 0.005258030803810212,
+        "ndcg100": 0.014054375738665496,
+        "hr10": 0.01062905689194349,
+        "hr100": 0.0572683139693449
+      },
+      "QSSM_state16": {
+        "user_count": 3492,
+        "anchor_count": 7960,
+        "oov_target_count": 0,
+        "ndcg10": 0.003923256618490309,
+        "ndcg100": 0.012408035835809725,
+        "hr10": 0.008820160366552119,
+        "hr100": 0.0542682594228986
+      },
+      "QSSM2_state128": {
+        "user_count": 3492,
+        "anchor_count": 7960,
+        "oov_target_count": 0,
+        "ndcg10": 0.004639377348950387,
+        "ndcg100": 0.012966277437657735,
+        "hr10": 0.008841978945071728,
+        "hr100": 0.05306346479026891
+      },
+      "FrequencyR128": {
+        "user_count": 3492,
+        "anchor_count": 7960,
+        "oov_target_count": 0,
+        "ndcg10": 0.0,
+        "ndcg100": 0.00012403714592621015,
+        "hr10": 0.0,
+        "hr100": 0.0007875143184421535
+      },
+      "FrequencyVisible1152": {
+        "user_count": 3492,
+        "anchor_count": 7960,
+        "oov_target_count": 0,
+        "ndcg10": 0.0,
+        "ndcg100": 0.0,
+        "hr10": 0.0,
+        "hr100": 0.0
+      },
+      "MostRecentUniqueR128": {
+        "user_count": 3492,
+        "anchor_count": 7960,
+        "oov_target_count": 0,
+        "ndcg10": 0.0,
+        "ndcg100": 0.00012403714592621015,
+        "hr10": 0.0,
+        "hr100": 0.0007875143184421535
+      }
+    },
+    "oov_target": {
+      "FuXi": {
+        "user_count": 1054,
+        "anchor_count": 1400,
+        "oov_target_count": 1400,
+        "ndcg10": 0.0,
+        "ndcg100": 0.0,
+        "hr10": 0.0,
+        "hr100": 0.0
+      },
+      "QSSM_state16": {
+        "user_count": 1054,
+        "anchor_count": 1400,
+        "oov_target_count": 1400,
+        "ndcg10": 0.0,
+        "ndcg100": 0.0,
+        "hr10": 0.0,
+        "hr100": 0.0
+      },
+      "QSSM2_state128": {
+        "user_count": 1054,
+        "anchor_count": 1400,
+        "oov_target_count": 1400,
+        "ndcg10": 0.0,
+        "ndcg100": 0.0,
+        "hr10": 0.0,
+        "hr100": 0.0
+      },
+      "FrequencyR128": {
+        "user_count": 1054,
+        "anchor_count": 1400,
+        "oov_target_count": 1400,
+        "ndcg10": 0.0,
+        "ndcg100": 0.0,
+        "hr10": 0.0,
+        "hr100": 0.0
+      },
+      "FrequencyVisible1152": {
+        "user_count": 1054,
+        "anchor_count": 1400,
+        "oov_target_count": 1400,
+        "ndcg10": 0.0,
+        "ndcg100": 0.0,
+        "hr10": 0.0,
+        "hr100": 0.0
+      },
+      "MostRecentUniqueR128": {
+        "user_count": 1054,
+        "anchor_count": 1400,
+        "oov_target_count": 1400,
+        "ndcg10": 0.0,
+        "ndcg100": 0.0,
+        "hr10": 0.0,
+        "hr100": 0.0
+      }
+    }
+  },
+  "limitations": [
+    "The three recipes and tie rules were fixed before evaluation; no HPO or recipe selection was performed.",
+    "Global popularity prior uses all89m pre-cutoff cohort training events, unlike34m supervised target positions of the trained neural runs; this is not a matched-capacity or matched-exposure comparison.",
+    "Heuristics use future evaluation events only when those events are already observed in the current past-only context, exactly as the neural inputs do.",
+    "Repeat groups depend on the target after prediction and are diagnostic only; not valid serving/routing features.",
+    "Same repeatedly inspected validation anchors, single neural training seed; bootstrap measures user sampling of frozen predictions only.",
+    "This is a repeat/popularity diagnostic, not evidence that history order or time is useless.",
+    "The unmatched89m global prior exposure does not explain the R128 recipes NDCG10: a separate context-only implementation exactly reproduced those scores, so fallback contributes zero at10 on these anchors."
+  ],
+  "seconds": 43.0780960409993,
+  "post_result_audit": {
+    "saved_rank_audit": "archive:aggregates/qssm2-saved-ranks-audit.json",
+    "independent_context_only_check": "archive:aggregates/qssm2-repeat-heuristics-independent-check.json",
+    "independent_frequency_recent_ndcg10": 0.09724502983231559,
+    "independent_mru_recent_ndcg10": 0.08791441596695404,
+    "global_prior_contribution_to_R128_recipe_ndcg10": 0.0,
+    "all_saved_neural_rank_hr_ndcg_fields_consistent": true,
+    "no_protocol_or_scorer_bug_found_in_bounded_source_artifact_audit": true,
+    "neural_weights_or_logits_rechecked": false
+  }
+}

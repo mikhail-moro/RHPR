@@ -1,5 +1,7 @@
 # Fixed-LR compressor architecture search
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 The completed H1024 learning-rate run selected backbone/compressor LR 0.001 for
 both families. Its best checkpoints were at pass 50; the last pass was60.
 Full-history validation NDCG@10/@100 was 0.06512496/0.07505025 for Cross Attention

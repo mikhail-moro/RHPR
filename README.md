@@ -3,6 +3,16 @@
 Reproducible Codex -> GitHub -> Kaggle experiment loop with Telegram-only
 notifications.
 
+The history-compression / Query SSM research track was closed on **2026-10-21**.
+Its code, experiment configurations and tests are retained for reproducibility.
+Start with the [research archive](docs/research/closed-history-compression/README.md)
+for final results, data audits, literature and limitations, or the
+[documentation index](docs/README.md) for the earlier stages.
+
+The next research direction is **SID for generative recommendation (GR)**.
+No SID/GR experiment is implemented or queued by this archive. Plans in the
+historical research notes are closed proposals; new work needs a new brief.
+
 ## Flow
 
 1. Ask Codex to implement an experiment from a chat or a written brief.
@@ -22,6 +32,7 @@ used to publish notebooks because CI needs repeatable, auditable execution.
 
 ```text
 experiments/                  versioned experiment configurations
+docs/research/                closed research reports and aggregate evidence
 kaggle/run.py                 Kaggle entry point
 src/rhpr/                     runner, metric contract, Telegram client
 scripts/                      bundle, submit, collect, notify utilities
@@ -132,7 +143,11 @@ python3 scripts/build_kaggle_bundle.py \
   --output build/kaggle
 ```
 
-## Yambda SASRec baseline
+## Historical Yambda-50M SASRec baseline
+
+This section describes the initial baseline. The later 500M long-history,
+daily-evaluation and rotating-target protocols are documented in the
+[research archive](docs/research/closed-history-compression/README.md).
 
 The `yambda_sasrec_*.json` configurations train a PyTorch SASRec whose item
 embedding is followed by an explicit sequence-compressor interface and then the

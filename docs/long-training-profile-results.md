@@ -1,5 +1,7 @@
 # Yambda 500M: four-backbone GPU cost results
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 All four requested backbones completed the cost screen on one Tesla T4.
 The best tested physical batches estimate about **21 seconds/pass for SASRec
 Recent128, 24 seconds/pass for HSTU Recent128, 130 seconds/pass for Mamba4Rec16K,

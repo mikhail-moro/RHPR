@@ -1,5 +1,7 @@
 # Frozen-checkpoint history interventions
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 Configuration: `experiments/yambda_query_history_ablation.json`, seed 42.
 This validation-only diagnostic tests whether the completed SASRec Query SSM
 and cross-attention models depend on events before their old-suffix queries.

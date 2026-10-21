@@ -1,0 +1,535 @@
+{
+  "complete": true,
+  "recipe": {
+    "seed": 42,
+    "scope": "fixed 4427 long-history cohort; train before day286; validation day286 inclusive to day293 exclusive; no test metrics",
+    "global_popularity": "all cohort train event counts descending, then mapped ID ascending; all IDs1..N eligible; OOV target gets zero",
+    "daily_first": "existing first chronological event per user and occupied day, before catalogue mapping",
+    "daily_uniform": "one uniformly selected observed validation event per same user/day using numpy.default_rng seeded from sha256([music-data-audit-v1,42,uid,day]); selection before target mapping",
+    "contexts": "last1152 events strictly earlier than selected target timestamp, recent128 final occupied slots; tied earlier sequence events at same timestamp omitted",
+    "frequency_recent128": "frequency descending, last occurrence descending, mapped ID ascending; other catalogue items filled by train-only global order",
+    "train_sample": "32 uniformly selected eligible train positions per user without replacement, first1152positions excluded; diagnostics only, no popularity performance evaluated on these samples",
+    "session_proxy": "gap at least1800 seconds from immediately preceding chronological event; descriptive proxy, not observed session labels",
+    "aggregation": "ranking macro-user mean over selected occupied days; report anchor fractions and macro-user repeat fractions separately",
+    "no_hpo": true,
+    "no_neural_forward": true,
+    "no_gpu": true
+  },
+  "recipe_sha256": "5e832dc2553274e7af28079f44764dbf15c05a21d6e4210604b394d27ccfe6c9",
+  "seconds": 41.268533282000135,
+  "cohort": {
+    "users": 4427,
+    "train_events": 89191505,
+    "catalogue_items": 1049612,
+    "all_train_event_counts_sha256": "8c7024c76adab9c76b9309e7c1de04e4214c3152218795bb3ba4d22bb274d35e"
+  },
+  "registered_target_schedule_hashes": {
+    "daily_first": "639e64bee27478001ecf720f91dec0a5440a29476b92ee52cb19b83fc220260c",
+    "daily_uniform": "f5f53e4c4d675d0ae66977a3650d7109152c322e0b964c030496e9777d32aae5",
+    "train_uniform32": "43d1dc824b35a753d1ca995b2a9a0d2dbbc0a9dc6840f4c79ec5afdfd046a0cb"
+  },
+  "original_reference_hash_checks": 26335,
+  "same_timestamp_predecessors_omitted": {
+    "train_uniform32": 154724,
+    "daily_first": 0,
+    "daily_uniform": 17329
+  },
+  "validation_all_event_descriptives": {
+    "validation_events": 2138736,
+    "gap_30min": 84221,
+    "gap_3hours": 42875,
+    "tied_timestamp_events": 419033,
+    "immediate_known_repeats": 56510
+  },
+  "training_user_distributions": {
+    "events": {
+      "count": 4427,
+      "mean": 20147.166252541225,
+      "p10": 16908.0,
+      "p25": 17802.0,
+      "median": 19668.0,
+      "p75": 22142.5,
+      "p90": 24190.4,
+      "p99": 26294.44
+    },
+    "unique": {
+      "count": 4427,
+      "mean": 3944.7689180031625,
+      "p10": 1986.6,
+      "p25": 2797.5,
+      "median": 3745.0,
+      "p75": 4854.0,
+      "p90": 6118.200000000001,
+      "p99": 9060.96
+    },
+    "cumulative_repeat_fraction": {
+      "count": 4427,
+      "mean": 0.8028933469009613,
+      "p10": 0.6957834466340249,
+      "p25": 0.7578905759107881,
+      "median": 0.8140635164705187,
+      "p75": 0.8582107678713959,
+      "p90": 0.8994116700822405,
+      "p99": 0.9565923436343758
+    },
+    "top_item_share": {
+      "count": 4427,
+      "mean": 0.007949413238506953,
+      "p10": 0.0021915202426153646,
+      "p25": 0.0029364487469054935,
+      "median": 0.004642741074330285,
+      "p75": 0.007484081135255993,
+      "p90": 0.0124614905279216,
+      "p99": 0.04211498838765614
+    },
+    "duration_days": {
+      "count": 4427,
+      "mean": 275.3622904666441,
+      "p10": 253.29891203703704,
+      "p25": 283.41767939814815,
+      "median": 285.2412615740741,
+      "p75": 285.4908275462963,
+      "p90": 285.64281250000005,
+      "p99": 285.9474965277778
+    }
+  },
+  "selections": {
+    "daily_first": {
+      "anchors": 26335,
+      "users": 4384,
+      "anchor_group_counts": {
+        "seen_recent128": 8272,
+        "not_seen_visible1152": 7960,
+        "seen_only_old1024": 8703,
+        "oov": 1400
+      },
+      "anchor_group_fractions": {
+        "seen_recent128": 0.31410670210746156,
+        "seen_only_old1024": 0.3304727548889311,
+        "not_seen_visible1152": 0.302259350674008,
+        "oov": 0.05316119232959939
+      },
+      "anchor_fractions": {
+        "seen_recent128": 0.31410670210746156,
+        "seen_visible1152": 0.6445794569963926,
+        "seen_any_past": 0.8032276438200114,
+        "immediate_repeat": 0.050617049553825705,
+        "oov": 0.05316119232959939,
+        "session_start_30min": 0.9587241313840896
+      },
+      "macro_user_fractions": {
+        "seen_recent128": 0.30760720802919705,
+        "seen_visible1152": 0.6375445342370525,
+        "seen_any_past": 0.7961298661800487,
+        "immediate_repeat": 0.04940258950295447,
+        "oov": 0.05440780326729231,
+        "session_start_30min": 0.9611188955509209
+      },
+      "distributions": {
+        "recent_duration_hours": {
+          "count": 26335,
+          "mean": 53.07377238782356,
+          "p10": 8.689444444444444,
+          "p25": 23.46388888888889,
+          "median": 37.00833333333333,
+          "p75": 66.87291666666667,
+          "p90": 102.50638888888889,
+          "p99": 274.49563888888883
+        },
+        "visible_duration_days": {
+          "count": 26335,
+          "mean": 18.314099435074432,
+          "p10": 8.791550925925927,
+          "p25": 12.028761574074075,
+          "median": 16.119675925925925,
+          "p75": 22.110416666666666,
+          "p90": 29.737835648148184,
+          "p99": 55.77936574074074
+        },
+        "gap_since_last_event_hours": {
+          "count": 26335,
+          "mean": 18.929565164652026,
+          "p10": 7.150555555555556,
+          "p25": 10.506250000000001,
+          "median": 14.256944444444445,
+          "p75": 20.214583333333334,
+          "p90": 32.16472222222224,
+          "p99": 95.7079722222222
+        },
+        "last_occurrence_gap_events": {
+          "count": 21153,
+          "mean": 1153.0450999858176,
+          "p10": 3.200000000000273,
+          "p25": 33.0,
+          "median": 374.0,
+          "p75": 859.0,
+          "p90": 2659.7999999999993,
+          "p99": 15053.239999999983
+        },
+        "last_occurrence_gap_hours": {
+          "count": 21153,
+          "mean": 407.40796583883554,
+          "p10": 12.863611111111114,
+          "p25": 23.166666666666668,
+          "median": 112.40277777777777,
+          "p75": 329.12916666666666,
+          "p90": 952.8283333333334,
+          "p99": 5069.472055555553
+        },
+        "recent_unique_fraction": {
+          "count": 26335,
+          "mean": 0.7944513005505981,
+          "p10": 0.5,
+          "p25": 0.6875,
+          "median": 0.8515625,
+          "p75": 0.953125,
+          "p90": 0.9921875,
+          "p99": 1.0
+        }
+      },
+      "per_user_recent_repeat_fraction_distribution": {
+        "count": 4384,
+        "mean": 0.30760720802919705,
+        "p10": 0.0,
+        "p25": 0.0,
+        "median": 0.2857142857142857,
+        "p75": 0.5,
+        "p90": 0.7142857142857143,
+        "p99": 1.0
+      },
+      "macro_user_metrics": {
+        "global_ndcg10": 0.0019277991890269564,
+        "global_hr10": 0.0046945603058741745,
+        "global_ndcg100": 0.005924710237185505,
+        "global_hr100": 0.02562510862009037,
+        "frequency_ndcg10": 0.09724502983231559,
+        "frequency_hr10": 0.16122968804310045,
+        "frequency_ndcg100": 0.1261555251525091,
+        "frequency_hr100": 0.30126705335418835
+      }
+    },
+    "daily_uniform": {
+      "anchors": 26335,
+      "users": 4384,
+      "anchor_group_counts": {
+        "not_seen_visible1152": 9220,
+        "seen_recent128": 7057,
+        "seen_only_old1024": 9162,
+        "oov": 896
+      },
+      "anchor_group_fractions": {
+        "seen_recent128": 0.26797038162141634,
+        "seen_only_old1024": 0.3479020315169926,
+        "not_seen_visible1152": 0.35010442377064743,
+        "oov": 0.03402316309094361
+      },
+      "anchor_fractions": {
+        "seen_recent128": 0.26797038162141634,
+        "seen_visible1152": 0.615872413138409,
+        "seen_any_past": 0.8125688247579267,
+        "immediate_repeat": 0.03341560660717676,
+        "oov": 0.03402316309094361,
+        "session_start_30min": 0.12219479779760775
+      },
+      "macro_user_fractions": {
+        "seen_recent128": 0.2640331725755996,
+        "seen_visible1152": 0.6119476668404589,
+        "seen_any_past": 0.8086293230795967,
+        "immediate_repeat": 0.032747871046228706,
+        "oov": 0.034331008863399376,
+        "session_start_30min": 0.12602320125130342
+      },
+      "distributions": {
+        "recent_duration_hours": {
+          "count": 26335,
+          "mean": 61.38770879480202,
+          "p10": 18.508055555555554,
+          "p25": 26.37708333333333,
+          "median": 46.88055555555555,
+          "p75": 73.23194444444445,
+          "p90": 116.67666666666668,
+          "p99": 302.0110555555555
+        },
+        "visible_duration_days": {
+          "count": 26335,
+          "mean": 18.68385687394961,
+          "p10": 9.027824074074076,
+          "p25": 12.217418981481483,
+          "median": 16.44681712962963,
+          "p75": 22.501302083333336,
+          "p90": 30.151284722222226,
+          "p99": 56.32785532407407
+        },
+        "gap_since_last_event_hours": {
+          "count": 26335,
+          "mean": 1.9115054954327784,
+          "p10": 0.001388888888888889,
+          "p25": 0.015277777777777777,
+          "median": 0.05,
+          "p75": 0.0875,
+          "p90": 1.078611111111114,
+          "p99": 34.557388888888866
+        },
+        "last_occurrence_gap_events": {
+          "count": 21399,
+          "mean": 1367.9699518669097,
+          "p10": 7.0,
+          "p25": 59.0,
+          "median": 422.0,
+          "p75": 1099.0,
+          "p90": 3372.600000000002,
+          "p99": 16087.46000000001
+        },
+        "last_occurrence_gap_hours": {
+          "count": 21399,
+          "mean": 473.5135691698989,
+          "p10": 1.2738888888888897,
+          "p25": 24.3,
+          "median": 141.20833333333334,
+          "p75": 398.68402777777777,
+          "p90": 1216.513055555556,
+          "p99": 5438.499111111111
+        },
+        "recent_unique_fraction": {
+          "count": 26335,
+          "mean": 0.7918181602430225,
+          "p10": 0.5,
+          "p25": 0.6875,
+          "median": 0.84375,
+          "p75": 0.953125,
+          "p90": 0.9921875,
+          "p99": 1.0
+        }
+      },
+      "per_user_recent_repeat_fraction_distribution": {
+        "count": 4384,
+        "mean": 0.2640331725755996,
+        "p10": 0.0,
+        "p25": 0.0,
+        "median": 0.2,
+        "p75": 0.42857142857142855,
+        "p90": 0.6666666666666666,
+        "p99": 1.0
+      },
+      "macro_user_metrics": {
+        "global_ndcg10": 0.0013017690855659733,
+        "global_hr10": 0.0032368786930830726,
+        "global_ndcg100": 0.00533665338618318,
+        "global_hr100": 0.024711070559610703,
+        "frequency_ndcg10": 0.06474303190209528,
+        "frequency_hr10": 0.11660475321515468,
+        "frequency_ndcg100": 0.09384028958410286,
+        "frequency_hr100": 0.2580889381299965
+      }
+    },
+    "train_uniform32": {
+      "anchors": 141656,
+      "users": 4427,
+      "anchor_group_counts": {
+        "seen_only_old1024": 56141,
+        "not_seen_visible1152": 50590,
+        "seen_recent128": 34925
+      },
+      "anchor_group_fractions": {
+        "seen_recent128": 0.24654797537696957,
+        "seen_only_old1024": 0.3963192522731123,
+        "not_seen_visible1152": 0.35713277234991814,
+        "oov": 0.0
+      },
+      "anchor_fractions": {
+        "seen_recent128": 0.24654797537696957,
+        "seen_visible1152": 0.6428672276500819,
+        "seen_any_past": 0.8226831196701869,
+        "immediate_repeat": 0.027446772462867794,
+        "oov": 0.0,
+        "session_start_30min": 0.07130654543400915
+      },
+      "macro_user_fractions": {
+        "seen_recent128": 0.24655067510948217,
+        "seen_visible1152": 0.6428687234492155,
+        "seen_any_past": 0.8226837970080956,
+        "immediate_repeat": 0.027447271872745687,
+        "oov": 0.0,
+        "session_start_30min": 0.07131117154994644
+      },
+      "distributions": {
+        "recent_duration_hours": {
+          "count": 141656,
+          "mean": 41.44758537701662,
+          "p10": 7.572222222222222,
+          "p25": 19.845833333333335,
+          "median": 29.9375,
+          "p75": 51.11388888888889,
+          "p90": 79.18819444444445,
+          "p99": 190.41986111111132
+        },
+        "visible_duration_days": {
+          "count": 141656,
+          "mean": 15.597276545348382,
+          "p10": 7.81015625,
+          "p25": 10.615625,
+          "median": 14.164467592592594,
+          "p75": 18.91032986111111,
+          "p90": 24.303645833333334,
+          "p99": 42.975086805555655
+        },
+        "gap_since_last_event_hours": {
+          "count": 141656,
+          "mean": 0.6648241161687469,
+          "p10": 0.001388888888888889,
+          "p25": 0.005555555555555556,
+          "median": 0.04722222222222222,
+          "p75": 0.06944444444444445,
+          "p90": 0.24861111111111112,
+          "p99": 16.303888888888952
+        },
+        "last_occurrence_gap_events": {
+          "count": 116538,
+          "mean": 1013.6359556539497,
+          "p10": 11.0,
+          "p25": 80.0,
+          "median": 419.0,
+          "p75": 991.0,
+          "p90": 2510.300000000003,
+          "p99": 10199.890000000014
+        },
+        "last_occurrence_gap_hours": {
+          "count": 116538,
+          "mean": 320.56618616054664,
+          "p10": 0.9305555555555556,
+          "p25": 20.16840277777778,
+          "median": 115.98472222222222,
+          "p75": 310.91006944444445,
+          "p90": 816.4756944444445,
+          "p99": 3272.9845833333334
+        },
+        "recent_unique_fraction": {
+          "count": 141656,
+          "mean": 0.8229171814113062,
+          "p10": 0.5390625,
+          "p25": 0.7265625,
+          "median": 0.890625,
+          "p75": 0.984375,
+          "p90": 1.0,
+          "p99": 1.0
+        }
+      },
+      "per_user_recent_repeat_fraction_distribution": {
+        "count": 4427,
+        "mean": 0.24655067510948217,
+        "p10": 0.03125,
+        "p25": 0.09375,
+        "median": 0.21875,
+        "p75": 0.375,
+        "p90": 0.5,
+        "p99": 0.78125
+      }
+    }
+  },
+  "paired_user_bootstrap_uniform_minus_first": {
+    "recent_repeat_fraction": {
+      "uniform_minus_first": -0.04357403545359749,
+      "ci_lower": -0.05085676811783107,
+      "ci_upper": -0.03680436978623566,
+      "draws": 2000,
+      "seed": 42,
+      "matched_users": 4384,
+      "scope": "paired bootstrap over fixed users and fixed selected anchors; not random-event-seed variation"
+    },
+    "any_past_repeat_fraction": {
+      "uniform_minus_first": 0.012499456899548142,
+      "ci_lower": 0.005974444408237746,
+      "ci_upper": 0.019149002324469932,
+      "draws": 2000,
+      "seed": 42,
+      "matched_users": 4384,
+      "scope": "paired bootstrap over fixed users and fixed selected anchors; not random-event-seed variation"
+    },
+    "frequency_ndcg10": {
+      "uniform_minus_first": -0.03250199793022032,
+      "ci_lower": -0.036009673118071114,
+      "ci_upper": -0.02887352726987395,
+      "draws": 2000,
+      "seed": 42,
+      "matched_users": 4384,
+      "scope": "paired bootstrap over fixed users and fixed selected anchors; not random-event-seed variation"
+    },
+    "global_ndcg10": {
+      "uniform_minus_first": -0.0006260301034609827,
+      "ci_lower": -0.0011406608288866509,
+      "ci_upper": -0.00013769026385285796,
+      "draws": 2000,
+      "seed": 42,
+      "matched_users": 4384,
+      "scope": "paired bootstrap over fixed users and fixed selected anchors; not random-event-seed variation"
+    }
+  },
+  "previous_neural_and_repeat_metrics_original_daily_first_only": {
+    "FuXi": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.024251656456411735,
+      "ndcg100": 0.04038277953410625,
+      "hr10": 0.040634232707681614,
+      "hr100": 0.12421033194299616
+    },
+    "QSSM_state16": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.018300399191781162,
+      "ndcg100": 0.03361333835260419,
+      "hr10": 0.032665862877997914,
+      "hr100": 0.1120177267987487
+    },
+    "QSSM2_state128": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.017550534213842797,
+      "ndcg100": 0.0330315899699103,
+      "hr10": 0.03175019551616266,
+      "hr100": 0.11196124435175529
+    },
+    "FrequencyR128": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.09724502983231559,
+      "ndcg100": 0.1261555251525091,
+      "hr10": 0.16122968804310045,
+      "hr100": 0.30126705335418835
+    },
+    "FrequencyVisible1152": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.06411547138260731,
+      "ndcg100": 0.10595266506241105,
+      "hr10": 0.11676007994438652,
+      "hr100": 0.32464426920403194
+    },
+    "MostRecentUniqueR128": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.08791441596695405,
+      "ndcg100": 0.12103285107170746,
+      "hr10": 0.13476440302398332,
+      "hr100": 0.30033563607924924
+    }
+  },
+  "limitations": [
+    "Only very active long-history users; cannot infer prevalence among all Yambda/service users.",
+    "Random-event-per-user-day keeps same user/day support but is not event-volume weighted population estimation.",
+    "Earlier validation observations enter later contexts; no validation/test events enter popularity prior.",
+    "Test outcomes/metrics are not evaluated; the storage file also contains later test arrays, discarded before targets or statistics.",
+    "Daily bins use supplied anonymous timestamps, not known local human morning/session labels.",
+    "Session starts are gap>=30min proxies, not observed playlist/source sessions.",
+    "Only item IDs and timestamps available here; no artist/album/playlist/mood inference is made.",
+    "Cumulative repeat counts and item reappearance do not establish enjoyment or causal recommendation utility.",
+    "Alternative anchors are diagnostic and do not replace original neural evaluation; neural predictions unavailable for alternative anchors.",
+    "Same repeatedly studied validation; no unbiased final-test claim."
+  ]
+}

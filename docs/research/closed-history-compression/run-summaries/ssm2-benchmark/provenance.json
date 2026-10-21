@@ -1,0 +1,59 @@
+{
+  "format_version": 1,
+  "snapshot_id": "ssm2-benchmark",
+  "source_artifact": "ssm2-benchmark-output/metrics.json",
+  "metrics_sha256": "26f00a7d903c6276d3a5e92e78e7f51325804d17ab9c90e88ece9a4848c05272",
+  "metrics_bytes": 994,
+  "metrics_preserved_byte_for_byte": true,
+  "metrics_scalar_count": 23,
+  "flat_finite_scalars_validated": true,
+  "original_run_manifest_sha256": "fea3ea1f7e23ed8936d6c5fc2430d2790e19b83b93b961be2c3965dc928659a3",
+  "source_git_sha": "cb2862b55a4a9a39a2a2ef104f308bca06775212",
+  "source_commit_url": "https://github.com/mikhail-moro/RHPR/commit/cb2862b55a4a9a39a2a2ef104f308bca06775212",
+  "experiment_config_file": "experiments/yambda_query_ssm2_benchmark.json",
+  "source_config_url": "https://github.com/mikhail-moro/RHPR/blob/cb2862b55a4a9a39a2a2ef104f308bca06775212/experiments/yambda_query_ssm2_benchmark.json",
+  "manifest_config_canonical_sha256": "4a3365f892302143a0486c125998e42b7385d21cc23482bfafde142e0becd3e8",
+  "manifest_config_hash_serialization": "UTF-8 json.dumps(config,sort_keys=True,separators=(comma,colon)); default ensure_ascii=True",
+  "protocol_note": "Native T4 optimizer-step/compressor benchmark only, QSSM1 versus SSD head dimensions32/64. No recommendation-quality training/comparison.",
+  "metric_scope_warning": "Historical and fresh/reused control fields may coexist. Do not concatenate these snapshots into a matched leaderboard; read the registered config and protocol note.",
+  "run": {
+    "started_at": "2026-10-19T21:34:33.033930+00:00",
+    "finished_at": "2026-10-19T21:42:08.574247+00:00",
+    "duration_seconds": 455.540317,
+    "python": "3.13.15"
+  },
+  "configuration": {
+    "name": "yambda500m-query-ssm2-benchmark",
+    "kind": "yambda_query_ssm2_benchmark",
+    "seed": 42
+  },
+  "data_contract": {
+    "train_end_timestamp": 24710400,
+    "catalog_sha256": "527dd7772d84afcaf32a1886726b34884d129adb72d5702d2847a466840f8cf7",
+    "cohort_uid_length_sha256": "389eb71cc019879a91bf6a9ee9fcff7fc86ae77fdd5137544a380ffaf71c0446",
+    "cohort_train_timestamps_sha256": "2857d39b1aa90ae92f4fa6eb688a700c8102d991a3b8afc73d59bf05f0e2f3bf",
+    "cohort_mapped_train_items_sha256": "e84f8431274a185b4d1e8ff0f39427edf6f1c78a86fa92c2de375794ce3cff45"
+  },
+  "training_contract": {
+    "effective_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 1e-05,
+    "num_negatives": 512,
+    "raw_tail_size": 128,
+    "supervised_targets": 128,
+    "query_context_size": 128,
+    "max_passes": 100,
+    "min_passes": 30,
+    "validation_interval": 10,
+    "early_stopping_patience": 3,
+    "amp": true,
+    "grad_clip_norm": 1.0
+  },
+  "retained_source_files": [
+    {
+      "file": "metrics.json",
+      "sha256": "26f00a7d903c6276d3a5e92e78e7f51325804d17ab9c90e88ece9a4848c05272",
+      "bytes": 994
+    }
+  ]
+}

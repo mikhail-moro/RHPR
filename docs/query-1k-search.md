@@ -1,5 +1,7 @@
 # 1K compressor learning-rate search
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 Configuration: `experiments/yambda_query_prefix_1k_search.json`, seed 42.
 This is a validation-only follow-up to the completed six 4K screening trials.
 It does not repeat their frozen length diagnostics or the completed full-history

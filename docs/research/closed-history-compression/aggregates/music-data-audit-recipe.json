@@ -1,0 +1,15 @@
+{
+  "seed": 42,
+  "scope": "fixed 4427 long-history cohort; train before day286; validation day286 inclusive to day293 exclusive; no test metrics",
+  "global_popularity": "all cohort train event counts descending, then mapped ID ascending; all IDs1..N eligible; OOV target gets zero",
+  "daily_first": "existing first chronological event per user and occupied day, before catalogue mapping",
+  "daily_uniform": "one uniformly selected observed validation event per same user/day using numpy.default_rng seeded from sha256([music-data-audit-v1,42,uid,day]); selection before target mapping",
+  "contexts": "last1152 events strictly earlier than selected target timestamp, recent128 final occupied slots; tied earlier sequence events at same timestamp omitted",
+  "frequency_recent128": "frequency descending, last occurrence descending, mapped ID ascending; other catalogue items filled by train-only global order",
+  "train_sample": "32 uniformly selected eligible train positions per user without replacement, first1152positions excluded; diagnostics only, no popularity performance evaluated on these samples",
+  "session_proxy": "gap at least1800 seconds from immediately preceding chronological event; descriptive proxy, not observed session labels",
+  "aggregation": "ranking macro-user mean over selected occupied days; report anchor fractions and macro-user repeat fractions separately",
+  "no_hpo": true,
+  "no_neural_forward": true,
+  "no_gpu": true
+}

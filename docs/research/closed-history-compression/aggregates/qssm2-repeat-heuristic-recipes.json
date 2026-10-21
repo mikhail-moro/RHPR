@@ -1,0 +1,20 @@
+{
+  "format_version": 1,
+  "registered_before_evaluation": true,
+  "recipes": [
+    {"name": "FrequencyR128", "context": "last128 occupied observed events", "priority": ["count_desc", "last_occurrence_desc", "mapped_catalogue_id_asc"]},
+    {"name": "FrequencyVisible1152", "context": "last1152 occupied observed events", "priority": ["count_desc", "last_occurrence_desc", "mapped_catalogue_id_asc"]},
+    {"name": "MostRecentUniqueR128", "context": "last128 occupied observed events", "priority": ["last_occurrence_desc", "mapped_catalogue_id_asc"]}
+  ],
+  "context_unknown_id_zero": "retains chronological slot but is not a candidate",
+  "fallback": "all context-unseen catalogue items ordered by global pre-cutoff cohort train count descending then mapped catalogue ID ascending",
+  "global_prior": "all events of the verified prepared training cohort only; no future or validation events",
+  "catalogue": "the full1049612-item model catalogue, no sampled candidates",
+  "target_use": "only evaluate rank in the target-independent ranking; never construct or adjust a ranking using target",
+  "oov_target_zero": "zero NDCG and HR credit",
+  "primary_metrics": ["macro_user_NDCG10", "macro_user_NDCG100"],
+  "groups": ["seen_in_recent128", "seen_only_in_old1024", "not_seen_in_visible1152", "oov_target"],
+  "no_hyperparameter_search": true,
+  "no_new_learned_model": true,
+  "limits": "diagnostic heuristic; global prior uses all available cohort train events, unlike the34m supervised targets of the neural runs"
+}

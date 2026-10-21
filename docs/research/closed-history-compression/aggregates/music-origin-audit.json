@@ -1,0 +1,320 @@
+{
+  "complete": true,
+  "no_gpu": true,
+  "no_neural_inference": true,
+  "no_test_analysis": true,
+  "source_manifest": {
+    "revision": "dd6f3a19eef5866e346c3270e098baa641a44948",
+    "source_file": "sequential/500m/listens.parquet",
+    "source_file_bytes": 4273773971,
+    "source_rows": 92085,
+    "downloaded_columns": [
+      {
+        "column": "uid",
+        "start": 4,
+        "end": 369827,
+        "bytes": 369824,
+        "path": "external-private-artifact:music-origin/uid.chunk",
+        "sha256": "2eb75bb0a384ee6f523204dc4341d69c9e7cd878e2c603ed2b4de0997a8bcda9"
+      },
+      {
+        "column": "is_organic",
+        "start": 3034134690,
+        "end": 3091214398,
+        "bytes": 57079709,
+        "path": "external-private-artifact:music-origin/is_organic.chunk",
+        "sha256": "2ad5f3f44c6338bc901fb3f5477e296365735aa03171dddaf6b2fb698c25e2ad"
+      }
+    ],
+    "footer_bytes_downloaded": 2125,
+    "network_bytes_downloaded": 57451658,
+    "container_path": "external-private-artifact:music-origin/listens-organic.partial.parquet",
+    "container_logical_bytes": 4273773971,
+    "container_allocated_bytes": 57462784,
+    "only_declared_columns_readable": true,
+    "seconds": 10.033245179000005,
+    "no_item_timestamp_ratio_duration_column_bytes_downloaded": true
+  },
+  "split": "original_daily_first_validation",
+  "support": {
+    "anchors": 26335,
+    "users": 4384,
+    "cohort_users_with_raw_flags_joined": 4427,
+    "actual_context_hashes_match_saved_neural_inputs": true,
+    "source_revision_matches_original_preparation": true,
+    "source_offset_alignment_basis": "Exact pinned source, original preparation verified complete UID/item/timestamp prefixes; organic parallel list indexed at original train length+future index. New audit independently checks source UID presence, flag binary values and list-length bounds; it does not redownload item/time values."
+  },
+  "origin_scope": {
+    "organic_flag_1": "organic interaction",
+    "organic_flag_0": "recommendation-driven interaction",
+    "target_origin_is_posthoc_label_only": true,
+    "used_as_model_or_ranking_input": false
+  },
+  "train_validation_event_counts": {
+    "train_events": 89191505,
+    "train_organic_events": 45489263,
+    "validation_events": 2138736,
+    "validation_organic_events": 1087656
+  },
+  "train_organic_event_fraction": 0.5100178879143255,
+  "train_macro_user_organic_fraction": 0.5110264639225982,
+  "validation_all_event_organic_fraction": 0.5085508449850753,
+  "validation_all_event_macro_user_organic_fraction": 0.5169914573378828,
+  "global_metrics": {
+    "FuXi": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.024251656456411735,
+      "ndcg100": 0.04038277953410625,
+      "hr10": 0.040634232707681614,
+      "hr100": 0.12421033194299616
+    },
+    "QSSM_state16": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.018300399191781162,
+      "ndcg100": 0.03361333835260419,
+      "hr10": 0.032665862877997914,
+      "hr100": 0.1120177267987487
+    },
+    "QSSM2_state128": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.017550534213842797,
+      "ndcg100": 0.0330315899699103,
+      "hr10": 0.03175019551616266,
+      "hr100": 0.11196124435175529
+    },
+    "FrequencyR128": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.09724502983231559,
+      "ndcg100": 0.1261555251525091,
+      "hr10": 0.16122968804310045,
+      "hr100": 0.30126705335418835
+    },
+    "GlobalPopularity": {
+      "user_count": 4384,
+      "anchor_count": 26335,
+      "oov_target_count": 1400,
+      "ndcg10": 0.0019277991890269564,
+      "ndcg100": 0.005924710237185505,
+      "hr10": 0.0046945603058741745,
+      "hr100": 0.02562510862009037
+    }
+  },
+  "origin_groups": {
+    "organic": {
+      "anchors": 14660,
+      "users": 3629,
+      "anchor_fraction": 0.5566736282513765,
+      "global_macro_user_weight": 0.5498631386861313,
+      "descriptive_counts": {
+        "seen_R128": 7546,
+        "seen_only_H1024": 3526,
+        "seen_visible1152": 11072,
+        "unseen_visible1152": 2935,
+        "oov": 653,
+        "same_as_last_event": 1205
+      },
+      "descriptive_anchor_fractions": {
+        "seen_R128": 0.5147339699863575,
+        "seen_only_H1024": 0.24051841746248295,
+        "seen_visible1152": 0.7552523874488404,
+        "unseen_visible1152": 0.20020463847203274,
+        "oov": 0.04454297407912688,
+        "same_as_last_event": 0.08219645293315143
+      },
+      "descriptive_macro_user_fractions": {
+        "seen_R128": 0.4895950609508063,
+        "seen_only_H1024": 0.24228043931819077,
+        "seen_visible1152": 0.7318755002689971,
+        "unseen_visible1152": 0.2184617302418349,
+        "oov": 0.049662769489167945,
+        "same_as_last_event": 0.08083034812161292
+      },
+      "within_origin_macro_user_metrics": {
+        "FuXi": {
+          "user_count": 3629,
+          "anchor_count": 14660,
+          "oov_target_count": 653,
+          "ndcg10": 0.037201745614474986,
+          "ndcg100": 0.056515143637466195,
+          "hr10": 0.06087141938616174,
+          "hr100": 0.15991943208807358
+        },
+        "QSSM_state16": {
+          "user_count": 3629,
+          "anchor_count": 14660,
+          "oov_target_count": 653,
+          "ndcg10": 0.026407979829596348,
+          "ndcg100": 0.04519827873200847,
+          "hr10": 0.04657651983361546,
+          "hr100": 0.1432068390872469
+        },
+        "QSSM2_state128": {
+          "user_count": 3629,
+          "anchor_count": 14660,
+          "oov_target_count": 653,
+          "ndcg10": 0.025320001979429616,
+          "ndcg100": 0.04467720099325114,
+          "hr10": 0.045339133173247254,
+          "hr100": 0.14421787452925505
+        },
+        "FrequencyR128": {
+          "user_count": 3629,
+          "anchor_count": 14660,
+          "oov_target_count": 653,
+          "ndcg10": 0.16312376808913437,
+          "ndcg100": 0.20597207829842823,
+          "hr10": 0.2712428978204674,
+          "hr100": 0.4780642706242045
+        },
+        "GlobalPopularity": {
+          "user_count": 3629,
+          "anchor_count": 14660,
+          "oov_target_count": 653,
+          "ndcg10": 0.002974043652857432,
+          "ndcg100": 0.007822589692602291,
+          "hr10": 0.007231429358737157,
+          "hr100": 0.03229867863375716
+        }
+      },
+      "global_macro_user_ndcg_contributions": {
+        "FuXi": {
+          "ndcg10": 0.021328421399005357,
+          "ndcg100": 0.03245905728567865
+        },
+        "QSSM_state16": {
+          "ndcg10": 0.015801637507812324,
+          "ndcg100": 0.026544209217921482
+        },
+        "QSSM2_state128": {
+          "ndcg10": 0.014948519747272229,
+          "ndcg100": 0.025991037620299723
+        },
+        "FrequencyR128": {
+          "ndcg10": 0.09297901908967743,
+          "ndcg100": 0.11812588277165648
+        },
+        "GlobalPopularity": {
+          "ndcg10": 0.0015157098766194715,
+          "ndcg100": 0.004254710998568353
+        }
+      }
+    },
+    "recommendation_driven": {
+      "anchors": 11675,
+      "users": 3305,
+      "anchor_fraction": 0.4433263717486235,
+      "global_macro_user_weight": 0.4501368613138686,
+      "descriptive_counts": {
+        "seen_R128": 726,
+        "seen_only_H1024": 5177,
+        "seen_visible1152": 5903,
+        "unseen_visible1152": 5025,
+        "oov": 747,
+        "same_as_last_event": 128
+      },
+      "descriptive_anchor_fractions": {
+        "seen_R128": 0.06218415417558887,
+        "seen_only_H1024": 0.4434261241970021,
+        "seen_visible1152": 0.505610278372591,
+        "unseen_visible1152": 0.430406852248394,
+        "oov": 0.06398286937901498,
+        "same_as_last_event": 0.010963597430406853
+      },
+      "descriptive_macro_user_fractions": {
+        "seen_R128": 0.06827101793818889,
+        "seen_only_H1024": 0.39604423312441467,
+        "seen_visible1152": 0.4643152510626036,
+        "unseen_visible1152": 0.4627389957495857,
+        "oov": 0.07294575318781067,
+        "same_as_last_event": 0.013666162380231972
+      },
+      "within_origin_macro_user_metrics": {
+        "FuXi": {
+          "user_count": 3305,
+          "anchor_count": 11675,
+          "oov_target_count": 747,
+          "ndcg10": 0.007291720479579496,
+          "ndcg100": 0.01832189753391988,
+          "hr10": 0.013627260283841222,
+          "hr100": 0.0720301131042432
+        },
+        "QSSM_state16": {
+          "user_count": 3305,
+          "anchor_count": 11675,
+          "oov_target_count": 747,
+          "ndcg10": 0.006243789835445358,
+          "ndcg100": 0.016490464139728125,
+          "hr10": 0.012506303580433685,
+          "hr100": 0.06687342410489157
+        },
+        "QSSM2_state128": {
+          "user_count": 3305,
+          "anchor_count": 11675,
+          "oov_target_count": 747,
+          "ndcg10": 0.0067911212343291375,
+          "ndcg100": 0.01677083001035092,
+          "hr10": 0.01222030113104243,
+          "hr100": 0.0657510265830992
+        },
+        "FrequencyR128": {
+          "user_count": 3305,
+          "anchor_count": 11675,
+          "oov_target_count": 747,
+          "ndcg10": 0.010785985347557911,
+          "ndcg100": 0.02025156635931652,
+          "hr10": 0.01944240328506592,
+          "hr100": 0.06713853468770262
+        },
+        "GlobalPopularity": {
+          "user_count": 3305,
+          "anchor_count": 11675,
+          "oov_target_count": 747,
+          "ndcg10": 0.000896189770621778,
+          "ndcg100": 0.0035439228139065187,
+          "hr10": 0.002405446293494705,
+          "hr100": 0.016415243858511633
+        }
+      },
+      "global_macro_user_ndcg_contributions": {
+        "FuXi": {
+          "ndcg10": 0.002923235057406374,
+          "ndcg100": 0.007923722248427604
+        },
+        "QSSM_state16": {
+          "ndcg10": 0.0024987616839688355,
+          "ndcg100": 0.007069129134682708
+        },
+        "QSSM2_state128": {
+          "ndcg10": 0.0026020144665705692,
+          "ndcg100": 0.007040552349610576
+        },
+        "FrequencyR128": {
+          "ndcg10": 0.004266010742638146,
+          "ndcg100": 0.008029642380852624
+        },
+        "GlobalPopularity": {
+          "ndcg10": 0.0004120893124074847,
+          "ndcg100": 0.0016699992386171522
+        }
+      }
+    }
+  },
+  "seconds": 30.367122428000584,
+  "limitations": [
+    "Origin is the recorded event source, not randomized assignment; origin groups differ in users/items/context. Their quality differences are descriptive, not causal recommendation effects.",
+    "An organic event does not necessarily mean explicit choice of this particular track, and a recommendation event does not prove satisfaction.",
+    "Only user/item/time and origin are used here; playback completion and track duration were not fetched or analysed.",
+    "Target-origin grouping happens after prediction and must not become an input that leaks the target-generation process.",
+    "Users have exceptionally long histories; results do not estimate all listeners. Validation selects the first event per occupied day.",
+    "Within-origin macro-user denominators differ and users overlap groups. Global-denominator contributions are supplied separately.",
+    "All models are frozen, validation-selected p60 single-seed runs; no new test or neural inference was run."
+  ]
+}

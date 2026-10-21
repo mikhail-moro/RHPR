@@ -1,5 +1,7 @@
 # QueryOnly training control
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 Configuration: `experiments/yambda_query_only_control.json`, seed 42.
 This is one fresh training arm: four learned queries attend to the final 128
 events of H, followed by the shared summary FFN and the same SASRec predictor.

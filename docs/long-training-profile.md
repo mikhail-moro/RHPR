@@ -1,5 +1,7 @@
 # Four-backbone training cost screen
 
+> Historical research, closed 2026-10-21. See the [closure archive](research/closed-history-compression/README.md) for final results and status.
+
 `experiments/yambda_long_training_profile.json` profiles SASRec Recent128,
 HSTU Recent128, native Mamba4Rec at 16K and FuXi-Linear at 16K on one fixed dataset.
 It runs neither HPO nor recommendation-quality evaluation.
