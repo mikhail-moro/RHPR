@@ -16,8 +16,17 @@ ROOT = Path(__file__).resolve().parents[1]
 def _embedded_package() -> str:
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for source in sorted((ROOT / "src" / "rhpr").glob("*.py")):
-            archive.writestr(f"rhpr/{source.name}", source.read_bytes())
+        source_root = ROOT / "src"
+        package_root = source_root / "rhpr"
+        for source in sorted(package_root.rglob("*")):
+            if not source.is_file():
+                continue
+            vendor_resource = ("vendor" in source.relative_to(package_root).parts
+                               and (source.name in {"LICENSE", "NOTICE"}
+                                    or source.suffix in {".md", ".json", ".txt"}))
+            if source.suffix != ".py" and not vendor_resource:
+                continue
+            archive.writestr(source.relative_to(source_root).as_posix(), source.read_bytes())
     return base64.b64encode(buffer.getvalue()).decode("ascii")
 
 
@@ -26,6 +35,7 @@ def _render_runner(config_text: str, git_sha: str) -> str:
     return f'''from __future__ import annotations
 
 import base64
+import json
 import os
 import sys
 from pathlib import Path
@@ -43,6 +53,9 @@ PACKAGE_ARCHIVE.write_bytes(base64.b64decode(EMBEDDED_PACKAGE))
 CONFIG_PATH.write_text(EXPERIMENT_CONFIG, encoding="utf-8")
 os.environ["GITHUB_SHA"] = GIT_SHA
 sys.path.insert(0, str(PACKAGE_ARCHIVE))
+
+from rhpr.offline_runtime import install_offline_runtime
+install_offline_runtime(json.loads(EXPERIMENT_CONFIG).get("runtime"), WORKING)
 
 from rhpr.runner import execute  # noqa: E402
 

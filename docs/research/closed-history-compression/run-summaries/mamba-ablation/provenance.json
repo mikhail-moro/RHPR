@@ -1,0 +1,98 @@
+{
+  "format_version": 1,
+  "snapshot_id": "mamba-ablation",
+  "source_artifact": "mamba-ablation-results/metrics.json",
+  "metrics_sha256": "2d642bc988362a7e1c67dab968b740acc5da1178ba6a8e5e389cbebd7480d308",
+  "metrics_bytes": 2753,
+  "metrics_preserved_byte_for_byte": true,
+  "metrics_scalar_count": 61,
+  "flat_finite_scalars_validated": true,
+  "original_run_manifest_sha256": "f9ca62ffb477d3833fe45e8de9fc8941a1d26bcf57996da31966ba9a9ba329eb",
+  "source_git_sha": "0214d881592d2f461d0a82c533fdd813e8167cf5",
+  "source_commit_url": "https://github.com/mikhail-moro/RHPR/commit/0214d881592d2f461d0a82c533fdd813e8167cf5",
+  "experiment_config_file": "experiments/yambda_query_mamba_ablation.json",
+  "source_config_url": "https://github.com/mikhail-moro/RHPR/blob/0214d881592d2f461d0a82c533fdd813e8167cf5/experiments/yambda_query_mamba_ablation.json",
+  "manifest_config_canonical_sha256": "bd69591a1ceb87f65ccaadb8c5576f09d61ecad0750290191c49c374591866bc",
+  "manifest_config_hash_serialization": "UTF-8 json.dumps(config,sort_keys=True,separators=(comma,colon)); default ensure_ascii=True",
+  "protocol_note": "H1024 QSSM convolution/output-gate/input-skip feature ablations; fixed latest target block and reused base controls. Generic family metrics may report a reused selected base rather than every fresh feature.",
+  "metric_scope_warning": "Historical and fresh/reused control fields may coexist. Do not concatenate these snapshots into a matched leaderboard; read the registered config and protocol note.",
+  "run": {
+    "started_at": "2026-10-19T11:07:00.467927+00:00",
+    "finished_at": "2026-10-19T12:27:44.386752+00:00",
+    "duration_seconds": 4843.918825,
+    "python": "3.13.15"
+  },
+  "configuration": {
+    "name": "yambda500m-query-mamba-ablation",
+    "kind": "yambda_query_mamba_ablation",
+    "seed": 42,
+    "variants": [
+      "query_ssm_m32"
+    ],
+    "summary_budgets": [
+      32
+    ],
+    "architecture": {
+      "d_inner": 64,
+      "d_state": 16,
+      "dt_max": 0.01,
+      "dt_min": 0.0001,
+      "gate_rank": 32
+    },
+    "model": {
+      "d_model": 128,
+      "dropout": 0.2,
+      "ffn_multiplier": 4,
+      "n_heads": 4,
+      "n_layers": 2,
+      "use_time_features": false
+    },
+    "compressor": {
+      "d_inner": 128,
+      "d_state": 16,
+      "dropout": 0.0,
+      "dt_max": 0.1,
+      "dt_min": 0.0001,
+      "gate_rank": 32,
+      "query_context_size": 128,
+      "query_source": "old_suffix"
+    }
+  },
+  "data_contract": {
+    "source_revision": "dd6f3a19eef5866e346c3270e098baa641a44948",
+    "train_end_timestamp": 24710400,
+    "validation_end_timestamp": 25315200,
+    "test_end_timestamp": 25920000,
+    "catalog_sha256": "527dd7772d84afcaf32a1886726b34884d129adb72d5702d2847a466840f8cf7",
+    "cohort_uid_length_sha256": "389eb71cc019879a91bf6a9ee9fcff7fc86ae77fdd5137544a380ffaf71c0446",
+    "cohort_train_timestamps_sha256": "2857d39b1aa90ae92f4fa6eb688a700c8102d991a3b8afc73d59bf05f0e2f3bf",
+    "cohort_mapped_train_items_sha256": "e84f8431274a185b4d1e8ff0f39427edf6f1c78a86fa92c2de375794ce3cff45"
+  },
+  "training_contract": {
+    "effective_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 1e-05,
+    "num_negatives": 512,
+    "raw_tail_size": 128,
+    "supervised_targets": 128,
+    "query_context_size": 128,
+    "max_passes": 60,
+    "min_passes": 20,
+    "validation_interval": 10,
+    "early_stopping_patience": 2,
+    "amp": true,
+    "grad_clip_norm": 1.0
+  },
+  "retained_source_files": [
+    {
+      "file": "metrics.json",
+      "sha256": "2d642bc988362a7e1c67dab968b740acc5da1178ba6a8e5e389cbebd7480d308",
+      "bytes": 2753
+    },
+    {
+      "file": "final-selection.json",
+      "sha256": "5506ef2fdb50e67b0f0a447fde4da69dbad94d243fe00c1d2d091ced6e38e813",
+      "bytes": 538
+    }
+  ]
+}

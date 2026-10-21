@@ -1,0 +1,28 @@
+{
+  "upstream_repository": "https://github.com/meta-recsys/generative-recommenders",
+  "upstream_revision": "876dcefb40cea14e87660adfd7b965869e6cd403",
+  "upstream_path": "generative_recommenders/research/modeling/sequential/hstu.py",
+  "upstream_git_blob": "78329791d6c87d7826bef07fc89f7021ad197a37",
+  "upstream_source_sha256": "02c1e2b6226aded2809cd9ea8f270c9f1a35d29c1b044a4630cb9132fab5deb7",
+  "license": "Apache-2.0",
+  "copyright": "Meta Platforms, Inc. and affiliates.",
+  "vendored_subset": "RelativeAttentionBiasModule through HSTUJagged; excludes full HSTU model wrapper",
+  "local_changes": [
+    "remove full-wrapper-only imports",
+    "redirect FBGEMM packing to scoped pure-PyTorch one-ragged-axis shim",
+    "optional normalization_length override; None retains upstream padded-width divisor"
+  ],
+  "wrapper_adaptations": [
+    "shared experiment item/recency-PE/input-normalization/dropout policy",
+    "fixed rawmax_seq_len normalization for both context budgets",
+    "position-only bias runtime crop equals upstream fixed matrix crop",
+    "native blocks execute under caller AMP; no optimized kernels or cache"
+  ],
+  "implementation": "meta_native_pytorch_jagged_with_pytorch_packing",
+  "files_sha256": {
+    "native.py": "4bcdf54e9c16860857e7fa6b92171e97072f1248ab1911f12ad940870a308caa",
+    "packing.py": "428b412cee09dbc611d11023f6d656f5255ba211c8f1f4c570c0207ef4a25f84",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "upstream_hstu.py.txt": "02c1e2b6226aded2809cd9ea8f270c9f1a35d29c1b044a4630cb9132fab5deb7"
+  }
+}

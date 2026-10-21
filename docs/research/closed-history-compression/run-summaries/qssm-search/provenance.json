@@ -1,0 +1,97 @@
+{
+  "format_version": 1,
+  "snapshot_id": "qssm-search",
+  "source_artifact": "qssm-search-output/downloaded/metrics.json",
+  "metrics_sha256": "70b113cc5c7e63bf483cf406e641c1098a6fc86394aa3be9357a5885e6de8111",
+  "metrics_bytes": 9656,
+  "metrics_preserved_byte_for_byte": true,
+  "metrics_scalar_count": 180,
+  "flat_finite_scalars_validated": true,
+  "original_run_manifest_sha256": "ab3455844ca136dad1e068882e0ea6e17535122725e403181187c03f1e94f8d2",
+  "source_git_sha": "da2ed97f8d2af078ecf535e9c730e7cb8f6c60b3",
+  "source_commit_url": "https://github.com/mikhail-moro/RHPR/commit/da2ed97f8d2af078ecf535e9c730e7cb8f6c60b3",
+  "experiment_config_file": "experiments/yambda_query_qssm_search.json",
+  "source_config_url": "https://github.com/mikhail-moro/RHPR/blob/da2ed97f8d2af078ecf535e9c730e7cb8f6c60b3/experiments/yambda_query_qssm_search.json",
+  "manifest_config_canonical_sha256": "05e697e7be2503b0fbe9bb29f9c4b042db088a8c52273e48b9276ad199e02a1b",
+  "manifest_config_hash_serialization": "UTF-8 json.dumps(config,sort_keys=True,separators=(comma,colon)); default ensure_ascii=True",
+  "protocol_note": "Fixed latest target block; H1024+R128; search across K4/K8/K16/K32 and registered QSSM architecture choices. Proxy and zero-shot full-history transfer are different evaluation lengths.",
+  "metric_scope_warning": "Historical and fresh/reused control fields may coexist. Do not concatenate these snapshots into a matched leaderboard; read the registered config and protocol note.",
+  "run": {
+    "started_at": "2026-10-18T19:27:33.438687+00:00",
+    "finished_at": "2026-10-18T21:49:53.999771+00:00",
+    "duration_seconds": 8540.561084,
+    "python": "3.13.15"
+  },
+  "configuration": {
+    "name": "yambda500m-query-qssm-search",
+    "kind": "yambda_query_qssm_search",
+    "seed": 42,
+    "variants": [
+      "query_ssm_m4",
+      "query_ssm_m8",
+      "query_ssm_m16",
+      "query_ssm_m32"
+    ],
+    "summary_budgets": [
+      4,
+      8,
+      16,
+      32
+    ],
+    "model": {
+      "d_model": 128,
+      "dropout": 0.2,
+      "ffn_multiplier": 4,
+      "n_heads": 4,
+      "n_layers": 2,
+      "use_time_features": false
+    },
+    "compressor": {
+      "d_inner": 128,
+      "d_state": 16,
+      "dropout": 0.0,
+      "dt_max": 0.1,
+      "dt_min": 0.0001,
+      "gate_rank": 32,
+      "query_context_size": 128,
+      "query_source": "old_suffix"
+    }
+  },
+  "data_contract": {
+    "source_revision": "dd6f3a19eef5866e346c3270e098baa641a44948",
+    "train_end_timestamp": 24710400,
+    "validation_end_timestamp": 25315200,
+    "test_end_timestamp": 25920000,
+    "catalog_sha256": "527dd7772d84afcaf32a1886726b34884d129adb72d5702d2847a466840f8cf7",
+    "cohort_uid_length_sha256": "389eb71cc019879a91bf6a9ee9fcff7fc86ae77fdd5137544a380ffaf71c0446",
+    "cohort_train_timestamps_sha256": "2857d39b1aa90ae92f4fa6eb688a700c8102d991a3b8afc73d59bf05f0e2f3bf",
+    "cohort_mapped_train_items_sha256": "e84f8431274a185b4d1e8ff0f39427edf6f1c78a86fa92c2de375794ce3cff45"
+  },
+  "training_contract": {
+    "effective_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 1e-05,
+    "num_negatives": 512,
+    "raw_tail_size": 128,
+    "supervised_targets": 128,
+    "query_context_size": 128,
+    "max_passes": 60,
+    "min_passes": 20,
+    "validation_interval": 10,
+    "early_stopping_patience": 2,
+    "amp": true,
+    "grad_clip_norm": 1.0
+  },
+  "retained_source_files": [
+    {
+      "file": "metrics.json",
+      "sha256": "70b113cc5c7e63bf483cf406e641c1098a6fc86394aa3be9357a5885e6de8111",
+      "bytes": 9656
+    },
+    {
+      "file": "final-selection.json",
+      "sha256": "68a93932cdb9fc098d5af7ffa38ce6166ebbd8185b8c137f343c74b5cc363f9a",
+      "bytes": 1517
+    }
+  ]
+}

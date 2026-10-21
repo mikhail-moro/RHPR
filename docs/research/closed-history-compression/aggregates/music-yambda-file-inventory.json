@@ -1,0 +1,25 @@
+{
+  "revision": "dd6f3a19eef5866e346c3270e098baa641a44948",
+  "files": [
+    {
+      "path": "album_item_mapping.parquet",
+      "size": 54528894,
+      "type": "file"
+    },
+    {
+      "path": "artist_item_mapping.parquet",
+      "size": 38274621,
+      "type": "file"
+    },
+    {
+      "path": "flat/500m/listens.parquet",
+      "size": 3684705522,
+      "type": "file"
+    },
+    {
+      "path": "sequential/500m/listens.parquet",
+      "size": 4273773971,
+      "type": "file"
+    }
+  ]
+}

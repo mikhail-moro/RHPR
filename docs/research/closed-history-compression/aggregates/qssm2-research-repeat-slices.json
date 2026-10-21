@@ -1,0 +1,477 @@
+{
+  "complete": true,
+  "no_gpu_runs": true,
+  "no_model_inference_or_weights": true,
+  "no_training_or_routing_change": true,
+  "diagnostic_is_posthoc_and_label_conditioned": true,
+  "no_test_model_evaluation": true,
+  "group_definitions": {
+    "seen_in_recent128": "known target occurs in last128 occupied observed events, whether or not it also occurs in H",
+    "seen_only_in_old1024": "known target absent from R128, present in the previous1024 observed H events",
+    "not_seen_in_visible1152": "known target absent from the entire model-visible1152-event context; it may occur outside that window",
+    "oov_target": "target unknown to the train catalogue; zero credit retained"
+  },
+  "denominators": {
+    "within_group_ndcg": "macro mean of each represented user's mean NDCG over only anchors in this group; users can appear in several groups",
+    "global_macro_ndcg_contribution": "sum of each group anchor's NDCG divided by that user's total validation anchors, then divided by all4384validationusers; group contributions sum exactly to global macro NDCG"
+  },
+  "support": {
+    "anchors": 26335,
+    "users": 4384,
+    "context_length_min": 1152,
+    "context_length_max": 1152,
+    "all_context_hashes_match_evaluated_model_inputs": true,
+    "all_occupied_context_timestamps_precede_target": true,
+    "cohort_uid_length_sha256": "389eb71cc019879a91bf6a9ee9fcff7fc86ae77fdd5137544a380ffaf71c0446",
+    "cohort_mapped_train_items_sha256": "e84f8431274a185b4d1e8ff0f39427edf6f1c78a86fa92c2de375794ce3cff45",
+    "evaluation_content_sha256": "c274171b1c7fbf480636579eec774f71d89540a2e966e1a1a2871a76bc85ae6d",
+    "anchor_group_partition_sha256": "a94d642f2b21fd1efdf859419f5c32d8781f4bea439be6494511c24ec8ae20f4"
+  },
+  "limitations": [
+    "groups use the held-out target only after predictions, so cannot be serving/routing features",
+    "exploratory analysis of the same validation-selected checkpoints; no multiple-comparison correction",
+    "bootstrap represents user sampling of frozen models only, not seed/selection uncertainty",
+    "seen-in-H gain can support repeat/long-term-profile relevance but cannot establish order or periodicity",
+    "not-seen-within1152 does not mean a globally novel item or one absent from the user's full history"
+  ],
+  "groups": {
+    "seen_in_recent128": {
+      "anchors": 8272,
+      "users": 3097,
+      "anchor_fraction": 0.31410670210746156,
+      "models": {
+        "FuXi": {
+          "ndcg10": 0.059255908965009374,
+          "ndcg100": 0.08427010064497528,
+          "hr10": 0.09340836754462842,
+          "hr100": 0.22067207897043223,
+          "global_macro_ndcg_contribution": {
+            "10": 0.019652059211056516,
+            "100": 0.027975016913786427
+          }
+        },
+        "QSSM_state16": {
+          "ndcg10": 0.043744339016866814,
+          "ndcg100": 0.06798602978833383,
+          "hr10": 0.07636729861463475,
+          "hr100": 0.1988514230361179,
+          "global_macro_ndcg_contribution": {
+            "10": 0.014721320183067455,
+            "100": 0.022937135571351068
+          }
+        },
+        "QSSM2_state128": {
+          "ndcg10": 0.04257024310452465,
+          "ndcg100": 0.06724745966395665,
+          "hr10": 0.07374571397819703,
+          "hr100": 0.199179697710534,
+          "global_macro_ndcg_contribution": {
+            "10": 0.013885280925638236,
+            "100": 0.022317428506974723
+          }
+        }
+      },
+      "paired_FuXi_minus_compressor": {
+        "QSSM_state16": {
+          "10": {
+            "matched_users": 3097,
+            "matched_anchors": 8272,
+            "draws": 5000,
+            "seed": 42,
+            "confidence": 0.95,
+            "reference_ndcg": 0.043744339016866814,
+            "candidate_ndcg": 0.059255908965009374,
+            "delta_ndcg": 0.015511569948142553,
+            "ci_lower": 0.011612549058266962,
+            "ci_upper": 0.019599421235743174,
+            "bootstrap_fraction_delta_le_zero": 0.0,
+            "user_win_count": 421,
+            "user_loss_count": 233,
+            "user_tie_count": 2443,
+            "user_win_fraction": 0.13593800452050372,
+            "user_loss_fraction": 0.07523409751372295,
+            "user_tie_fraction": 0.7888278979657734,
+            "relative_delta_percent": 35.45960528095223
+          },
+          "100": {
+            "matched_users": 3097,
+            "matched_anchors": 8272,
+            "draws": 5000,
+            "seed": 42,
+            "confidence": 0.95,
+            "reference_ndcg": 0.06798602978833383,
+            "candidate_ndcg": 0.08427010064497528,
+            "delta_ndcg": 0.016284070856641433,
+            "ci_lower": 0.012797041171269308,
+            "ci_upper": 0.01985158034188557,
+            "bootstrap_fraction_delta_le_zero": 0.0,
+            "user_win_count": 817,
+            "user_loss_count": 519,
+            "user_tie_count": 1761,
+            "user_win_fraction": 0.26380368098159507,
+            "user_loss_fraction": 0.16758153051340005,
+            "user_tie_fraction": 0.5686147885050048,
+            "relative_delta_percent": 23.952083843312945
+          }
+        },
+        "QSSM2_state128": {
+          "10": {
+            "matched_users": 3097,
+            "matched_anchors": 8272,
+            "draws": 5000,
+            "seed": 42,
+            "confidence": 0.95,
+            "reference_ndcg": 0.04257024310452465,
+            "candidate_ndcg": 0.059255908965009374,
+            "delta_ndcg": 0.016685665860484714,
+            "ci_lower": 0.012763939362380827,
+            "ci_upper": 0.020810194602671084,
+            "bootstrap_fraction_delta_le_zero": 0.0,
+            "user_win_count": 449,
+            "user_loss_count": 208,
+            "user_tie_count": 2440,
+            "user_win_fraction": 0.14497901194704552,
+            "user_loss_fraction": 0.06716176945431063,
+            "user_tie_fraction": 0.7878592185986438,
+            "relative_delta_percent": 39.195608583948285
+          },
+          "100": {
+            "matched_users": 3097,
+            "matched_anchors": 8272,
+            "draws": 5000,
+            "seed": 42,
+            "confidence": 0.95,
+            "reference_ndcg": 0.06724745966395665,
+            "candidate_ndcg": 0.08427010064497528,
+            "delta_ndcg": 0.017022640981018616,
+            "ci_lower": 0.013624707274555233,
+            "ci_upper": 0.020682515295095398,
+            "bootstrap_fraction_delta_le_zero": 0.0,
+            "user_win_count": 853,
+            "user_loss_count": 491,
+            "user_tie_count": 1753,
+            "user_win_fraction": 0.2754278333871489,
+            "user_loss_fraction": 0.15854052308685826,
+            "user_tie_fraction": 0.5660316435259929,
+            "relative_delta_percent": 25.313433497834303
+          }
+        }
+      }
+    },
+    "seen_only_in_old1024": {
+      "anchors": 8703,
+      "users": 3519,
+      "anchor_fraction": 0.3304727548889311,
+      "models": {
+        "FuXi": {
+          "ndcg10": 0.009301052689541229,
+          "ndcg100": 0.02533475797048768,
+          "hr10": 0.01922894761769442,
+          "hr100": 0.1037869253981786,
+          "global_macro_ndcg_contribution": {
+            "10": 0.0030400001250974825,
+            "100": 0.008341781261148748
+          }
+        },
+        "QSSM_state16": {
+          "ndcg10": 0.00825793387059222,
+          "ndcg100": 0.02236840632147446,
+          "hr10": 0.01731552524391399,
+          "hr100": 0.09227323779753448,
+          "global_macro_ndcg_contribution": {
+            "10": 0.0025006579968946535,
+            "100": 0.007027070203899742
+          }
+        },
+        "QSSM2_state128": {
+          "ndcg10": 0.007454815428735862,
+          "ndcg100": 0.02201454543622888,
+          "hr10": 0.015862190286742715,
+          "hr100": 0.09308380356973707,
+          "global_macro_ndcg_contribution": {
+            "10": 0.002363347077316852,
+            "100": 0.006977343062821023
+          }
+        }
+      },
+      "paired_FuXi_minus_compressor": {
+        "QSSM_state16": {
+          "10": {
+            "matched_users": 3519,
+            "matched_anchors": 8703,
+            "draws": 5000,
+            "seed": 42,
+            "confidence": 0.95,
+            "reference_ndcg": 0.00825793387059222,
+            "candidate_ndcg": 0.009301052689541229,
+            "delta_ndcg": 0.001043118818949008,
+            "ci_lower": -0.00039405588265279925,
+            "ci_upper": 0.002550820452444092,
+            "bootstrap_fraction_delta_le_zero": 0.0776,
+            "user_win_count": 103,
+            "user_loss_count": 89,
+            "user_tie_count": 3327,
+            "user_win_fraction": 0.029269678886047173,
+            "user_loss_fraction": 0.02529127593066212,
+            "user_tie_fraction": 0.9454390451832907,
+            "relative_delta_percent": 12.631716786492023
+          },
+          "100": {
+            "matched_users": 3519,
+            "matched_anchors": 8703,
+            "draws": 5000,
+            "seed": 42,
+            "confidence": 0.95,
+            "reference_ndcg": 0.02236840632147446,
+            "candidate_ndcg": 0.02533475797048768,
+            "delta_ndcg": 0.0029663516490132254,
+            "ci_lower": 0.001385868024202453,
+            "ci_upper": 0.004533458524354315,
+            "bootstrap_fraction_delta_le_zero": 0.0,
+            "user_win_count": 527,
+            "user_loss_count": 408,
+            "user_tie_count": 2584,
+            "user_win_fraction": 0.1497584541062802,
+            "user_loss_fraction": 0.11594202898550725,
+            "user_tie_fraction": 0.7342995169082126,
+            "relative_delta_percent": 13.26134551733989
+          }
+        },
+        "QSSM2_state128": {
+          "10": {
+            "matched_users": 3519,
+            "matched_anchors": 8703,
+            "draws": 5000,
+            "seed": 42,
+            "confidence": 0.95,
+            "reference_ndcg": 0.007454815428735862,
+            "candidate_ndcg": 0.009301052689541229,
+            "delta_ndcg": 0.0018462372608053664,
+            "ci_lower": 0.0002487977652109079,
+            "ci_upper": 0.003468533721046925,
+            "bootstrap_fraction_delta_le_zero": 0.01,
+            "user_win_count": 115,
+            "user_loss_count": 83,
+            "user_tie_count": 3321,
+            "user_win_fraction": 0.032679738562091505,
+            "user_loss_fraction": 0.023586246092639953,
+            "user_tie_fraction": 0.9437340153452686,
+            "relative_delta_percent": 24.765700485202206
+          },
+          "100": {
+            "matched_users": 3519,
+            "matched_anchors": 8703,
+            "draws": 5000,
+            "seed": 42,
+            "confidence": 0.95,
+            "reference_ndcg": 0.02201454543622888,
+            "candidate_ndcg": 0.02533475797048768,
+            "delta_ndcg": 0.0033202125342588038,
+            "ci_lower": 0.0016249138916280953,
+            "ci_upper": 0.004967170224375949,
+            "bootstrap_fraction_delta_le_zero": 0.0,
+            "user_win_count": 531,
+            "user_loss_count": 419,
+            "user_tie_count": 2569,
+            "user_win_fraction": 0.15089514066496162,
+            "user_loss_fraction": 0.11906791702188121,
+            "user_tie_fraction": 0.7300369423131572,
+            "relative_delta_percent": 15.081903661725393
+          }
+        }
+      }
+    },
+    "not_seen_in_visible1152": {
+      "anchors": 7960,
+      "users": 3492,
+      "anchor_fraction": 0.302259350674008,
+      "models": {
+        "FuXi": {
+          "ndcg10": 0.005258030803810212,
+          "ndcg100": 0.014054375738665496,
+          "hr10": 0.01062905689194349,
+          "hr100": 0.0572683139693449,
+          "global_macro_ndcg_contribution": {
+            "10": 0.0015595971202577337,
+            "100": 0.004065981359171077
+          }
+        },
+        "QSSM_state16": {
+          "ndcg10": 0.003923256618490309,
+          "ndcg100": 0.012408035835809725,
+          "hr10": 0.008820160366552119,
+          "hr100": 0.0542682594228986,
+          "global_macro_ndcg_contribution": {
+            "10": 0.0010784210118190542,
+            "100": 0.003649132577353381
+          }
+        },
+        "QSSM2_state128": {
+          "ndcg10": 0.004639377348950387,
+          "ndcg100": 0.012966277437657735,
+          "hr10": 0.008841978945071728,
+          "hr100": 0.05306346479026891,
+          "global_macro_ndcg_contribution": {
+            "10": 0.001301906210887708,
+            "100": 0.003736818400114551
+          }
+        }
+      },
+      "paired_FuXi_minus_compressor": {
+        "QSSM_state16": {
+          "10": {
+            "matched_users": 3492,
+            "matched_anchors": 7960,
+            "draws": 5000,
+            "seed": 42,
+            "confidence": 0.95,
+            "reference_ndcg": 0.003923256618490309,
+            "candidate_ndcg": 0.005258030803810212,
+            "delta_ndcg": 0.0013347741853199035,
+            "ci_lower": 0.0001146628715622459,
+            "ci_upper": 0.0026171695934897065,
+            "bootstrap_fraction_delta_le_zero": 0.013,
+            "user_win_count": 53,
+            "user_loss_count": 42,
+            "user_tie_count": 3397,
+            "user_win_fraction": 0.015177548682703322,
+            "user_loss_fraction": 0.012027491408934709,
+            "user_tie_fraction": 0.972794959908362,
+            "relative_delta_percent": 34.02209733182154
+          },
+          "100": {
+            "matched_users": 3492,
+            "matched_anchors": 7960,
+            "draws": 5000,
+            "seed": 42,
+            "confidence": 0.95,
+            "reference_ndcg": 0.012408035835809725,
+            "candidate_ndcg": 0.014054375738665496,
+            "delta_ndcg": 0.0016463399028557718,
+            "ci_lower": 0.0004171305474589821,
+            "ci_upper": 0.002886139158589109,
+            "bootstrap_fraction_delta_le_zero": 0.003,
+            "user_win_count": 282,
+            "user_loss_count": 231,
+            "user_tie_count": 2979,
+            "user_win_fraction": 0.08075601374570447,
+            "user_loss_fraction": 0.0661512027491409,
+            "user_tie_fraction": 0.8530927835051546,
+            "relative_delta_percent": 13.268336138298514
+          }
+        },
+        "QSSM2_state128": {
+          "10": {
+            "matched_users": 3492,
+            "matched_anchors": 7960,
+            "draws": 5000,
+            "seed": 42,
+            "confidence": 0.95,
+            "reference_ndcg": 0.004639377348950387,
+            "candidate_ndcg": 0.005258030803810212,
+            "delta_ndcg": 0.0006186534548598252,
+            "ci_lower": -0.0008086390977815099,
+            "ci_upper": 0.0021249287107109674,
+            "bootstrap_fraction_delta_le_zero": 0.203,
+            "user_win_count": 54,
+            "user_loss_count": 45,
+            "user_tie_count": 3393,
+            "user_win_fraction": 0.015463917525773196,
+            "user_loss_fraction": 0.01288659793814433,
+            "user_tie_fraction": 0.9716494845360825,
+            "relative_delta_percent": 13.334838025188647
+          },
+          "100": {
+            "matched_users": 3492,
+            "matched_anchors": 7960,
+            "draws": 5000,
+            "seed": 42,
+            "confidence": 0.95,
+            "reference_ndcg": 0.012966277437657735,
+            "candidate_ndcg": 0.014054375738665496,
+            "delta_ndcg": 0.0010880983010077626,
+            "ci_lower": -0.0002831597655831266,
+            "ci_upper": 0.0024577609686041186,
+            "bootstrap_fraction_delta_le_zero": 0.0614,
+            "user_win_count": 273,
+            "user_loss_count": 238,
+            "user_tie_count": 2981,
+            "user_win_fraction": 0.0781786941580756,
+            "user_loss_fraction": 0.06815578465063,
+            "user_tie_fraction": 0.8536655211912944,
+            "relative_delta_percent": 8.39175550761869
+          }
+        }
+      }
+    },
+    "oov_target": {
+      "anchors": 1400,
+      "users": 1054,
+      "anchor_fraction": 0.05316119232959939,
+      "models": {
+        "FuXi": {
+          "ndcg10": 0.0,
+          "ndcg100": 0.0,
+          "hr10": 0.0,
+          "hr100": 0.0,
+          "global_macro_ndcg_contribution": {
+            "10": 0.0,
+            "100": 0.0
+          }
+        },
+        "QSSM_state16": {
+          "ndcg10": 0.0,
+          "ndcg100": 0.0,
+          "hr10": 0.0,
+          "hr100": 0.0,
+          "global_macro_ndcg_contribution": {
+            "10": 0.0,
+            "100": 0.0
+          }
+        },
+        "QSSM2_state128": {
+          "ndcg10": 0.0,
+          "ndcg100": 0.0,
+          "hr10": 0.0,
+          "hr100": 0.0,
+          "global_macro_ndcg_contribution": {
+            "10": 0.0,
+            "100": 0.0
+          }
+        }
+      },
+      "paired_FuXi_minus_compressor": {}
+    }
+  },
+  "global_gap_contributions": {
+    "QSSM_state16": {
+      "10": {
+        "seen_in_recent128": 0.004930739027989061,
+        "seen_only_in_old1024": 0.0005393421282028289,
+        "not_seen_in_visible1152": 0.0004811761084386795,
+        "oov_target": 0.0
+      },
+      "100": {
+        "seen_in_recent128": 0.005037881342435359,
+        "seen_only_in_old1024": 0.0013147110572490055,
+        "not_seen_in_visible1152": 0.00041684878181769613,
+        "oov_target": 0.0
+      }
+    },
+    "QSSM2_state128": {
+      "10": {
+        "seen_in_recent128": 0.0057667782854182795,
+        "seen_only_in_old1024": 0.0006766530477806303,
+        "not_seen_in_visible1152": 0.00025769090937002577,
+        "oov_target": 0.0
+      },
+      "100": {
+        "seen_in_recent128": 0.005657588406811704,
+        "seen_only_in_old1024": 0.0013644381983277248,
+        "not_seen_in_visible1152": 0.00032916295905652607,
+        "oov_target": 0.0
+      }
+    }
+  },
+  "seconds": 22.211182156999712
+}

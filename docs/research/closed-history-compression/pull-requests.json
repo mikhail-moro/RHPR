@@ -1,0 +1,243 @@
+{
+  "archived_on": "2026-10-21",
+  "research": "history compression and query-conditioned SSM",
+  "source_tip": "248b1aebcb77cc0fc400138cd2b15ebadc0ee33f",
+  "main_before_closure": "72474dd1d6d4d5e4d2771606546e67e70cf251dc",
+  "preservation": "Original commits retained by merge; source hashes in experiment artifacts remain valid.",
+  "pull_requests": [
+    {
+      "number": 2,
+      "title": "Add paired-history compression pilot with common tail loss",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/2",
+      "head_branch": "codex/pairwise-compression-pilot",
+      "head_sha": "b665dcb05b4cf5e1185a2835ab2f727897864d25",
+      "base_branch": "codex/kaggle-experiment-workflow",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 3,
+      "title": "Add 30-epoch Full versus PairMLP convergence experiment",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/3",
+      "head_branch": "codex/compression-convergence-30ep",
+      "head_sha": "cefcb06de49c56e18872e206e3d4bb3093d60e0b",
+      "base_branch": "codex/pairwise-compression-pilot",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 4,
+      "title": "Train one recursive PairMLP at four compression depths",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/4",
+      "head_branch": "codex/mixed-depth-compression",
+      "head_sha": "f7e093c521d61a95e925511b546715ac91750fbf",
+      "base_branch": "codex/compression-convergence-30ep",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 5,
+      "title": "Evaluate tail128 on the frozen MixedDepth checkpoint",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/5",
+      "head_branch": "codex/mixed-depth-tail-ablation",
+      "head_sha": "7217cc1b13befeaca4a6f9d01c883fcea7c0047e",
+      "base_branch": "codex/mixed-depth-compression",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 6,
+      "title": "Train MixedDepth through x64 and a Recent128 control",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/6",
+      "head_branch": "codex/deep-mixed-depth-and-recent128",
+      "head_sha": "f3cc03f3f3904261b22c362ded65d7a9dbd7a22a",
+      "base_branch": "codex/mixed-depth-tail-ablation",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 7,
+      "title": "Compare official HSTU and SASRec at 128/1028 context budgets",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/7",
+      "head_branch": "codex/hstu-context-comparison",
+      "head_sha": "2000e21f7b985fd67a0fb8bcddbe0021b173bdce",
+      "base_branch": "codex/deep-mixed-depth-and-recent128",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 8,
+      "title": "Profile SASRec, HSTU, Mamba4Rec and FuXi on long Yambda histories",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/8",
+      "head_branch": "codex/long-history-training-profile",
+      "head_sha": "a2b8625a7a0cae1cd5ff4ac183f7ea08d62483cf",
+      "base_branch": "codex/hstu-context-comparison",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 9,
+      "title": "Compare HSTU16K compression at16/8/4 summary budgets",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/9",
+      "head_branch": "codex/hstu-long-compression-pilot",
+      "head_sha": "89723a4369ab0e89f14415814e1ddcc1741f2505",
+      "base_branch": "codex/long-history-training-profile",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 10,
+      "title": "Analyze HSTU16K budget routing and add NDCG@100 evaluation",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/10",
+      "head_branch": "codex/hstu-long-compression-analysis",
+      "head_sha": "a8de0afd2f1bea2784f6adb6c3da93b969a628f0",
+      "base_branch": "codex/hstu-long-compression-pilot",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 11,
+      "title": "Evaluate shared MixedBudget and fixed HSTU compression with daily targets",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/11",
+      "head_branch": "codex/hstu-mixed-budget-daily-evaluation",
+      "head_sha": "9c61f19883d756c5d37fc1fa9fd7b558e0a9d1c6",
+      "base_branch": "codex/hstu-long-compression-analysis",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 12,
+      "title": "Add Query SSM history-compression pilot with 32 causal targets per scan",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/12",
+      "head_branch": "codex/query-ssm-block-pilot",
+      "head_sha": "d460ddd439212440ab524e37a3fdd04769782349",
+      "base_branch": "codex/hstu-mixed-budget-daily-evaluation",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 13,
+      "title": "Diagnose Recent128 and cross-attention convergence with LR restarts",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/13",
+      "head_branch": "codex/query-lr-restart-diagnostic",
+      "head_sha": "2523c3564944b28f84b90b07fca1d1ab8f729c3f",
+      "base_branch": "codex/query-ssm-block-pilot",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 14,
+      "title": "Compare Recent128, Cross Attention and QSSM on full-prefix SASRec",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/14",
+      "head_branch": "codex/query-prefix-128-targets",
+      "head_sha": "660c7705ed3e005f35b339313c8c865255e36ede",
+      "base_branch": "codex/query-lr-restart-diagnostic",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 15,
+      "title": "Check remote-history dependence of frozen QSSM and cross-attention",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/15",
+      "head_branch": "codex/query-history-ablation",
+      "head_sha": "cf03fc8c898059a2d8e2f950f7cf391a144f7b1d",
+      "base_branch": "codex/query-prefix-128-targets",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 16,
+      "title": "Add matched QueryOnly K4 training control",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/16",
+      "head_branch": "codex/query-only-control",
+      "head_sha": "e45075eec76dc4605daf53f9c37f4ae897eb1cf6",
+      "base_branch": "codex/query-history-ablation",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 17,
+      "title": "Add bounded 4K compressor tuning and full-history finalists",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/17",
+      "head_branch": "codex/query-prefix-proxy-hpo",
+      "head_sha": "643755b16ff63a5a2fba833997e452139771df5d",
+      "base_branch": "codex/query-only-control",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 18,
+      "title": "Add robust 1K compressor search and failed-run artifact recovery",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/18",
+      "head_branch": "codex/query-proxy-1k-search",
+      "head_sha": "66a0322b46b17cf9b480952512d49810c1efcd8e",
+      "base_branch": "codex/query-prefix-proxy-hpo",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 19,
+      "title": "Tune compressor architectures at fixed LR using verified 1K controls",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/19",
+      "head_branch": "codex/query-compressor-architecture",
+      "head_sha": "a8f6f0dc760624e83d1f8261bd19333cfbd4dc02",
+      "base_branch": "codex/query-proxy-1k-search",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 20,
+      "title": "Handle reused parent checkpoints when collecting Kaggle outputs",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/20",
+      "head_branch": "codex/external-checkpoint-collection",
+      "head_sha": "df83a12c99cf1bd1e7d9cba3d3d1a388cf883119",
+      "base_branch": "codex/query-compressor-architecture",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 21,
+      "title": "Compare matched Recent128, QueryOnly, Mamba4Rec and FuXi baselines",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/21",
+      "head_branch": "codex/matched-sequence-baselines",
+      "head_sha": "b8a8c4eb7076734370222671f3f1d814afef6a79",
+      "base_branch": "codex/external-checkpoint-collection",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 22,
+      "title": "Tune QSSM summary count and memory initialization",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/22",
+      "head_branch": "codex/qssm-summary-memory-search",
+      "head_sha": "da2ed97f8d2af078ecf535e9c730e7cb8f6c60b3",
+      "base_branch": "codex/matched-sequence-baselines",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 23,
+      "title": "Continue QSSM and FuXi on full user histories",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/23",
+      "head_branch": "codex/paired-full-history",
+      "head_sha": "8a70642643d5d8d6587db20473e86faa73f4d852",
+      "base_branch": "codex/qssm-summary-memory-search",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 24,
+      "title": "Test individual Mamba mechanisms in H1024 Query SSM",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/24",
+      "head_branch": "codex/qssm-mamba-ablations",
+      "head_sha": "6f3739f2274b515346707850074c661e79d822d5",
+      "base_branch": "codex/paired-full-history",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 25,
+      "title": "Test QSSM and FuXi with rotating training target blocks",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/25",
+      "head_branch": "codex/rotating-window-training",
+      "head_sha": "9f73990679c6730dfc4c57b6db20e1ea5e4411a1",
+      "base_branch": "codex/qssm-mamba-ablations",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 26,
+      "title": "Benchmark native query-conditioned Mamba2 against QSSM on T4",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/26",
+      "head_branch": "codex/query-ssm2-benchmark",
+      "head_sha": "cb2862b55a4a9a39a2a2ef104f308bca06775212",
+      "base_branch": "codex/rotating-window-training",
+      "state_when_archived": "open"
+    },
+    {
+      "number": 27,
+      "title": "Train QSSM2 with state128 on the matched rotating-window protocol",
+      "url": "https://github.com/mikhail-moro/RHPR/pull/27",
+      "head_branch": "codex/query-ssm2-state128-training",
+      "head_sha": "248b1aebcb77cc0fc400138cd2b15ebadc0ee33f",
+      "base_branch": "codex/query-ssm2-benchmark",
+      "state_when_archived": "open"
+    }
+  ]
+}

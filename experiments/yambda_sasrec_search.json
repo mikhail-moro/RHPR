@@ -1,0 +1,55 @@
+{
+  "name": "yambda-50m-sasrec-search",
+  "kind": "yambda_sasrec_search",
+  "seed": 42,
+  "search": {
+    "training_budget_seconds": 19800,
+    "n_trials": 6,
+    "n_finalists": 2,
+    "trial_epochs": 5,
+    "full_epochs": 10
+  },
+  "base": {
+    "kind": "yambda_sasrec",
+    "deterministic": true,
+    "data": {
+      "path": "/kaggle/input/datasets/ploshkin/yambda/sequential/50m/listens.parquet",
+      "format": "sequential"
+    },
+    "model": {
+      "max_seq_len": 1028,
+      "d_model": 256,
+      "n_layers": 4,
+      "n_heads": 4,
+      "ffn_multiplier": 4,
+      "dropout": 0.2
+    },
+    "loss": {"name": "bce", "num_negatives": 1},
+    "training": {
+      "device": "cuda",
+      "physical_batch_size": 8,
+      "effective_batch_size": 128,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0,
+      "max_epochs": 10,
+      "early_stopping_patience": 2,
+      "early_stopping_min_delta": 0.0,
+      "grad_clip_norm": 1.0,
+      "workers": 2,
+      "amp": true,
+      "keep_checkpoint": true
+    },
+    "evaluation": {
+      "batch_size": 32,
+      "k": 10,
+      "item_chunk_size": 65536,
+      "evaluate_test": false
+    }
+  },
+  "kaggle": {
+    "dataset_sources": ["ploshkin/yambda"],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": []
+  }
+}

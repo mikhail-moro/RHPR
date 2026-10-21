@@ -3,6 +3,16 @@
 Reproducible Codex -> GitHub -> Kaggle experiment loop with Telegram-only
 notifications.
 
+The history-compression / Query SSM research track was closed on **2026-10-21**.
+Its code, experiment configurations and tests are retained for reproducibility.
+Start with the [research archive](docs/research/closed-history-compression/README.md)
+for final results, data audits, literature and limitations, or the
+[documentation index](docs/README.md) for the earlier stages.
+
+The next research direction is **SID for generative recommendation (GR)**.
+No SID/GR experiment is implemented or queued by this archive. Plans in the
+historical research notes are closed proposals; new work needs a new brief.
+
 ## Flow
 
 1. Ask Codex to implement an experiment from a chat or a written brief.
@@ -22,6 +32,7 @@ used to publish notebooks because CI needs repeatable, auditable execution.
 
 ```text
 experiments/                  versioned experiment configurations
+docs/research/                closed research reports and aggregate evidence
 kaggle/run.py                 Kaggle entry point
 src/rhpr/                     runner, metric contract, Telegram client
 scripts/                      bundle, submit, collect, notify utilities
@@ -61,12 +72,28 @@ do not paste the bot token into an issue, PR, chat, or committed file.
 
 ### Codex plugin and MCP
 
-From the repository root:
+Kaggle's current MCP endpoint can use a KGAT token instead of OAuth. Store it in
+the user environment, never in this repository or an MCP JSON file. When Codex
+Desktop runs the project in WSL, put the token in the Windows user environment
+and explicitly pass that variable through `WSLENV`. Run this in PowerShell and
+then fully exit Codex, run `wsl --shutdown`, and reopen Codex:
+
+```powershell
+[Environment]::SetEnvironmentVariable("KAGGLE_API_TOKEN", "KGAT_your_token", "User")
+$wslEnv = [Environment]::GetEnvironmentVariable("WSLENV", "User")
+$entries = @($wslEnv -split ":" | Where-Object { $_ })
+if ($entries -notcontains "KAGGLE_API_TOKEN") { $entries += "KAGGLE_API_TOKEN" }
+[Environment]::SetEnvironmentVariable("WSLENV", ($entries -join ":"), "User")
+wsl --shutdown
+```
+
+Register the endpoint from the repository root:
 
 ```bash
 codex plugin marketplace add .
 codex plugin add rhpr-ops@rhpr
-codex mcp login kaggle
+codex mcp add --url https://www.kaggle.com/mcp \
+  --bearer-token-env-var KAGGLE_API_TOKEN kaggle
 codex mcp login github
 ```
 
@@ -82,9 +109,9 @@ export TELEGRAM_CHAT_ID='...'
 # export TELEGRAM_THREAD_ID='...'
 ```
 
-Kaggle and GitHub remote MCP use OAuth. The CI workflow still needs the Kaggle
-secret because an unattended GitHub runner cannot reuse your interactive OAuth
-session.
+The GitHub remote MCP uses OAuth. The CI workflow still needs the Kaggle secret
+because an unattended GitHub runner cannot reuse the desktop environment
+variable.
 
 ### Codex cloud environment
 
@@ -115,6 +142,42 @@ python3 scripts/build_kaggle_bundle.py \
   --accelerator cpu \
   --output build/kaggle
 ```
+
+## Historical Yambda-50M SASRec baseline
+
+This section describes the initial baseline. The later 500M long-history,
+daily-evaluation and rotating-target protocols are documented in the
+[research archive](docs/research/closed-history-compression/README.md).
+
+The `yambda_sasrec_*.json` configurations train a PyTorch SASRec whose item
+embedding is followed by an explicit sequence-compressor interface and then the
+causal Transformer. The baseline compressor is the identity operation. A future
+compressor returns the shortened embeddings, their validity mask, and the
+source end-position represented by every compressed token; this keeps shifted
+next-item targets aligned without constraining the compressor internals.
+
+The data contract is deliberately narrow:
+
+- only Yambda-50M `listens.parquet` is used; both official sequential and flat
+  schemas are accepted;
+- every listen is positive, repeated items remain, and users are ordered by
+  ascending timestamp;
+- each user is split `n-2 / 1 / 1`; training uses shifted targets from the last
+  `max_seq_len + 1` train events;
+- validation runs after every epoch and early stopping monitors full-catalogue
+  NDCG@10; the test target is evaluated once from the best validation epoch;
+- seen items are not removed because a repeated listen is a valid target.
+
+The four initial loss configurations are BCE with one uniform negative and
+sampled softmax with 128, 512, or 1028 catalogue-uniform negatives. Full
+softmax is intentionally absent. They attach the official `ploshkin/yambda`
+Kaggle mirror and read only
+`/kaggle/input/yambda/sequential/50m/listens.parquet`.
+
+Run `yambda_sasrec_bce_calibration.json` first: it processes the full data for
+one epoch, reports separate training/validation durations, and deliberately
+does not inspect the test target. Use that measurement to decide whether the
+four loss runs fit the remaining GPU budget.
 
 ## Running an experiment
 

@@ -1,0 +1,169 @@
+{
+  "format_version": 1,
+  "closure_date": "2026-10-21",
+  "raw_data_or_weights_included": false,
+  "scope": "Nine finite-scalar historical run snapshots; protocols and reused controls differ.",
+  "runs": [
+    {
+      "id": "query-architecture",
+      "source_git_sha": "a8f6f0dc760624e83d1f8261bd19333cfbd4dc02",
+      "config": "experiments/yambda_query_compressor_architecture.json",
+      "protocol_note": "Fixed latest target block; H1024 training; proxy and zero-shot full-history transfer evaluations. CA/QSSM architecture search; not rotating training.",
+      "files": [
+        {
+          "file": "metrics.json",
+          "sha256": "4b28a0525611d44e8be317048e4128f148c66db20ead5f18b0376b86d12dfda8",
+          "bytes": 7096
+        },
+        {
+          "file": "final-selection.json",
+          "sha256": "5788ac5c68f1c083b19169083aceb91ec83eaf9c9172d0a9df15504a4408c25c",
+          "bytes": 533
+        }
+      ],
+      "provenance_sha256": "23b607a72f985335783091798d28ac0e4156b666adf8396fdef3a13693e3358f"
+    },
+    {
+      "id": "baseline-screen",
+      "source_git_sha": "b8a8c4eb7076734370222671f3f1d814afef6a79",
+      "config": "experiments/yambda_query_baseline_screen.json",
+      "protocol_note": "Fixed latest target block; native short inputs per family, H1024+R128 for long arms; CA/QSSM references can be reused. Recent128, QueryOnly, Mamba4Rec and FuXi screen; not rotating training.",
+      "files": [
+        {
+          "file": "metrics.json",
+          "sha256": "9671488d2dc52b6cdfcb65c009dabb4654cc9cedaabefafa7451071026f944ec",
+          "bytes": 17081
+        },
+        {
+          "file": "final-selection.json",
+          "sha256": "e9859d3228a03903286646df69d99583584fcc200ed977c4b358bca717fe46a5",
+          "bytes": 1035
+        }
+      ],
+      "provenance_sha256": "5388e548a8cf45edabbb34416ed4de1fac9d425e0ce7da12bf33cd9f58e56a32"
+    },
+    {
+      "id": "qssm-search",
+      "source_git_sha": "da2ed97f8d2af078ecf535e9c730e7cb8f6c60b3",
+      "config": "experiments/yambda_query_qssm_search.json",
+      "protocol_note": "Fixed latest target block; H1024+R128; search across K4/K8/K16/K32 and registered QSSM architecture choices. Proxy and zero-shot full-history transfer are different evaluation lengths.",
+      "files": [
+        {
+          "file": "metrics.json",
+          "sha256": "70b113cc5c7e63bf483cf406e641c1098a6fc86394aa3be9357a5885e6de8111",
+          "bytes": 9656
+        },
+        {
+          "file": "final-selection.json",
+          "sha256": "68a93932cdb9fc098d5af7ffa38ce6166ebbd8185b8c137f343c74b5cc363f9a",
+          "bytes": 1517
+        }
+      ],
+      "provenance_sha256": "50ee097019c316ba5c604596f823579297e24b7dfe06bffeebe232c86c8c0359"
+    },
+    {
+      "id": "history-qssm",
+      "source_git_sha": "39bca1edc6bfaeba3b253f49fe9094650d0712da",
+      "config": "experiments/yambda_history_continuation_qssm.json",
+      "protocol_note": "Warm-start QSSM continuation for 20 additional passes, reset optimizer/scaler, short/full arms and fixed final-prefix targets. Endpoint results, not fresh rotating training.",
+      "files": [
+        {
+          "file": "metrics.json",
+          "sha256": "ea461942e8304283d15621064cb57e3c46b6173408066ef1fde651d504b84297",
+          "bytes": 3173
+        },
+        {
+          "file": "final-selection.json",
+          "sha256": "146fd3069476ad710d37aac69c7e8a81e6f1d886145d7c24780fc1d7f89847b6",
+          "bytes": 364
+        }
+      ],
+      "provenance_sha256": "8f36c28b4df10716d03fe1490f5508a7f826fd52c77988c2e06f8b430bd5a1b3"
+    },
+    {
+      "id": "history-fuxi",
+      "source_git_sha": "8a70642643d5d8d6587db20473e86faa73f4d852",
+      "config": "experiments/yambda_history_continuation_fuxi.json",
+      "protocol_note": "Warm-start full-history FuXi continuation for 20 additional passes, fixed final-prefix targets. Short control historical only and not retrained; not a fresh matched short/full experiment.",
+      "files": [
+        {
+          "file": "metrics.json",
+          "sha256": "7e562a00af1388636e94d60802ae45bf238c196265e921bf16387c2667a7818b",
+          "bytes": 2032
+        },
+        {
+          "file": "final-selection.json",
+          "sha256": "d680861e58e7c7d5a7b20430c45dd075033fbcfc84d48ee2a7ef8d57ac948903",
+          "bytes": 436
+        }
+      ],
+      "provenance_sha256": "f15b5bc2edf3c767061cad0683b177b0f500b8ea120979804a0edd7c8eb0b8ae"
+    },
+    {
+      "id": "mamba-ablation",
+      "source_git_sha": "0214d881592d2f461d0a82c533fdd813e8167cf5",
+      "config": "experiments/yambda_query_mamba_ablation.json",
+      "protocol_note": "H1024 QSSM convolution/output-gate/input-skip feature ablations; fixed latest target block and reused base controls. Generic family metrics may report a reused selected base rather than every fresh feature.",
+      "files": [
+        {
+          "file": "metrics.json",
+          "sha256": "2d642bc988362a7e1c67dab968b740acc5da1178ba6a8e5e389cbebd7480d308",
+          "bytes": 2753
+        },
+        {
+          "file": "final-selection.json",
+          "sha256": "5506ef2fdb50e67b0f0a447fde4da69dbad94d243fe00c1d2d091ced6e38e813",
+          "bytes": 538
+        }
+      ],
+      "provenance_sha256": "4a67a616a48e1ce95603047ee4db397a5dabae6acecd103be7b56f4c1fbe8f5a"
+    },
+    {
+      "id": "ssm2-benchmark",
+      "source_git_sha": "cb2862b55a4a9a39a2a2ef104f308bca06775212",
+      "config": "experiments/yambda_query_ssm2_benchmark.json",
+      "protocol_note": "Native T4 optimizer-step/compressor benchmark only, QSSM1 versus SSD head dimensions32/64. No recommendation-quality training/comparison.",
+      "files": [
+        {
+          "file": "metrics.json",
+          "sha256": "26f00a7d903c6276d3a5e92e78e7f51325804d17ab9c90e88ece9a4848c05272",
+          "bytes": 994
+        }
+      ],
+      "provenance_sha256": "6a6d2b2d13c6c7d3bbf167486028a50fbd45d27f21aebb82bfc5d1fd566babef"
+    },
+    {
+      "id": "rotating-qssm-fuxi",
+      "source_git_sha": "9f73990679c6730dfc4c57b6db20e1ea5e4411a1",
+      "config": "experiments/yambda_query_rotating_windows.json",
+      "protocol_note": "Fresh QSSM/FuXi on shared rotating disjoint target blocks, H1024+R128. Use *_rotating_ndcg* keys for fresh results; *_proxy_* keys may describe reused historical fixed-block models.",
+      "files": [
+        {
+          "file": "metrics.json",
+          "sha256": "6ca7c01430e7cca8c07f9427ffb5edd350bdf47588326d6b91e64ffa9ae19ec4",
+          "bytes": 4509
+        }
+      ],
+      "provenance_sha256": "0bffd4dd9265a5a5f79d5543368255b00d9f987512b3a735b2dde9a618531451"
+    },
+    {
+      "id": "ssm2-state128",
+      "source_git_sha": "248b1aebcb77cc0fc400138cd2b15ebadc0ee33f",
+      "config": "experiments/yambda_query_ssm2_training.json",
+      "protocol_note": "One fresh QSSM2 state128 arm on the same rotating H1024+R128 schedule. Prior outputs mounted for provenance; no new control training. Compare against fresh rotating results, not fixed-block winners.",
+      "files": [
+        {
+          "file": "metrics.json",
+          "sha256": "fe14b2df9997d821a0833ac0d13e09c1603ba8d9947c01bcc7c26032c6359fbc",
+          "bytes": 2439
+        },
+        {
+          "file": "final-selection.json",
+          "sha256": "cfc4659bc21eaa21fdacb639cbe81148d282838e540eea43fa0188bd0749882f",
+          "bytes": 1671
+        }
+      ],
+      "provenance_sha256": "6bf64c23984d9e2f4886126aa20747a42627abf49b65abe40dd4c003b8e5f374"
+    }
+  ]
+}

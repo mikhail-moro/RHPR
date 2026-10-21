@@ -1,0 +1,67 @@
+{
+  "checkpoint_training_input": "H1024+R128; identical original last128 labels",
+  "global_selected_configuration": {
+    "reused": false,
+    "score": 0.06528778720374186,
+    "trial": {
+      "backbone_lr": 0.001,
+      "compressor_lr": 0.001,
+      "d_inner": 64,
+      "d_state": 16,
+      "dt_max": 0.01,
+      "dt_min": 0.0001,
+      "gate_rank": 32,
+      "name": "dt_slow"
+    },
+    "variant": {
+      "kind": "query_ssm",
+      "name": "query_ssm_m32",
+      "summary_tokens": 32
+    }
+  },
+  "selected_trials": {
+    "query_ssm_m16": {
+      "backbone_lr": 0.001,
+      "compressor_lr": 0.001,
+      "d_inner": 64,
+      "d_state": 16,
+      "dt_max": 0.01,
+      "dt_min": 0.0001,
+      "gate_rank": 32,
+      "name": "dt_slow"
+    },
+    "query_ssm_m32": {
+      "backbone_lr": 0.001,
+      "compressor_lr": 0.001,
+      "d_inner": 64,
+      "d_state": 16,
+      "dt_max": 0.01,
+      "dt_min": 0.0001,
+      "gate_rank": 32,
+      "name": "dt_slow"
+    },
+    "query_ssm_m4": {
+      "backbone_lr": 0.001,
+      "compressor_lr": 0.001,
+      "d_inner": 64,
+      "d_state": 16,
+      "dt_max": 0.1,
+      "dt_min": 0.0001,
+      "gate_rank": 32,
+      "name": "dt_default"
+    },
+    "query_ssm_m8": {
+      "backbone_lr": 0.001,
+      "compressor_lr": 0.001,
+      "d_inner": 64,
+      "d_state": 16,
+      "dt_max": 0.01,
+      "dt_min": 0.0001,
+      "gate_rank": 32,
+      "name": "dt_slow"
+    }
+  },
+  "selection_input": "H1024+R128",
+  "selection_split": "validation",
+  "test_evaluations": 0
+}

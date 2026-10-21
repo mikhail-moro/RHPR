@@ -1,0 +1,18 @@
+{
+  "ablation_complete": true,
+  "all_feature_comparisons_artifact": "query-mamba-ablation.json",
+  "checkpoint_training_input": "per-family native short input; long arms H1024+R128",
+  "fresh_failed_trials": [],
+  "full_history_evaluation_registered": false,
+  "selected_trials": {
+    "query_ssm_m32": {
+      "backbone_lr": 0.001,
+      "compressor_lr": 0.001,
+      "feature": "none",
+      "name": "base"
+    }
+  },
+  "selection_input": "registered_native_short_context",
+  "selection_split": "validation",
+  "test_evaluations": 0
+}

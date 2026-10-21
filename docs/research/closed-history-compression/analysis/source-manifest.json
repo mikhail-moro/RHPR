@@ -1,0 +1,169 @@
+{
+  "format_version": 1,
+  "archived_on": "2026-10-21",
+  "status": "historical one-off CPU analysis sources; not an actively maintained experiment interface",
+  "transformation": "Added a small scratch-workspace/path adapter and replaced only executable string literals equal to /workspace or starting /workspace/. The repository src path is derived from the archive location. Seeds, recipes, formulas, assertions and other research logic are unchanged.",
+  "verification": "For every source, reverse only adapted path-call AST nodes and compare the entire original research AST; compile archived source without running it. The adapter itself is checked separately without importing a snapshot.",
+  "default_scratch_workspace": "/workspace",
+  "scratch_workspace_environment_variable": "RHPR_RESEARCH_WORKSPACE",
+  "data_or_credentials_included": false,
+  "files": [
+    {
+      "file": "analyze-qssm2-research-results.py",
+      "original_sha256": "5b33398ef9fdc1e33d240481a5d6b56dc1060757aa76e03274e327619e50f6eb",
+      "archived_sha256": "33bebfbad0ef33af1eefbee624758260d5db3d40a4ddcbff6e8be95758b1995a",
+      "original_bytes": 7558,
+      "archived_bytes": 8346,
+      "rewritten_path_literal_occurrences": 4,
+      "rewritten_paths": [
+        "/workspace/RHPR/src",
+        "/workspace/qssm2-research-results.json",
+        "/workspace/rotating-final-output",
+        "/workspace/ssm2-state128-final-output"
+      ],
+      "research_ast_identical_after_reversing_path_adapter": true
+    },
+    {
+      "file": "analyze-qssm2-repeat-slices.py",
+      "original_sha256": "979becb20b502da59eed29da9904135b8b1b787eed6d162c85cce631bf289d34",
+      "archived_sha256": "0eab257d61576fb69900fad7d280c24047e7f37020e41bdacac89cf25a285ee6",
+      "original_bytes": 7099,
+      "archived_bytes": 7915,
+      "rewritten_path_literal_occurrences": 6,
+      "rewritten_paths": [
+        "/workspace/RHPR/src",
+        "/workspace/baseline-evaluation",
+        "/workspace/plateau-cohort",
+        "/workspace/qssm2-research-repeat-slices.json",
+        "/workspace/rotating-final-output",
+        "/workspace/ssm2-state128-final-output"
+      ],
+      "research_ast_identical_after_reversing_path_adapter": true
+    },
+    {
+      "file": "evaluate-qssm2-repeat-heuristics.py",
+      "original_sha256": "89b9f779320d17860a72ceda4b4fe332dacd8c8f75775663a2fdc308dc24a8f8",
+      "archived_sha256": "869b472197d5d05d0d8deb3c4ab7a3995e3a7ca6c9d27eaa139b61b1f09cc725",
+      "original_bytes": 8831,
+      "archived_bytes": 9661,
+      "rewritten_path_literal_occurrences": 7,
+      "rewritten_paths": [
+        "/workspace/RHPR/src",
+        "/workspace/baseline-evaluation",
+        "/workspace/plateau-cohort",
+        "/workspace/qssm2-repeat-heuristic-recipes.json",
+        "/workspace/qssm2-repeat-heuristics.json",
+        "/workspace/rotating-final-output",
+        "/workspace/ssm2-state128-final-output"
+      ],
+      "research_ast_identical_after_reversing_path_adapter": true
+    },
+    {
+      "file": "audit-qssm2-saved-ranks.py",
+      "original_sha256": "3ea89d0026347e04acf9b29a776c6b0ffeec71ee6eee2366196695ee93c5b1fd",
+      "archived_sha256": "99893b91c52ecae15cf742dc2e912636ebbe544a4d64bc7e5b7724d69354fed2",
+      "original_bytes": 2635,
+      "archived_bytes": 3393,
+      "rewritten_path_literal_occurrences": 1,
+      "rewritten_paths": [
+        "/workspace"
+      ],
+      "research_ast_identical_after_reversing_path_adapter": true
+    },
+    {
+      "file": "plot-qssm2-research-curves.py",
+      "original_sha256": "b5afda453d8d664df7ed91e4fc784cca1664ae74b29d416472da0751ead21eb9",
+      "archived_sha256": "d260bac24b05d90b44bb319b00ed2279988e9921a85b9fe3cf95d6c7a8e0a868",
+      "original_bytes": 2002,
+      "archived_bytes": 2787,
+      "rewritten_path_literal_occurrences": 3,
+      "rewritten_paths": [
+        "/workspace/qssm2-research-curves.png",
+        "/workspace/qssm2-research-curves.svg",
+        "/workspace/qssm2-research-results.json"
+      ],
+      "research_ast_identical_after_reversing_path_adapter": true
+    },
+    {
+      "file": "analyze-music-data.py",
+      "original_sha256": "c1d6d9e07d415ec2192efb129b4d1d3e1e469a22835ce7baa7bea196cb1a5ff4",
+      "archived_sha256": "727785da2187b0db877086e38505f7a4e72e7b11c8132dcb9f4e9aa8012f1460",
+      "original_bytes": 13276,
+      "archived_bytes": 14120,
+      "rewritten_path_literal_occurrences": 8,
+      "rewritten_paths": [
+        "/workspace/RHPR/src",
+        "/workspace/baseline-evaluation/daily-anchors.parquet",
+        "/workspace/baseline-evaluation/daily-evaluation-summary.json",
+        "/workspace/baseline-evaluation/daily-future.parquet",
+        "/workspace/music-data-audit-recipe.json",
+        "/workspace/music-data-audit.json",
+        "/workspace/plateau-cohort",
+        "/workspace/qssm2-repeat-heuristics.json"
+      ],
+      "research_ast_identical_after_reversing_path_adapter": true
+    },
+    {
+      "file": "analyze-music-metadata.py",
+      "original_sha256": "3943ef74c90bd2befec835c31dfe821ebddc1f53c794e62d91a0f594021ef369",
+      "archived_sha256": "f9d859cfd138fc75fef2aab3e3fea51b4c60febffc3f7446898cd1ecb928a7be",
+      "original_bytes": 11032,
+      "archived_bytes": 11862,
+      "rewritten_path_literal_occurrences": 7,
+      "rewritten_paths": [
+        "/workspace/RHPR/src",
+        "/workspace/baseline-evaluation",
+        "/workspace/music-metadata",
+        "/workspace/music-metadata-audit.json",
+        "/workspace/music-metadata-audit.md",
+        "/workspace/plateau-cohort",
+        "/workspace/ssm2-state128-final-output/query_ssm2_m32_s128-fixed_lr-p60-validation-input-contexts.json.gz"
+      ],
+      "research_ast_identical_after_reversing_path_adapter": true
+    },
+    {
+      "file": "analyze-music-origin.py",
+      "original_sha256": "33dd9134d5941d633a2e60783cb0e10f440e3f598595b281fdc30ef842a52f03",
+      "archived_sha256": "d75aa0271e6ffc261302cb6e4ad2b2d3a5c23e2fc7055ce4e958e089dbc69e79",
+      "original_bytes": 12910,
+      "archived_bytes": 13768,
+      "rewritten_path_literal_occurrences": 9,
+      "rewritten_paths": [
+        "/workspace/RHPR/src",
+        "/workspace/baseline-evaluation",
+        "/workspace/music-origin",
+        "/workspace/music-origin-audit.json",
+        "/workspace/music-origin-audit.md",
+        "/workspace/plateau-cohort",
+        "/workspace/qssm2-repeat-heuristics.json",
+        "/workspace/rotating-final-output",
+        "/workspace/ssm2-state128-final-output"
+      ],
+      "research_ast_identical_after_reversing_path_adapter": true
+    },
+    {
+      "file": "fetch-music-origin.py",
+      "original_sha256": "c5fcbd4bece2006957f36c5c3aba6541aa27bdd2a864833e1fb8369c887a5cef",
+      "archived_sha256": "c32a5ac4494dbf5447644f1392cfc7ff4154ee4a2ec54fa7287822d028779fa2",
+      "original_bytes": 3552,
+      "archived_bytes": 4309,
+      "rewritten_path_literal_occurrences": 1,
+      "rewritten_paths": [
+        "/workspace/music-origin"
+      ],
+      "research_ast_identical_after_reversing_path_adapter": true
+    },
+    {
+      "file": "music-metadata-fetch.py",
+      "original_sha256": "04a333014b699614aeb955d3ff8cd44fe45aeb1175dc633532f13d9952dbd02b",
+      "archived_sha256": "209c0c2cbbee67d5fbf726ae30002eb229b9c107e8d8baec17dd1634cecc5871",
+      "original_bytes": 3096,
+      "archived_bytes": 3853,
+      "rewritten_path_literal_occurrences": 1,
+      "rewritten_paths": [
+        "/workspace/music-metadata"
+      ],
+      "research_ast_identical_after_reversing_path_adapter": true
+    }
+  ]
+}

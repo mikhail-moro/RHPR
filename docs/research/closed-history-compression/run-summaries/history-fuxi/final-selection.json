@@ -1,0 +1,16 @@
+{
+  "primary": "fixed20-pass endpoint in each arm",
+  "secondary": "best within0/10/20",
+  "selection_split": "validation",
+  "short_control_retrained": false,
+  "source_checkpoint": {
+    "best_epoch": 60,
+    "file": "checkpoints/fuxi_linear-fixed_lr.pt",
+    "sha256": "9e95df5442faa173542efbe0207e813f4ea61ba50f2e5ccf161ae62ffb3f2416",
+    "size_bytes": 549037784
+  },
+  "test_evaluations": 0,
+  "training_arms": [
+    "full"
+  ]
+}

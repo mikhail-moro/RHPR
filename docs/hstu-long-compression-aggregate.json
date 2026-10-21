@@ -1,0 +1,3266 @@
+{
+  "analysis_kind": "exploratory_existing_test_users_not_new_confirmatory_test",
+  "core_features_fixed_before_joining_outcomes": [
+    "old_unique_fraction",
+    "old_entropy_normalized",
+    "recent_old_item_overlap_fraction",
+    "old_duration_days",
+    "log_train_event_count"
+  ],
+  "feature_provenance": "past-only item identities and observed timestamps; no target features, no learned embedding features",
+  "heldout_router": {
+    "arm_shares": [
+      0.0,
+      0.5849143914854235,
+      0.4150856085145766
+    ],
+    "development_users": 2188,
+    "heldout_users": 2161,
+    "mean_matched_mixture_score": 0.028819997044732627,
+    "mean_reference_score": 0.029655837465035438,
+    "mean_selected_score": 0.027872067971259733,
+    "n_users": 2161,
+    "policy": {
+      "arm_labels": [
+        4,
+        8,
+        16
+      ],
+      "feature_index": 0,
+      "feature_name": "old_unique_fraction",
+      "feature_names": [
+        "old_unique_fraction",
+        "old_entropy_normalized",
+        "recent_old_item_overlap_fraction",
+        "old_duration_days",
+        "log_train_event_count"
+      ],
+      "kind": "stump",
+      "left_arm_index": 2,
+      "left_train_users": 875,
+      "min_leaf": 200,
+      "n_candidate_splits": 20,
+      "n_candidates": 21,
+      "n_features": 5,
+      "n_train_users": 2188,
+      "quantiles": [
+        0.2,
+        0.4,
+        0.6,
+        0.8
+      ],
+      "right_arm_index": 1,
+      "right_train_users": 1313,
+      "threshold": 0.18131008896557452,
+      "train_utility": 0.032455598449034756
+    },
+    "reference_arm_index": 1,
+    "reference_summary_tokens": 8,
+    "selected_minus_matched_mixture": -0.0009479290734728951,
+    "selected_minus_reference": -0.0017837694937757034,
+    "vs_assignment_matched_random_mixture_ci": {
+      "ci_high": 0.0008136103340195927,
+      "ci_low": -0.0027038689263028048,
+      "confidence_level": 0.95,
+      "draws": 5000,
+      "mean": -0.0009479290734728951,
+      "n_users": 2161,
+      "resampling": "user_rows_with_assignment_shares_recomputed",
+      "seed": 43
+    },
+    "vs_validation_selected_fixed_ci": {
+      "ci_high": 0.0006928833893670547,
+      "ci_low": -0.0043159988363138495,
+      "confidence_level": 0.95,
+      "draws": 5000,
+      "mean": -0.0017837694937757034,
+      "n_users": 2161,
+      "seed": 42
+    }
+  },
+  "limitations": [
+    "only test per-user predictions were saved; validation contains aggregate metrics only",
+    "one future target per user; zero ties dominate and oracle is optimistic",
+    "three budgets are separately trained models, not counterfactual compression of one model",
+    "one training seed; user bootstrap cannot estimate variation across training seeds",
+    "crossfit bootstrap is conditional on fixed out-of-fold predictions and omits policy-refitting uncertainty",
+    "quartile CIs are descriptive pointwise intervals, not multiple-comparison adjusted",
+    "static level latency is nearly equal; quality routing alone does not establish compute savings"
+  ],
+  "oracle": {
+    "all_three_zero_users": 4131,
+    "best_fixed_ndcg": 0.030720123969604263,
+    "fixed_arm_mean_ndcg": {
+      "16": 0.028231167428795962,
+      "4": 0.028241008927210424,
+      "8": 0.030720123969604263
+    },
+    "oracle_lift_vs_best_fixed_percent": 22.260396477298052,
+    "oracle_ndcg": 0.03755854536355564,
+    "scope": "future-target oracle upper bound across separately trained models; not a deployable policy",
+    "tied_best_arm_users": 4234,
+    "unique_best_arm_users": 115,
+    "users": 4349
+  },
+  "primary_compression_correlations": [
+    {
+      "bh_q_within_family": 0.8069193080691931,
+      "constant_column": false,
+      "feature": "old_unique_fraction",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.6665333466653335,
+      "permutations": 10000,
+      "seed": 42,
+      "spearman_rho": -0.006526691110819601,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.793045695430457,
+      "constant_column": false,
+      "feature": "old_unique_fraction",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.31086891310868914,
+      "permutations": 10000,
+      "seed": 42,
+      "spearman_rho": 0.015578092446373062,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.8069193080691931,
+      "constant_column": false,
+      "feature": "old_unique_fraction",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.5875412458754125,
+      "permutations": 10000,
+      "seed": 42,
+      "spearman_rho": -0.008309172254732546,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.8069193080691931,
+      "constant_column": false,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.7093290670932907,
+      "permutations": 10000,
+      "seed": 42,
+      "spearman_rho": 0.005642353400792269,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.793045695430457,
+      "constant_column": false,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.23077692230776922,
+      "permutations": 10000,
+      "seed": 42,
+      "spearman_rho": 0.018213826224009647,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.793045695430457,
+      "constant_column": false,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.41625837416258377,
+      "permutations": 10000,
+      "seed": 42,
+      "spearman_rho": -0.012243198455550603,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.793045695430457,
+      "constant_column": false,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.32686731326867313,
+      "permutations": 10000,
+      "seed": 42,
+      "spearman_rho": 0.01484755737525006,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.793045695430457,
+      "constant_column": false,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.25607439256074394,
+      "permutations": 10000,
+      "seed": 42,
+      "spearman_rho": 0.01733094233030257,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.8069193080691931,
+      "constant_column": false,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.7918208179182081,
+      "permutations": 10000,
+      "seed": 42,
+      "spearman_rho": 0.004072114824846922,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.793045695430457,
+      "constant_column": false,
+      "feature": "old_duration_days",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.37466253374662534,
+      "permutations": 10000,
+      "seed": 42,
+      "spearman_rho": -0.013456494941034337,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.8069193080691931,
+      "constant_column": false,
+      "feature": "old_duration_days",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.5793420657934206,
+      "permutations": 10000,
+      "seed": 42,
+      "spearman_rho": -0.008435021989766745,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.8069193080691931,
+      "constant_column": false,
+      "feature": "old_duration_days",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.6517348265173483,
+      "permutations": 10000,
+      "seed": 42,
+      "spearman_rho": 0.006928507480656823,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.793045695430457,
+      "constant_column": false,
+      "feature": "log_train_event_count",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.37476252374762525,
+      "permutations": 10000,
+      "seed": 42,
+      "spearman_rho": 0.013600140235770608,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.793045695430457,
+      "constant_column": false,
+      "feature": "log_train_event_count",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.42295770422957707,
+      "permutations": 10000,
+      "seed": 42,
+      "spearman_rho": 0.01221511143525365,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.8069193080691931,
+      "constant_column": false,
+      "feature": "log_train_event_count",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.8069193080691931,
+      "permutations": 10000,
+      "seed": 42,
+      "spearman_rho": -0.0036088084150870466,
+      "users": 4349
+    }
+  ],
+  "primary_fdr_family_size": 15,
+  "quartile_effects": [
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.005681884586544578,
+          "ci_low": -0.0036350691851985144,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.0010379774837046022,
+          "n_users": 1087,
+          "seed": 42
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.0012293759380980107,
+          "ci_low": -0.0076221562482206556,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0029959127634549,
+          "n_users": 1087,
+          "seed": 43
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.008440689833956511,
+          "ci_low": 1.3118345871872404e-05,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.004033890247159502,
+          "n_users": 1087,
+          "seed": 44
+        }
+      },
+      "edges": [
+        0.15115349123346664,
+        0.19907692307692307,
+        0.2579076923076923
+      ],
+      "feature": "old_unique_fraction",
+      "feature_max": 0.15108267716535434,
+      "feature_min": 0.008058562992125984,
+      "pair_ndcg": {
+        "16": 0.03778849639782142,
+        "4": 0.03675051891411681,
+        "8": 0.04078440916127631
+      },
+      "quartile": 1,
+      "users": 1087,
+      "warm_users": 1018
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.004792375098036127,
+          "ci_low": -0.00435377984557557,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.00011043105934300635,
+          "n_users": 1087,
+          "seed": 52
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.0037544863425009634,
+          "ci_low": -0.00660806172082823,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0014530625798642926,
+          "n_users": 1087,
+          "seed": 53
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.006277920546817017,
+          "ci_low": -0.0032021422059529334,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.0015634936392072995,
+          "n_users": 1087,
+          "seed": 54
+        }
+      },
+      "edges": [
+        0.15115349123346664,
+        0.19907692307692307,
+        0.2579076923076923
+      ],
+      "feature": "old_unique_fraction",
+      "feature_max": 0.19900344488188976,
+      "feature_min": 0.15115349123346664,
+      "pair_ndcg": {
+        "16": 0.030536464374190976,
+        "4": 0.030426033314847972,
+        "8": 0.03198952695405526
+      },
+      "quartile": 2,
+      "users": 1087,
+      "warm_users": 1015
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.0015856031886427237,
+          "ci_low": -0.004712670662297961,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.001533955932067771,
+          "n_users": 1086,
+          "seed": 62
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.001456126195848584,
+          "ci_low": -0.009004865265384802,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.00367028762148663,
+          "n_users": 1086,
+          "seed": 63
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.006904432854215656,
+          "ci_low": -0.0024619192264995465,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.002136331689418859,
+          "n_users": 1086,
+          "seed": 64
+        }
+      },
+      "edges": [
+        0.15115349123346664,
+        0.19907692307692307,
+        0.2579076923076923
+      ],
+      "feature": "old_unique_fraction",
+      "feature_max": 0.25773703316310836,
+      "feature_min": 0.19907692307692307,
+      "pair_ndcg": {
+        "16": 0.02442850861707412,
+        "4": 0.02596246454914189,
+        "8": 0.02809879623856075
+      },
+      "quartile": 3,
+      "users": 1086,
+      "warm_users": 1011
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.003911500098034426,
+          "ci_low": -0.0030767025342003903,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.00034412798836398815,
+          "n_users": 1089,
+          "seed": 72
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.002142668125742455,
+          "ci_low": -0.006104508441400058,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0018388461348510963,
+          "n_users": 1089,
+          "seed": 73
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.005708592485714109,
+          "ci_low": -0.0010083438226608755,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.0021829741232150847,
+          "n_users": 1089,
+          "seed": 74
+        }
+      },
+      "edges": [
+        0.15115349123346664,
+        0.19907692307692307,
+        0.2579076923076923
+      ],
+      "feature": "old_unique_fraction",
+      "feature_max": 0.7219452139119729,
+      "feature_min": 0.2579076923076923,
+      "pair_ndcg": {
+        "16": 0.0201825109554764,
+        "4": 0.019838382967112413,
+        "8": 0.022021357090327497
+      },
+      "quartile": 4,
+      "users": 1089,
+      "warm_users": 980
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.004026286699558289,
+          "ci_low": -0.005851980545188417,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0009271919614475033,
+          "n_users": 1087,
+          "seed": 142
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.0005288358480392524,
+          "ci_low": -0.009579081126729434,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.004187265438816432,
+          "n_users": 1087,
+          "seed": 143
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.00815413715872279,
+          "ci_low": -0.001508705064033488,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.0032600734773689287,
+          "n_users": 1087,
+          "seed": 144
+        }
+      },
+      "edges": [
+        0.8890876342494892,
+        0.9153344799044203,
+        0.9339394155305748
+      ],
+      "feature": "old_entropy_normalized",
+      "feature_max": 0.8890747218722309,
+      "feature_min": 0.03294927553027423,
+      "pair_ndcg": {
+        "16": 0.040571039353281234,
+        "4": 0.04149823131472873,
+        "8": 0.044758304792097664
+      },
+      "quartile": 1,
+      "users": 1087,
+      "warm_users": 1024
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.003567629574366641,
+          "ci_low": -0.004687986140668246,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0005476169124101038,
+          "n_users": 1087,
+          "seed": 152
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.003243856209581018,
+          "ci_low": -0.007659132344615582,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.002005553528288572,
+          "n_users": 1087,
+          "seed": 153
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.0059735590245428,
+          "ci_low": -0.002833861141560543,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.0014579366158784675,
+          "n_users": 1087,
+          "seed": 154
+        }
+      },
+      "edges": [
+        0.8890876342494892,
+        0.9153344799044203,
+        0.9339394155305748
+      ],
+      "feature": "old_entropy_normalized",
+      "feature_max": 0.9153315985238231,
+      "feature_min": 0.8890876342494892,
+      "pair_ndcg": {
+        "16": 0.03298126134493426,
+        "4": 0.033528878257344366,
+        "8": 0.034986814873222825
+      },
+      "quartile": 2,
+      "users": 1087,
+      "warm_users": 1009
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.006339592812786238,
+          "ci_low": -0.002251167111340163,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.0019975419706039243,
+          "n_users": 1087,
+          "seed": 162
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.0030531367002778896,
+          "ci_low": -0.005445261547280807,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0011614400681726697,
+          "n_users": 1087,
+          "seed": 163
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.00717310500527654,
+          "ci_low": -0.000522541174480197,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.0031589820387765946,
+          "n_users": 1087,
+          "seed": 164
+        }
+      },
+      "edges": [
+        0.8890876342494892,
+        0.9153344799044203,
+        0.9339394155305748
+      ],
+      "feature": "old_entropy_normalized",
+      "feature_max": 0.9339242516649753,
+      "feature_min": 0.9153344799044203,
+      "pair_ndcg": {
+        "16": 0.02466704309603129,
+        "4": 0.022669501125427365,
+        "8": 0.025828483164203962
+      },
+      "quartile": 3,
+      "users": 1087,
+      "warm_users": 1009
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.0019660146617948657,
+          "ci_low": -0.0030475673317917193,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0005615915007056177,
+          "n_users": 1088,
+          "seed": 172
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.0014443253879289435,
+          "ci_low": -0.007180388400792712,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0026014636255776245,
+          "n_users": 1088,
+          "seed": 173
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.006279259171709866,
+          "ci_low": -0.0018147944980001199,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.0020398721248720067,
+          "n_users": 1088,
+          "seed": 174
+        }
+      },
+      "edges": [
+        0.8890876342494892,
+        0.9153344799044203,
+        0.9339394155305748
+      ],
+      "feature": "old_entropy_normalized",
+      "feature_max": 0.9837851934439982,
+      "feature_min": 0.9339394155305748,
+      "pair_ndcg": {
+        "16": 0.014717757760558378,
+        "4": 0.015279349261263994,
+        "8": 0.017319221386136
+      },
+      "quartile": 4,
+      "users": 1088,
+      "warm_users": 982
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.0032044200558081683,
+          "ci_low": -0.00281995774791839,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.0003073939621836507,
+          "n_users": 1079,
+          "seed": 242
+        },
+        "pair16_minus_pair8": {
+          "ci_high": -0.0009893336034203332,
+          "ci_low": -0.008060226566394048,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.004329927146807779,
+          "n_users": 1079,
+          "seed": 243
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.008376964340513202,
+          "ci_low": 0.0012327471046619696,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.00463732110899143,
+          "n_users": 1079,
+          "seed": 244
+        }
+      },
+      "edges": [
+        0.7322834645669292,
+        0.8515625,
+        0.943089430894309
+      ],
+      "feature": "recent_old_item_overlap_fraction",
+      "feature_max": 0.7317073170731707,
+      "feature_min": 0.0,
+      "pair_ndcg": {
+        "16": 0.026307748111187673,
+        "4": 0.026000354149004017,
+        "8": 0.030637675257995448
+      },
+      "quartile": 1,
+      "users": 1079,
+      "warm_users": 971
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.003334887384677501,
+          "ci_low": -0.0059816834728360765,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0015099053353989527,
+          "n_users": 1064,
+          "seed": 252
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.004038997608339813,
+          "ci_low": -0.007105119059693951,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0014488003831602007,
+          "n_users": 1064,
+          "seed": 253
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.004004831856001176,
+          "ci_low": -0.004115323621419262,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -6.110495223875198e-05,
+          "n_users": 1064,
+          "seed": 254
+        }
+      },
+      "edges": [
+        0.7322834645669292,
+        0.8515625,
+        0.943089430894309
+      ],
+      "feature": "recent_old_item_overlap_fraction",
+      "feature_max": 0.8512396694214877,
+      "feature_min": 0.7322834645669292,
+      "pair_ndcg": {
+        "16": 0.0281074965673911,
+        "4": 0.029617401902790053,
+        "8": 0.0295562969505513
+      },
+      "quartile": 2,
+      "users": 1064,
+      "warm_users": 981
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.0014054798806105813,
+          "ci_low": -0.005664750332354907,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.002036016280767531,
+          "n_users": 1116,
+          "seed": 262
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.0022619368985248548,
+          "ci_low": -0.006430572565470837,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0019800518622416414,
+          "n_users": 1116,
+          "seed": 263
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.003881899755138967,
+          "ci_low": -0.0042219090454592096,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -5.596441852588992e-05,
+          "n_users": 1116,
+          "seed": 264
+        }
+      },
+      "edges": [
+        0.7322834645669292,
+        0.8515625,
+        0.943089430894309
+      ],
+      "feature": "recent_old_item_overlap_fraction",
+      "feature_max": 0.9426229508196722,
+      "feature_min": 0.8515625,
+      "pair_ndcg": {
+        "16": 0.026871327549833405,
+        "4": 0.028907343830600937,
+        "8": 0.028851379412075048
+      },
+      "quartile": 3,
+      "users": 1116,
+      "warm_users": 1040
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.007938552716829195,
+          "ci_low": -0.001636167575764925,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.003214912554495803,
+          "n_users": 1090,
+          "seed": 272
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.0030294700447846936,
+          "ci_low": -0.007951193004657162,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0022029533198399693,
+          "n_users": 1090,
+          "seed": 273
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.010836256036037328,
+          "ci_low": 0.0004412293821187922,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.005417865874335773,
+          "n_users": 1090,
+          "seed": 274
+        }
+      },
+      "edges": [
+        0.7322834645669292,
+        0.8515625,
+        0.943089430894309
+      ],
+      "feature": "recent_old_item_overlap_fraction",
+      "feature_max": 1.0,
+      "feature_min": 0.943089430894309,
+      "pair_ndcg": {
+        "16": 0.03164817343352666,
+        "4": 0.02843326087903086,
+        "8": 0.03385112675336663
+      },
+      "quartile": 4,
+      "users": 1090,
+      "warm_users": 1032
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.0032848538393118252,
+          "ci_low": -0.0051884531717522825,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0009775155478272512,
+          "n_users": 1087,
+          "seed": 342
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.0020028607128296646,
+          "ci_low": -0.00839540681167233,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.002990479684699454,
+          "n_users": 1087,
+          "seed": 343
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.006620520375597276,
+          "ci_low": -0.002392896383888256,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.002012964136872203,
+          "n_users": 1087,
+          "seed": 344
+        }
+      },
+      "edges": [
+        194.5923611111111,
+        225.6140625,
+        254.934375
+      ],
+      "feature": "old_duration_days",
+      "feature_max": 194.5421875,
+      "feature_min": 41.0078125,
+      "pair_ndcg": {
+        "16": 0.031098889092623937,
+        "4": 0.032076404640451195,
+        "8": 0.0340893687773234
+      },
+      "quartile": 1,
+      "users": 1087,
+      "warm_users": 1012
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.009133356078433139,
+          "ci_low": 0.000761746675867873,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.004883032163290709,
+          "n_users": 1087,
+          "seed": 352
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.00864655560398077,
+          "ci_low": 0.0005675518999826089,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.004422459327821281,
+          "n_users": 1087,
+          "seed": 353
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.004247509829165769,
+          "ci_low": -0.003473117174351272,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.00046057283546942896,
+          "n_users": 1087,
+          "seed": 354
+        }
+      },
+      "edges": [
+        194.5923611111111,
+        225.6140625,
+        254.934375
+      ],
+      "feature": "old_duration_days",
+      "feature_max": 225.60179398148148,
+      "feature_min": 194.5923611111111,
+      "pair_ndcg": {
+        "16": 0.031140308703554272,
+        "4": 0.026257276540263566,
+        "8": 0.026717849375732995
+      },
+      "quartile": 2,
+      "users": 1087,
+      "warm_users": 997
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.0022072915078986672,
+          "ci_low": -0.006262674026986481,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0020254098031136413,
+          "n_users": 1087,
+          "seed": 362
+        },
+        "pair16_minus_pair8": {
+          "ci_high": -0.003126881241336287,
+          "ci_low": -0.012743179084867691,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.007647771318831775,
+          "n_users": 1087,
+          "seed": 363
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.009780723739555273,
+          "ci_low": 0.0017115884720039624,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.005622361515718134,
+          "n_users": 1087,
+          "seed": 364
+        }
+      },
+      "edges": [
+        194.5923611111111,
+        225.6140625,
+        254.934375
+      ],
+      "feature": "old_duration_days",
+      "feature_max": 254.87702546296296,
+      "feature_min": 225.6140625,
+      "pair_ndcg": {
+        "16": 0.023423209985165408,
+        "4": 0.02544861978827905,
+        "8": 0.03107098130399718
+      },
+      "quartile": 3,
+      "users": 1087,
+      "warm_users": 1002
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.0014599389025154118,
+          "ci_low": -0.005438456357913956,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0019177176301734525,
+          "n_users": 1088,
+          "seed": 372
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.0011824805871011987,
+          "ci_low": -0.009028965952674007,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.003738884599704569,
+          "n_users": 1088,
+          "seed": 373
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.0066617510462228064,
+          "ci_low": -0.0026209424917248364,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.0018211669695311166,
+          "n_users": 1088,
+          "seed": 374
+        }
+      },
+      "edges": [
+        194.5923611111111,
+        225.6140625,
+        254.934375
+      ],
+      "feature": "old_duration_days",
+      "feature_max": 289.77349537037037,
+      "feature_min": 254.934375,
+      "pair_ndcg": {
+        "16": 0.027263152471979087,
+        "4": 0.02918087010215254,
+        "8": 0.03100203707168366
+      },
+      "quartile": 4,
+      "users": 1088,
+      "warm_users": 1013
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.0034652858940258614,
+          "ci_low": -0.0035807398740626563,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -1.1902913446266703e-05,
+          "n_users": 1087,
+          "seed": 442
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.00328277452077564,
+          "ci_low": -0.006123431404322216,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0012564838770375917,
+          "n_users": 1087,
+          "seed": 443
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.005736254568501279,
+          "ci_low": -0.002793976757098638,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.0012445809635913253,
+          "n_users": 1087,
+          "seed": 444
+        }
+      },
+      "edges": [
+        9.787009914477434,
+        9.886697383228654,
+        10.005096038124226
+      ],
+      "feature": "log_train_event_count",
+      "feature_max": 9.786841370416807,
+      "feature_min": 9.704243616546224,
+      "pair_ndcg": {
+        "16": 0.027686339407643833,
+        "4": 0.0276982423210901,
+        "8": 0.028942823284681424
+      },
+      "quartile": 1,
+      "users": 1087,
+      "warm_users": 1006
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.004494161436344843,
+          "ci_low": -0.0040163029580921735,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.00018949800582842804,
+          "n_users": 1087,
+          "seed": 452
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.0009641681097497797,
+          "ci_low": -0.008999170591699005,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0038881609382831906,
+          "n_users": 1087,
+          "seed": 453
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.008372769768196398,
+          "ci_low": 0.00012837549346488984,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.004077658944111618,
+          "n_users": 1087,
+          "seed": 454
+        }
+      },
+      "edges": [
+        9.787009914477434,
+        9.886697383228654,
+        10.005096038124226
+      ],
+      "feature": "log_train_event_count",
+      "feature_max": 9.886646535340102,
+      "feature_min": 9.787009914477434,
+      "pair_ndcg": {
+        "16": 0.028553444685403773,
+        "4": 0.028363946679575352,
+        "8": 0.03244160562368697
+      },
+      "quartile": 2,
+      "users": 1087,
+      "warm_users": 1015
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.00224906991659139,
+          "ci_low": -0.005522201931668887,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0017118621130351131,
+          "n_users": 1087,
+          "seed": 462
+        },
+        "pair16_minus_pair8": {
+          "ci_high": -0.002357070883683472,
+          "ci_low": -0.012260027615367404,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.007093652730392323,
+          "n_users": 1087,
+          "seed": 463
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.009609015824979509,
+          "ci_low": 0.0013628956477188788,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.00538179061735721,
+          "n_users": 1087,
+          "seed": 464
+        }
+      },
+      "edges": [
+        9.787009914477434,
+        9.886697383228654,
+        10.005096038124226
+      ],
+      "feature": "log_train_event_count",
+      "feature_max": 10.005005695726476,
+      "feature_min": 9.886697383228654,
+      "pair_ndcg": {
+        "16": 0.025599431694572062,
+        "4": 0.027311293807607176,
+        "8": 0.03269308442496439
+      },
+      "quartile": 3,
+      "users": 1087,
+      "warm_users": 995
+    },
+    {
+      "contrasts": {
+        "pair16_minus_pair4": {
+          "ci_high": 0.006322099554872373,
+          "ci_low": -0.0031563547288978307,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.0014935179915857473,
+          "n_users": 1088,
+          "seed": 472
+        },
+        "pair16_minus_pair8": {
+          "ci_high": 0.006775027603796585,
+          "ci_low": -0.0023421140047441666,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": 0.0022780858788739506,
+          "n_users": 1088,
+          "seed": 473
+        },
+        "pair8_minus_pair4": {
+          "ci_high": 0.003990295941227303,
+          "ci_low": -0.0055668799346422024,
+          "confidence_level": 0.95,
+          "draws": 5000,
+          "mean": -0.0007845678872882038,
+          "n_users": 1088,
+          "seed": 474
+        }
+      },
+      "edges": [
+        9.787009914477434,
+        9.886697383228654,
+        10.005096038124226
+      ],
+      "feature": "log_train_event_count",
+      "feature_max": 10.216873920776164,
+      "feature_min": 10.005096038124226,
+      "pair_ndcg": {
+        "16": 0.031082830502473513,
+        "4": 0.029589312510887766,
+        "8": 0.028804744623599565
+      },
+      "quartile": 4,
+      "users": 1088,
+      "warm_users": 1008
+    }
+  ],
+  "secondary_all_feature_compression_correlations": [
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "context_oov_fraction",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.1536846315368463,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.021640762727615375,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "context_oov_fraction",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.7197280271972802,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.005475202051894961,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9449563518224449,
+      "constant_column": false,
+      "feature": "context_oov_fraction",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.9292070792920708,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.0013682004509771191,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_known_fraction",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.2298770122987701,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.017977664549633385,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9442848818566418,
+      "constant_column": false,
+      "feature": "old_known_fraction",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.9128087191280871,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.0016314610118849757,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_known_fraction",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.8582141785821418,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.002655419304229347,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_known_fraction",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.0999900009999,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.024657290137325837,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_known_fraction",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.39666033396660333,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.012867586245704157,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_known_fraction",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.5206479352064793,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.009752261011208711,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_unique_fraction",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.6635336466353364,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.006526691110819601,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_unique_fraction",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.29917008299170084,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.015578092446373062,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_unique_fraction",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.5803419658034197,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.008309172254732546,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.7057294270572942,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.005642353400792269,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.22957704229577042,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.018213826224009647,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.41185881411858816,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.012243198455550603,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_top_item_share",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.6414358564143585,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.007061717332996921,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_top_item_share",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.3050694930506949,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.015693445327333237,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_top_item_share",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.43955604439556045,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.011796452547209494,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_hhi",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.837916208379162,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.003081027898524388,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_hhi",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.23407659234076592,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.018090793810648865,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_hhi",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.47775222477752227,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.010585563906174605,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_unique_fraction",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.5157484251574842,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.009753394565347084,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_unique_fraction",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.5502449755024498,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.009112152028507644,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_unique_fraction",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.8355164483551645,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.003136428503751299,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.33056694330566944,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.01484755737525006,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.24757524247575244,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.01733094233030257,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.7871212878712128,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.004072114824846922,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_recent_item_overlap_fraction",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.7661233876612339,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.004659532311380836,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_recent_item_overlap_fraction",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.42955704429557046,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.011953793298944325,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_recent_item_overlap_fraction",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.48025197480251974,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.010514087494967746,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9318015566864366,
+      "constant_column": false,
+      "feature": "recent_old_last_quarter_item_overlap_fraction",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.8852114788521148,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.0022476945347508857,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_old_last_quarter_item_overlap_fraction",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.20707929207079293,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.01920678523222946,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_old_last_quarter_item_overlap_fraction",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.6376362363763624,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.00715185575005651,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_first_last_quarter_item_jaccard",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.47965203479652035,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.010541517301431786,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_first_last_quarter_item_jaccard",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.8445155484451555,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.0031354382998575576,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_first_last_quarter_item_jaccard",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.5014498550144986,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.01027650513081908,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.984201579842016,
+      "constant_column": false,
+      "feature": "old_region_mean_unique_fraction_16",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.9842015798420158,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.000282563428484016,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_region_mean_unique_fraction_16",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.2293770622937706,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.0181249866638717,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_region_mean_unique_fraction_16",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.24247575242475752,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.017425448298320018,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "context_duration_days",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.3163683631636836,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.015192973946590391,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "context_duration_days",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.5367463253674633,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.009502881316949147,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "context_duration_days",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.6353364663533647,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.007265825552469516,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_duration_days",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.37396260373962603,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.013456494941034337,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_duration_days",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.5816418358164184,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.008435021989766745,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_duration_days",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.6547345265473453,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.006928507480656823,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_duration_hours",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.1967803219678032,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.019603838213345774,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_duration_hours",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.5237476252374762,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.009606189268427594,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_duration_hours",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.6925307469253075,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.006078807866796138,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "context_gap_burstiness",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.5740425957404259,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.00836926929151362,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "context_gap_burstiness",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.6280371962803719,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.007299169983274996,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "context_gap_burstiness",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.795020497950205,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.00403225487787277,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "log_train_event_count",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.3765623437656234,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.013600140235770608,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "log_train_event_count",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.4193580641935806,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.01221511143525365,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "log_train_event_count",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.8127187281271873,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.0036088084150870466,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_mean_log_train_frequency",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.8515148485151485,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.0028928914503463417,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_mean_log_train_frequency",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.3802619738026197,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.013450511997584484,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "old_mean_log_train_frequency",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.14608539146085392,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.02216843712174727,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_mean_log_train_frequency",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.83991600839916,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.0030272514651218867,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_mean_log_train_frequency",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.46085391460853914,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": 0.011217481076145768,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9195151913380091,
+      "constant_column": false,
+      "feature": "recent_mean_log_train_frequency",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.24397560243975602,
+      "permutations": 10000,
+      "seed": 44,
+      "spearman_rho": -0.017688141018381846,
+      "users": 4349
+    }
+  ],
+  "secondary_five_fold_router": {
+    "conditional_fixed_prediction_ci": {
+      "ci_high": 0.0008465908374491235,
+      "ci_low": -0.0014151754971633982,
+      "confidence_level": 0.95,
+      "draws": 5000,
+      "mean": -0.0002510873688383506,
+      "n_users": 4349,
+      "seed": 44
+    },
+    "evaluation": {
+      "arm_shares": [
+        0.0,
+        0.8047827086686594,
+        0.19521729133134053
+      ],
+      "mean_matched_mixture_score": 0.03023423661546627,
+      "mean_reference_score": 0.030720123969604288,
+      "mean_selected_score": 0.030469036600765942,
+      "n_users": 4349,
+      "reference_arm_index": 1,
+      "selected_minus_matched_mixture": 0.0002347999852996689,
+      "selected_minus_reference": -0.0002510873688383506
+    },
+    "fold_user_counts": [
+      839,
+      852,
+      915,
+      843,
+      900
+    ],
+    "n_folds": 5,
+    "policies": [
+      {
+        "fold_index": 0,
+        "n_heldout_users": 839,
+        "policy": {
+          "arm_labels": [
+            4,
+            8,
+            16
+          ],
+          "feature_index": 4,
+          "feature_name": "log_train_event_count",
+          "feature_names": [
+            "old_unique_fraction",
+            "old_entropy_normalized",
+            "recent_old_item_overlap_fraction",
+            "old_duration_days",
+            "log_train_event_count"
+          ],
+          "kind": "stump",
+          "left_arm_index": 1,
+          "left_train_users": 2808,
+          "min_leaf": 200,
+          "n_candidate_splits": 20,
+          "n_candidates": 21,
+          "n_features": 5,
+          "n_train_users": 3510,
+          "quantiles": [
+            0.2,
+            0.4,
+            0.6,
+            0.8
+          ],
+          "right_arm_index": 2,
+          "right_train_users": 702,
+          "threshold": 10.030965642197382,
+          "train_utility": 0.029897205186745067
+        }
+      },
+      {
+        "fold_index": 1,
+        "n_heldout_users": 852,
+        "policy": {
+          "arm_labels": [
+            4,
+            8,
+            16
+          ],
+          "feature_index": 4,
+          "feature_name": "log_train_event_count",
+          "feature_names": [
+            "old_unique_fraction",
+            "old_entropy_normalized",
+            "recent_old_item_overlap_fraction",
+            "old_duration_days",
+            "log_train_event_count"
+          ],
+          "kind": "stump",
+          "left_arm_index": 2,
+          "left_train_users": 700,
+          "min_leaf": 200,
+          "n_candidate_splits": 20,
+          "n_candidates": 21,
+          "n_features": 5,
+          "n_train_users": 3497,
+          "quantiles": [
+            0.2,
+            0.4,
+            0.6,
+            0.8
+          ],
+          "right_arm_index": 1,
+          "right_train_users": 2797,
+          "threshold": 9.76954464249757,
+          "train_utility": 0.030311432829755028
+        }
+      },
+      {
+        "fold_index": 2,
+        "n_heldout_users": 915,
+        "policy": {
+          "arm_labels": [
+            4,
+            8,
+            16
+          ],
+          "feature_index": 4,
+          "feature_name": "log_train_event_count",
+          "feature_names": [
+            "old_unique_fraction",
+            "old_entropy_normalized",
+            "recent_old_item_overlap_fraction",
+            "old_duration_days",
+            "log_train_event_count"
+          ],
+          "kind": "stump",
+          "left_arm_index": 1,
+          "left_train_users": 2747,
+          "min_leaf": 200,
+          "n_candidate_splits": 20,
+          "n_candidates": 21,
+          "n_features": 5,
+          "n_train_users": 3434,
+          "quantiles": [
+            0.2,
+            0.4,
+            0.6,
+            0.8
+          ],
+          "right_arm_index": 2,
+          "right_train_users": 687,
+          "threshold": 10.038350539616149,
+          "train_utility": 0.031141386699982482
+        }
+      },
+      {
+        "fold_index": 3,
+        "n_heldout_users": 843,
+        "policy": {
+          "arm_labels": [
+            4,
+            8,
+            16
+          ],
+          "feature_index": 4,
+          "feature_name": "log_train_event_count",
+          "feature_names": [
+            "old_unique_fraction",
+            "old_entropy_normalized",
+            "recent_old_item_overlap_fraction",
+            "old_duration_days",
+            "log_train_event_count"
+          ],
+          "kind": "stump",
+          "left_arm_index": 1,
+          "left_train_users": 2805,
+          "min_leaf": 200,
+          "n_candidate_splits": 20,
+          "n_candidates": 21,
+          "n_features": 5,
+          "n_train_users": 3506,
+          "quantiles": [
+            0.2,
+            0.4,
+            0.6,
+            0.8
+          ],
+          "right_arm_index": 2,
+          "right_train_users": 701,
+          "threshold": 10.030252353327626,
+          "train_utility": 0.030941239917817328
+        }
+      },
+      {
+        "fold_index": 4,
+        "n_heldout_users": 900,
+        "policy": {
+          "arm_labels": [
+            4,
+            8,
+            16
+          ],
+          "feature_index": 4,
+          "feature_name": "log_train_event_count",
+          "feature_names": [
+            "old_unique_fraction",
+            "old_entropy_normalized",
+            "recent_old_item_overlap_fraction",
+            "old_duration_days",
+            "log_train_event_count"
+          ],
+          "kind": "stump",
+          "left_arm_index": 1,
+          "left_train_users": 2759,
+          "min_leaf": 200,
+          "n_candidate_splits": 20,
+          "n_candidates": 21,
+          "n_features": 5,
+          "n_train_users": 3449,
+          "quantiles": [
+            0.2,
+            0.4,
+            0.6,
+            0.8
+          ],
+          "right_arm_index": 2,
+          "right_train_users": 690,
+          "threshold": 10.032610488488011,
+          "train_utility": 0.0331943599096321
+        }
+      }
+    ],
+    "policy_class": "stump",
+    "seed": 42
+  },
+  "secondary_history_benefit_correlations": [
+    {
+      "bh_q_within_family": 0.8129187081291871,
+      "constant_column": false,
+      "feature": "old_unique_fraction",
+      "outcome": "pair4_minus_recent",
+      "outcome_nonzero_users": 107,
+      "permutation_p": 0.37936206379362064,
+      "permutations": 10000,
+      "seed": 45,
+      "spearman_rho": -0.01321094827212387,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.8000199980002,
+      "constant_column": false,
+      "feature": "old_unique_fraction",
+      "outcome": "pair8_minus_recent",
+      "outcome_nonzero_users": 128,
+      "permutation_p": 0.2666733326667333,
+      "permutations": 10000,
+      "seed": 45,
+      "spearman_rho": -0.016714186962132723,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.5699430056994301,
+      "constant_column": false,
+      "feature": "old_unique_fraction",
+      "outcome": "pair16_minus_recent",
+      "outcome_nonzero_users": 133,
+      "permutation_p": 0.15198480151984803,
+      "permutations": 10000,
+      "seed": 45,
+      "spearman_rho": -0.02160131783980829,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.43495650434956507,
+      "constant_column": false,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair4_minus_recent",
+      "outcome_nonzero_users": 107,
+      "permutation_p": 0.08699130086991301,
+      "permutations": 10000,
+      "seed": 45,
+      "spearman_rho": -0.025946584868263425,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.43495650434956507,
+      "constant_column": false,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair8_minus_recent",
+      "outcome_nonzero_users": 128,
+      "permutation_p": 0.05169483051694831,
+      "permutations": 10000,
+      "seed": 45,
+      "spearman_rho": -0.029909847959727034,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.43495650434956507,
+      "constant_column": false,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair16_minus_recent",
+      "outcome_nonzero_users": 133,
+      "permutation_p": 0.08029197080291971,
+      "permutations": 10000,
+      "seed": 45,
+      "spearman_rho": -0.02666266364830991,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.8353164683531646,
+      "constant_column": false,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair4_minus_recent",
+      "outcome_nonzero_users": 107,
+      "permutation_p": 0.8241175882411759,
+      "permutations": 10000,
+      "seed": 45,
+      "spearman_rho": 0.003318097334344472,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.8353164683531646,
+      "constant_column": false,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair8_minus_recent",
+      "outcome_nonzero_users": 128,
+      "permutation_p": 0.7583241675832417,
+      "permutations": 10000,
+      "seed": 45,
+      "spearman_rho": -0.004665708650374852,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.8353164683531646,
+      "constant_column": false,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair16_minus_recent",
+      "outcome_nonzero_users": 133,
+      "permutation_p": 0.7452254774522548,
+      "permutations": 10000,
+      "seed": 45,
+      "spearman_rho": 0.004909390753666527,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.8353164683531646,
+      "constant_column": false,
+      "feature": "old_duration_days",
+      "outcome": "pair4_minus_recent",
+      "outcome_nonzero_users": 107,
+      "permutation_p": 0.8225177482251775,
+      "permutations": 10000,
+      "seed": 45,
+      "spearman_rho": 0.003484658184796408,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.8353164683531646,
+      "constant_column": false,
+      "feature": "old_duration_days",
+      "outcome": "pair8_minus_recent",
+      "outcome_nonzero_users": 128,
+      "permutation_p": 0.5853414658534146,
+      "permutations": 10000,
+      "seed": 45,
+      "spearman_rho": 0.008249727237200903,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.8129187081291871,
+      "constant_column": false,
+      "feature": "old_duration_days",
+      "outcome": "pair16_minus_recent",
+      "outcome_nonzero_users": 133,
+      "permutation_p": 0.3324667533246675,
+      "permutations": 10000,
+      "seed": 45,
+      "spearman_rho": -0.014713518031587353,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.8353164683531646,
+      "constant_column": false,
+      "feature": "log_train_event_count",
+      "outcome": "pair4_minus_recent",
+      "outcome_nonzero_users": 107,
+      "permutation_p": 0.5108489151084892,
+      "permutations": 10000,
+      "seed": 45,
+      "spearman_rho": -0.010165311624715033,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.8353164683531646,
+      "constant_column": false,
+      "feature": "log_train_event_count",
+      "outcome": "pair8_minus_recent",
+      "outcome_nonzero_users": 128,
+      "permutation_p": 0.5344465553444655,
+      "permutations": 10000,
+      "seed": 45,
+      "spearman_rho": -0.009488843220905693,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.8353164683531646,
+      "constant_column": false,
+      "feature": "log_train_event_count",
+      "outcome": "pair16_minus_recent",
+      "outcome_nonzero_users": 133,
+      "permutation_p": 0.8353164683531646,
+      "permutations": 10000,
+      "seed": 45,
+      "spearman_rho": -0.003210961848155897,
+      "users": 4349
+    }
+  ],
+  "secondary_nonlinear_heldout_router": {
+    "arm_shares": [
+      0.0,
+      0.5849143914854235,
+      0.4150856085145766
+    ],
+    "mean_matched_mixture_score": 0.028819997044732627,
+    "mean_reference_score": 0.029655837465035438,
+    "mean_selected_score": 0.027872067971259733,
+    "n_users": 2161,
+    "policy": {
+      "arm_labels": [
+        4,
+        8,
+        16
+      ],
+      "feature_index": 0,
+      "feature_name": "old_unique_fraction",
+      "feature_names": [
+        "old_unique_fraction",
+        "old_entropy_normalized",
+        "recent_old_item_overlap_fraction",
+        "old_duration_days",
+        "log_train_event_count"
+      ],
+      "kind": "stump",
+      "left_arm_index": 2,
+      "left_train_users": 875,
+      "min_leaf": 200,
+      "n_candidate_intervals": 30,
+      "n_candidate_splits": 20,
+      "n_candidates": 51,
+      "n_features": 5,
+      "n_train_users": 2188,
+      "quantiles": [
+        0.2,
+        0.4,
+        0.6,
+        0.8
+      ],
+      "right_arm_index": 1,
+      "right_train_users": 1313,
+      "threshold": 0.18131008896557452,
+      "train_utility": 0.032455598449034756
+    },
+    "reference_arm_index": 1,
+    "selected_minus_matched_mixture": -0.0009479290734728951,
+    "selected_minus_reference": -0.0017837694937757034,
+    "vs_assignment_matched_random_mixture_ci": {
+      "ci_high": 0.000735684239074785,
+      "ci_low": -0.002692230321086881,
+      "confidence_level": 0.95,
+      "draws": 5000,
+      "mean": -0.0009479290734728951,
+      "n_users": 2161,
+      "resampling": "user_rows_with_assignment_shares_recomputed",
+      "seed": 49
+    },
+    "vs_validation_selected_fixed_ci": {
+      "ci_high": 0.0006809507552707265,
+      "ci_low": -0.004271961561399534,
+      "confidence_level": 0.95,
+      "draws": 5000,
+      "mean": -0.0017837694937757034,
+      "n_users": 2161,
+      "seed": 48
+    }
+  },
+  "secondary_quartile_dependency_tests": [
+    {
+      "bh_q_within_family": 0.9215078492150784,
+      "eta_squared": 0.00018945564204296916,
+      "feature": "old_unique_fraction",
+      "outcome": "pair16_minus_pair4",
+      "permutation_p": 0.8433156684331566,
+      "permutations": 10000,
+      "quartile_counts": [
+        1087,
+        1087,
+        1086,
+        1089
+      ],
+      "quartile_edges": [
+        0.15115349123346664,
+        0.19907692307692307,
+        0.2579076923076923
+      ],
+      "seed": 46,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9215078492150784,
+      "eta_squared": 0.00011975343676794386,
+      "feature": "old_unique_fraction",
+      "outcome": "pair16_minus_pair8",
+      "permutation_p": 0.911008899110089,
+      "permutations": 10000,
+      "quartile_counts": [
+        1087,
+        1087,
+        1086,
+        1089
+      ],
+      "quartile_edges": [
+        0.15115349123346664,
+        0.19907692307692307,
+        0.2579076923076923
+      ],
+      "seed": 46,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9215078492150784,
+      "eta_squared": 0.00016677722041883805,
+      "feature": "old_unique_fraction",
+      "outcome": "pair8_minus_pair4",
+      "permutation_p": 0.8666133386661334,
+      "permutations": 10000,
+      "quartile_counts": [
+        1087,
+        1087,
+        1086,
+        1089
+      ],
+      "quartile_edges": [
+        0.15115349123346664,
+        0.19907692307692307,
+        0.2579076923076923
+      ],
+      "seed": 46,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9215078492150784,
+      "eta_squared": 0.00029094334745679207,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair16_minus_pair4",
+      "permutation_p": 0.7423257674232576,
+      "permutations": 10000,
+      "quartile_counts": [
+        1087,
+        1087,
+        1087,
+        1088
+      ],
+      "quartile_edges": [
+        0.8890876342494892,
+        0.9153344799044203,
+        0.9339394155305748
+      ],
+      "seed": 46,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9215078492150784,
+      "eta_squared": 0.00018614553367647145,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair16_minus_pair8",
+      "permutation_p": 0.8572142785721428,
+      "permutations": 10000,
+      "quartile_counts": [
+        1087,
+        1087,
+        1087,
+        1088
+      ],
+      "quartile_edges": [
+        0.8890876342494892,
+        0.9153344799044203,
+        0.9339394155305748
+      ],
+      "seed": 46,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9215078492150784,
+      "eta_squared": 0.00011122037683482034,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair8_minus_pair4",
+      "permutation_p": 0.9215078492150784,
+      "permutations": 10000,
+      "quartile_counts": [
+        1087,
+        1087,
+        1087,
+        1088
+      ],
+      "quartile_edges": [
+        0.8890876342494892,
+        0.9153344799044203,
+        0.9339394155305748
+      ],
+      "seed": 46,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.6734326567343265,
+      "eta_squared": 0.0009021124119891281,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair16_minus_pair4",
+      "permutation_p": 0.2693730626937306,
+      "permutations": 10000,
+      "quartile_counts": [
+        1079,
+        1064,
+        1116,
+        1090
+      ],
+      "quartile_edges": [
+        0.7322834645669292,
+        0.8515625,
+        0.943089430894309
+      ],
+      "seed": 46,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9215078492150784,
+      "eta_squared": 0.00018151472656830893,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair16_minus_pair8",
+      "permutation_p": 0.8558144185581442,
+      "permutations": 10000,
+      "quartile_counts": [
+        1079,
+        1064,
+        1116,
+        1090
+      ],
+      "quartile_edges": [
+        0.7322834645669292,
+        0.8515625,
+        0.943089430894309
+      ],
+      "seed": 46,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.5387461253874612,
+      "eta_squared": 0.0012624362620985994,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair8_minus_pair4",
+      "permutation_p": 0.14378562143785623,
+      "permutations": 10000,
+      "quartile_counts": [
+        1079,
+        1064,
+        1116,
+        1090
+      ],
+      "quartile_edges": [
+        0.7322834645669292,
+        0.8515625,
+        0.943089430894309
+      ],
+      "seed": 46,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.29647035296470353,
+      "eta_squared": 0.0017346014566777654,
+      "feature": "old_duration_days",
+      "outcome": "pair16_minus_pair4",
+      "permutation_p": 0.05929407059294071,
+      "permutations": 10000,
+      "quartile_counts": [
+        1087,
+        1087,
+        1087,
+        1088
+      ],
+      "quartile_edges": [
+        194.5923611111111,
+        225.6140625,
+        254.934375
+      ],
+      "seed": 46,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.08849115088491151,
+      "eta_squared": 0.002898812968399116,
+      "feature": "old_duration_days",
+      "outcome": "pair16_minus_pair8",
+      "permutation_p": 0.0058994100589941,
+      "permutations": 10000,
+      "quartile_counts": [
+        1087,
+        1087,
+        1087,
+        1088
+      ],
+      "quartile_edges": [
+        194.5923611111111,
+        225.6140625,
+        254.934375
+      ],
+      "seed": 46,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.819346636764895,
+      "eta_squared": 0.0007037963981549592,
+      "feature": "old_duration_days",
+      "outcome": "pair8_minus_pair4",
+      "permutation_p": 0.38236176382361764,
+      "permutations": 10000,
+      "quartile_counts": [
+        1087,
+        1087,
+        1087,
+        1088
+      ],
+      "quartile_edges": [
+        194.5923611111111,
+        225.6140625,
+        254.934375
+      ],
+      "seed": 46,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.9215078492150784,
+      "eta_squared": 0.0002767690735321203,
+      "feature": "log_train_event_count",
+      "outcome": "pair16_minus_pair4",
+      "permutation_p": 0.7546245375462454,
+      "permutations": 10000,
+      "quartile_counts": [
+        1087,
+        1087,
+        1087,
+        1088
+      ],
+      "quartile_edges": [
+        9.787009914477434,
+        9.886697383228654,
+        10.005096038124226
+      ],
+      "seed": 46,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.29647035296470353,
+      "eta_squared": 0.001804259130483219,
+      "feature": "log_train_event_count",
+      "outcome": "pair16_minus_pair8",
+      "permutation_p": 0.04559544045595441,
+      "permutations": 10000,
+      "quartile_counts": [
+        1087,
+        1087,
+        1087,
+        1088
+      ],
+      "quartile_edges": [
+        9.787009914477434,
+        9.886697383228654,
+        10.005096038124226
+      ],
+      "seed": 46,
+      "users": 4349
+    },
+    {
+      "bh_q_within_family": 0.5387461253874612,
+      "eta_squared": 0.0011163500733443032,
+      "feature": "log_train_event_count",
+      "outcome": "pair8_minus_pair4",
+      "permutation_p": 0.1795820417958204,
+      "permutations": 10000,
+      "quartile_counts": [
+        1087,
+        1087,
+        1087,
+        1088
+      ],
+      "quartile_edges": [
+        9.787009914477434,
+        9.886697383228654,
+        10.005096038124226
+      ],
+      "seed": 46,
+      "users": 4349
+    }
+  ],
+  "secondary_warm_quartile_dependency_tests": [
+    {
+      "bh_q_within_family": 0.9676032396760323,
+      "eta_squared": 0.00010728498835846798,
+      "feature": "old_unique_fraction",
+      "outcome": "pair16_minus_pair4",
+      "permutation_p": 0.9351064893510649,
+      "permutations": 10000,
+      "quartile_counts": [
+        1006,
+        1005,
+        1007,
+        1006
+      ],
+      "quartile_edges": [
+        0.15066764725271703,
+        0.19795767716535434,
+        0.25511585615270993
+      ],
+      "seed": 47,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.9676032396760323,
+      "eta_squared": 6.923587381553986e-05,
+      "feature": "old_unique_fraction",
+      "outcome": "pair16_minus_pair8",
+      "permutation_p": 0.9676032396760323,
+      "permutations": 10000,
+      "quartile_counts": [
+        1006,
+        1005,
+        1007,
+        1006
+      ],
+      "quartile_edges": [
+        0.15066764725271703,
+        0.19795767716535434,
+        0.25511585615270993
+      ],
+      "seed": 47,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.9676032396760323,
+      "eta_squared": 0.00018209057901754023,
+      "feature": "old_unique_fraction",
+      "outcome": "pair8_minus_pair4",
+      "permutation_p": 0.8685131486851315,
+      "permutations": 10000,
+      "quartile_counts": [
+        1006,
+        1005,
+        1007,
+        1006
+      ],
+      "quartile_edges": [
+        0.15066764725271703,
+        0.19795767716535434,
+        0.25511585615270993
+      ],
+      "seed": 47,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.9676032396760323,
+      "eta_squared": 0.00022415447496611747,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair16_minus_pair4",
+      "permutation_p": 0.8277172282771723,
+      "permutations": 10000,
+      "quartile_counts": [
+        1006,
+        1006,
+        1006,
+        1006
+      ],
+      "quartile_edges": [
+        0.8882946697445523,
+        0.9150239004556826,
+        0.933542478783029
+      ],
+      "seed": 47,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.9676032396760323,
+      "eta_squared": 0.00016937712829968396,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair16_minus_pair8",
+      "permutation_p": 0.8806119388061194,
+      "permutations": 10000,
+      "quartile_counts": [
+        1006,
+        1006,
+        1006,
+        1006
+      ],
+      "quartile_edges": [
+        0.8882946697445523,
+        0.9150239004556826,
+        0.933542478783029
+      ],
+      "seed": 47,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.9676032396760323,
+      "eta_squared": 0.00012009202508758627,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair8_minus_pair4",
+      "permutation_p": 0.9246075392460754,
+      "permutations": 10000,
+      "quartile_counts": [
+        1006,
+        1006,
+        1006,
+        1006
+      ],
+      "quartile_edges": [
+        0.8882946697445523,
+        0.9150239004556826,
+        0.933542478783029
+      ],
+      "seed": 47,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.8309169083091691,
+      "eta_squared": 0.0008120480046817958,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair16_minus_pair4",
+      "permutation_p": 0.35236476352364765,
+      "permutations": 10000,
+      "quartile_counts": [
+        995,
+        1008,
+        1006,
+        1015
+      ],
+      "quartile_edges": [
+        0.734375,
+        0.856,
+        0.9444444444444444
+      ],
+      "seed": 47,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.9676032396760323,
+      "eta_squared": 0.0001924959218786811,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair16_minus_pair8",
+      "permutation_p": 0.8547145285471452,
+      "permutations": 10000,
+      "quartile_counts": [
+        995,
+        1008,
+        1006,
+        1015
+      ],
+      "quartile_edges": [
+        0.734375,
+        0.856,
+        0.9444444444444444
+      ],
+      "seed": 47,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.5849415058494151,
+      "eta_squared": 0.0012135792237859665,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair8_minus_pair4",
+      "permutation_p": 0.18368163183681632,
+      "permutations": 10000,
+      "quartile_counts": [
+        995,
+        1008,
+        1006,
+        1015
+      ],
+      "quartile_edges": [
+        0.734375,
+        0.856,
+        0.9444444444444444
+      ],
+      "seed": 47,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.2754724527547245,
+      "eta_squared": 0.0018744609831920992,
+      "feature": "old_duration_days",
+      "outcome": "pair16_minus_pair4",
+      "permutation_p": 0.055094490550944904,
+      "permutations": 10000,
+      "quartile_counts": [
+        1006,
+        1006,
+        1006,
+        1006
+      ],
+      "quartile_edges": [
+        194.2263454861111,
+        225.75622106481484,
+        255.01749131944445
+      ],
+      "seed": 47,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.0704929507049295,
+      "eta_squared": 0.00313274979114105,
+      "feature": "old_duration_days",
+      "outcome": "pair16_minus_pair8",
+      "permutation_p": 0.0046995300469953,
+      "permutations": 10000,
+      "quartile_counts": [
+        1006,
+        1006,
+        1006,
+        1006
+      ],
+      "quartile_edges": [
+        194.2263454861111,
+        225.75622106481484,
+        255.01749131944445
+      ],
+      "seed": 47,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.8309169083091691,
+      "eta_squared": 0.0007604012225100964,
+      "feature": "old_duration_days",
+      "outcome": "pair8_minus_pair4",
+      "permutation_p": 0.38776122387761225,
+      "permutations": 10000,
+      "quartile_counts": [
+        1006,
+        1006,
+        1006,
+        1006
+      ],
+      "quartile_edges": [
+        194.2263454861111,
+        225.75622106481484,
+        255.01749131944445
+      ],
+      "seed": 47,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.9676032396760323,
+      "eta_squared": 0.00038298673904786304,
+      "feature": "log_train_event_count",
+      "outcome": "pair16_minus_pair4",
+      "permutation_p": 0.6822317768223177,
+      "permutations": 10000,
+      "quartile_counts": [
+        1006,
+        1005,
+        1007,
+        1006
+      ],
+      "quartile_edges": [
+        9.786967778462277,
+        9.886290527707606,
+        10.00511862168341
+      ],
+      "seed": 47,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.2754724527547245,
+      "eta_squared": 0.0019482071873850224,
+      "feature": "log_train_event_count",
+      "outcome": "pair16_minus_pair8",
+      "permutation_p": 0.0466953304669533,
+      "permutations": 10000,
+      "quartile_counts": [
+        1006,
+        1005,
+        1007,
+        1006
+      ],
+      "quartile_edges": [
+        9.786967778462277,
+        9.886290527707606,
+        10.00511862168341
+      ],
+      "seed": 47,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.5849415058494151,
+      "eta_squared": 0.001172445899191121,
+      "feature": "log_train_event_count",
+      "outcome": "pair8_minus_pair4",
+      "permutation_p": 0.194980501949805,
+      "permutations": 10000,
+      "quartile_counts": [
+        1006,
+        1005,
+        1007,
+        1006
+      ],
+      "quartile_edges": [
+        9.786967778462277,
+        9.886290527707606,
+        10.00511862168341
+      ],
+      "seed": 47,
+      "users": 4024
+    }
+  ],
+  "seed": 42,
+  "source_code_sha": "89723a4369ab0e89f14415814e1ddcc1741f2505",
+  "source_files_sha256": {
+    "history-features.parquet": "f9c965f5d20c2d62ad13fdbb81b0d41b920756fb97df84b45a1a39a2c0c0b2cd",
+    "long-quality.json": "c7da82b8177ad358353347a2e925513e7b6f02a9489865e2027295efde227236",
+    "mean_m16-test-users.json": "5871bcdb2129e769b6cae357b1c3cc95d75dfa74b81e063419ce134c0f783706",
+    "mean_m4-test-users.json": "a7e0317b6b3947f7a06fb47a1cfe265f01ea6a3a672d33731712731ce93426d3",
+    "mean_m8-test-users.json": "3272f1ceed71cb95fa948ab86f7f3c3a7d3f8702b3563435716f32d8964d271c",
+    "pair_mlp_m16-test-users.json": "989120f37ef5ca1b33aff014a6a1a9cf9c89e578baff27af8722e848f1f779ad",
+    "pair_mlp_m4-test-users.json": "2f0c10800965b4f91cba1054bba69f42acbc21be92ae57a676810303b1cfb059",
+    "pair_mlp_m8-test-users.json": "eccce90ec0fb982d2dd8627de934f547f477c97507207a452e3b0cb4e9b020b0",
+    "qformer_m16-test-users.json": "3ab48dc5d313f1d923e92978b135ec23d6ad54972ea40e962ead1f97a28d5838",
+    "qformer_m4-test-users.json": "417def6a4fcdaa465ddd7578bfa8d0721e5e31b5b56de0c1341ff7762a3cfefd",
+    "qformer_m8-test-users.json": "1e46654d23e5ff124ee04838f9abd05f0cfb9ce1990cf785744b910e9ee501c6",
+    "recent128-test-users.json": "5ad9edb29cd416bb4658e2d4333c1a7bd3e4ed15e709084c09bb08662522f5c1",
+    "uniform_m16-test-users.json": "86906cb2211744e3843e098f68fba03ab935dad004de37ca85e85a86cddeaf36",
+    "uniform_m4-test-users.json": "c02dda880bfcc14b3e326b205840d8ab5686667305305f0ab04b2410cda9604e",
+    "uniform_m8-test-users.json": "726071b341b175c03001005110706d3cacc663fbdd698af43466bb8ef3d1a9ba"
+  },
+  "users": 4349,
+  "warm_sensitivity_correlations": [
+    {
+      "bh_q_within_family": 0.8111881119580349,
+      "constant_column": false,
+      "feature": "old_unique_fraction",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.6728327167283271,
+      "permutations": 10000,
+      "seed": 43,
+      "spearman_rho": -0.0067513303612345464,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.808981601839816,
+      "constant_column": false,
+      "feature": "old_unique_fraction",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.30686931306869314,
+      "permutations": 10000,
+      "seed": 43,
+      "spearman_rho": 0.016065810870212756,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.8111881119580349,
+      "constant_column": false,
+      "feature": "old_unique_fraction",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.6045395460453955,
+      "permutations": 10000,
+      "seed": 43,
+      "spearman_rho": -0.008213420337236708,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.8111881119580349,
+      "constant_column": false,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.7030296970302969,
+      "permutations": 10000,
+      "seed": 43,
+      "spearman_rho": 0.006000410885769627,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.808981601839816,
+      "constant_column": false,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.23147685231476853,
+      "permutations": 10000,
+      "seed": 43,
+      "spearman_rho": 0.0189734488890883,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.808981601839816,
+      "constant_column": false,
+      "feature": "old_entropy_normalized",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.43145685431456854,
+      "permutations": 10000,
+      "seed": 43,
+      "spearman_rho": -0.012412189339581778,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.808981601839816,
+      "constant_column": false,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.3280671932806719,
+      "permutations": 10000,
+      "seed": 43,
+      "spearman_rho": 0.01559556658841837,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.808981601839816,
+      "constant_column": false,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.24927507249275072,
+      "permutations": 10000,
+      "seed": 43,
+      "spearman_rho": 0.018170837194757896,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.8201179882011799,
+      "constant_column": false,
+      "feature": "recent_old_item_overlap_fraction",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.8101189881011899,
+      "permutations": 10000,
+      "seed": 43,
+      "spearman_rho": 0.003818347822870702,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.808981601839816,
+      "constant_column": false,
+      "feature": "old_duration_days",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.38066193380661933,
+      "permutations": 10000,
+      "seed": 43,
+      "spearman_rho": -0.0139057289066634,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.8111881119580349,
+      "constant_column": false,
+      "feature": "old_duration_days",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.5836416358364164,
+      "permutations": 10000,
+      "seed": 43,
+      "spearman_rho": -0.008681595204839949,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.8111881119580349,
+      "constant_column": false,
+      "feature": "old_duration_days",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.6452354764523548,
+      "permutations": 10000,
+      "seed": 43,
+      "spearman_rho": 0.0071567827299319625,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.808981601839816,
+      "constant_column": false,
+      "feature": "log_train_event_count",
+      "outcome": "pair16_minus_pair4",
+      "outcome_nonzero_users": 117,
+      "permutation_p": 0.37176282371762825,
+      "permutations": 10000,
+      "seed": 43,
+      "spearman_rho": 0.014152482251443443,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.808981601839816,
+      "constant_column": false,
+      "feature": "log_train_event_count",
+      "outcome": "pair16_minus_pair8",
+      "outcome_nonzero_users": 135,
+      "permutation_p": 0.4216578342165783,
+      "permutations": 10000,
+      "seed": 43,
+      "spearman_rho": 0.01264630310977116,
+      "users": 4024
+    },
+    {
+      "bh_q_within_family": 0.8201179882011799,
+      "constant_column": false,
+      "feature": "log_train_event_count",
+      "outcome": "pair8_minus_pair4",
+      "outcome_nonzero_users": 119,
+      "permutation_p": 0.8201179882011799,
+      "permutations": 10000,
+      "seed": 43,
+      "spearman_rho": -0.003652125214873857,
+      "users": 4024
+    }
+  ],
+  "warm_users": 4024
+}

@@ -1,0 +1,117 @@
+{
+  "format_version": 1,
+  "snapshot_id": "history-fuxi",
+  "source_artifact": "history-fuxi-results/metrics.json",
+  "metrics_sha256": "7e562a00af1388636e94d60802ae45bf238c196265e921bf16387c2667a7818b",
+  "metrics_bytes": 2032,
+  "metrics_preserved_byte_for_byte": true,
+  "metrics_scalar_count": 45,
+  "flat_finite_scalars_validated": true,
+  "original_run_manifest_sha256": "92f81d190faa2990837f1bec3652b89665ac3245f85f6e171348e2e43c9d5091",
+  "source_git_sha": "8a70642643d5d8d6587db20473e86faa73f4d852",
+  "source_commit_url": "https://github.com/mikhail-moro/RHPR/commit/8a70642643d5d8d6587db20473e86faa73f4d852",
+  "experiment_config_file": "experiments/yambda_history_continuation_fuxi.json",
+  "source_config_url": "https://github.com/mikhail-moro/RHPR/blob/8a70642643d5d8d6587db20473e86faa73f4d852/experiments/yambda_history_continuation_fuxi.json",
+  "manifest_config_canonical_sha256": "ac4ab26c461ded020a7f6d17ca678a1eab115487ad49a450f9126115a47dd020",
+  "manifest_config_hash_serialization": "UTF-8 json.dumps(config,sort_keys=True,separators=(comma,colon)); default ensure_ascii=True",
+  "protocol_note": "Warm-start full-history FuXi continuation for 20 additional passes, fixed final-prefix targets. Short control historical only and not retrained; not a fresh matched short/full experiment.",
+  "metric_scope_warning": "Historical and fresh/reused control fields may coexist. Do not concatenate these snapshots into a matched leaderboard; read the registered config and protocol note.",
+  "run": {
+    "started_at": "2026-10-18T22:48:33.224252+00:00",
+    "finished_at": "2026-10-19T04:18:41.792796+00:00",
+    "duration_seconds": 19808.568544,
+    "python": "3.13.15"
+  },
+  "configuration": {
+    "name": "yambda500m-history-continuation-fuxi",
+    "kind": "yambda_query_history_continuation",
+    "seed": 42,
+    "family": "fuxi",
+    "summary_budgets": [
+      0
+    ],
+    "architecture": {
+      "chunk_size": 128,
+      "positional_dim": 32,
+      "temporal_heads": 8
+    },
+    "model": {
+      "d_model": 128,
+      "dropout": 0.2,
+      "ffn_multiplier": 4,
+      "n_heads": 4,
+      "n_layers": 2,
+      "use_time_features": false
+    },
+    "compressor": {
+      "d_inner": 128,
+      "d_state": 16,
+      "dropout": 0.0,
+      "dt_max": 0.1,
+      "dt_min": 0.0001,
+      "gate_rank": 32,
+      "query_context_size": 128,
+      "query_source": "old_suffix"
+    },
+    "continuation": {
+      "additional_passes": 20,
+      "bootstrap_draws": 5000,
+      "early_stopping": false,
+      "optimizer_state": "reset",
+      "preflight_effective_updates": 2,
+      "preflight_longest_row": true,
+      "primary_metric": "endpoint20_ndcg10",
+      "rng_state": "reset_seed42_per_arm",
+      "scaler_state": "reset",
+      "schedule_epoch_offset": 60,
+      "secondary_metrics": [
+        "endpoint20_ndcg100",
+        "best_within_budget_ndcg10"
+      ],
+      "short_control": "historical_only",
+      "test_evaluations": 0,
+      "training_schedule": "matched_original_final_prefix",
+      "validation_passes": [
+        0,
+        10,
+        20
+      ]
+    }
+  },
+  "data_contract": {
+    "source_revision": "dd6f3a19eef5866e346c3270e098baa641a44948",
+    "train_end_timestamp": 24710400,
+    "validation_end_timestamp": 25315200,
+    "test_end_timestamp": 25920000,
+    "catalog_sha256": "527dd7772d84afcaf32a1886726b34884d129adb72d5702d2847a466840f8cf7",
+    "cohort_uid_length_sha256": "389eb71cc019879a91bf6a9ee9fcff7fc86ae77fdd5137544a380ffaf71c0446",
+    "cohort_train_timestamps_sha256": "2857d39b1aa90ae92f4fa6eb688a700c8102d991a3b8afc73d59bf05f0e2f3bf",
+    "cohort_mapped_train_items_sha256": "e84f8431274a185b4d1e8ff0f39427edf6f1c78a86fa92c2de375794ce3cff45"
+  },
+  "training_contract": {
+    "effective_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 1e-05,
+    "num_negatives": 512,
+    "raw_tail_size": 128,
+    "supervised_targets": 128,
+    "query_context_size": 128,
+    "max_passes": 20,
+    "min_passes": 20,
+    "validation_interval": 10,
+    "amp": true,
+    "grad_clip_norm": 1.0
+  },
+  "retained_source_files": [
+    {
+      "file": "metrics.json",
+      "sha256": "7e562a00af1388636e94d60802ae45bf238c196265e921bf16387c2667a7818b",
+      "bytes": 2032
+    },
+    {
+      "file": "final-selection.json",
+      "sha256": "d680861e58e7c7d5a7b20430c45dd075033fbcfc84d48ee2a7ef8d57ac948903",
+      "bytes": 436
+    }
+  ]
+}

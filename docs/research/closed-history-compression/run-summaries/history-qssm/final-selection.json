@@ -1,0 +1,12 @@
+{
+  "primary": "fixed20-pass endpoint in each arm",
+  "secondary": "best within0/10/20",
+  "selection_split": "validation",
+  "source_checkpoint": {
+    "best_epoch": 20,
+    "file": "checkpoints/query_ssm_m32-dt_slow.pt",
+    "sha256": "1846df9cede2affd205e20e2208ce48133c8cf9f2054e2e615a2b5c108ffd64e",
+    "size_bytes": 556741379
+  },
+  "test_evaluations": 0
+}

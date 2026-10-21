@@ -1,0 +1,55 @@
+{
+  "complete": true,
+  "model_weights_loaded": false,
+  "neural_forward_executed": false,
+  "models": {
+    "FuXi": {
+      "best_epoch": 60,
+      "trial": "rotating",
+      "rank_file": "fuxi_linear-rotating-p60-validation-anchors.json.gz",
+      "rank_file_sha256": "f514f84f835b269eb9642808b604d126a590f6deed9522980e8d86ccec924d60",
+      "anchors": 26335,
+      "users": 4384,
+      "oov_targets": 1400,
+      "every_record_rank_hr_ndcg_internally_consistent": true,
+      "manually_aggregated_metrics_match_own_trial_best_validation": true,
+      "model_name_field_present_in_rank_records": false,
+      "macro_user_metrics": {
+        "ndcg10": 0.024251656456411735,
+        "ndcg100": 0.04038277953410625
+      }
+    },
+    "QSSM_state16": {
+      "best_epoch": 60,
+      "trial": "rotating",
+      "rank_file": "query_ssm_m32-rotating-p60-validation-anchors.json.gz",
+      "rank_file_sha256": "848f2963d0ca4094893b9a37bd6d28f1d07234777245110e8e1a04837946897f",
+      "anchors": 26335,
+      "users": 4384,
+      "oov_targets": 1400,
+      "every_record_rank_hr_ndcg_internally_consistent": true,
+      "manually_aggregated_metrics_match_own_trial_best_validation": true,
+      "model_name_field_present_in_rank_records": false,
+      "macro_user_metrics": {
+        "ndcg10": 0.018300399191781162,
+        "ndcg100": 0.03361333835260419
+      }
+    },
+    "QSSM2_state128": {
+      "best_epoch": 60,
+      "trial": "fixed_lr",
+      "rank_file": "query_ssm2_m32_s128-fixed_lr-p60-validation-anchors.json.gz",
+      "rank_file_sha256": "052cee512ccd31ab2bdf98a1dfe08c2d1bbe78e0853359bc423c21cbd52c4ae0",
+      "anchors": 26335,
+      "users": 4384,
+      "oov_targets": 1400,
+      "every_record_rank_hr_ndcg_internally_consistent": true,
+      "manually_aggregated_metrics_match_own_trial_best_validation": true,
+      "model_name_field_present_in_rank_records": false,
+      "macro_user_metrics": {
+        "ndcg10": 0.017550534213842797,
+        "ndcg100": 0.0330315899699103
+      }
+    }
+  }
+}
