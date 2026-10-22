@@ -4,7 +4,7 @@
   "target_os": "linux",
   "target_machine": "x86_64",
   "torch_source": "preinstalled Kaggle torch; not bundled or modified",
-  "expected_torch_version": "2.10.0",
+  "expected_torch_version": "2.11.0",
   "installation_contract": [
     "--no-index",
     "--no-deps",

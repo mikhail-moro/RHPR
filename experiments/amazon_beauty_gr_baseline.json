@@ -4,7 +4,7 @@
   "seed": 42,
   "resources": {
     "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
-    "manifest_sha256": "2aa4baabcd429c8e13130029eb3eb9272140fd15501d192189edecd766051b6c",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
     "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
     "scratch_path": "/kaggle/temp/rhpr-gr"
   },
@@ -83,7 +83,7 @@
     "target_site": "/kaggle/temp/rhpr-gr-site",
     "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
     "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
-    "manifest_sha256": "f24539537c511c6744836d2b476fb7c65ae554640b3d3c55f660d7173e84a51a"
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
   },
   "kaggle": {
     "dataset_sources": [
