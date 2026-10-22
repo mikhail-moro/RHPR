@@ -32,7 +32,8 @@ class KaggleSubmitOnlyTests(unittest.TestCase):
             ) as download, patch.dict("os.environ", {"GITHUB_SHA": "a" * 40}):
                 execute(bundle, "owner/kernel", output, 720, submit_only=True)
 
-            run.assert_called_once_with(["kaggle", "kernels", "push", "-p", str(bundle)])
+            run.assert_called_once_with(["kaggle", "kernels", "push", "-p", str(bundle),
+                                         "--timeout", "43200"])
             status.assert_not_called()
             sleep.assert_not_called()
             download.assert_not_called()
@@ -40,6 +41,7 @@ class KaggleSubmitOnlyTests(unittest.TestCase):
             report = json.loads((output / "submission.json").read_text())
             self.assertEqual(report["status"], "submitted")
             self.assertIs(report["quality_complete"], False)
+            self.assertEqual(report["worker_timeout_seconds"], 43200)
             self.assertEqual(report["kernel_id"], "owner/kernel")
             self.assertEqual(report["kernel_version"], 17)
             self.assertEqual(report["versioned_kernel_id"], "owner/kernel/17")

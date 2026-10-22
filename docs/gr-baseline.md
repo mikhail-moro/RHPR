@@ -1,5 +1,10 @@
 # Amazon Beauty GR baseline
 
+Current status: the first hybrid run is complete. Following the user's
+2026-10-22 clarification, the priority is faithful GRID reproduction before
+further hybrid experiments. See the [reproduction target](gr-grid-reproduction.md)
+and [completed-run audit](gr-beauty-baseline-and-profile.md).
+
 Phase 0 implements the user-selected **Sentence-T5 → RK-Means → encoder-decoder**
 pipeline. It checks the infrastructure and establishes a functional reference.
 It is a TIGER-style hybrid, **not an exact reproduction of a published score**:

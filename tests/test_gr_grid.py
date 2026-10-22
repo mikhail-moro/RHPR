@@ -146,6 +146,65 @@ class GridIntegrationTests(unittest.TestCase):
                         expected *= probs[0, codes[0, level]].item()
                     self.assertAlmostEqual(scores[row, beam].item(), expected, delta=1e-6)
 
+    def test_float32_beam_adapter_preserves_upstream_results_exactly(self):
+        torch = self.torch
+        model = self.make_model().eval()
+        upstream = type(model)._beam_search_one_step
+        wrapped_ids, wrapped_scores = None, None
+        original_ids, original_scores = None, None
+        generator = torch.Generator().manual_seed(314)
+        for level in range(4):
+            rows = 2 if level == 0 else 4
+            logits = torch.randn(rows, 4, generator=generator)
+            wrapped_ids, wrapped_scores, _ = model._beam_search_one_step(
+                candidate_logits=logits.clone(), generated_ids=wrapped_ids,
+                marginal_log_prob=wrapped_scores, past_key_values=None,
+                hierarchy=level, batch_size=2,
+            )
+            original_ids, original_scores, _ = upstream(
+                model, candidate_logits=logits.clone(), generated_ids=original_ids,
+                marginal_log_prob=original_scores, past_key_values=None,
+                hierarchy=level, batch_size=2,
+            )
+            self.assertTrue(torch.equal(wrapped_ids, original_ids))
+            self.assertTrue(torch.equal(wrapped_scores, original_scores))
+
+    def test_fp16_path_probabilities_do_not_underflow_at_four_256_code_levels(self):
+        torch = self.torch
+        config = dict(self.config, codebook_size=256)
+        model = build_grid_generator(self.sids, config, seed=42, source_root=self.source).eval()
+        upstream = type(model)._beam_search_one_step
+        wrapped_ids, wrapped_scores = None, None
+        original_ids, original_scores = None, None
+        for level in range(4):
+            rows = 1 if level == 0 else config["beam_width"]
+            logits = torch.zeros(rows, 256, dtype=torch.float16)
+            wrapped_ids, wrapped_scores, _ = model._beam_search_one_step(
+                candidate_logits=logits.clone(), generated_ids=wrapped_ids,
+                marginal_log_prob=wrapped_scores, past_key_values=None,
+                hierarchy=level, batch_size=1,
+            )
+            original_ids, original_scores, _ = upstream(
+                model, candidate_logits=logits.clone(), generated_ids=original_ids,
+                marginal_log_prob=original_scores, past_key_values=None,
+                hierarchy=level, batch_size=1,
+            )
+        self.assertTrue(torch.equal(original_scores, torch.zeros_like(original_scores)))
+        self.assertEqual(wrapped_scores.dtype, torch.float32)
+        self.assertTrue(torch.equal(wrapped_scores, torch.full_like(wrapped_scores, 256.0 ** -4)))
+        self.assertEqual(model.rhpr_grid_provenance["beam_probability_dtype"], "float32")
+
+    def test_autocast_generation_keeps_beam_probabilities_in_float32(self):
+        torch = self.torch
+        model = self.make_model().eval()
+        x = torch.tensor([[0, 0, 0, 0, 1, 0, 0, 0], [1, 0, 0, 0, -1, -1, -1, -1]])
+        with torch.inference_mode(), torch.autocast("cpu", dtype=torch.bfloat16):
+            generated, scores = model.generate((x != -1).long(), x, torch.tensor([[0], [1]]))
+        self.assertEqual(tuple(generated.shape), (2, 2, 4))
+        self.assertEqual(scores.dtype, torch.float32)
+        self.assertTrue(torch.isfinite(scores).all().item())
+        self.assertTrue((scores > 0).all().item())
+
     def test_nonunique_complete_ids_are_rejected(self):
         duplicate = self.np.concatenate([self.sids, self.sids[:1]], axis=0)
         with self.assertRaisesRegex(ValueError, "uniquely identify"):

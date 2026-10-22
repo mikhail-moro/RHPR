@@ -76,6 +76,11 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == "gr_beauty_profile":
+        if output_dir is None:
+            raise ValueError("output_dir is required for gr_beauty_profile")
+        from rhpr.gr.profiling import run_gr_profile
+        return run_gr_profile(config, output_dir)
     if kind == "gr_beauty_baseline":
         if output_dir is None:
             raise ValueError("output_dir is required for gr_beauty_baseline")

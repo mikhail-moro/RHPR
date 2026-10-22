@@ -307,7 +307,10 @@ def execute(
             "runner_sha256": hashlib.sha256((bundle / "run.py").read_bytes()).hexdigest(),
         }
 
-    pushed = run(["kaggle", "kernels", "push", "-p", str(bundle)])
+    # A submit-only workflow has no polling process left to enforce its limit.
+    # Ask Kaggle to enforce the same runtime ceiling on the worker itself.
+    pushed = run(["kaggle", "kernels", "push", "-p", str(bundle),
+                  "--timeout", str(timeout_minutes * 60)])
     print(pushed.stdout, end="")
     version_match = PUSH_VERSION_PATTERN.search(pushed.stdout)
     kernel_version = int(version_match.group(1)) if version_match else None
@@ -320,6 +323,7 @@ def execute(
             "versioned_kernel_id": f"{kernel_id}/{kernel_version}" if kernel_version is not None else None,
             "status": "submitted",
             "quality_complete": False,
+            "worker_timeout_seconds": timeout_minutes * 60,
             "submitted_at_utc": datetime.now(timezone.utc).isoformat(),
         }
         (output / "submission.json").write_text(json.dumps(submission, indent=2) + "\n", encoding="utf-8")
