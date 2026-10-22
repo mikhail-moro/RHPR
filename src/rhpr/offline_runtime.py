@@ -56,6 +56,9 @@ def prepare_wheel_links(source: Path, destination: Path, manifest: dict[str, Any
 def install_offline_runtime(runtime: dict[str, Any] | None, working: Path) -> dict[str, Any] | None:
     if not runtime:
         return None
+    if runtime.get("kind") == "gr":
+        from rhpr.gr.runtime import install_gr_runtime
+        return install_gr_runtime(runtime, working)
     if "torch" in sys.modules:
         raise RuntimeError("offline runtime must be installed before importing torch")
     expected_minor = runtime["target_python_minor"]

@@ -5,8 +5,12 @@
 - The history-compression / Query SSM track was closed on 2026-10-21. Read
   `docs/research/closed-history-compression/README.md` for its final evidence.
 - Earlier experiment plans are historical and have no pending GPU launches.
-- SID for generative recommendation (GR) is the next user-selected direction;
-  its architecture and protocol still need a new task brief.
+- The active direction is item representations for SID-based generative
+  recommendation. Read `docs/gr-research-brief.md` and `docs/gr-baseline.md`.
+- Phase 0 uses pinned GRID components and an explicitly documented
+  Sentence-T5 + RK-Means hybrid; do not call this exact TIGER reproduction.
+- Do not implement a new tokenizer or assert a representation bottleneck before
+  the baseline and diagnostics support that claim.
 
 ## Working agreement
 

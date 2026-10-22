@@ -1,0 +1,548 @@
+{
+  "target_python_minor": "3.13",
+  "target_implementation": "CPython",
+  "target_os": "linux",
+  "target_machine": "x86_64",
+  "torch_source": "preinstalled Kaggle torch; not bundled or modified",
+  "expected_torch_version": "2.11.0",
+  "installation_contract": [
+    "--no-index",
+    "--no-deps",
+    "--require-hashes",
+    "--only-binary=:all:",
+    "--ignore-installed",
+    "--no-compile",
+    "--target <separate_site>"
+  ],
+  "wheel_count": 45,
+  "total_wheel_size_bytes": 150504101,
+  "requirements_file": "requirements-lock.txt",
+  "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+  "pure_python_local_builds": [
+    {
+      "package": "antlr4-python3-runtime",
+      "version": "4.9.3",
+      "reason": "upstream only sdist, pure Python wheel built using CPython3.12 pip wheel --no-deps",
+      "native_extensions": false
+    }
+  ],
+  "wheels": [
+    {
+      "filename": "aiohappyeyeballs-2.7.1-py3-none-any.whl",
+      "name": "aiohappyeyeballs",
+      "version": "2.7.1",
+      "sha256": "9243213661e29250eb41368e5daa826fc017156c3b8a11440826b2e3ed376472",
+      "size_bytes": 15038,
+      "requires_python": ">=3.10",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "aiohttp-3.14.4-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "name": "aiohttp",
+      "version": "3.14.4",
+      "sha256": "ff4b366510c733974adb7a4102c094e4a6308e6f369315a4cf14d2d0a619cf82",
+      "size_bytes": 1914740,
+      "requires_python": ">=3.10",
+      "wheel_tags": [
+        "cp313-cp313-manylinux_2_17_x86_64",
+        "cp313-cp313-manylinux2014_x86_64",
+        "cp313-cp313-manylinux_2_28_x86_64"
+      ]
+    },
+    {
+      "filename": "aiosignal-1.4.0-py3-none-any.whl",
+      "name": "aiosignal",
+      "version": "1.4.0",
+      "sha256": "053243f8b92b990551949e63930a839ff0cf0b0ebbe0597b0f3fb19e1a0fe82e",
+      "size_bytes": 7490,
+      "requires_python": ">=3.9",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "antlr4_python3_runtime-4.9.3-py3-none-any.whl",
+      "name": "antlr4-python3-runtime",
+      "version": "4.9.3",
+      "sha256": "59b96dc2843c7bc1f06efc15e4dc79d80c7eb6fc8401a6f7cd94467c2b0f3c17",
+      "size_bytes": 144590,
+      "requires_python": null,
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "attrs-26.1.0-py3-none-any.whl",
+      "name": "attrs",
+      "version": "26.1.0",
+      "sha256": "c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309",
+      "size_bytes": 67548,
+      "requires_python": ">=3.9",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "certifi-2026.7.22-py3-none-any.whl",
+      "name": "certifi",
+      "version": "2026.7.22",
+      "sha256": "62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775",
+      "size_bytes": 136983,
+      "requires_python": ">=3.7",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "charset_normalizer-3.5.2-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "name": "charset-normalizer",
+      "version": "3.5.2",
+      "sha256": "7218e8f32b0956cfcd048fd42d9d5779809745ca1d86113ca56f66e7ae1549c4",
+      "size_bytes": 254660,
+      "requires_python": ">=3.7",
+      "wheel_tags": [
+        "cp313-cp313-manylinux_2_17_x86_64",
+        "cp313-cp313-manylinux2014_x86_64",
+        "cp313-cp313-manylinux_2_28_x86_64"
+      ]
+    },
+    {
+      "filename": "filelock-3.32.3-py3-none-any.whl",
+      "name": "filelock",
+      "version": "3.32.3",
+      "sha256": "7f0ca4bcc0e181c60dbbd8aa9ab5b120ebb99e4e064e83636340056f833a1f09",
+      "size_bytes": 98901,
+      "requires_python": ">=3.10",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "frozenlist-1.8.0-cp313-cp313-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+      "name": "frozenlist",
+      "version": "1.8.0",
+      "sha256": "fb30f9626572a76dfe4293c7194a09fb1fe93ba94c7d4f720dfae3b646b45027",
+      "size_bytes": 234391,
+      "requires_python": ">=3.9",
+      "wheel_tags": [
+        "cp313-cp313-manylinux_2_5_x86_64",
+        "cp313-cp313-manylinux1_x86_64",
+        "cp313-cp313-manylinux_2_28_x86_64"
+      ]
+    },
+    {
+      "filename": "fsspec-2025.12.0-py3-none-any.whl",
+      "name": "fsspec",
+      "version": "2025.12.0",
+      "sha256": "8bf1fe301b7d8acfa6e8571e3b1c3d158f909666642431cc78a1b7b4dbc5ec5b",
+      "size_bytes": 201422,
+      "requires_python": ">=3.10",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "hf_xet-1.7.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+      "name": "hf-xet",
+      "version": "1.7.0",
+      "sha256": "2814a6e999d13464c4d679b788cc5d784eb5a4edfc638a31f10e9a11ab531ef8",
+      "size_bytes": 4212180,
+      "requires_python": ">=3.8",
+      "wheel_tags": [
+        "cp38-abi3-manylinux_2_17_x86_64",
+        "cp38-abi3-manylinux2014_x86_64"
+      ]
+    },
+    {
+      "filename": "huggingface_hub-0.36.2-py3-none-any.whl",
+      "name": "huggingface-hub",
+      "version": "0.36.2",
+      "sha256": "48f0c8eac16145dfce371e9d2d7772854a4f591bcb56c9cf548accf531d54270",
+      "size_bytes": 566395,
+      "requires_python": ">=3.8.0",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "hydra_core-1.3.2-py3-none-any.whl",
+      "name": "hydra-core",
+      "version": "1.3.2",
+      "sha256": "fa0238a9e31df3373b35b0bfb672c34cc92718d21f81311d8996a16de1141d8b",
+      "size_bytes": 154547,
+      "requires_python": null,
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "idna-3.18-py3-none-any.whl",
+      "name": "idna",
+      "version": "3.18",
+      "sha256": "7f952cbe720b688055e3f87de14f5c3e5fdaa8bc3928985c4077ca689de849a2",
+      "size_bytes": 65455,
+      "requires_python": ">=3.9",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "joblib-1.5.3-py3-none-any.whl",
+      "name": "joblib",
+      "version": "1.5.3",
+      "sha256": "5fc3c5039fc5ca8c0276333a188bbd59d6b7ab37fe6632daa76bc7f9ec18e713",
+      "size_bytes": 309071,
+      "requires_python": ">=3.9",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "lightning-2.5.0-py3-none-any.whl",
+      "name": "lightning",
+      "version": "2.5.0",
+      "sha256": "f2c3ad24c7e2ba57951d05d7e12e2c8a9fb375ebe6277c300bbade3bda3aecce",
+      "size_bytes": 815317,
+      "requires_python": ">=3.9",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "lightning_utilities-0.15.3-py3-none-any.whl",
+      "name": "lightning-utilities",
+      "version": "0.15.3",
+      "sha256": "6c55f1bee70084a1cbeaa41ada96e4b3a0fea5909e844dd335bd80f5a73c5f91",
+      "size_bytes": 31906,
+      "requires_python": ">=3.10",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "markdown_it_py-4.2.0-py3-none-any.whl",
+      "name": "markdown-it-py",
+      "version": "4.2.0",
+      "sha256": "9f7ebbcd14fe59494226453aed97c1070d83f8d24b6fc3a3bcf9a38092641c4a",
+      "size_bytes": 91687,
+      "requires_python": ">=3.10",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "mdurl-0.1.2-py3-none-any.whl",
+      "name": "mdurl",
+      "version": "0.1.2",
+      "sha256": "84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8",
+      "size_bytes": 9979,
+      "requires_python": ">=3.7",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "multidict-6.7.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "name": "multidict",
+      "version": "6.7.1",
+      "sha256": "9d624335fd4fa1c08a53f8b4be7676ebde19cd092b3895c421045ca87895b429",
+      "size_bytes": 254277,
+      "requires_python": ">=3.9",
+      "wheel_tags": [
+        "cp313-cp313-manylinux_2_17_x86_64",
+        "cp313-cp313-manylinux2014_x86_64",
+        "cp313-cp313-manylinux_2_28_x86_64"
+      ]
+    },
+    {
+      "filename": "numpy-2.3.5-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+      "name": "numpy",
+      "version": "2.3.5",
+      "sha256": "11e06aa0af8c0f05104d56450d6093ee639e15f24ecf62d417329d06e522e017",
+      "size_bytes": 16597430,
+      "requires_python": ">=3.11",
+      "wheel_tags": [
+        "cp313-cp313-manylinux_2_27_x86_64",
+        "cp313-cp313-manylinux_2_28_x86_64"
+      ]
+    },
+    {
+      "filename": "omegaconf-2.3.1-py3-none-any.whl",
+      "name": "omegaconf",
+      "version": "2.3.1",
+      "sha256": "3d701d14e9a8828f1edd28bb70b725908b34277cdd72cf7d6a83f94dadc6b6a0",
+      "size_bytes": 79502,
+      "requires_python": ">=3.6",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "packaging-24.2-py3-none-any.whl",
+      "name": "packaging",
+      "version": "24.2",
+      "sha256": "09abb1bccd265c01f4a3aa3f7a7db064b36514d2cba19a2f694fe6150451a759",
+      "size_bytes": 65451,
+      "requires_python": ">=3.8",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "pillow-12.3.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+      "name": "pillow",
+      "version": "12.3.0",
+      "sha256": "0847a763afefb695bc912d7c131e7e0632d4edc1d8698f58ddabec8e46b8b6d3",
+      "size_bytes": 6937129,
+      "requires_python": ">=3.10",
+      "wheel_tags": [
+        "cp313-cp313-manylinux_2_27_x86_64",
+        "cp313-cp313-manylinux_2_28_x86_64"
+      ]
+    },
+    {
+      "filename": "propcache-0.5.2-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "name": "propcache",
+      "version": "0.5.2",
+      "sha256": "4db0ba63d693afd40d249bd93f842b5f144f8fcbb83de05660373bcf30517b1d",
+      "size_bytes": 61534,
+      "requires_python": ">=3.10",
+      "wheel_tags": [
+        "cp313-cp313-manylinux_2_17_x86_64",
+        "cp313-cp313-manylinux2014_x86_64",
+        "cp313-cp313-manylinux_2_28_x86_64"
+      ]
+    },
+    {
+      "filename": "pyarrow-26.0.0-cp313-cp313-manylinux_2_28_x86_64.whl",
+      "name": "pyarrow",
+      "version": "26.0.0",
+      "sha256": "240bd18a7487f8767616a948a69dd4e740a8bc36a1c9da49e4dc9a32c5c2faed",
+      "size_bytes": 53926722,
+      "requires_python": ">=3.11",
+      "wheel_tags": [
+        "cp313-cp313-manylinux_2_28_x86_64"
+      ]
+    },
+    {
+      "filename": "pygments-2.21.0-py3-none-any.whl",
+      "name": "pygments",
+      "version": "2.21.0",
+      "sha256": "2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9",
+      "size_bytes": 1250147,
+      "requires_python": ">=3.9",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "python_dotenv-1.0.1-py3-none-any.whl",
+      "name": "python-dotenv",
+      "version": "1.0.1",
+      "sha256": "f7b63ef50f1b690dddf550d03497b66d609393b40b564ed0d674909a68ebf16a",
+      "size_bytes": 19863,
+      "requires_python": ">=3.8",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "pytorch_lightning-2.5.0-py3-none-any.whl",
+      "name": "pytorch-lightning",
+      "version": "2.5.0",
+      "sha256": "dc891757eb0fc7e3812d7bb8f46cc74ef844500850ce83f65c71881d44008156",
+      "size_bytes": 819365,
+      "requires_python": ">=3.9",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "pyyaml-6.0.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "name": "pyyaml",
+      "version": "6.0.3",
+      "sha256": "0f29edc409a6392443abf94b9cf89ce99889a1dd5376d94316ae5145dfedd5d6",
+      "size_bytes": 801626,
+      "requires_python": ">=3.8",
+      "wheel_tags": [
+        "cp313-cp313-manylinux_2_17_x86_64",
+        "cp313-cp313-manylinux2014_x86_64",
+        "cp313-cp313-manylinux_2_28_x86_64"
+      ]
+    },
+    {
+      "filename": "regex-2026.9.29-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "name": "regex",
+      "version": "2026.9.29",
+      "sha256": "d49c18f1ea294cf4adde2e5ac256e98c82ea9d708462ce4bf799dffa7cfe8a2c",
+      "size_bytes": 807902,
+      "requires_python": ">=3.10",
+      "wheel_tags": [
+        "cp313-cp313-manylinux_2_17_x86_64",
+        "cp313-cp313-manylinux2014_x86_64",
+        "cp313-cp313-manylinux_2_28_x86_64"
+      ]
+    },
+    {
+      "filename": "requests-2.34.2-py3-none-any.whl",
+      "name": "requests",
+      "version": "2.34.2",
+      "sha256": "2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0",
+      "size_bytes": 73075,
+      "requires_python": ">=3.10",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "rich-13.9.4-py3-none-any.whl",
+      "name": "rich",
+      "version": "13.9.4",
+      "sha256": "6049d5e6ec054bf2779ab3358186963bac2ea89175919d699e378b99738c2a90",
+      "size_bytes": 242424,
+      "requires_python": ">=3.8.0",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "name": "safetensors",
+      "version": "0.8.0",
+      "sha256": "fd6f3f93c9a0a7cc2788ee63fb763353d4bd2e89b0751bc78fcf7dda00bea774",
+      "size_bytes": 516040,
+      "requires_python": ">=3.10",
+      "wheel_tags": [
+        "cp310-abi3-manylinux_2_17_x86_64",
+        "cp310-abi3-manylinux2014_x86_64"
+      ]
+    },
+    {
+      "filename": "scikit_learn-1.8.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+      "name": "scikit-learn",
+      "version": "1.8.0",
+      "sha256": "8fdf95767f989b0cfedb85f7ed8ca215d4be728031f56ff5a519ee1e3276dc2e",
+      "size_bytes": 8900022,
+      "requires_python": ">=3.11",
+      "wheel_tags": [
+        "cp313-cp313-manylinux_2_27_x86_64",
+        "cp313-cp313-manylinux_2_28_x86_64"
+      ]
+    },
+    {
+      "filename": "scipy-1.17.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+      "name": "scipy",
+      "version": "1.17.0",
+      "sha256": "6680f2dfd4f6182e7d6db161344537da644d1cf85cf293f015c60a17ecf08752",
+      "size_bytes": 34977201,
+      "requires_python": ">=3.11",
+      "wheel_tags": [
+        "cp313-cp313-manylinux_2_27_x86_64",
+        "cp313-cp313-manylinux_2_28_x86_64"
+      ]
+    },
+    {
+      "filename": "sentence_transformers-3.3.1-py3-none-any.whl",
+      "name": "sentence-transformers",
+      "version": "3.3.1",
+      "sha256": "abffcc79dab37b7d18d21a26d5914223dd42239cfe18cb5e111c66c54b658ae7",
+      "size_bytes": 268797,
+      "requires_python": ">=3.9",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "threadpoolctl-3.6.0-py3-none-any.whl",
+      "name": "threadpoolctl",
+      "version": "3.6.0",
+      "sha256": "43a0b8fd5a2928500110039e43a5eed8480b918967083ea48dc3ab9f13c4a7fb",
+      "size_bytes": 18638,
+      "requires_python": ">=3.9",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "tokenizers-0.21.4-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "name": "tokenizers",
+      "version": "0.21.4",
+      "sha256": "51b7eabb104f46c1c50b486520555715457ae833d5aee9ff6ae853d1130506ff",
+      "size_bytes": 3115426,
+      "requires_python": ">=3.9",
+      "wheel_tags": [
+        "cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64"
+      ]
+    },
+    {
+      "filename": "torchmetrics-1.6.1-py3-none-any.whl",
+      "name": "torchmetrics",
+      "version": "1.6.1",
+      "sha256": "c3090aa2341129e994c0a659abb6d4140ae75169a6ebf45bffc16c5cb553b38e",
+      "size_bytes": 927305,
+      "requires_python": ">=3.9",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "tqdm-4.70.1-py3-none-any.whl",
+      "name": "tqdm",
+      "version": "4.70.1",
+      "sha256": "c293e525e6fef9c20e8728fd4612df02a0aa31bb5fe91ecd93e123b1b7bffa73",
+      "size_bytes": 80199,
+      "requires_python": ">=3.8",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "transformers-4.47.0-py3-none-any.whl",
+      "name": "transformers",
+      "version": "4.47.0",
+      "sha256": "a8e1bafdaae69abdda3cad638fe392e37c86d2ce0ecfcae11d60abb8f949ff4d",
+      "size_bytes": 10133426,
+      "requires_python": ">=3.9.0",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "typing_extensions-4.16.0-py3-none-any.whl",
+      "name": "typing-extensions",
+      "version": "4.16.0",
+      "sha256": "481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8",
+      "size_bytes": 45571,
+      "requires_python": ">=3.9",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "urllib3-2.8.0-py3-none-any.whl",
+      "name": "urllib3",
+      "version": "2.8.0",
+      "sha256": "0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3",
+      "size_bytes": 135717,
+      "requires_python": ">=3.10",
+      "wheel_tags": [
+        "py3-none-any"
+      ]
+    },
+    {
+      "filename": "yarl-1.25.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "name": "yarl",
+      "version": "1.25.1",
+      "sha256": "be80550d9bfe83d9b62398a37081a90434e6df2d978ec345c3d2820de6beddab",
+      "size_bytes": 117012,
+      "requires_python": ">=3.10",
+      "wheel_tags": [
+        "cp313-cp313-manylinux_2_17_x86_64",
+        "cp313-cp313-manylinux2014_x86_64",
+        "cp313-cp313-manylinux_2_28_x86_64"
+      ]
+    }
+  ]
+}

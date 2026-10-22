@@ -76,6 +76,11 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == "gr_beauty_baseline":
+        if output_dir is None:
+            raise ValueError("output_dir is required for gr_beauty_baseline")
+        from rhpr.gr.experiment import run_gr_baseline
+        return run_gr_baseline(config, output_dir)
     if kind == "synthetic":
         return _run_synthetic(config)
     if kind == "yambda_sasrec":
