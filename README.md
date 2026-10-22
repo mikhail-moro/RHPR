@@ -9,9 +9,11 @@ Start with the [research archive](docs/research/closed-history-compression/READM
 for final results, data audits, literature and limitations, or the
 [documentation index](docs/README.md) for the earlier stages.
 
-The next research direction is **SID for generative recommendation (GR)**.
-No SID/GR experiment is implemented or queued by this archive. Plans in the
-historical research notes are closed proposals; new work needs a new brief.
+The active research direction is **item representations for SID-based generative
+recommendation (GR)**. Start with the [research brief](docs/gr-research-brief.md),
+[framework audit](docs/gr-framework-audit.md), and
+[Amazon Beauty baseline](docs/gr-baseline.md). Historical compression plans
+remain closed.
 
 ## Flow
 

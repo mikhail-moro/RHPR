@@ -5,8 +5,9 @@ The [closure archive](research/closed-history-compression/README.md) contains
 the final interpretation, aggregate evidence, analysis snapshots and literature.
 Earlier plans below are historical; no experiment is queued by these documents.
 
-SID for generative recommendation (GR) is the next research direction. This
-repository does not yet specify or implement that study.
+The active SID/GR study is described in the [research brief](gr-research-brief.md),
+[framework audit](gr-framework-audit.md), and [Beauty baseline](gr-baseline.md).
+The stages below belong to the closed history-compression study.
 
 | Stage | Documents |
 | --- | --- |
