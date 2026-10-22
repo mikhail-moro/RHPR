@@ -3,6 +3,7 @@
 The generator and centroid updates are imported from upstream, not reimplemented.
 The only source patch defers a type-only TFRecord import; neither TensorFlow nor
 GRID's distributed dataloader is needed to consume our prepared arrays.
+The per-instance beam adapter keeps probability arithmetic in FP32 under AMP.
 """
 from __future__ import annotations
 
@@ -15,7 +16,7 @@ import shutil
 import sys
 import tempfile
 import time
-from types import SimpleNamespace
+from types import MethodType, SimpleNamespace
 from typing import Any, Mapping
 
 GRID_REVISION = "2fe3475b2d369580234093f35d52b1a2f54d0472"
@@ -157,6 +158,38 @@ def _positive_int(config: Mapping[str, Any], key: str, default: int) -> int:
     return value
 
 
+def _float32_beam_step(
+    model: Any,
+    candidate_logits: Any,
+    generated_ids: Any,
+    marginal_log_prob: Any,
+    past_key_values: Any,
+    hierarchy: int,
+    batch_size: int,
+) -> Any:
+    return type(model)._beam_search_one_step(
+        model,
+        candidate_logits=candidate_logits.float(),
+        generated_ids=generated_ids,
+        marginal_log_prob=(marginal_log_prob.float()
+                           if marginal_log_prob is not None else None),
+        past_key_values=past_key_values,
+        hierarchy=hierarchy,
+        batch_size=batch_size,
+    )
+
+
+def _use_float32_beam_scores(model: Any) -> None:
+    """Keep GRID's existing beam arithmetic in FP32 during autocast inference.
+
+    A four-code path with probability 1/256 at every level has probability
+    256**-4, below FP16's subnormal range. Let the transformer run under AMP,
+    but promote its logits before upstream softmax, sorting and path products.
+    This is an instance adapter, leaving the pinned source and class unchanged.
+    """
+    model._beam_search_one_step = MethodType(_float32_beam_step, model)
+
+
 def build_grid_generator(
     sids: Any,
     config: Mapping[str, Any],
@@ -230,11 +263,13 @@ def build_grid_generator(
         postprocessor=None, aggregator=None, loss_function=torch.nn.CrossEntropyLoss(),
         optimizer=None, scheduler=None, evaluator=None, weight_tying=True, compile=False,
     ).to(device)
+    _use_float32_beam_scores(model)
     model.rhpr_grid_provenance = {
         "revision": GRID_REVISION, "python_tree_sha256": GRID_PREPARED_TREE_SHA256,
         "class": "src.models.modules.semantic_id.tiger_generation_model.SemanticIDEncoderDecoder",
         "constrained_beam_search": False,
         "mlp_layers": mlp_layers, "user_hash": "integer_remainder",
+        "beam_probability_dtype": "float32",
     }
     return model
 

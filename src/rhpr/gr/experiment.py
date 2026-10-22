@@ -7,6 +7,7 @@ a TIGER-style functional baseline, not a reproduction of a published score.
 from __future__ import annotations
 
 import importlib.metadata
+from contextlib import nullcontext
 import json
 import os
 from pathlib import Path
@@ -14,7 +15,7 @@ import random
 import time
 
 from rhpr.gr.data import build_examples, file_sha256, load_beauty
-from rhpr.gr.resources import unpack_grid, verify_resources
+from rhpr.gr.resources import unpack_grid, verify_resources, verify_parent_artifacts
 
 
 def _write(path: Path, value) -> None:
@@ -25,7 +26,8 @@ def _event(phase: str, **values) -> None:
     print(json.dumps({"phase": phase, **values}, allow_nan=False), flush=True)
 
 
-def _encode_items(config: dict, resources: Path, texts: list[str], output: Path, device: str):
+def _encode_items(config: dict, resources: Path, texts: list[str], output: Path, device: str,
+                  parent_root: Path | None = None):
     import numpy as np
     from rhpr.gr.sid import validate_item_embeddings
 
@@ -47,7 +49,13 @@ def _encode_items(config: dict, resources: Path, texts: list[str], output: Path,
     elif specification["kind"] == "external_embeddings":
         # A deliberately narrow plug-in seam: every future encoder must supply
         # the same catalogue row order and a separately recorded objective.
-        source = resources / specification["path"]
+        if "parent_file" in specification:
+            name = specification["parent_file"]
+            if parent_root is None or Path(name).name != name:
+                raise ValueError("parent embeddings require verified parent artifacts")
+            source = parent_root / name
+        else:
+            source = resources / specification["path"]
         if file_sha256(source) != specification["sha256"]:
             raise ValueError("external embedding digest differs from the experiment")
         if specification["catalog_sha256"] != file_sha256(resources / "data/catalog.json"):
@@ -88,7 +96,22 @@ def _loss(model, batch):
                for level, head in enumerate(model.decoder.decoder_mlp))
 
 
-def _evaluate(model, examples, sid_index, batch_size: int, device: str):
+def _autocast(precision: str, device: str):
+    """Make numeric precision explicit; T4 has no native BF16 execution."""
+    import torch
+    if precision == "fp32":
+        return nullcontext()
+    if precision not in {"fp16", "bf16"}:
+        raise ValueError("GR precision must be fp32, fp16, or bf16")
+    kind = torch.device(device).type
+    if precision == "fp16" and kind != "cuda":
+        raise ValueError("GR fp16 mixed precision requires CUDA")
+    if precision == "bf16" and kind == "cuda" and torch.cuda.get_device_capability(device)[0] < 8:
+        raise ValueError("this GPU does not provide native BF16 support")
+    return torch.autocast(device_type=kind, dtype=torch.float16 if precision == "fp16" else torch.bfloat16)
+
+
+def _evaluate(model, examples, sid_index, batch_size: int, device: str, precision: str = "fp32"):
     import numpy as np
     import torch
     from rhpr.gr.sid import evaluate_ranked_sids
@@ -97,7 +120,7 @@ def _evaluate(model, examples, sid_index, batch_size: int, device: str):
     generated, probabilities = [], []
     started = time.monotonic()
     model.eval()
-    with torch.inference_mode():
+    with torch.inference_mode(), _autocast(precision, device):
         for start in range(0, len(targets), batch_size):
             end = start + batch_size
             batch = _model_batch(contexts[start:end], users[start:end], targets[start:end],
@@ -125,7 +148,15 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
     validation = build_examples(users, config["data"]["history_items"], "validation")
     optimizer = torch.optim.Adam(model.parameters(), lr=specification["learning_rate"],
                                  weight_decay=specification["weight_decay"])
-    amp = specification["amp"] and device.startswith("cuda")
+    precision = specification.get("precision", "fp16" if specification.get("amp", False) and device.startswith("cuda") else "fp32")
+    # Validate the requested policy before allocating optimizer state or taking
+    # an update. GradScaler is only needed for FP16, not BF16 or FP32.
+    with _autocast(precision, device):
+        pass
+    amp = precision == "fp16"
+    evaluation_precision = specification.get("evaluation_precision", "fp32")
+    with _autocast(evaluation_precision, device):
+        pass
     scaler = torch.amp.GradScaler("cuda", enabled=amp, init_scale=1024)
     curves = []
     best_metric, best_epoch, stale = -1.0, 0, 0
@@ -154,8 +185,7 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
             for position in range(0, len(chosen), physical):
                 part = chosen[position:position + physical]
                 batch = _model_batch(contexts[part], user_ids[part], targets[part], sid_index.sids, device)
-                with torch.autocast(device_type="cuda" if device.startswith("cuda") else "cpu",
-                                    dtype=torch.float16, enabled=amp):
+                with _autocast(precision, device):
                     loss = _loss(model, batch)
                 if not torch.isfinite(loss):
                     raise FloatingPointError("nonfinite GR training loss")
@@ -185,7 +215,8 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                "train_loss_sum_over_codes": total_loss / len(targets), "train_seconds": train_seconds}
         if epoch == 1 or epoch % specification["validation_interval"] == 0 or epoch == specification["max_epochs"]:
             last_validation, _, _ = _evaluate(model, validation, sid_index,
-                                             specification["evaluation_batch_size"], device)
+                                             specification["evaluation_batch_size"], device,
+                                             precision=evaluation_precision)
             row["validation"] = last_validation
             score = last_validation["ndcg@10"]
             if score > best_metric:
@@ -202,9 +233,18 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                     "scaler": scaler.state_dict(), "epoch": epoch, "updates": updates,
                     "torch_rng": torch.get_rng_state(),
                     "cuda_rng": torch.cuda.get_rng_state_all() if device.startswith("cuda") else [],
-                    "config": config}, output / "generator-last.pt")
+                    "config": config, "best_epoch": best_epoch, "best_metric": best_metric,
+                    "stale_validation_checks": stale, "amp_skipped_updates": skipped_updates},
+                   output / "generator-last.pt")
         mean_epoch_seconds = time.monotonic() - epoch_started
-        if epoch >= specification["min_epochs"] and stale >= specification["patience"]:
+        # An explicit epoch-based patience remains interpretable when changing
+        # validation cadence. Legacy configurations keep their check-based rule.
+        patience_exhausted = (
+            epoch - best_epoch >= specification["patience_epochs"]
+            if "patience_epochs" in specification else stale >= specification["patience"]
+        )
+        eligible_check = "validation" in row if "patience_epochs" in specification else True
+        if epoch >= specification["min_epochs"] and eligible_check and patience_exhausted:
             stop_reason = "early_stopping"
             break
     if not best_path.is_file():
@@ -213,6 +253,7 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
     model.load_state_dict(checkpoint["model"])
     values = {"training_epochs": len(curves), "optimizer_updates": updates,
               "amp_skipped_updates": skipped_updates,
+              "training_precision": precision, "evaluation_precision": evaluation_precision,
               "best_epoch": best_epoch, "training_seconds": time.monotonic() - started,
               "stopping_reason": stop_reason,
               "validation_ndcg10": best_metric,
@@ -248,9 +289,11 @@ def run_gr_baseline(config: dict, output: Path) -> dict:
     upstream = unpack_grid(resources / "grid-source.bin", scratch / "grid-original")
     grid_root = prepare_grid_source(upstream, scratch / "grid-runtime")
     texts, users, original_ids, counts = load_beauty(resources / "data", config["data"])
+    parent_root = verify_parent_artifacts(config["parent"]) if "parent" in config else None
     _write(output / "input-provenance.json", {"manifest": input_manifest, "counts": counts,
                                               "data": config["data"]})
-    embeddings, representation_report = _encode_items(config, resources, texts, output, device)
+    embeddings, representation_report = _encode_items(config, resources, texts, output, device,
+                                                      parent_root=parent_root)
     if device.startswith("cuda"):
         torch.cuda.empty_cache()
     codes, centroids, quantizer_report = fit_grid_rkmeans(
@@ -290,7 +333,8 @@ def run_gr_baseline(config: dict, output: Path) -> dict:
     if config["evaluation"]["test_after_selection"]:
         test_examples = build_examples(users, config["data"]["history_items"], "test")
         metrics, ids, scores = _evaluate(model, test_examples, sid_index,
-                                         config["training"]["evaluation_batch_size"], device)
+                                         config["training"]["evaluation_batch_size"], device,
+                                         precision=config["training"].get("evaluation_precision", "fp32"))
         np.savez_compressed(output / "test-predictions.npz", semantic_ids=ids, scores=scores,
                             user_ids=test_examples[1], target_item_ids=test_examples[2])
         _write(output / "test-metrics.json", metrics)

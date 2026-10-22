@@ -1,0 +1,148 @@
+{
+  "name": "amazon2014-beauty-existing-checkpoint-profile",
+  "kind": "gr_beauty_profile",
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-gr-profile"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "per-user leave-last-two; all train prefix targets exactly once per epoch; test context includes observed validation target",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "representation": {
+    "kind": "sentence_transformer",
+    "model": "sentence-transformers/sentence-t5-base",
+    "revision": "fc5d4628481afbbaaacd7af6bb07cf9d3865f781",
+    "max_length": 256,
+    "batch_size": 64
+  },
+  "quantizer": {
+    "kind": "grid_rkmeans",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "passes_per_level": 10,
+    "batch_size": 2048,
+    "init_buffer_size": 3072,
+    "normalize_residuals": true
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "batch_size": 256,
+    "physical_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 100,
+    "min_epochs": 20,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 32,
+    "max_seconds": 7200
+  },
+  "evaluation": {
+    "test_after_selection": false,
+    "item_level": true,
+    "collision_resolution": "append mandatory ordinal 0..group_size-1, fail on codebook overflow",
+    "invalid_beams": "retain as miss at original rank",
+    "selection_metric": "validation item NDCG@10"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-gr-beauty-sentence-t5-rkmeans"
+    ],
+    "model_sources": []
+  },
+  "parent": {
+    "kernel": "carasik/rhpr-gr-beauty-sentence-t5-rkmeans",
+    "source_code_sha": "2975942b9a2baa92f9b46c20a0755ff870f80165",
+    "files": {
+      "generator-best.pt": {
+        "sha256": "f405506a71ceab9f3568e739a6b258f78ee338045c7ec15d13ab44bf73a499ea",
+        "size_bytes": 19972425
+      },
+      "semantic-ids.npy": {
+        "sha256": "b196711dceedce81a991d995aa5c86ccd35288d5cdfe3f7aedb174de86470dae",
+        "size_bytes": 387360
+      },
+      "run-manifest.json": {
+        "sha256": "d0d96892758eda471d2e8584158da9b9559615629e9cde7321d05144f6eed20d",
+        "size_bytes": 3471
+      },
+      "item-embeddings.npy": {
+        "sha256": "607895c3dbe7a6a5aa6272dde55dd190e8bc40fa97532830de161d118aca5314",
+        "size_bytes": 37174400
+      }
+    }
+  },
+  "profile": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "max_seconds": 480,
+    "warmup": 2,
+    "iterations": 5,
+    "train_batch_sizes": [
+      128,
+      256,
+      512,
+      1024
+    ],
+    "evaluation_batch_sizes": [
+      32,
+      64,
+      128,
+      256
+    ],
+    "precisions": [
+      "fp32",
+      "fp16"
+    ],
+    "validation_users": 512,
+    "quantizer_widths": [
+      128
+    ],
+    "profiler": true
+  }
+}

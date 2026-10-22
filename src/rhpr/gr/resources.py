@@ -49,3 +49,45 @@ def unpack_grid(source: Path, destination: Path) -> Path:
             seen.add(path)
         archive.extractall(destination)
     return destination
+
+
+def verify_parent_artifacts(parent: dict, input_root: Path = Path("/kaggle/input")) -> Path:
+    """Resolve a private parent mount and verify bytes plus source revision.
+
+    Hashes, rather than a mutable notebook slug, determine which completed run
+    is being reused. The optional path also supports local CPU fixtures.
+    """
+    kernel = parent["kernel"]
+    parts = kernel.split("/")
+    if len(parts) != 2 or any(not value or value in {".", ".."} for value in parts):
+        raise ValueError("parent kernel must have owner/slug form")
+    owner, slug = parts
+    candidates = []
+    if parent.get("path"):
+        candidates.append(Path(parent["path"]))
+    candidates.extend([input_root / slug, input_root / owner / slug,
+                       input_root / "notebooks" / owner / slug,
+                       input_root / "kernels" / owner / slug])
+    # New Kaggle mount layouts can append the version or add a namespace.
+    if input_root.exists():
+        candidates.extend(p.parent for p in input_root.rglob("run-manifest.json")
+                          if slug in p.parts)
+    files = parent["files"]
+    if "run-manifest.json" not in files:
+        raise ValueError("parent provenance manifest must be pinned")
+    for name in files:
+        if not name or Path(name).name != name or "\\" in name:
+            raise ValueError("parent artifact names must be safe basenames")
+    for directory in candidates:
+        if not all((directory / name).is_file() for name in files):
+            continue
+        for name, expected in files.items():
+            path = directory / name
+            if (path.stat().st_size != expected["size_bytes"]
+                    or file_sha256(path) != expected["sha256"]):
+                raise ValueError(f"parent artifact differs from the registered run: {name}")
+        manifest = json.loads((directory / "run-manifest.json").read_text())
+        if manifest.get("git_sha") != parent["source_code_sha"]:
+            raise ValueError("parent source revision differs from the registered run")
+        return directory
+    raise FileNotFoundError("the registered private parent artifacts are not mounted")
