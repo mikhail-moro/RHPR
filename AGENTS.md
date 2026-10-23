@@ -8,8 +8,9 @@
 - The active direction is item representations for SID-based generative
   recommendation. Read `docs/gr-research-brief.md` and `docs/gr-baseline.md`.
 - The initial Sentence-T5 + RK-Means hybrid is complete. The current priority
-  is the paper-aligned GRID Beauty RK-Means baseline, starting with a bounded
-  runtime profile. Read `docs/gr-grid-reproduction.md`; resolve paper/YAML
+  is the GRID Beauty RK-Means baseline. The bounded profile is complete; the
+  first quality run uses user-selected FP16/batch512. Read
+  `docs/gr-grid-quality.md` and `docs/gr-grid-reproduction.md`; resolve paper/YAML
   conflicts in favor of the paper and declare source defaults for omissions.
 - Do not implement a new tokenizer or assert a representation bottleneck before
   the baseline and diagnostics support that claim.

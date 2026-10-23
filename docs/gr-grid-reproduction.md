@@ -94,3 +94,8 @@ RK-Means cost. An optional native PyTorch replacement and the unchanged SID
 boundary for future RQ-VAE/VQ-VAE experiments are documented in
 [quantizer backends](gr-quantizer-backends.md). The original profile keeps its
 upstream backend; no speedup is inferred without a new measurement.
+
+The first full quality diagnostic is now registered in
+[GRID quality run](gr-grid-quality.md). The user selected FP16 generator
+training and effective batch512 for throughput, so it records those departures
+from the FP32/batch256 reference explicitly.

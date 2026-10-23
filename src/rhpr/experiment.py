@@ -76,6 +76,11 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == "gr_grid_paper_quality":
+        if output_dir is None:
+            raise ValueError("output_dir is required for gr_grid_paper_quality")
+        from rhpr.gr.paper_experiment import run_grid_paper_quality
+        return run_grid_paper_quality(config, output_dir)
     if kind == "gr_grid_paper_profile":
         if output_dir is None:
             raise ValueError("output_dir is required for gr_grid_paper_profile")
