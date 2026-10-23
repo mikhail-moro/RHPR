@@ -286,11 +286,14 @@ def fit_grid_rkmeans(
     ``passes_per_level`` counts complete shuffled catalogue passes, unlike
     upstream's unbounded distributed step schedule. K-means++ initialization is
     a separate, explicitly counted operation. No generator gradients enter this
-    fixed tokenizer. Returned codes have no collision suffix yet.
+    fixed tokenizer. ``distance_backend`` optionally selects native PyTorch
+    assignment distances; initialization always uses the upstream distance.
+    Returned codes have no collision suffix yet.
     """
     import numpy as np
     import torch
     import torch.nn.functional as functional
+    from rhpr.gr.distances import distance_backend_report, make_grid_distance
 
     grid = load_grid(source_root)
     array = np.asarray(embeddings, dtype=np.float32)
@@ -328,9 +331,10 @@ def fit_grid_rkmeans(
             synchronize()
             stage_started = time.perf_counter()
             residual = functional.normalize(residual, dim=-1)
-            distance = grid.SquaredEuclideanDistance()
+            distance = make_grid_distance(grid, config)
             initializer = grid.KMeansPlusPlusInitInitializer(
-                n_clusters=width, distance_function=distance, initialize_on_cpu=False,
+                n_clusters=width, distance_function=grid.SquaredEuclideanDistance(),
+                initialize_on_cpu=False,
             )
             buffer_size = min(init_limit, len(array))
             model = grid.MiniBatchKMeans(
@@ -392,6 +396,7 @@ def fit_grid_rkmeans(
         "normalize_residuals": True,
         "normalization_note": "Each level normalizes its incoming residual; MSE is in that normalized space",
         "initialization": "upstream KMeansPlusPlusInitInitializer",
+        **distance_backend_report(config),
         "elapsed_seconds": time.perf_counter() - started, "levels": stage_reports,
     }
     return np.stack(all_codes, axis=1), np.stack(all_centroids, axis=0), report

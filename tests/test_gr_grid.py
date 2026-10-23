@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 from rhpr.gr.grid import (
     GRID_REVISION,
@@ -14,6 +15,7 @@ from rhpr.gr.grid import (
     load_grid,
     prepare_grid_source,
 )
+from rhpr.gr.sid import SidIndex
 
 _SOURCE = os.environ.get("RHPR_GRID_SOURCE")
 _REQUIRED = ("torch", "numpy", "transformers", "lightning", "pytorch_lightning", "torchmetrics", "pyarrow", "hydra")
@@ -230,6 +232,114 @@ class GridIntegrationTests(unittest.TestCase):
             residual -= centroids[level][nearest]
         _, scaled_centroids, _ = fit_grid_rkmeans(embeddings * 10, config, seed=73, source_root=self.source)
         np.testing.assert_allclose(centroids, scaled_centroids, atol=1e-6)
+
+    def test_torch_cdist_preserves_grid_centroid_updates_and_gradient_loss(self):
+        from rhpr.gr.distances import make_grid_distance
+
+        torch = self.torch
+        initial_centroids = torch.tensor([[-8.0, 0.0], [0.0, 8.0], [8.0, 0.0]])
+        batches = [
+            torch.tensor([[-8.5, 0.25], [-7.5, -0.25], [0.2, 7.5], [-0.2, 8.5]]),
+            torch.tensor([[-8.25, 0.5], [0.5, 8.25], [7.5, 0.2], [8.25, -0.2], [8.5, 0.5]]),
+        ]
+        expected_assignments = [torch.tensor([0, 0, 1, 1]), torch.tensor([0, 1, 2, 2, 2])]
+        models = {}
+        optimizers = {}
+        for backend in ("upstream", "torch_cdist"):
+            for manual in (True, False):
+                distance = make_grid_distance(self.grid, {"distance_backend": backend})
+                initializer = self.grid.KMeansPlusPlusInitInitializer(
+                    n_clusters=3, distance_function=self.grid.SquaredEuclideanDistance(),
+                    initialize_on_cpu=False,
+                )
+                model = self.grid.MiniBatchKMeans(
+                    n_clusters=3, n_features=2, distance_function=distance,
+                    initializer=initializer, init_buffer_size=3, update_manually=manual,
+                )
+                with torch.no_grad():
+                    model.centroids.copy_(initial_centroids)
+                model.is_initialized = True
+                models[backend, manual] = model
+                if not manual:
+                    optimizers[backend] = torch.optim.SGD((model.centroids,), lr=0.5)
+
+        for step, batch in enumerate(batches):
+            with self.subTest(step=step):
+                outputs = {}
+                for (backend, manual), model in models.items():
+                    if manual:
+                        with torch.no_grad():
+                            outputs[backend, manual] = model.model_step(batch)
+                    else:
+                        optimizer = optimizers[backend]
+                        optimizer.zero_grad()
+                        outputs[backend, manual] = model.model_step(batch)
+                        outputs[backend, manual][2].backward()
+
+                seen_points = torch.cat(batches[:step + 1])
+                seen_assignments = torch.cat(expected_assignments[:step + 1])
+                expected_counts = torch.bincount(seen_assignments, minlength=3).float()
+                expected_centroids = initial_centroids.clone()
+                for cluster in range(3):
+                    if expected_counts[cluster] > 0:
+                        expected_centroids[cluster] = seen_points[seen_assignments == cluster].mean(0)
+
+                for manual in (True, False):
+                    reference_output = outputs["upstream", manual]
+                    fast_output = outputs["torch_cdist", manual]
+                    self.assertTrue(torch.equal(fast_output[0], expected_assignments[step]))
+                    self.assertTrue(torch.equal(reference_output[0], fast_output[0]))
+                    torch.testing.assert_close(reference_output[1], fast_output[1], rtol=0, atol=0)
+                    for backend in ("upstream", "torch_cdist"):
+                        torch.testing.assert_close(models[backend, manual].cluster_counts, expected_counts)
+                    if manual:
+                        self.assertIsNone(fast_output[2])
+                        self.assertIsNone(reference_output[2])
+                    else:
+                        torch.testing.assert_close(reference_output[2], fast_output[2], rtol=0, atol=0)
+                        torch.testing.assert_close(
+                            models["upstream", False].centroids.grad,
+                            models["torch_cdist", False].centroids.grad,
+                            rtol=0, atol=0,
+                        )
+                        for optimizer in optimizers.values():
+                            optimizer.step()
+                    for backend in ("upstream", "torch_cdist"):
+                        torch.testing.assert_close(
+                            models[backend, manual].centroids, expected_centroids, rtol=1e-6, atol=1e-6,
+                        )
+
+    def test_torch_cdist_fit_keeps_upstream_initialization_and_exports_same_sids(self):
+        np = self.np
+        embeddings = np.random.default_rng(81).normal(size=(32, 8)).astype(np.float32)
+        config = {
+            "codebook_size": 8, "num_hierarchies": 2, "passes_per_level": 2,
+            "batch_size": 8, "init_buffer_size": 16,
+        }
+        codes, centroids, _ = fit_grid_rkmeans(embeddings, config, seed=73, source_root=self.source)
+        with mock.patch.object(
+            self.grid, "KMeansPlusPlusInitInitializer", wraps=self.grid.KMeansPlusPlusInitInitializer,
+        ) as initializer:
+            fast_codes, fast_centroids, report = fit_grid_rkmeans(
+                embeddings, dict(config, distance_backend="torch_cdist"),
+                seed=73, source_root=self.source,
+            )
+        self.assertEqual(initializer.call_count, config["num_hierarchies"])
+        for call in initializer.call_args_list:
+            self.assertIs(type(call.kwargs["distance_function"]), self.grid.SquaredEuclideanDistance)
+        np.testing.assert_array_equal(fast_codes, codes)
+        np.testing.assert_array_equal(fast_centroids, centroids)
+        reference_index = SidIndex(codes, width=config["codebook_size"])
+        fast_index = SidIndex(fast_codes, width=config["codebook_size"])
+        np.testing.assert_array_equal(fast_index.sids, reference_index.sids)
+        self.assertEqual(fast_index.diagnostics(), reference_index.diagnostics())
+        self.assertEqual([entry["training_points"] for entry in report["levels"]], [64, 64])
+        residual = embeddings.copy()
+        for level in range(config["num_hierarchies"]):
+            residual /= np.maximum(np.linalg.norm(residual, axis=1, keepdims=True), 1e-12)
+            nearest = ((residual[:, None, :] - fast_centroids[level][None, :, :]) ** 2).sum(axis=2).argmin(axis=1)
+            np.testing.assert_array_equal(fast_codes[:, level], nearest)
+            residual -= fast_centroids[level][nearest]
 
 
 if __name__ == "__main__":

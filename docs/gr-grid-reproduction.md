@@ -88,3 +88,9 @@ see the [paper-priority execution contract](gr-grid-paper-recipe.md). It loads
 the actual Flan-T5-XL encoder and measures a fresh aligned generator with
 explicitly labelled runtime-only SID assignments. It reports no quality score.
 The older saved-checkpoint profiler remains separate from this configuration.
+
+The completed profile identified the source distance calculation as the main
+RK-Means cost. An optional native PyTorch replacement and the unchanged SID
+boundary for future RQ-VAE/VQ-VAE experiments are documented in
+[quantizer backends](gr-quantizer-backends.md). The original profile keeps its
+upstream backend; no speedup is inferred without a new measurement.

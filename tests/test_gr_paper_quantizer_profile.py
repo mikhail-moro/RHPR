@@ -138,6 +138,32 @@ class LogicalRankQuantizerTests(unittest.TestCase):
         self.assertGreater(report["seconds_per_logical_update"], 0)
         torch.testing.assert_close(torch.get_rng_state(), rng, rtol=0, atol=0)
 
+    def test_cdist_runtime_profiles_exercise_selected_assignment_kernel(self):
+        from unittest.mock import patch
+        from rhpr.gr.distances import TorchCdistSquaredEuclideanDistance
+        from rhpr.gr.paper_profile import PaperProfileBudget, profile_quantizer
+
+        config = {"seed": 42, "quantizer": {
+            "distance_backend": "torch_cdist", "logical_ranks": 2,
+            "batch_size_per_rank": 4, "embedding_dim": 8,
+            "codebook_size": 4, "num_hierarchies": 3,
+            "init_buffer_size": 8, "steps_per_level": 1000,
+        }}
+        compute = TorchCdistSquaredEuclideanDistance.compute
+        with patch.object(TorchCdistSquaredEuclideanDistance, "compute",
+                          autospec=True, side_effect=compute) as called:
+            reports = profile_quantizer(Path(_SOURCE), config, {
+                "quantizer_iterations": 2, "warmup": 1, "quantizer_batch_sizes": [4],
+            }, PaperProfileBudget(30), "cpu")
+        self.assertEqual(len(reports), 2)
+        # The logical-rank and manual-update profiles must both use this kernel,
+        # including the two frozen residual prediction stages on every rank.
+        self.assertGreaterEqual(called.call_count, 2 * 3 * 3 + 3)
+        for report in reports:
+            self.assertEqual(report["status"], "ok")
+            self.assertEqual(report["distance_backend"], "torch_cdist")
+            self.assertEqual(report["initialization_distance_backend"], "upstream")
+
     def test_eight_rank_updates_match_actual_source_gradients_over_two_steps(self):
         torch = self.torch
         generator = torch.Generator().manual_seed(42)

@@ -133,6 +133,11 @@ gradients through fixed RK-Means. A new encoder needs its own declared objective
 Do not change the generator, quantizer, data, or metadata availability while
 attributing a gain to item representations.
 
+The quantizer-to-generator boundary is catalogue-aligned integer semantic
+codes. [Quantizer backends](gr-quantizer-backends.md) describes the optional
+native PyTorch distance implementation and the future RQ-VAE/VQ-VAE adapter
+boundary; learned-quantizer training is not yet a configuration option.
+
 Required outputs are `metrics.json`, `summary.md`, and `run-manifest.json`.
 Additional artifacts include source/input provenance, representation metadata and
 embeddings, centroids/SIDs, code usage/entropy and collisions, generator parameter
