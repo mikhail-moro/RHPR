@@ -16,6 +16,7 @@ on:
         options:
           - cpu
           - gpu
+          - tpu
       kernel_id:
         description: Optional private kernel owner/slug; defaults to repository variable
         required: false

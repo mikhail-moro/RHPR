@@ -53,6 +53,10 @@ def encode_flan_catalogue(config, texts, output, device):
 
 def train_paper_generator(model, users, sid_index, config, output, device, *,
                           max_seconds=None, evaluator=_evaluate, clock=time.monotonic):
+    if config["training"].get("schedule", "updates") == "epochs":
+        from rhpr.gr.epoch_training import train_epoch_generator
+        return train_epoch_generator(model, users, sid_index, config, output, device,
+            max_seconds=max_seconds, evaluator=evaluator, clock=clock)
     import torch
     from rhpr.gr.paper_profile import _update
     from rhpr.gr.paper_protocol import PaperBatchStream
@@ -219,24 +223,28 @@ def run_grid_paper_quality(config, output):
     timing["speedup_vs_prior_T4_proxy"] = 2.0870529487 / timing["seconds_per_logical_update"]
     _write(output / "rk-distance-profile.json", timing)
     _event("grid_distance_profile_complete", **timing)
-    embeddings, representation = encode_flan_catalogue(config, texts, output, device)
-    fit_started = time.monotonic()
+    if config.get("parent", {}).get("reuse_tokenizer"):
+        from rhpr.gr.tokenizer_reuse import reuse_tokenizer
+        index, representation, quantizer = reuse_tokenizer(config, len(users), original_ids, output)
+    else:
+        embeddings, representation = encode_flan_catalogue(config, texts, output, device)
+        fit_started = time.monotonic()
 
-    def quantizer_progress(values):
-        _event("grid_rk_fit", **values)
-        if time.monotonic() - fit_started > config["quantizer"]["max_seconds"]:
-            raise TimeoutError("GRID quantizer time budget exhausted")
+        def quantizer_progress(values):
+            _event("grid_rk_fit", **values)
+            if time.monotonic() - fit_started > config["quantizer"]["max_seconds"]:
+                raise TimeoutError("GRID quantizer time budget exhausted")
 
-    codes, centroids, quantizer = fit_paper_rkmeans(embeddings, config["quantizer"], seed=seed,
-        device=device, source_root=grid, progress=quantizer_progress)
-    index = SidIndex(codes, width=config["quantizer"]["codebook_size"])
-    np.save(output / "semantic-ids.npy", index.sids, allow_pickle=False)
-    np.save(output / "quantizer-centroids.npy", centroids, allow_pickle=False)
-    _write(output / "quantizer.json", quantizer)
-    _write(output / "sid-diagnostics.json", index.diagnostics())
-    _write(output / "sid-catalogue.json", {"original_item_ids": original_ids,
-        "row_order": "internal_item_id_0_based", "semantic_ids_sha256": file_sha256(output / "semantic-ids.npy")})
-    del embeddings
+        codes, centroids, quantizer = fit_paper_rkmeans(embeddings, config["quantizer"], seed=seed,
+            device=device, source_root=grid, progress=quantizer_progress)
+        index = SidIndex(codes, width=config["quantizer"]["codebook_size"])
+        np.save(output / "semantic-ids.npy", index.sids, allow_pickle=False)
+        np.save(output / "quantizer-centroids.npy", centroids, allow_pickle=False)
+        _write(output / "quantizer.json", quantizer)
+        _write(output / "sid-diagnostics.json", index.diagnostics())
+        _write(output / "sid-catalogue.json", {"original_item_ids": original_ids,
+            "row_order": "internal_item_id_0_based", "semantic_ids_sha256": file_sha256(output / "semantic-ids.npy")})
+        del embeddings
     _clear(device)
     model = build_grid_generator(index.sids, config["generator"], seed=seed, device=device, source_root=grid)
     parameters = sum(p.numel() for p in model.parameters())
@@ -266,4 +274,6 @@ def run_grid_paper_quality(config, output):
         "rk_proxy_speedup_vs_prior_T4": timing["speedup_vs_prior_T4_proxy"],
         "test_evaluations": 1, "elapsed_seconds": time.monotonic() - started,
         "exact_published_reproduction": False,
+        **({"epochs": selection["epochs"], "selected_epoch": selection["selected_epoch"]}
+           if "epochs" in selection else {}),
         **{"test_" + key.replace("@", ""): value for key, value in scores.items()}}

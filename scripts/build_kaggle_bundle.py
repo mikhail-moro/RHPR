@@ -70,8 +70,8 @@ def build(experiment: Path, kernel_id: str, accelerator: str, output: Path) -> P
     experiment.relative_to((ROOT / "experiments").resolve())
     if "/" not in kernel_id or kernel_id.startswith("/") or kernel_id.endswith("/"):
         raise ValueError("kernel id must have the form username/slug")
-    if accelerator not in {"cpu", "gpu"}:
-        raise ValueError("accelerator must be cpu or gpu")
+    if accelerator not in {"cpu", "gpu", "tpu"}:
+        raise ValueError("accelerator must be cpu, gpu, or tpu")
 
     config_text = experiment.read_text(encoding="utf-8")
     config = json.loads(config_text)
@@ -101,6 +101,8 @@ def build(experiment: Path, kernel_id: str, accelerator: str, output: Path) -> P
         "kernel_sources": kaggle_config.get("kernel_sources", []),
         "model_sources": kaggle_config.get("model_sources", []),
     }
+    if accelerator == "tpu":
+        metadata["enable_tpu"] = True
     metadata_path = output / "kernel-metadata.json"
     metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     return metadata_path
@@ -110,7 +112,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Create a self-contained Kaggle kernel")
     parser.add_argument("--experiment", type=Path, required=True)
     parser.add_argument("--kernel-id", required=True)
-    parser.add_argument("--accelerator", choices=("cpu", "gpu"), default="cpu")
+    parser.add_argument("--accelerator", choices=("cpu", "gpu", "tpu"), default="cpu")
     parser.add_argument("--output", type=Path, default=ROOT / "build" / "kaggle")
     args = parser.parse_args()
     print(build(args.experiment, args.kernel_id, args.accelerator, args.output))
