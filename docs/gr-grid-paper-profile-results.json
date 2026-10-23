@@ -1,0 +1,750 @@
+{
+  "artifact_sha256": {
+    "experiment.json": "3cfb2095dfaa9cfdd08eb7d2c41ad1b4f34ed8bd3b8915ce99685388756b9520",
+    "grid-paper-profile.json": "2f61109175cee7fe715bff805e03b2e51ddf0226b4d1f46d460a57f7794d832e",
+    "metrics.json": "405d6612bd71148f843d2626f13f2af4ae5a36e9b2b266c28ca88646ca11ca50",
+    "run-manifest.json": "f5aa105c57029992ef6a8e1617b4c95e6df975285c237f3e0404b132f3b400f2"
+  },
+  "encoder_cases": [
+    {
+      "batch_size": 8,
+      "estimated_catalogue_encoding_seconds": 932.7035842434999,
+      "exception_type": null,
+      "items_per_second": 13.007967949141701,
+      "peak_allocated_bytes": 5037917184,
+      "precision": "fp32",
+      "seconds_per_batch": 0.6150076654000258,
+      "status": "ok"
+    },
+    {
+      "batch_size": 16,
+      "estimated_catalogue_encoding_seconds": 949.4619377106739,
+      "exception_type": null,
+      "items_per_second": 12.777783974381519,
+      "peak_allocated_bytes": 5172155392,
+      "precision": "fp32",
+      "seconds_per_batch": 1.2521733058000337,
+      "status": "ok"
+    },
+    {
+      "batch_size": 32,
+      "estimated_catalogue_encoding_seconds": 950.7261514918732,
+      "exception_type": null,
+      "items_per_second": 12.760749411992979,
+      "peak_allocated_bytes": 5440631808,
+      "precision": "fp32",
+      "seconds_per_batch": 2.507689710600016,
+      "status": "ok"
+    },
+    {
+      "batch_size": 8,
+      "estimated_catalogue_encoding_seconds": null,
+      "exception_type": "FloatingPointError",
+      "items_per_second": null,
+      "peak_allocated_bytes": null,
+      "precision": "fp16",
+      "seconds_per_batch": null,
+      "status": "numerical_failed"
+    },
+    {
+      "batch_size": 16,
+      "estimated_catalogue_encoding_seconds": null,
+      "exception_type": "FloatingPointError",
+      "items_per_second": null,
+      "peak_allocated_bytes": null,
+      "precision": "fp16",
+      "seconds_per_batch": null,
+      "status": "numerical_failed"
+    },
+    {
+      "batch_size": 32,
+      "estimated_catalogue_encoding_seconds": null,
+      "exception_type": "FloatingPointError",
+      "items_per_second": null,
+      "peak_allocated_bytes": null,
+      "precision": "fp16",
+      "seconds_per_batch": null,
+      "status": "numerical_failed"
+    }
+  ],
+  "generation_cases": [
+    {
+      "batch_size": 32,
+      "beam_agreement_with_fp32": {
+        "ranked_beam_exact_agreement": 1.0,
+        "top10_set_overlap": 1.0,
+        "top1_exact_agreement": 1.0
+      },
+      "peak_allocated_bytes": 551668736,
+      "peak_reserved_bytes": 700448768,
+      "precision": "fp32",
+      "seconds": 0.7950641209999958,
+      "status": "ok",
+      "users": 512,
+      "users_per_second": 643.9732173501044
+    },
+    {
+      "batch_size": 64,
+      "beam_agreement_with_fp32": {
+        "ranked_beam_exact_agreement": 1.0,
+        "top10_set_overlap": 1.0,
+        "top1_exact_agreement": 1.0
+      },
+      "peak_allocated_bytes": 1032078848,
+      "peak_reserved_bytes": 1587544064,
+      "precision": "fp32",
+      "seconds": 0.7514663919999975,
+      "status": "ok",
+      "users": 512,
+      "users_per_second": 681.3345286637938
+    },
+    {
+      "batch_size": 128,
+      "beam_agreement_with_fp32": {
+        "ranked_beam_exact_agreement": 1.0,
+        "top10_set_overlap": 1.0,
+        "top1_exact_agreement": 1.0
+      },
+      "peak_allocated_bytes": 1991984128,
+      "peak_reserved_bytes": 3361734656,
+      "precision": "fp32",
+      "seconds": 0.7395968399999902,
+      "status": "ok",
+      "users": 512,
+      "users_per_second": 692.2690475529977
+    },
+    {
+      "batch_size": 256,
+      "beam_agreement_with_fp32": {
+        "ranked_beam_exact_agreement": 1.0,
+        "top10_set_overlap": 1.0,
+        "top1_exact_agreement": 1.0
+      },
+      "peak_allocated_bytes": 3910270976,
+      "peak_reserved_bytes": 6910115840,
+      "precision": "fp32",
+      "seconds": 0.7306202510000048,
+      "status": "ok",
+      "users": 512,
+      "users_per_second": 700.7744437677743
+    },
+    {
+      "batch_size": 32,
+      "beam_agreement_with_fp32": {
+        "ranked_beam_exact_agreement": 0.970703125,
+        "top10_set_overlap": 0.994921875,
+        "top1_exact_agreement": 0.990234375
+      },
+      "peak_allocated_bytes": 320282624,
+      "peak_reserved_bytes": 6910115840,
+      "precision": "fp16",
+      "seconds": 0.8135508350000009,
+      "status": "ok",
+      "users": 512,
+      "users_per_second": 629.3398985940435
+    },
+    {
+      "batch_size": 64,
+      "beam_agreement_with_fp32": {
+        "ranked_beam_exact_agreement": 0.97109375,
+        "top10_set_overlap": 0.9966796875,
+        "top1_exact_agreement": 0.994140625
+      },
+      "peak_allocated_bytes": 570760704,
+      "peak_reserved_bytes": 6910115840,
+      "precision": "fp16",
+      "seconds": 0.43544100400004027,
+      "status": "ok",
+      "users": 512,
+      "users_per_second": 1175.819445795584
+    },
+    {
+      "batch_size": 128,
+      "beam_agreement_with_fp32": {
+        "ranked_beam_exact_agreement": 0.969921875,
+        "top10_set_overlap": 0.99609375,
+        "top1_exact_agreement": 0.9921875
+      },
+      "peak_allocated_bytes": 1071665152,
+      "peak_reserved_bytes": 6910115840,
+      "precision": "fp16",
+      "seconds": 0.38905918899990866,
+      "status": "ok",
+      "users": 512,
+      "users_per_second": 1315.9951351261368
+    },
+    {
+      "batch_size": 256,
+      "beam_agreement_with_fp32": {
+        "ranked_beam_exact_agreement": 0.9685546875,
+        "top10_set_overlap": 0.99609375,
+        "top1_exact_agreement": 0.9921875
+      },
+      "peak_allocated_bytes": 2072237056,
+      "peak_reserved_bytes": 6910115840,
+      "precision": "fp16",
+      "seconds": 0.3827935650000427,
+      "status": "ok",
+      "users": 512,
+      "users_per_second": 1337.5355460845924
+    }
+  ],
+  "generator_parameters": 13128064,
+  "hardware": "Tesla T4",
+  "instrumented_training_stage_seconds": {
+    "adam_seconds": 0.010832016999984262,
+    "backward_seconds": 0.3366597770000226,
+    "cpu_author_augmentation_seconds": 0.04021772199996576,
+    "finite_gradient_guard_seconds": 0.001941426000030333,
+    "forward_loss_seconds": 0.19164013800002522,
+    "host_to_device_seconds": 0.0004026369999792223
+  },
+  "kernel": "carasik/rhpr-gr-grid-paper-profile",
+  "kernel_version": 1,
+  "notes": [
+    "Fresh generator and runtime proxies; no convergence or quality measurement.",
+    "Generation throughput on 512 validation users is extrapolated to all 22363 users.",
+    "RK estimate is an operator proxy with eight sequential logical ranks and all residual stages, not measured complete fitting or eight-GPU wall time.",
+    "FP16 generation allocator reserved memory includes preceding FP32 cache; compare allocated memory."
+  ],
+  "profile_seconds": 370.31143373500004,
+  "quality_not_evaluated": true,
+  "quantizer_cases": [
+    {
+      "batch_size_per_rank": 2048,
+      "centroid_grad_finite": true,
+      "codebook_size": 256,
+      "embedding_dim": 2048,
+      "estimate_note": "Single-device sequential logical-rank operator proxy; includes all residual prediction stages but excludes data loading, communication, per-level initialization and logging; not a measured complete RK fit",
+      "estimated_all_levels_steady_operator_seconds": 6261.158846099999,
+      "logical_ranks": 8,
+      "logical_update_seconds": [
+        2.0875888389999773,
+        2.087920395000083,
+        2.0874485849999473,
+        2.0881826999999475,
+        2.0875698500000226,
+        2.088017358000002,
+        2.0878610280000203,
+        2.087136379999947,
+        2.0886344689999987,
+        2.0868532060000007,
+        2.087928328999965,
+        2.0873520009999993,
+        2.0867985559999624,
+        2.086744758000009,
+        2.0866350260000672,
+        2.0866178640000044,
+        2.0851471609998953,
+        2.084874187000082,
+        2.0863328940000656,
+        2.0854153880000013
+      ],
+      "matches_eight_gpu_wall_time": false,
+      "matches_initialized_ddp_gradient_arithmetic": true,
+      "mode": "sequential_logical_ranks",
+      "peak_allocated_bytes": 2031160832,
+      "peak_reserved_bytes": 14365491200,
+      "points_per_update": 16384,
+      "quality_not_evaluated": true,
+      "rank0_kmeanspp_initialization_seconds": 17.514755971,
+      "residual_prediction_stages": 2,
+      "seconds_per_logical_update": 2.0870529487,
+      "status": "ok",
+      "synthetic_runtime_embeddings": true,
+      "total_assignment_stages_per_update": 3
+    },
+    {
+      "batch_size": 2048,
+      "embedding_dim": 2048,
+      "equivalent_to_8_gpu_training": false,
+      "estimated_3_levels_1000_updates_seconds": 309.4216062960685,
+      "initialization_seconds": 16.532017182000004,
+      "note": "Single-device dense-shape throughput only; not fitted Flan codes or distributed update equivalence",
+      "peak_allocated_bytes": 1659898880,
+      "peak_reserved_bytes": 3311403008,
+      "seconds_per_level_update": 0.08660851825002283,
+      "status": "ok",
+      "synthetic_runtime_embeddings": true
+    },
+    {
+      "batch_size": 16384,
+      "embedding_dim": 2048,
+      "equivalent_to_8_gpu_training": false,
+      "estimated_3_levels_1000_updates_seconds": 2112.5725049429648,
+      "initialization_seconds": 17.385799631000054,
+      "note": "Single-device dense-shape throughput only; not fitted Flan codes or distributed update equivalence",
+      "peak_allocated_bytes": 1783630848,
+      "peak_reserved_bytes": 12952010752,
+      "seconds_per_level_update": 0.6868050353499882,
+      "status": "ok",
+      "synthetic_runtime_embeddings": true
+    }
+  ],
+  "recognized_flops_per_training_update": 1639637693530,
+  "runtime_estimates": [
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 86.9230189721731,
+      "optimizer_updates": 100,
+      "physical_batch_size": 128,
+      "precision": "fp32",
+      "training_examples": 25600,
+      "training_seconds": 55.01118171999906,
+      "validation_checks": 1
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 869.230189721731,
+      "optimizer_updates": 1000,
+      "physical_batch_size": 128,
+      "precision": "fp32",
+      "training_examples": 256000,
+      "training_seconds": 550.1118171999906,
+      "validation_checks": 10
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 8692.301897217309,
+      "optimizer_updates": 10000,
+      "physical_batch_size": 128,
+      "precision": "fp32",
+      "training_examples": 2560000,
+      "training_seconds": 5501.118171999906,
+      "validation_checks": 100
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 85.87857971217379,
+      "optimizer_updates": 100,
+      "physical_batch_size": 256,
+      "precision": "fp32",
+      "training_examples": 25600,
+      "training_seconds": 53.96674245999975,
+      "validation_checks": 1
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 858.7857971217379,
+      "optimizer_updates": 1000,
+      "physical_batch_size": 256,
+      "precision": "fp32",
+      "training_examples": 256000,
+      "training_seconds": 539.6674245999975,
+      "validation_checks": 10
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 8587.857971217378,
+      "optimizer_updates": 10000,
+      "physical_batch_size": 256,
+      "precision": "fp32",
+      "training_examples": 2560000,
+      "training_seconds": 5396.674245999975,
+      "validation_checks": 100
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 90.20665811217502,
+      "optimizer_updates": 100,
+      "physical_batch_size": 64,
+      "precision": "fp32",
+      "training_examples": 25600,
+      "training_seconds": 58.29482086000098,
+      "validation_checks": 1
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 902.0665811217502,
+      "optimizer_updates": 1000,
+      "physical_batch_size": 64,
+      "precision": "fp32",
+      "training_examples": 256000,
+      "training_seconds": 582.9482086000098,
+      "validation_checks": 10
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 9020.665811217503,
+      "optimizer_updates": 10000,
+      "physical_batch_size": 64,
+      "precision": "fp32",
+      "training_examples": 2560000,
+      "training_seconds": 5829.482086000098,
+      "validation_checks": 100
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 96.87752815217497,
+      "optimizer_updates": 100,
+      "physical_batch_size": 32,
+      "precision": "fp32",
+      "training_examples": 25600,
+      "training_seconds": 64.96569090000094,
+      "validation_checks": 1
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 968.7752815217498,
+      "optimizer_updates": 1000,
+      "physical_batch_size": 32,
+      "precision": "fp32",
+      "training_examples": 256000,
+      "training_seconds": 649.6569090000094,
+      "validation_checks": 10
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 9687.752815217496,
+      "optimizer_updates": 10000,
+      "physical_batch_size": 32,
+      "precision": "fp32",
+      "training_examples": 2560000,
+      "training_seconds": 6496.569090000094,
+      "validation_checks": 100
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 58.49459141217555,
+      "optimizer_updates": 100,
+      "physical_batch_size": 128,
+      "precision": "fp16",
+      "training_examples": 25600,
+      "training_seconds": 26.582754160001514,
+      "validation_checks": 1
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 584.9459141217555,
+      "optimizer_updates": 1000,
+      "physical_batch_size": 128,
+      "precision": "fp16",
+      "training_examples": 256000,
+      "training_seconds": 265.82754160001514,
+      "validation_checks": 10
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 5849.459141217555,
+      "optimizer_updates": 10000,
+      "physical_batch_size": 128,
+      "precision": "fp16",
+      "training_examples": 2560000,
+      "training_seconds": 2658.2754160001514,
+      "validation_checks": 100
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 56.95478117216969,
+      "optimizer_updates": 100,
+      "physical_batch_size": 256,
+      "precision": "fp16",
+      "training_examples": 25600,
+      "training_seconds": 25.042943919995654,
+      "validation_checks": 1
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 569.5478117216969,
+      "optimizer_updates": 1000,
+      "physical_batch_size": 256,
+      "precision": "fp16",
+      "training_examples": 256000,
+      "training_seconds": 250.42943919995653,
+      "validation_checks": 10
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 5695.478117216969,
+      "optimizer_updates": 10000,
+      "physical_batch_size": 256,
+      "precision": "fp16",
+      "training_examples": 2560000,
+      "training_seconds": 2504.294391999565,
+      "validation_checks": 100
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 63.89485403217411,
+      "optimizer_updates": 100,
+      "physical_batch_size": 64,
+      "precision": "fp16",
+      "training_examples": 25600,
+      "training_seconds": 31.983016780000074,
+      "validation_checks": 1
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 638.9485403217411,
+      "optimizer_updates": 1000,
+      "physical_batch_size": 64,
+      "precision": "fp16",
+      "training_examples": 256000,
+      "training_seconds": 319.8301678000007,
+      "validation_checks": 10
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 6389.485403217411,
+      "optimizer_updates": 10000,
+      "physical_batch_size": 64,
+      "precision": "fp16",
+      "training_examples": 2560000,
+      "training_seconds": 3198.301678000007,
+      "validation_checks": 100
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 81.14529853217225,
+      "optimizer_updates": 100,
+      "physical_batch_size": 32,
+      "precision": "fp16",
+      "training_examples": 25600,
+      "training_seconds": 49.23346127999821,
+      "validation_checks": 1
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 811.4529853217225,
+      "optimizer_updates": 1000,
+      "physical_batch_size": 32,
+      "precision": "fp16",
+      "training_examples": 256000,
+      "training_seconds": 492.3346127999821,
+      "validation_checks": 10
+    },
+    {
+      "estimate_note": "Measured short fresh-model throughput; excludes setup/encoding/RK/test and does not predict convergence",
+      "estimated_full_validation_seconds": 31.91183725217404,
+      "estimated_train_plus_validation_seconds": 8114.529853217225,
+      "optimizer_updates": 10000,
+      "physical_batch_size": 32,
+      "precision": "fp16",
+      "training_examples": 2560000,
+      "training_seconds": 4923.346127999821,
+      "validation_checks": 100
+    }
+  ],
+  "source_code_sha": "b390cf6cf095286ca645b56c974c2cc41b912f22",
+  "synthetic_runtime_sids": true,
+  "test_evaluations": 0,
+  "torch": "2.11.0+cu128",
+  "training_cases": [
+    {
+      "effective_batch_size": 256,
+      "examples_per_second": 465.3599359181415,
+      "measured_updates_applied": 5,
+      "measured_updates_attempted": 5,
+      "mode": "full_pipeline",
+      "peak_allocated_bytes": 2722065920,
+      "physical_batch_size": 128,
+      "precision": "fp32",
+      "seconds_per_update": 0.5501118171999906,
+      "status": "ok"
+    },
+    {
+      "effective_batch_size": 256,
+      "examples_per_second": 466.0939329422759,
+      "measured_updates_applied": 5,
+      "measured_updates_attempted": 5,
+      "mode": "gpu_resident",
+      "peak_allocated_bytes": 2726931968,
+      "physical_batch_size": 128,
+      "precision": "fp32",
+      "seconds_per_update": 0.5492455101999895,
+      "status": "ok"
+    },
+    {
+      "effective_batch_size": 256,
+      "examples_per_second": 474.3662269216039,
+      "measured_updates_applied": 5,
+      "measured_updates_attempted": 5,
+      "mode": "full_pipeline",
+      "peak_allocated_bytes": 5144185344,
+      "physical_batch_size": 256,
+      "precision": "fp32",
+      "seconds_per_update": 0.5396674245999975,
+      "status": "ok"
+    },
+    {
+      "effective_batch_size": 256,
+      "examples_per_second": 474.05176115998177,
+      "measured_updates_applied": 5,
+      "measured_updates_attempted": 5,
+      "mode": "gpu_resident",
+      "peak_allocated_bytes": 5145408000,
+      "physical_batch_size": 256,
+      "precision": "fp32",
+      "seconds_per_update": 0.5400254169999925,
+      "status": "ok"
+    },
+    {
+      "effective_batch_size": 256,
+      "examples_per_second": 439.1470738280534,
+      "measured_updates_applied": 5,
+      "measured_updates_attempted": 5,
+      "mode": "full_pipeline",
+      "peak_allocated_bytes": 1489625088,
+      "physical_batch_size": 64,
+      "precision": "fp32",
+      "seconds_per_update": 0.5829482086000098,
+      "status": "ok"
+    },
+    {
+      "effective_batch_size": 256,
+      "examples_per_second": 442.48286749895345,
+      "measured_updates_applied": 5,
+      "measured_updates_attempted": 5,
+      "mode": "gpu_resident",
+      "peak_allocated_bytes": 1488984576,
+      "physical_batch_size": 64,
+      "precision": "fp32",
+      "seconds_per_update": 0.5785534735999818,
+      "status": "ok"
+    },
+    {
+      "effective_batch_size": 256,
+      "examples_per_second": 394.05414835663095,
+      "measured_updates_applied": 5,
+      "measured_updates_attempted": 5,
+      "mode": "full_pipeline",
+      "peak_allocated_bytes": 855095296,
+      "physical_batch_size": 32,
+      "precision": "fp32",
+      "seconds_per_update": 0.6496569090000094,
+      "status": "ok"
+    },
+    {
+      "effective_batch_size": 256,
+      "examples_per_second": 397.0251641428825,
+      "measured_updates_applied": 5,
+      "measured_updates_attempted": 5,
+      "mode": "gpu_resident",
+      "peak_allocated_bytes": 852569088,
+      "physical_batch_size": 32,
+      "precision": "fp32",
+      "seconds_per_update": 0.6447954011999855,
+      "status": "ok"
+    },
+    {
+      "effective_batch_size": 256,
+      "examples_per_second": 963.0303860131903,
+      "measured_updates_applied": 5,
+      "measured_updates_attempted": 5,
+      "mode": "full_pipeline",
+      "peak_allocated_bytes": 1920728064,
+      "physical_batch_size": 128,
+      "precision": "fp16",
+      "seconds_per_update": 0.26582754160001515,
+      "status": "ok"
+    },
+    {
+      "effective_batch_size": 256,
+      "examples_per_second": 990.9698307721129,
+      "measured_updates_applied": 5,
+      "measured_updates_attempted": 5,
+      "mode": "gpu_resident",
+      "peak_allocated_bytes": 1921100800,
+      "physical_batch_size": 128,
+      "precision": "fp16",
+      "seconds_per_update": 0.2583327887999758,
+      "status": "ok"
+    },
+    {
+      "effective_batch_size": 256,
+      "examples_per_second": 1022.2440333606131,
+      "measured_updates_applied": 5,
+      "measured_updates_attempted": 5,
+      "mode": "full_pipeline",
+      "peak_allocated_bytes": 3530286080,
+      "physical_batch_size": 256,
+      "precision": "fp16",
+      "seconds_per_update": 0.2504294391999565,
+      "status": "ok"
+    },
+    {
+      "effective_batch_size": 256,
+      "examples_per_second": 1062.4989375530652,
+      "measured_updates_applied": 5,
+      "measured_updates_attempted": 5,
+      "mode": "gpu_resident",
+      "peak_allocated_bytes": 3529784320,
+      "physical_batch_size": 256,
+      "precision": "fp16",
+      "seconds_per_update": 0.24094141739997213,
+      "status": "ok"
+    },
+    {
+      "effective_batch_size": 256,
+      "examples_per_second": 800.4248059554044,
+      "measured_updates_applied": 5,
+      "measured_updates_attempted": 5,
+      "mode": "full_pipeline",
+      "peak_allocated_bytes": 1092546560,
+      "physical_batch_size": 64,
+      "precision": "fp16",
+      "seconds_per_update": 0.31983016780000073,
+      "status": "ok"
+    },
+    {
+      "effective_batch_size": 256,
+      "examples_per_second": 843.317177629447,
+      "measured_updates_applied": 5,
+      "measured_updates_attempted": 5,
+      "mode": "gpu_resident",
+      "peak_allocated_bytes": 1092832256,
+      "physical_batch_size": 64,
+      "precision": "fp16",
+      "seconds_per_update": 0.30356312760000037,
+      "status": "ok"
+    },
+    {
+      "effective_batch_size": 256,
+      "examples_per_second": 519.9715667848111,
+      "measured_updates_applied": 5,
+      "measured_updates_attempted": 5,
+      "mode": "full_pipeline",
+      "peak_allocated_bytes": 677446656,
+      "physical_batch_size": 32,
+      "precision": "fp16",
+      "seconds_per_update": 0.4923346127999821,
+      "status": "ok"
+    },
+    {
+      "effective_batch_size": 256,
+      "examples_per_second": 527.3146580834997,
+      "measured_updates_applied": 5,
+      "measured_updates_attempted": 5,
+      "mode": "gpu_resident",
+      "peak_allocated_bytes": 682910208,
+      "physical_batch_size": 32,
+      "precision": "fp16",
+      "seconds_per_update": 0.485478634199967,
+      "status": "ok"
+    }
+  ],
+  "workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/39912619214"
+}

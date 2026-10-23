@@ -7,8 +7,10 @@
 - Earlier experiment plans are historical and have no pending GPU launches.
 - The active direction is item representations for SID-based generative
   recommendation. Read `docs/gr-research-brief.md` and `docs/gr-baseline.md`.
-- Phase 0 uses pinned GRID components and an explicitly documented
-  Sentence-T5 + RK-Means hybrid; do not call this exact TIGER reproduction.
+- The initial Sentence-T5 + RK-Means hybrid is complete. The current priority
+  is the paper-aligned GRID Beauty RK-Means baseline, starting with a bounded
+  runtime profile. Read `docs/gr-grid-reproduction.md`; resolve paper/YAML
+  conflicts in favor of the paper and declare source defaults for omissions.
 - Do not implement a new tokenizer or assert a representation bottleneck before
   the baseline and diagnostics support that claim.
 
