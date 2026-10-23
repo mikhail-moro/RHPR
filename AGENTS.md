@@ -11,8 +11,10 @@
   are complete. The current baseline uses the pinned GenPAS TIGER model with
   ordinary TIGER/GRID windows, finite source-user epochs and validation every
   ten epochs. Do not enable GenPAS weighted augmentation in this baseline.
-  Read `docs/gr-genpas-tiger-epochs.md`. Author input staging and hardware
-  verification remain pending; the earlier GRID TPU probe is separate. Preserve
+  Read `docs/gr-genpas-tiger-epochs.md` and `docs/gr-genpas-tpu.md`. The user
+  authorized TPU execution, fresh Flan-T5-XXL embeddings and a new RK tokenizer
+  on2026-10-23. Input staging and actual-device verification are in progress;
+  the earlier GRID TPU probe was cancelled. Preserve
   the released GenPAS model/config defaults and declare protocol departures.
   Historical GRID evidence is in `docs/gr-grid-epochs-tpu.md`,
   `docs/gr-grid-quality.md` and `docs/gr-grid-reproduction.md`; their paper-priority

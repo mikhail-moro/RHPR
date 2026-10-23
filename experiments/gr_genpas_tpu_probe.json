@@ -1,0 +1,19 @@
+{
+  "name": "genpas-tiger-native-tpu-probe",
+  "kind": "gr_genpas_tpu",
+  "seed": 42,
+  "mode": "probe",
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-genpas-beauty-resources",
+    "manifest_sha256": "735dc9f28a1e17ede5d5e01968326b3410eaf329712ae375396cc29b64125f9a"
+  },
+  "wheels_manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7",
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-genpas-beauty-resources"
+    ],
+    "kernel_sources": [],
+    "competition_sources": [],
+    "model_sources": []
+  }
+}
