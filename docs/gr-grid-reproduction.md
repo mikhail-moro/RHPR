@@ -83,7 +83,8 @@ inherit that setting: first define the update/exposure budget and selection
 cadence. Runtime optimizations must preserve the declared effective batch,
 targets, loss and selection behavior, or be recorded as deviations.
 
-No new GPU run has been submitted for this target. The bounded profiler is
-available and CPU-tested, but its current saved-checkpoint configuration profiles
-the old hybrid. Performance measurements for the reproduction must use the
-aligned configuration.
+The next authorized step is a bounded runtime profile of the aligned recipe;
+see the [paper-priority execution contract](gr-grid-paper-recipe.md). It loads
+the actual Flan-T5-XL encoder and measures a fresh aligned generator with
+explicitly labelled runtime-only SID assignments. It reports no quality score.
+The older saved-checkpoint profiler remains separate from this configuration.
