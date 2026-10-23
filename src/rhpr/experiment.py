@@ -76,6 +76,11 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == "gr_genpas_tiger_epochs":
+        if output_dir is None:
+            raise ValueError("output_dir is required for gr_genpas_tiger_epochs")
+        from rhpr.gr.genpas_epochs import run_genpas_epochs
+        return run_genpas_epochs(config, output_dir)
     if kind == "gr_tpu_compatibility":
         if output_dir is None:
             raise ValueError("output_dir is required for gr_tpu_compatibility")

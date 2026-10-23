@@ -7,13 +7,16 @@
 - Earlier experiment plans are historical and have no pending GPU launches.
 - The active direction is item representations for SID-based generative
   recommendation. Read `docs/gr-research-brief.md` and `docs/gr-baseline.md`.
-- The initial Sentence-T5 + RK-Means hybrid is complete. The current priority
-  is the GRID Beauty RK-Means baseline. The first FP16/batch512 quality run
-  is complete; the next protocol uses source-user epochs with validation every
-  ten epochs and a separate bounded TPU compatibility check. Read
-  `docs/gr-grid-epochs-tpu.md`,
-  `docs/gr-grid-quality.md` and `docs/gr-grid-reproduction.md`; resolve paper/YAML
-  conflicts in favor of the paper and declare source defaults for omissions.
+- The initial Sentence-T5 + RK-Means hybrid and first GRID quality diagnostic
+  are complete. The current baseline uses the pinned GenPAS TIGER model with
+  ordinary TIGER/GRID windows, finite source-user epochs and validation every
+  ten epochs. Do not enable GenPAS weighted augmentation in this baseline.
+  Read `docs/gr-genpas-tiger-epochs.md`. Author input staging and hardware
+  verification remain pending; the earlier GRID TPU probe is separate. Preserve
+  the released GenPAS model/config defaults and declare protocol departures.
+  Historical GRID evidence is in `docs/gr-grid-epochs-tpu.md`,
+  `docs/gr-grid-quality.md` and `docs/gr-grid-reproduction.md`; their paper-priority
+  recipe is not the active GenPAS configuration.
 - Do not implement a new tokenizer or assert a representation bottleneck before
   the baseline and diagnostics support that claim.
 
