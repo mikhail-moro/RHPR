@@ -70,3 +70,12 @@ Flan/RK preparation, epoch-runner XLA optimizer/synchronization, fixed-shape
 padding for final batches, checkpoint handling and multi-device scaling still
 need explicit support. The production GPU runner continues to use CUDA AMP;
 the TPU probe uses XLA BF16 without a CUDA GradScaler.
+
+Submitted diagnostic: private kernel `carasik/rhpr-gr-grid-tpu-probe`,
+[workflow39951344759](https://github.com/mikhail-moro/RHPR/actions/runs/39951344759),
+source `352e7f95644b3aa02aca99a151706eac3a2511ba`, server timeout20min.
+At2026-10-23 12:14UTC Kaggle CLI reported QUEUED; the MCP status response was
+empty. The TPU quota had no reservation and no hardware test had executed yet.
+Submission success is not a compatibility result. No GPU epoch run was
+submitted: only2,374.585s (~39.6min) GPU quota remained, versus roughly50min to
+the first scheduled ten-epoch validation at the preceding run's throughput.
