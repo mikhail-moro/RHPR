@@ -443,6 +443,7 @@ def profile_paper_operators(model, stream_factory, training, specification, budg
 
 def profile_quantizer(grid_root, config, specification, budget, device, progress=None):
     import torch
+    from rhpr.gr.distances import distance_backend_report, make_grid_distance
     from rhpr.gr.grid import load_grid
     from rhpr.gr.paper_quantizer_profile import benchmark_logical_rank_quantizer
 
@@ -468,9 +469,9 @@ def profile_quantizer(grid_root, config, specification, budget, device, progress
             try:
                 proxy = torch.nn.functional.normalize(torch.randn(max(size, init_size), dimension,
                                                                   device=device), dim=-1)
-                distance = grid.SquaredEuclideanDistance()
+                distance = make_grid_distance(grid, config["quantizer"])
                 initializer = grid.KMeansPlusPlusInitInitializer(n_clusters=width,
-                    distance_function=distance, initialize_on_cpu=False)
+                    distance_function=grid.SquaredEuclideanDistance(), initialize_on_cpu=False)
                 model = grid.MiniBatchKMeans(n_clusters=width, n_features=dimension,
                     distance_function=distance, initializer=initializer, init_buffer_size=init_size,
                     update_manually=True).to(device)
@@ -497,6 +498,7 @@ def profile_quantizer(grid_root, config, specification, budget, device, progress
                     durations.append(time.perf_counter() - started)
                 seconds = sum(durations) / len(durations)
                 case = {"status": "ok", "batch_size": size, "embedding_dim": dimension,
+                        **distance_backend_report(config["quantizer"]),
                         "seconds_per_level_update": seconds, "initialization_seconds": initialization_seconds,
                         "estimated_3_levels_1000_updates_seconds": 3 * (1000 * seconds + initialization_seconds),
                         "synthetic_runtime_embeddings": True, "equivalent_to_8_gpu_training": False,

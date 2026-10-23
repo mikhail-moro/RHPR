@@ -74,6 +74,7 @@ def logical_rank_step(replicas, optimizer, batches, *, residual_prediction_layer
 def benchmark_logical_rank_quantizer(grid_root, config, specification, budget, device):
     """Measure initialized RK arithmetic plus all layerwise prediction stages."""
     import torch
+    from rhpr.gr.distances import distance_backend_report, make_grid_distance
     from rhpr.gr.grid import load_grid
     from rhpr.gr.profiling import _clear, _memory, _synchronize
 
@@ -97,9 +98,10 @@ def benchmark_logical_rank_quantizer(grid_root, config, specification, budget, d
     try:
         with torch.random.fork_rng(devices=gpu_devices):
             torch.manual_seed(config["seed"])
-            distance = grid.SquaredEuclideanDistance()
+            distance = make_grid_distance(grid, quantizer)
             initializer = grid.KMeansPlusPlusInitInitializer(
-                n_clusters=width, distance_function=distance, initialize_on_cpu=False)
+                n_clusters=width, distance_function=grid.SquaredEuclideanDistance(),
+                initialize_on_cpu=False)
             budget.check()
             initialization_points = torch.nn.functional.normalize(
                 torch.randn(init_size, dimension, device=device), dim=-1)
@@ -147,6 +149,7 @@ def benchmark_logical_rank_quantizer(grid_root, config, specification, budget, d
                 durations.append(time.perf_counter() - started)
             seconds = sum(durations) / len(durations)
             return {"status": "ok", "mode": "sequential_logical_ranks",
+                    **distance_backend_report(quantizer),
                     "logical_ranks": ranks, "batch_size_per_rank": batch_size,
                     "points_per_update": ranks * batch_size, "embedding_dim": dimension,
                     "codebook_size": width, "residual_prediction_stages": levels - 1,
