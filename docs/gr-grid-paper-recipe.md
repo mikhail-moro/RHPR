@@ -4,7 +4,8 @@ Audit date: 2026-10-22. The user selected the article as the authority when it
 conflicts with released example configurations. The immediate run is a runtime
 profile, not a quality experiment. The registered runtime profile is in
 [`amazon_beauty_grid_paper_profile.json`](../experiments/amazon_beauty_grid_paper_profile.json).
-No GPU results are claimed in this document.
+The [completed T4 profile](gr-grid-paper-profile-results.md) records measured
+runtime, memory, precision failures and the resulting cost estimates.
 
 ## Published target and source precedence
 
