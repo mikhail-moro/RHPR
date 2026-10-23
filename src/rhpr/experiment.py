@@ -76,6 +76,11 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == "gr_tpu_compatibility":
+        if output_dir is None:
+            raise ValueError("output_dir is required for gr_tpu_compatibility")
+        from rhpr.gr.tpu_probe import run_tpu_probe
+        return run_tpu_probe(config, output_dir)
     if kind == "gr_grid_paper_quality":
         if output_dir is None:
             raise ValueError("output_dir is required for gr_grid_paper_quality")

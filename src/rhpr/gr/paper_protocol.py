@@ -189,12 +189,17 @@ class PaperBatchStream:
         self._stats["last_source_collate_seconds"] = elapsed
 
     def next_batch(self, device: str = "cpu") -> dict:
-        import torch
         started = time.perf_counter()
         while self._buffered < self.effective_batch_size:
             self._fill()
+        batch = self._take_buffered(self.effective_batch_size)
+        self._stats["cpu_next_batch_seconds"] += time.perf_counter() - started
+        return move_batch(batch, device)
+
+    def _take_buffered(self, count: int) -> dict:
+        import torch
         pieces = []
-        remaining = self.effective_batch_size
+        remaining = count
         while remaining:
             first = self._pending[0]
             available = len(first["future_ids"]) - self._pending_offset
@@ -209,9 +214,8 @@ class PaperBatchStream:
                 self._pending_offset = 0
         batch = {key: torch.cat([piece[key] for piece in pieces], dim=0) for key in pieces[0]}
         self._stats["model_batches_yielded"] += 1
-        self._stats["model_examples_yielded"] += self.effective_batch_size
-        self._stats["cpu_next_batch_seconds"] += time.perf_counter() - started
-        return move_batch(batch, device)
+        self._stats["model_examples_yielded"] += count
+        return batch
 
     def __iter__(self):
         return self
@@ -232,3 +236,39 @@ class PaperBatchStream:
             "buffered_examples": self._buffered, "test_targets_read": False,
             **self._stats,
         }
+
+
+class PaperEpochStream(PaperBatchStream):
+    """One finite shuffled pass over users with unchanged GRID augmentation.
+
+    Each source user is visited exactly once. The last source batch and last
+    model batch can be smaller; no windows cross into a different epoch.
+    """
+
+    def _source_indices(self):
+        if self._position == len(self._order):
+            raise StopIteration
+        end = min(self._position + self.source_batch_size, len(self._order))
+        selected = self._order[self._position:end]
+        self._position = end
+        return selected
+
+    def next_batch(self, device: str = "cpu") -> dict:
+        started = time.perf_counter()
+        while self._buffered < self.effective_batch_size:
+            try:
+                self._fill()
+            except StopIteration:
+                break
+        if not self._buffered:
+            raise StopIteration
+        batch = self._take_buffered(min(self._buffered, self.effective_batch_size))
+        self._stats["cpu_next_batch_seconds"] += time.perf_counter() - started
+        return move_batch(batch, device)
+
+    def report(self) -> dict:
+        return {**super().report(),
+            "source_order": "one seeded user permutation; no epoch wrapping",
+            "epoch_definition": "one complete visit of all source users, with sampled contiguous windows",
+            "epoch_complete": self._position == len(self._order) and self._buffered == 0,
+            "drop_last": False}

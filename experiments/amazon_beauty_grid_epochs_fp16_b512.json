@@ -1,0 +1,165 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-gr-grid-epochs"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "author full training rows and contiguous augmentation buffered into batches512; validation/test latest20; full-catalogue item metrics",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-gr-grid-quality"
+    ],
+    "model_sources": []
+  },
+  "name": "amazon2014-beauty-grid-user-epochs-val10",
+  "kind": "gr_grid_paper_quality",
+  "representation": {
+    "kind": "grid_flan_encoder",
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-flan-t5-xl-encoder",
+    "manifest_sha256": "76aca207e754929dc13a2dd772f8bf3913eee6a754f2b5ded6df8e174193f9f5",
+    "model": "google/flan-t5-xl",
+    "revision": "7d6315df2c2fb742f0f5b556879d730926ca9001",
+    "max_length": 128,
+    "pooling": "masked mean including EOS; no projection or L2 normalization",
+    "batch_size": 8
+  },
+  "quantizer": {
+    "kind": "grid_rkmeans",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "steps_per_level": 1000,
+    "logical_ranks": 8,
+    "batch_size_per_rank": 2048,
+    "init_buffer_size": 3072,
+    "normalize_residuals": true,
+    "distance_backend": "torch_cdist",
+    "max_seconds": 2400
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.15,
+    "mlp_layers": 2,
+    "num_user_bins": null,
+    "separator_token": true,
+    "codebook_size": 256,
+    "beam_width": 10,
+    "should_check_prefix": false
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "batch_size": 512,
+    "physical_batch_size": 512,
+    "learning_rate": 0.0005,
+    "weight_decay": 1e-06,
+    "grad_clip_norm": null,
+    "source_user_batch_size": 32,
+    "sequence_length": 120,
+    "max_augmented_batch": 512,
+    "early_stopping_metric": "ndcg@10",
+    "checkpoint_metric": "recall@10",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "evaluation_batch_size": 256,
+    "max_seconds": 10800,
+    "schedule": "epochs",
+    "max_epochs": 100,
+    "validation_interval_epochs": 10,
+    "patience_epochs": 20
+  },
+  "evaluation": {
+    "test_after_selection": true,
+    "item_level": true,
+    "quality_not_evaluated": false,
+    "purpose": "single-seed GRID quality diagnostic; FP16 and effective batch512 are explicit departures from reference FP32/batch256"
+  },
+  "max_run_seconds": 13800,
+  "distance_profile": {
+    "quantizer_iterations": 20,
+    "warmup": 2
+  },
+  "reference": {
+    "paper_recall10": 0.0639,
+    "paper_ndcg10": 0.0347,
+    "paper_seeds": 5,
+    "deviations": [
+      "single seed42",
+      "FP16 generator training with GradScaler; FP32 encoder/evaluation",
+      "effective batch512 instead of256; same LR5e-4",
+      "independent normalized-catalogue row shuffle per logical RK rank instead of original TF workers",
+      "source generator defaults fill paper omissions; free beam10",
+      "bounded wall time may stop before early stopping"
+    ],
+    "epoch_definition": "one visit of every source user with upstream sampled contiguous-window augmentation",
+    "validation_schedule": "every10 complete source-user epochs; final budget boundary may be evaluated once",
+    "patience": "20 complete epochs since the best validation NDCG, checked only at validation boundaries"
+  },
+  "parent": {
+    "kernel": "carasik/rhpr-gr-grid-quality",
+    "source_code_sha": "fb195577861331b90981bf76500ccfbd1bb0c370",
+    "reuse_tokenizer": true,
+    "files": {
+      "run-manifest.json": {
+        "size_bytes": 4713,
+        "sha256": "23c6a08abf459965a43cb8893d99c67a92374a918cfd6ceb4a026afa33d8f921"
+      },
+      "semantic-ids.npy": {
+        "size_bytes": 387360,
+        "sha256": "a109726ee4be6e4fa850fa7e786cbc6e19052a0731d7ec3e26b543b7039e51aa"
+      },
+      "quantizer-centroids.npy": {
+        "size_bytes": 6291584,
+        "sha256": "3703d56d3dfce9c1e4bcc24dcdf06f20817aca810a674bc85a331bdc7c75f932"
+      },
+      "sid-catalogue.json": {
+        "size_bytes": 122169,
+        "sha256": "95ce96f40ea0f909d5efa37d62102501d37587af69b2b42e6e606be5cc321f8a"
+      },
+      "input-provenance.json": {
+        "size_bytes": 14240,
+        "sha256": "758c4478a673d51ed2991d1d5362493b7e48fba860d64dd9a9df4c65d804b711"
+      },
+      "representation.json": {
+        "size_bytes": 575,
+        "sha256": "4bf894eed4789ca0c3f6f3f89b2f9e3d7debf9c3569cc85be82c5bfde981f496"
+      },
+      "quantizer.json": {
+        "size_bytes": 114406,
+        "sha256": "bedd82732cb938aab1f7c172cc118564b74010df518af205037934d07857196a"
+      }
+    }
+  }
+}

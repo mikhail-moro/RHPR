@@ -1,0 +1,40 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-gr-tpu-probe"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.15,
+    "mlp_layers": 2,
+    "num_user_bins": null,
+    "separator_token": true,
+    "codebook_size": 256,
+    "beam_width": 10,
+    "should_check_prefix": false
+  },
+  "name": "grid-generator-native-tpu-compatibility",
+  "kind": "gr_tpu_compatibility",
+  "wheels_manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7",
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": []
+  },
+  "evaluation": {
+    "quality_not_evaluated": true,
+    "test_after_selection": false
+  }
+}
