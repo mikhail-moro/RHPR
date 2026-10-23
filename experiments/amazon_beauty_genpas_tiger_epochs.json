@@ -1,0 +1,33 @@
+{
+  "name": "beauty-tiger-genpas-source-window-epochs",
+  "kind": "gr_genpas_tiger_epochs",
+  "seed": 42,
+  "source_path": "/kaggle/input/rhpr-genpas-resources/GenPAS",
+  "data_path": "/kaggle/input/rhpr-genpas-resources/data/beauty",
+  "training": {
+    "accelerator": "gpu",
+    "precision": "16-mixed",
+    "evaluation_precision": "fp32",
+    "source_user_batch_size": 512,
+    "evaluation_batch_size": 128,
+    "accumulate_grad_batches": 16,
+    "max_epochs": 1000,
+    "validation_interval_epochs": 10,
+    "patience_checks": 10
+  },
+  "reference": {
+    "repository": "https://github.com/snap-research/GenPAS",
+    "revision": "7803b541f646237084ac01692accc8e97053491b",
+    "generator_preset": "tiger_train_10_00_10_beauty",
+    "sampling": "TIGER/GRID contiguous windows, without weighted GenPAS sampling",
+    "deviations": [
+      "finite source-user epochs and validation every10 epochs",
+      "FP16 single GPU instead of BF16 multi-GPU",
+      "accumulate16 on one GPU to retain nominal8192 examples per full update",
+      "actual window counts may be below512; last accumulation group is flushed by Lightning",
+      "upstream scheduler still advances per epoch; no conversion to per-update scheduling"
+    ],
+    "resource_status": "local paths are an input contract; author data/SIDs and compatible dependencies must be staged before Kaggle submission",
+    "tpu_status": "not yet supported by this single-device runner"
+  }
+}
