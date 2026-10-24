@@ -1,4 +1,4 @@
-"""GPU SID index study: quantizer seeds vary; data/model RNGs stay fixed.
+"""GPU SID index study, optionally crossed with generator initializations.
 
 No UI, no implicit Kaggle launch, no automatic precision/LR fallbacks. Raw and
 local catalogue scores, exact search and beams always retain their identities.
@@ -231,6 +231,11 @@ def train_study(model, index, users, cases, windows, config, store, run_id, outp
     torch.manual_seed(config["model_seed"])
     if device.type == "cuda":
         torch.cuda.manual_seed_all(config["model_seed"])
+    probe, total_attempts = None, 0
+    if config["diagnostics"].get("training_probe"):
+        from rhpr.gr.study_probe import TrainingProbe
+        probe = TrainingProbe(config, output, store, run_id)
+        probe.sample(model, index, 0, 0, 0)
     for epoch in range(1, spec["max_epochs"] + 1):
         model.train()
         started, loss_total, examples, skipped, attempted = time.monotonic(), 0., 0, 0, 0
@@ -266,6 +271,7 @@ def train_study(model, index, users, cases, windows, config, store, run_id, outp
             skipped += int(was_skipped)
             effective_updates += int(not was_skipped)
             attempted += 1
+            total_attempts += 1
             if torch.isfinite(norm):
                 norms.append(float(norm))
             count = len(chosen)
@@ -275,9 +281,13 @@ def train_study(model, index, users, cases, windows, config, store, run_id, outp
                 context_counts.update(history)
             target_counts.update(target)
             np.add.at(item_losses, target, levels.detach().cpu().numpy())
+            if probe and total_attempts % probe.spec["interval_updates"] == 0:
+                probe.sample(model, index, epoch, total_attempts, effective_updates)
         if not examples:
             raise ValueError("Empty training epoch")
         completed_examples += examples
+        if probe:
+            probe.sample(model, index, epoch, total_attempts, effective_updates)
         seconds = time.monotonic() - started
         store.write("exposures", [{"run_id": run_id, "epoch": epoch, "item_id": i,
             "context_count": context_counts[i], "target_count": target_counts[i],
@@ -314,6 +324,9 @@ def train_study(model, index, users, cases, windows, config, store, run_id, outp
         store.write("training_epochs", [record])
         store.flush()
         _event("sid_study_epoch", **record, **results)
+    if probe:
+        _write(output / "probe-summary.json", {"seconds": probe.seconds, "last_attempted_update": total_attempts,
+            "fixed_cases": len(probe.rows), "rng_preserved": True, "optimizer_not_updated_by_probe": True})
     return results
 
 
@@ -322,6 +335,22 @@ def validate_study_config(config):
     seeds = config["quantizer_seeds"]
     if not seeds or len(set(seeds)) != len(seeds) or any(type(seed) is not int or seed < 0 for seed in seeds):
         raise ValueError("Quantizer seeds must be distinct nonnegative integers")
+    from rhpr.gr.study_design import study_jobs
+    study_jobs(config)
+    if config.get("frozen_indices") is not None:
+        if set(config["frozen_indices"]) != {str(seed) for seed in seeds}:
+            raise ValueError("Frozen indices must cover exactly the quantizer seeds")
+        for seed in seeds:
+            source = config["frozen_indices"][str(seed)]
+            if source["quantizer_seed"] != seed:
+                raise ValueError("Frozen quantizer seed mismatch")
+            for name in ("semantic-ids.npy", "quantizer-centroids.npy", "quantizer.json"):
+                entry = source["files"][name]
+                if not entry.get("path") or len(entry.get("sha256", "")) != 64:
+                    raise ValueError("Frozen index requires paths and SHA256 hashes")
+    if diagnostics.get("training_probe"):
+        from rhpr.gr.study_probe import validate_probe
+        validate_probe(diagnostics["training_probe"])
     for name in ("max_epochs", "validation_interval_epochs", "batch_size", "source_user_batch_size", "max_windows_per_source_batch", "context_items", "input_tokens"):
         if type(spec[name]) is not int or spec[name] < 1:
             raise ValueError(f"Invalid training {name}")
@@ -346,10 +375,12 @@ def validate_study_config(config):
         seed_assignments(config)
 
 
-def train_one_seed(seed, index, users, cases, windows, config, store, source, output, initial_hash=None):
+def train_one_seed(seed, index, users, cases, windows, config, store, source, output, initial_hash=None, *, run_id=None):
     """Independent model/RNG/optimizer; same implementation in serial/workers."""
     import torch
-    run_id, folder = f"rq-{seed}", output / f"rq-{seed}"
+    run_id = run_id or f"rq-{seed}"
+    folder = output / run_id
+    folder.mkdir(exist_ok=True)
     torch.set_num_threads(config["training"]["cpu_threads"])
     random.seed(config["model_seed"])
     np.random.seed(config["model_seed"])
@@ -361,7 +392,8 @@ def train_one_seed(seed, index, users, cases, windows, config, store, source, ou
         digest = state_digest(model.state_dict())
         if initial_hash is None:
             initial_hash = digest
-            torch.save(model.state_dict(), output / "initial-state.pt")
+            initial_file = f"initial-state-ms-{config['model_seed']}.pt" if config.get("model_seeds") is not None else "initial-state.pt"
+            torch.save(model.state_dict(), output / initial_file)
         if digest != initial_hash:
             raise ValueError("Generator initial weights changed between quantizer seeds")
         store.write("runs", [{"run_id": run_id, "quantizer_seed": seed, "model_seed": config["model_seed"],
@@ -449,8 +481,11 @@ def _run_sid_study(config, output):
     for name in ("catalog.json", "sequences.json", "data-manifest.json"):
         if (data_path / name).is_file():
             shutil.copyfile(data_path / name, inputs / name)
-    _write(output / "protocol.json", {"counts": counts, "varying": "RQ-KMeans seed only",
-        "initialization": "identical state_dict tensor-content hash", "selection": "fixed final epoch, no early stopping",
+    crossed = config.get("model_seeds") is not None
+    _write(output / "protocol.json", {"counts": counts,
+        "varying": "fixed SID index crossed with generator RNG seed" if crossed else "RQ-KMeans seed only",
+        "initialization": "identical tensor hash within each paired model seed" if crossed else "identical state_dict tensor-content hash",
+        "selection": "fixed final epoch, no early stopping",
         "sampling": "TIGER/GRID contiguous windows; sampled source-user groups; raw-item manifests shared by all runs",
         "history_padding": "right padding; complete context SIDs only; no attended target placeholder",
         "scorings": ["raw full-vocabulary AR", "valid-child locally renormalized AR"],
@@ -490,44 +525,66 @@ def _run_sid_study(config, output):
             context_items=spec["context_items"])
         windows[epoch] = store.write("training_windows", manifest)
     del manifest
-    initial_hash, indices, metrics = None, {}, {"runs": len(config["quantizer_seeds"])}
+    from rhpr.gr.study_design import study_jobs, load_frozen_index
+    jobs = study_jobs(config)
+    initial_hash, indices, metrics = None, {}, {"runs": len(jobs)}
     # Fit and inspect ALL index realizations before training any generator.
     for seed in config["quantizer_seeds"]:
         run_id = f"rq-{seed}"
         folder = output / run_id
         folder.mkdir()
-        index, centers = fit_quantizer(values, config["quantizer"], seed, folder)
-        record_index(store, run_id, index, users, cases, values, centers)
+        if config.get("frozen_indices"):
+            index, centers = load_frozen_index(values, config["quantizer"], config["frozen_indices"][str(seed)], folder)
+        else:
+            index, centers = fit_quantizer(values, config["quantizer"], seed, folder)
+        for job in jobs:
+            if job["quantizer_seed"] == seed:
+                record_index(store, job["run_id"], index, users, cases, values, centers)
         indices[run_id] = index
         for name in ("semantic-ids.npy", "quantizer-centroids.npy", "quantizer.json"):
             store.write("artifacts", [{"path": str((folder / name).relative_to(output)),
                 "sha256": file_sha256(folder / name), "role": "quantizer"}])
-    compare_indices(store, indices)
+        if (folder / "frozen-index.json").is_file():
+            store.write("artifacts", [{"path": str((folder / "frozen-index.json").relative_to(output)),
+                "sha256": file_sha256(folder / "frozen-index.json"), "role": "frozen_index_provenance"}])
+    compare_indices(store, {job["run_id"]: indices[f"rq-{job['quantizer_seed']}"] for job in jobs})
+    if config["diagnostics"].get("training_probe"):
+        from rhpr.gr.study_probe import prepare_probe_cases
+        prepare_probe_cases(users, cases, windows, config, output, store)
     store.inventory()
     if config.get("execution"):
         from rhpr.gr.study_parallel import launch_workers
         # Construct the reference on CPU once, independently of worker timing.
-        random.seed(config["model_seed"])
-        np.random.seed(config["model_seed"])
-        torch.manual_seed(config["model_seed"])
-        reference = build_study_model(indices[f"rq-{config['quantizer_seeds'][0]}"], source,
-                                      output / "initial-generator", config["generator"])
-        initial_hash = state_digest(reference.state_dict())
-        torch.save(reference.state_dict(), output / "initial-state.pt")
-        del reference
+        initial_hashes = {}
+        for model_seed in config.get("model_seeds", [config["model_seed"]]):
+            random.seed(model_seed)
+            np.random.seed(model_seed)
+            torch.manual_seed(model_seed)
+            reference = build_study_model(indices[f"rq-{config['quantizer_seeds'][0]}"], source,
+                output / (f"initial-generator-ms-{model_seed}" if crossed else "initial-generator"), config["generator"])
+            initial_hashes[str(model_seed)] = state_digest(reference.state_dict())
+            torch.save(reference.state_dict(), output / (f"initial-state-ms-{model_seed}.pt" if crossed else "initial-state.pt"))
+            del reference
+        initial_hash = initial_hashes if crossed else initial_hashes[str(config["model_seed"])]
         store.flush()
         try:
             metrics = launch_workers(config, output, source_path, windows, initial_hash)
         finally:
             store.inventory()
     else:
-        for seed in config["quantizer_seeds"]:
-            initial_hash, result = train_one_seed(seed, indices[f"rq-{seed}"], users, cases, windows,
-                config, store, source, output, initial_hash)
-            metrics.update({f"rq_{seed}_" + key: value for key, value in result.items()})
+        initial_hashes = {}
+        for job in jobs:
+            local_config = {**config, "model_seed": job["model_seed"]}
+            seed = job["quantizer_seed"]
+            reference = initial_hashes.get(job["model_seed"])
+            digest, result = train_one_seed(seed, indices[f"rq-{seed}"], users, cases, windows,
+                local_config, store, source, output, reference, run_id=job["run_id"])
+            initial_hashes[job["model_seed"]] = digest
+            metrics.update({job["run_id"].replace("-", "_") + "_" + key: value for key, value in result.items()})
             _write(output / "partial-metrics.json", metrics)
             store.inventory()
-    for name in ("item-embeddings.npy", "initial-state.pt", "study-config.json", "protocol.json", "representation.json", "input-provenance.json",
+    initial_files = [f"initial-state-ms-{seed}.pt" for seed in config["model_seeds"]] if crossed else ["initial-state.pt"]
+    for name in ("item-embeddings.npy", *initial_files, "study-config.json", "protocol.json", "representation.json", "input-provenance.json",
                  "inputs/catalog.json", "inputs/sequences.json"):
         store.write("artifacts", [{"path": name, "sha256": file_sha256(output / name), "role": name.split(".")[0]}])
     store.inventory()

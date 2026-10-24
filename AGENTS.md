@@ -17,6 +17,11 @@
 - Raw autoregressive scores and valid-child locally renormalized scores are
   separate objectives. Compare exact search and beams under MATCHING scoring.
   Do not interpret six index seeds as six independent generator seeds.
+- The authorized follow-up crosses frozen original rq11/rq22 indices with
+  generator seeds101/202/303, preserving data seed4242 and20epochs. See
+  `docs/gr-sid-training-variance.md`. Fixed train/validation probes preserve
+  RNG/weights; their Parquet sidecars are distinct from checkpoint evaluations.
+  Initialization hashes must match WITHIN each model seed across indices.
 - The user explicitly wants GPU, not TPU; implementation does not authorize
   dispatch. Preserve the paused TPU changes; do not restart previous kernels.
 - Historical reproduction work is in `docs/gr-genpas-tiger-epochs.md`,

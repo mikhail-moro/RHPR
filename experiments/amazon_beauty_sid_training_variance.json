@@ -1,0 +1,217 @@
+{
+  "name": "beauty-fixed-sid-two-indices-three-generator-seeds",
+  "kind": "gr_sid_index_study",
+  "model_seed": 101,
+  "data_seed": 4242,
+  "quantizer_seeds": [
+    11,
+    22
+  ],
+  "source_path": "/kaggle/input/datasets/carasik/rhpr-genpas-beauty-resources/genpas-source.bin",
+  "data_path": "/kaggle/input/datasets/carasik/rhpr-genpas-beauty-resources/data",
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "original author leave-last-two; full train histories, ordinary sampled contiguous TIGER/GRID windows; original last20 evaluation contexts",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "representation": {
+    "kind": "frozen_external_embeddings",
+    "model": "sentence-transformers/sentence-t5-base",
+    "revision": "fc5d4628481afbbaaacd7af6bb07cf9d3865f781",
+    "path": "/kaggle/input/rhpr-gr-beauty-sentence-t5-rkmeans/item-embeddings.npy",
+    "sha256": "607895c3dbe7a6a5aa6272dde55dd190e8bc40fa97532830de161d118aca5314",
+    "catalog_sha256": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+    "parent_artifacts": {
+      "kernel": "carasik/rhpr-gr-beauty-sentence-t5-rkmeans",
+      "source_code_sha": "2975942b9a2baa92f9b46c20a0755ff870f80165",
+      "files": {
+        "run-manifest.json": {
+          "sha256": "d0d96892758eda471d2e8584158da9b9559615629e9cde7321d05144f6eed20d",
+          "size_bytes": 3471
+        },
+        "representation.json": {
+          "sha256": "fc713b79e6f8dcdd805029bf3c5531463dc9f34115c4b3d1629776ed07a0b26d",
+          "size_bytes": 423
+        },
+        "item-embeddings.npy": {
+          "sha256": "607895c3dbe7a6a5aa6272dde55dd190e8bc40fa97532830de161d118aca5314",
+          "size_bytes": 37174400
+        }
+      }
+    }
+  },
+  "quantizer": {
+    "levels": 3,
+    "codebook_size": 256,
+    "n_init": 1,
+    "max_iter": 100,
+    "cpu_threads": 2
+  },
+  "generator": {
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 3,
+    "decoder_layers": 3,
+    "dropout": 0.1
+  },
+  "training": {
+    "device": "cuda",
+    "precision": "fp16",
+    "cpu_threads": 2,
+    "max_epochs": 20,
+    "validation_interval_epochs": 5,
+    "batch_size": 512,
+    "source_user_batch_size": 32,
+    "max_windows_per_source_batch": 512,
+    "context_items": 24,
+    "input_tokens": 100,
+    "learning_rate": 0.0005,
+    "weight_decay": 0.0001,
+    "grad_clip_norm": 1.0
+  },
+  "diagnostics": {
+    "context_items": 20,
+    "evaluation_batch_size": 16,
+    "exact_panel_size": 512,
+    "exact_epochs": [
+      20
+    ],
+    "exact_chunk_size": 128,
+    "save_top_k": 100,
+    "main_beam_width": 10,
+    "panel_beam_widths": [
+      10,
+      50,
+      100
+    ],
+    "training_probe": {
+      "target_items": [
+        2166,
+        3500,
+        822,
+        5355,
+        1107,
+        4165,
+        3294
+      ],
+      "interval_updates": 100,
+      "train_examples_per_item": 32,
+      "validation_examples_per_item": 16,
+      "batch_size": 64
+    }
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-genpas-beauty-resources/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-genpas-beauty-resources"
+    ],
+    "kernel_sources": [
+      "carasik/rhpr-gr-beauty-sentence-t5-rkmeans",
+      "carasik/rhpr-sid-index-study"
+    ],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "reference": {
+    "source_revision": "7803b541f646237084ac01692accc8e97053491b",
+    "exact_published_reproduction": false,
+    "purpose": "paired fixed-index x generator-seed variance and conditional branch stability; compare final epoch",
+    "deviations": [
+      "three encoder plus three decoder layers at d_model128; standard FF, no GenPAS extra FF layer",
+      "frozen Sentence-T5 embeddings; CPU sklearn residual Lloyd KMeans, three codebooks256 plus ordinal suffix",
+      "twenty finite source-user epochs; shared sampled contiguous windows; constant LR; no early stopping",
+      "two independent GPU seed workers, FP16 training; FP32 log-space diagnostic search with deterministic prefix tie-breaking",
+      "source-equivalent valid-child local scoring and raw AR scoring retained separately; no invalid filler beams",
+      "exact original rq11/rq22 imports; three fresh paired generator RNG seeds; observational fixed-window probes preserve training RNG"
+    ]
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "model_seeds": [
+    101,
+    202,
+    303
+  ],
+  "frozen_indices": {
+    "11": {
+      "quantizer_seed": 11,
+      "source_kernel": "carasik/rhpr-sid-index-study",
+      "source_version": 1,
+      "files": {
+        "semantic-ids.npy": {
+          "path": "/kaggle/input/rhpr-sid-index-study/rq-11/semantic-ids.npy",
+          "sha256": "bd3e68974afd8a3dcf2088238ee628bf7a50f91f6ce1dd014c9281044e3468d6"
+        },
+        "quantizer-centroids.npy": {
+          "path": "/kaggle/input/rhpr-sid-index-study/rq-11/quantizer-centroids.npy",
+          "sha256": "5c35d68e1fa0e35bc6368c179eff3ad9755af5a4a1d10353263a5385f925089d"
+        },
+        "quantizer.json": {
+          "path": "/kaggle/input/rhpr-sid-index-study/rq-11/quantizer.json",
+          "sha256": "124f35a7c3ff21edee0c8833148862d70714e0a161e27799fbcdb62411498245"
+        }
+      },
+      "parent_artifacts": {
+        "kernel": "carasik/rhpr-sid-index-study",
+        "source_code_sha": "e955381a2f0f24416085ab29ae11d0ae77bdf723",
+        "files": {
+          "run-manifest.json": {
+            "sha256": "5f91fd8d38f63c5f802536b88c2cfc60dd874cced07f15dd25b51301be03254f",
+            "size_bytes": 5170
+          }
+        }
+      }
+    },
+    "22": {
+      "quantizer_seed": 22,
+      "source_kernel": "carasik/rhpr-sid-index-study",
+      "source_version": 1,
+      "files": {
+        "semantic-ids.npy": {
+          "path": "/kaggle/input/rhpr-sid-index-study/rq-22/semantic-ids.npy",
+          "sha256": "ee37d0f40d6816768f7f9a9328b636e90030fa5ed62611ca4bfebf665a3fc4d3"
+        },
+        "quantizer-centroids.npy": {
+          "path": "/kaggle/input/rhpr-sid-index-study/rq-22/quantizer-centroids.npy",
+          "sha256": "73c5d6f4c541bc986cc0e3b702e330b4bcdabbbf48b9c3c42655513dc5c82f0a"
+        },
+        "quantizer.json": {
+          "path": "/kaggle/input/rhpr-sid-index-study/rq-22/quantizer.json",
+          "sha256": "473c221a75b2e969c37872fc448ebb6ba34d4f16f9991a6464c34501ba2d89ec"
+        }
+      },
+      "parent_artifacts": {
+        "kernel": "carasik/rhpr-sid-index-study",
+        "source_code_sha": "e955381a2f0f24416085ab29ae11d0ae77bdf723",
+        "files": {
+          "run-manifest.json": {
+            "sha256": "5f91fd8d38f63c5f802536b88c2cfc60dd874cced07f15dd25b51301be03254f",
+            "size_bytes": 5170
+          }
+        }
+      }
+    }
+  }
+}

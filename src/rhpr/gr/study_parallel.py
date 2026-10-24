@@ -29,8 +29,10 @@ def atomic_json(path, value):
 def seed_assignments(config):
     execution = config["execution"]
     devices = execution.get("worker_devices")
+    from rhpr.gr.study_design import study_jobs
+    jobs = study_jobs(config)
     seeds = config["quantizer_seeds"]
-    if not isinstance(devices, list) or not devices or len(devices) > len(seeds):
+    if not isinstance(devices, list) or not devices or len(devices) > len(jobs):
         raise ValueError("Worker devices must be a nonempty list, at most one worker per seed")
     if type(execution.get("cpu_threads_per_worker")) is not int or execution["cpu_threads_per_worker"] < 1:
         raise ValueError("cpu_threads_per_worker must be positive")
@@ -41,7 +43,11 @@ def seed_assignments(config):
             raise ValueError("Each CUDA worker must own a different GPU")
     elif any(d != "cpu" for d in devices):
         raise ValueError("CPU verification requires explicit CPU workers")
-    return [{"slot": i, "device": device, "seeds": seeds[i::len(devices)]}
+    if config.get("model_seeds") is None:
+        return [{"slot": i, "device": device, "seeds": seeds[i::len(devices)]}
+                for i, device in enumerate(devices)]
+    return [{"slot": i, "device": device, "jobs": jobs[i::len(devices)],
+             "seeds": [j["quantizer_seed"] for j in jobs[i::len(devices)]]}
             for i, device in enumerate(devices)]
 
 
@@ -91,7 +97,8 @@ def collect_results(output, assignments):
         failures.extend(status.get("failures", []))
         for seed, metrics in status.get("results", {}).items():
             completed += 1
-            result.update({f"rq_{seed}_" + key: value for key, value in metrics.items()})
+            prefix = str(seed).replace("-", "_") if str(seed).startswith("rq-") else f"rq_{seed}"
+            result.update({prefix + "_" + key: value for key, value in metrics.items()})
     result["completed_runs"] = completed
     return result, failures
 
@@ -208,23 +215,30 @@ def run_worker(plan_path, slot):
               "hardware": torch.cuda.get_device_name(0) if assignment["device"] != "cpu" else "cpu"}
     status_path = output / "workers" / f"worker-{slot}.json"
     atomic_json(status_path, status)
-    for seed in assignment["seeds"]:
+    from rhpr.gr.study_design import initial_hash_for
+    jobs = assignment.get("jobs") or [{"quantizer_seed": q, "model_seed": config["model_seed"], "run_id": f"rq-{q}"}
+                                       for q in assignment["seeds"]]
+    for job in jobs:
+        seed, run_id = job["quantizer_seed"], job["run_id"]
+        local_config = {**config, "model_seed": job["model_seed"]}
+        status["current_run"] = run_id
         status["current_seed"] = seed
         atomic_json(status_path, status)
         try:
             sids = np.load(output / f"rq-{seed}" / "semantic-ids.npy", allow_pickle=False)
             index = SidIndex(sids[:, :-1], width=config["quantizer"]["codebook_size"])
             np.testing.assert_array_equal(index.sids, sids)
-            _, result = train_one_seed(seed, index, users, cases, windows, config, store, source, output,
-                plan["initial_state_sha256"])
-            status["results"][str(seed)] = result
+            _, result = train_one_seed(seed, index, users, cases, windows, local_config, store, source, output,
+                initial_hash_for(plan["initial_state_sha256"], job["model_seed"]), run_id=run_id)
+            status["results"][run_id if config.get("model_seeds") is not None else str(seed)] = result
         except Exception as error:
             # Preserve partial evidence, attempt other assigned seeds, never
             # retry with altered LR/precision/budget or label the run complete.
             store.flush()
-            failure = {"seed": seed, "type": type(error).__name__, "message": str(error)}
+            failure = {"seed": seed, "run_id": run_id, "model_seed": job["model_seed"], "type": type(error).__name__, "message": str(error)}
             status["failures"].append(failure)
-            atomic_json(output / f"rq-{seed}" / "failure.json", failure)
+            (output / run_id).mkdir(exist_ok=True)
+            atomic_json(output / run_id / "failure.json", failure)
             traceback.print_exc()
         atomic_json(status_path, status)
     status["status"] = "failed" if status["failures"] else "complete"
