@@ -7,18 +7,21 @@
 - Earlier experiment plans are historical and have no pending GPU launches.
 - The active direction is item representations for SID-based generative
   recommendation. Read `docs/gr-research-brief.md` and `docs/gr-baseline.md`.
-- The initial Sentence-T5 + RK-Means hybrid and first GRID quality diagnostic
-  are complete. The current baseline uses the pinned GenPAS TIGER model with
-  ordinary TIGER/GRID windows, finite source-user epochs and validation every
-  ten epochs. Do not enable GenPAS weighted augmentation in this baseline.
-  Read `docs/gr-genpas-tiger-epochs.md` and `docs/gr-genpas-tpu.md`. The user
-  authorized TPU execution, fresh Flan-T5-XXL embeddings and a new RK tokenizer
-  on2026-10-23. Input staging and actual-device verification are in progress;
-  the earlier GRID TPU probe was cancelled. Preserve
-  the released GenPAS model/config defaults and declare protocol departures.
-  Historical GRID evidence is in `docs/gr-grid-epochs-tpu.md`,
-  `docs/gr-grid-quality.md` and `docs/gr-grid-reproduction.md`; their paper-priority
-  recipe is not the active GenPAS configuration.
+- The user cancelled the TPU launch and paused reproduction work. The active
+  study (2026-10-24) investigates SID index structure using six RQ-KMeans seeds,
+  frozen Sentence-T5 embeddings, identical generator initialization and shared
+  TIGER/GRID window manifests. Two T4s in one session, one independent seed
+  worker per GPU (three seeds each), FP16, 3+3 layers at d128, 20 epochs,
+  validation every5, no early stopping, final-epoch comparison. Read
+  `docs/gr-sid-index-study.md`. No UI: Parquet evidence with optional DuckDB.
+- Raw autoregressive scores and valid-child locally renormalized scores are
+  separate objectives. Compare exact search and beams under MATCHING scoring.
+  Do not interpret six index seeds as six independent generator seeds.
+- The user explicitly wants GPU, not TPU; implementation does not authorize
+  dispatch. Preserve the paused TPU changes; do not restart previous kernels.
+- Historical reproduction work is in `docs/gr-genpas-tiger-epochs.md`,
+  `docs/gr-genpas-tpu.md`, `docs/gr-grid-quality.md` and
+  `docs/gr-grid-reproduction.md`. Do not silently revive those protocols.
 - Do not implement a new tokenizer or assert a representation bottleneck before
   the baseline and diagnostics support that claim.
 

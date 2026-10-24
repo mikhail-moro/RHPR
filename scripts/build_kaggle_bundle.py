@@ -103,6 +103,13 @@ def build(experiment: Path, kernel_id: str, accelerator: str, output: Path) -> P
     }
     if accelerator == "tpu":
         metadata["enable_tpu"] = True
+    machine_shape = kaggle_config.get("machine_shape")
+    if machine_shape is not None:
+        if accelerator != "gpu" or machine_shape not in {"NvidiaTeslaT4", "NvidiaTeslaP100"}:
+            raise ValueError("GPU machine_shape requires gpu accelerator and an explicit supported GPU shape")
+        # The official CLI forwards machine_shape to SaveKernel. enable_gpu
+        # alone lets the server select a default that may be a single P100.
+        metadata["machine_shape"] = machine_shape
     metadata_path = output / "kernel-metadata.json"
     metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     return metadata_path

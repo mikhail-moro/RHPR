@@ -1,6 +1,9 @@
 # Research brief: item representations for Semantic IDs
 
 Date: 2026-10-22. Source: the user's research brief supplied in this task.
+Update 2026-10-24: reproduction launches are paused. The active controlled
+GPU study is [SID index sensitivity](gr-sid-index-study.md), with frozen
+representations and quantizer-seed variation before further encoder research.
 Status: a research program and set of hypotheses, not an established novel
 architecture. The earlier history-compression/QSSM study remains closed.
 

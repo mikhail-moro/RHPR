@@ -77,6 +77,20 @@ class RunnerTest(unittest.TestCase):
             for name in ("metrics.json", "summary.md", "run-manifest.json"):
                 self.assertTrue((working / name).is_file())
 
+    def test_sid_study_requests_dual_t4_and_six_fixed_budget_seeds(self) -> None:
+        config = ROOT / "experiments" / "amazon_beauty_sid_index_study.json"
+        spec = json.loads(config.read_text())
+        self.assertEqual(spec["quantizer_seeds"], [11,22,33,44,55,66])
+        self.assertEqual(spec["training"]["max_epochs"], 20)
+        self.assertEqual(spec["execution"]["worker_devices"], ["cuda:0","cuda:1"])
+        with tempfile.TemporaryDirectory() as directory:
+            path = build(config, "owner/sid-study", "gpu", Path(directory)/"gpu")
+            metadata = json.loads(path.read_text())
+            self.assertEqual(metadata["machine_shape"], "NvidiaTeslaT4")
+            self.assertTrue(metadata["is_private"])
+            with self.assertRaises(ValueError):
+                build(config, "owner/sid-study", "cpu", Path(directory)/"cpu")
+
     def test_telegram_message_includes_metrics(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             metrics = Path(directory) / "metrics.json"

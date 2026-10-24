@@ -76,6 +76,11 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == "gr_sid_index_study":
+        if output_dir is None:
+            raise ValueError("output_dir is required for gr_sid_index_study")
+        from rhpr.gr.sid_study import run_sid_study
+        return run_sid_study(config, output_dir)
     if kind == "gr_genpas_tpu":
         if output_dir is None:
             raise ValueError("output_dir is required for gr_genpas_tpu")
