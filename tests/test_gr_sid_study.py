@@ -96,6 +96,44 @@ class EvidenceTests(unittest.TestCase):
                 self.assertEqual(db.execute("SELECT count(*) FROM item_quality").fetchone()[0], 0)
             store.inventory()
 
+    def test_disjoint_writer_shards_are_one_queryable_store(self):
+        from rhpr.gr.study_store import StudyStore
+        with tempfile.TemporaryDirectory() as tmp:
+            parent = StudyStore(tmp)
+            original = (Path(tmp)/"schema.json").read_bytes()
+            a, b = StudyStore(tmp, shard="worker-0"), StudyStore(tmp, shard="worker-1")
+            for writer, run in ((a, "a"), (b, "b")):
+                writer.write("runs", [{"run_id": run, "quantizer_seed": 1, "model_seed": 42,
+                    "data_seed": 42, "initial_state_sha256": "same", "config_json": "{}"}])
+                writer.flush()
+            self.assertEqual((Path(tmp)/"schema.json").read_bytes(), original)
+            self.assertEqual({r["run_id"] for r in parent.read("runs")}, {"a", "b"})
+            with parent.connect() as db:
+                self.assertEqual(db.execute("SELECT count(*) FROM runs").fetchone()[0], 2)
+            with self.assertRaises(FileExistsError):
+                StudyStore(tmp, shard="worker-0")
+            with self.assertRaises(ValueError):
+                StudyStore(tmp, shard="../bad")
+
+    def test_worker_assignment_device_guards_and_inherited_gpu_mapping(self):
+        from copy import deepcopy
+        from unittest.mock import patch
+        from rhpr.gr.study_parallel import seed_assignments, worker_environment, check_devices
+        config = {"quantizer_seeds": [11,22,33,44,55,66], "training": {"device":"cuda"},
+                  "execution": {"worker_devices":["cuda:0","cuda:1"],"cpu_threads_per_worker":1}}
+        assignments = seed_assignments(config)
+        self.assertEqual([a["seeds"] for a in assignments], [[11,33,55],[22,44,66]])
+        environment = worker_environment(config, assignments[1], environment={"CUDA_VISIBLE_DEVICES":"GPU-a,GPU-b"}, python_paths=["/bundle.zip","/offline/site"])
+        self.assertEqual(environment["CUDA_VISIBLE_DEVICES"], "GPU-b")
+        self.assertEqual(environment["PYTHONPATH"], os.pathsep.join(["/bundle.zip","/offline/site"]))
+        self.assertEqual(environment["OMP_NUM_THREADS"], "1")
+        with patch("torch.cuda.device_count", return_value=1):
+            with self.assertRaisesRegex(RuntimeError,"no fallback"):
+                check_devices(config)
+        config["execution"]["worker_devices"]=["cuda:0","cuda:0"]
+        with self.assertRaises(ValueError):
+            seed_assignments(config)
+
 
 @unittest.skipUnless(NATIVE, "Requires pinned GenPAS source and analysis dependencies")
 class NativeStudyTests(unittest.TestCase):
@@ -217,6 +255,92 @@ assert audit(StudyStore(root),verify_files=True)['passed']
                 result = subprocess.run([sys.executable, "-c", source, SOURCE, tmp],
                     env=env, capture_output=True, text=True, timeout=120)
                 self.assertEqual(result.returncode, 0, result.stdout[-3000:] + result.stderr[-7000:])
+
+    def test_two_fresh_worker_processes_match_serial_training_and_preserve_partial_results(self):
+        script = r'''
+import json,sys,torch,numpy as np,copy
+from pathlib import Path
+from unittest.mock import patch
+from rhpr.gr.data import file_sha256
+from rhpr.gr.sid_study import run_sid_study
+from rhpr.gr.study_store import StudyStore
+from rhpr.gr.study_analysis import audit
+root=Path(sys.argv[2]);data=root/'data';data.mkdir()
+(data/'catalog.json').write_text(json.dumps([dict(item_id=i,text=f'item {i}') for i in range(16)]))
+(data/'sequences.json').write_text(json.dumps([dict(user_id=i,train=[i,(i+1)%16,(i+2)%16,(i+3)%16],validation=(i+4)%16,test=(i+5)%16) for i in range(4)]))
+np.save(root/'vectors.npy',np.random.default_rng(3).normal(size=(16,8)).astype('float32'))
+c=dict(name='parallel-smoke',kind='gr_sid_index_study',model_seed=42,data_seed=123,quantizer_seeds=[11,22,33,44],
+ source_path=sys.argv[1],data_path=str(data),data={},
+ representation=dict(path=str(root/'vectors.npy'),sha256=file_sha256(root/'vectors.npy'),catalog_sha256=file_sha256(data/'catalog.json')),
+ quantizer=dict(levels=3,codebook_size=4,n_init=1,max_iter=5,cpu_threads=1),
+ generator=dict(d_model=8,d_ff=16,d_kv=4,num_heads=2,encoder_layers=1,decoder_layers=1,dropout=.1),
+ training=dict(device='cpu',precision='fp32',cpu_threads=1,max_epochs=2,validation_interval_epochs=1,batch_size=4,
+ source_user_batch_size=2,max_windows_per_source_batch=7,context_items=3,input_tokens=16,learning_rate=.001,weight_decay=.0001,grad_clip_norm=1.),
+ diagnostics=dict(context_items=3,evaluation_batch_size=4,exact_panel_size=1,exact_epochs=[2],exact_chunk_size=4,
+ save_top_k=16,main_beam_width=10,panel_beam_widths=[10]))
+config_file=root/'config.json';config_file.write_text(json.dumps(c))
+parallel=copy.deepcopy(c);parallel['execution']=dict(worker_devices=['cpu','cpu'],cpu_threads_per_worker=1)
+r=run_sid_study(parallel,root/'parallel');assert r['completed_runs']==4 and r['parallel_workers']==2
+store=StudyStore(root/'parallel');assert audit(store,verify_files=True)['passed']
+plan=json.loads((root/'parallel/workers/plan.json').read_text())
+assert [a['seeds'] for a in plan['assignments']]==[[11,33],[22,44]]
+a=json.loads((root/'parallel/workers/worker-0.json').read_text());b=json.loads((root/'parallel/workers/worker-1.json').read_text())
+assert a['pid']!=b['pid'] and a['status']==b['status']=='complete'
+assert len(store.read('runs'))==4 and len({x['initial_state_sha256'] for x in store.read('runs')})==1
+# Both workers start before either has completed all its assigned seeds.
+assert len(list((root/'parallel/tables/checkpoints').glob('worker-*')))==2
+# Direct failure-isolation exercise with the real worker loop: lose one index,
+# still train the next assigned seed and retain complete/failed status honestly.
+from rhpr.gr.study_parallel import launch_workers
+windows={int(e):root/'parallel'/p for e,p in plan['windows'].items()}
+failure_root=root/'failure';failure_root.mkdir()
+import shutil
+for name in ('schema.json','study-config.json'): shutil.copyfile(root/'parallel'/name,failure_root/name)
+shutil.copytree(root/'parallel/inputs',failure_root/'inputs')
+failed_store=StudyStore(failure_root)
+for name in ('items','cases','events','case_history','training_windows'):
+ failed_store.write(name,store.read(name))
+failed_store.flush()
+failed_windows={}
+import pyarrow.parquet as pq,pyarrow as pa
+for epoch in (1,2):
+ rows=[row for row in failed_store.read('training_windows') if row['epoch']==epoch]
+ path=failure_root/f'windows-{epoch}.parquet';pq.write_table(pa.Table.from_pylist(rows),path);failed_windows[epoch]=path
+for seed in (33,22,44):
+ (failure_root/f'rq-{seed}').mkdir();shutil.copyfile(root/'parallel'/f'rq-{seed}/semantic-ids.npy',failure_root/f'rq-{seed}/semantic-ids.npy')
+# rq-11 exists without a SID file: the first seed fails, the second on its GPU
+# still executes; the other process finishes both assigned seeds.
+(failure_root/'rq-11').mkdir()
+try: launch_workers(parallel,failure_root,Path(sys.argv[1]),failed_windows,plan['initial_state_sha256'])
+except RuntimeError as error: assert '3/4 seeds' in str(error),error
+else: raise AssertionError('partial study was incorrectly declared complete')
+status=json.loads((failure_root/'workers/worker-0.json').read_text())
+assert status['status']=='failed' and '33' in status['results'] and status['failures'][0]['seed']==11
+'''
+        serial = r'''
+import sys,json,torch,numpy as np
+from pathlib import Path
+from rhpr.gr.sid_study import run_sid_study
+from rhpr.gr.study_store import StudyStore
+root=Path(sys.argv[2]);c=json.loads((root/'config.json').read_text());run_sid_study(c,root/'serial')
+for seed in c['quantizer_seeds']:
+ a=torch.load(root/f'parallel/rq-{seed}/epoch-002.pt',weights_only=False)
+ b=torch.load(root/f'serial/rq-{seed}/epoch-002.pt',weights_only=False)
+ for name in a['model']: torch.testing.assert_close(a['model'][name],b['model'][name],rtol=0,atol=0)
+ assert torch.equal(a['torch_rng'],b['torch_rng'])
+ assert a['examples']==b['examples'] and a['effective_updates']==b['effective_updates']
+pa=StudyStore(root/'parallel');pb=StudyStore(root/'serial')
+with pa.connect() as a,pb.connect() as b:
+ query='SELECT run_id,epoch,case_id,scoring,search,beam_width,target_rank,ndcg10 FROM case_metrics ORDER BY ALL'
+ assert a.execute(query).fetchall()==b.execute(query).fetchall()
+'''
+        with tempfile.TemporaryDirectory() as tmp:
+            env = dict(os.environ, MPLCONFIGDIR=tmp, USE_TF="0", USE_FLAX="0",
+                       PYTHONPATH=str(Path(__file__).resolve().parents[1] / "src"))
+            for source in (script, serial):
+                result = subprocess.run([sys.executable, "-c", source, SOURCE, tmp], env=env,
+                    capture_output=True, text=True, timeout=180)
+                self.assertEqual(result.returncode, 0, result.stdout[-5000:] + result.stderr[-5000:])
 
 
 if __name__ == "__main__":

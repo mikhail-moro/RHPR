@@ -8,14 +8,15 @@
 - The active direction is item representations for SID-based generative
   recommendation. Read `docs/gr-research-brief.md` and `docs/gr-baseline.md`.
 - The user cancelled the TPU launch and paused reproduction work. The active
-  study (2026-10-24) investigates SID index structure using five RQ-KMeans seeds,
+  study (2026-10-24) investigates SID index structure using six RQ-KMeans seeds,
   frozen Sentence-T5 embeddings, identical generator initialization and shared
-  TIGER/GRID window manifests. Single GPU FP16, 3+3 layers at d128, 20 epochs,
+  TIGER/GRID window manifests. Two T4s in one session, one independent seed
+  worker per GPU (three seeds each), FP16, 3+3 layers at d128, 20 epochs,
   validation every5, no early stopping, final-epoch comparison. Read
   `docs/gr-sid-index-study.md`. No UI: Parquet evidence with optional DuckDB.
 - Raw autoregressive scores and valid-child locally renormalized scores are
   separate objectives. Compare exact search and beams under MATCHING scoring.
-  Do not interpret five index seeds as five independent generator seeds.
+  Do not interpret six index seeds as six independent generator seeds.
 - The user explicitly wants GPU, not TPU; implementation does not authorize
   dispatch. Preserve the paused TPU changes; do not restart previous kernels.
 - Historical reproduction work is in `docs/gr-genpas-tiger-epochs.md`,

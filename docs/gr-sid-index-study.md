@@ -14,10 +14,10 @@ Configuration: `experiments/amazon_beauty_sid_index_study.json`.
 | Data | Original GRID/P5 Amazon2014 Beauty, 22,363 users, 12,101 items; original leave-last-two split |
 | Representation | Complete frozen Sentence-T5-base 768D embeddings from private baseline v2; byte hash and catalogue order checked |
 | Quantizer | sklearn Lloyd residual KMeans; normalize incoming residual at each level; 3×256, k-means++/n_init1/max_iter100; mandatory catalogue-order collision suffix |
-| Varying factor | Quantizer seeds11/22/33/44/55; each level uses seed+level |
+| Varying factor | Quantizer seeds11/22/33/44/55/66; each level uses seed+level |
 | Fixed RNG | Model seed42, data seed4242; identical initial tensor-content hash; same raw-item windows/order in every run |
 | Generator | Pinned GenPAS T5, **3 encoder +3 decoder layers**, d128, FF1024, 6 heads with d_kv64, dropout.1; standard FF, no user embedding or extra GenPAS FF layer |
-| Training | One GPU, FP16/scaler, FP32 master weights/loss; Adam lr5e-4/wd1e-4, clip1, batch512; constant LR, partial batches retained |
+| Training | Two T4 GPUs, one independent seed worker per card, FP16/scaler, FP32 master weights/loss; Adam lr5e-4/wd1e-4, clip1, batch512; constant LR, partial batches retained |
 | Budget | 20 epochs, no early stopping; checkpoints/validation5/10/15/20; compare epoch20 rather than each model's best checkpoint |
 | Epoch | Every source user once, seeded groups32, ordinary TIGER/GRID sampled contiguous subsequences, cap512 draws/group; duplicate sampled indices emitted once |
 | Context | At most24 train items, original20 evaluation items; full SIDs, right padding to100 input tokens, target excluded |
@@ -44,7 +44,7 @@ no placeholder is attended. Full input/mask parity is tested. `d_kv` is not
 inferred from d_model/heads. This is a declared TIGER-style hybrid, not an exact
 reproduction of a paper's scores, tokenizer or convergence schedule.
 
-Five (or ten) index seeds are NOT independent generator seeds. SID changes
+Six index seeds are NOT independent generator seeds. SID changes
 affect both history encoding and target factorization; this experiment does
 not isolate their separate contributions. Fixed twenty/thirty-epoch results
 also cannot establish converged rankings if learning curves still improve.
@@ -141,7 +141,7 @@ or60–90minutes/30epochs per model, with considerable uncertainty. It excludes
 all new diagnostics. The old4+4 run trained131k examples/epoch in roughly70sec;
 the new3+3 model processes292k/epoch with a larger batch/context. Do not sell
 these extrapolations as profiled timings. Ten×30 means300 training epochs,
-three times the original five×20 budget, and twice as many final exact panels.
+three times the original five×20 budget (before the user increased the default to six seeds), and twice as many final exact panels.
 Measure first models before queuing the entire extended budget.
 
 No full attention matrices/per-step gradient dumps. Scheduled checkpoints keep
@@ -189,7 +189,46 @@ comparisons control unchanged item/case properties but do not prove that one
 tree statistic caused the improvement. User bootstrap is conditional on the
 fitted models; run-level N remains the number of index realizations.
 
-The config builds through the stable Kaggle entry point with existing private
+The default is now six×20 epochs on two GPUs; the earlier ten×30 config is an
+optional extended budget, not the selected run. The config builds through the stable Kaggle entry point with existing private
 data/wheels and hash-pinned embeddings. A future authorized GPU launch must
 inspect quota, preserve private outputs and collect the evidence store, not
 only metrics.json. Implementation alone does not authorize dispatch.
+
+
+## Two-GPU execution
+
+The active config explicitly requests `machine_shape=NvidiaTeslaT4` via the
+Kaggle CLI metadata, and checks that both requested logical CUDA devices exist
+BEFORE preparing data. A single-GPU allocation fails; no serial/CPU fallback.
+`execution.worker_devices=["cuda:0","cuda:1"]` assigns seeds round-robin:
+GPU0:11/33/55; GPU1:22/44/66. This is independent model training, not DDP, so
+per-model batch512, LR, losses, examples and update order do not change.
+
+The parent prepares shared data, windows, all quantizers and cross-index
+statistics once, then creates a CPU reference initialization with a tensor
+hash. Two fresh subprocesses each see only their assigned GPU through
+CUDA_VISIBLE_DEVICES (preserving an inherited GPU/UUID mapping). Model
+construction uses the same initialization threads/seed and is checked against
+the reference hash. Training and diagnostics use one CPU thread per worker;
+the offline wheel site and embedded RHPR package are passed to subprocesses.
+The original pinned source is independently activated in each fresh process.
+
+Workers write disjoint table shards under `tables/<name>/worker-N/` and
+separate `rq-<seed>` checkpoints/scores. All share the same evidence schema,
+item/case IDs and raw-window files. Recursive Parquet/DuckDB views read one
+logical database, with no duplicated global tables or concurrent DuckDB writes.
+Only the parent builds the final inventory/database and aggregate metrics.
+
+`workers/plan.json` records assignments and shared inputs; per-worker atomic
+JSON status, logs and per-seed result/failure files retain progress. A failed
+seed is not retried with different settings; other seeds continue. The parent
+reports incomplete status if any attempt fails or a process dies, while keeping
+partial successful outputs and their inventory. Parent cancellation terminates
+child processes. No automatic training resume is provided.
+
+The exact same process orchestration can be explicitly tested with CPU/FP32
+workers. Tests compare native serial versus two-process model weights, RNG,
+exposures and item metrics, and exercise failure isolation. CPU tests do not
+establish CUDA compatibility, two-T4 throughput or near-2x speedup. CPU and disk
+are shared; every model still runs20epochs and its own complete diagnostics.

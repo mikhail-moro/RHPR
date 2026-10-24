@@ -66,22 +66,33 @@ def _finite(value):
 
 
 class StudyStore:
-    def __init__(self, root):
+    def __init__(self, root, *, shard=None):
         import pyarrow as pa
         import pyarrow.parquet as pq
         self.root = Path(root)
         self.tables = self.root / "tables"
         self.schema = schemas()
         self.pending = {}
+        self.shard = shard
+        manifest = self.root / "schema.json"
+        declaration = {"version": 1, "positions": "zero based", "ranks": "one based",
+                       "scores": "natural log probability", "tables": FIELDS}
+        if shard is not None:
+            if not shard or Path(shard).name != shard or shard in {".", ".."} or "\\" in shard:
+                raise ValueError("Writer shard must be a safe basename")
+            # Parent initializes the store once. Workers never rewrite shared
+            # schema or schema-only files and own separate output directories.
+            if not manifest.is_file() or json.loads(manifest.read_text()) != declaration:
+                raise ValueError("Worker requires an initialized matching store")
+            for name in self.schema:
+                (self.tables / name / shard).mkdir(parents=True, exist_ok=False)
+            return
         self.tables.mkdir(parents=True, exist_ok=True)
         for name, schema in self.schema.items():
             directory = self.tables / name
             directory.mkdir(exist_ok=True)
             if not (directory / "schema.parquet").exists():
                 pq.write_table(pa.Table.from_pylist([], schema=schema), directory / "schema.parquet")
-        manifest = self.root / "schema.json"
-        declaration = {"version": 1, "positions": "zero based", "ranks": "one based",
-                       "scores": "natural log probability", "tables": FIELDS}
         if manifest.exists() and json.loads(manifest.read_text()) != declaration:
             raise ValueError("Evidence schema mismatch")
         manifest.write_text(json.dumps(declaration, indent=2) + "\n")
@@ -113,7 +124,10 @@ class StudyStore:
         import pyarrow.parquet as pq
         schema = self.schema[name]
         table = pa.Table.from_pylist(rows, schema=schema)
-        path = self.tables / name / (uuid.uuid4().hex + ".parquet")
+        directory = self.tables / name
+        if self.shard is not None:
+            directory /= self.shard
+        path = directory / (uuid.uuid4().hex + ".parquet")
         temporary = path.with_suffix(".pending")
         pq.write_table(table, temporary, compression="zstd")
         os.replace(temporary, path)
@@ -128,7 +142,7 @@ class StudyStore:
     def read(self, name):
         import pyarrow.parquet as pq
         self.flush()
-        return pq.read_table(sorted((self.tables / name).glob("*.parquet"))).to_pylist()
+        return pq.read_table(sorted((self.tables / name).rglob("*.parquet"))).to_pylist()
 
     def connect(self, database=":memory:"):
         """Create relocatable views; re-open with this method after moving files."""
@@ -136,7 +150,7 @@ class StudyStore:
         self.flush()
         connection = duckdb.connect(str(database))
         for name in FIELDS:
-            path = str((self.tables / name / "*.parquet").resolve()).replace("'", "''")
+            path = str((self.tables / name / "**" / "*.parquet").resolve()).replace("'", "''")
             connection.execute(f'CREATE OR REPLACE VIEW "{name}" AS SELECT * FROM read_parquet(\'{path}\', hive_partitioning=false)')
         connection.execute("""CREATE OR REPLACE VIEW item_quality AS
             SELECT m.run_id, m.epoch, c.split, c.target_item AS item_id,

@@ -341,10 +341,56 @@ def validate_study_config(config):
     for name in ("context_items", "evaluation_batch_size", "exact_chunk_size", "save_top_k", "main_beam_width", "exact_panel_size"):
         if type(diagnostics[name]) is not int or diagnostics[name] < 1:
             raise ValueError(f"Invalid diagnostics {name}")
+    if config.get("execution"):
+        from rhpr.gr.study_parallel import seed_assignments
+        seed_assignments(config)
+
+
+def train_one_seed(seed, index, users, cases, windows, config, store, source, output, initial_hash=None):
+    """Independent model/RNG/optimizer; same implementation in serial/workers."""
+    import torch
+    run_id, folder = f"rq-{seed}", output / f"rq-{seed}"
+    torch.set_num_threads(config["training"]["cpu_threads"])
+    random.seed(config["model_seed"])
+    np.random.seed(config["model_seed"])
+    torch.manual_seed(config["model_seed"])
+    model = build_study_model(index, source, folder, config["generator"])
+    try:
+        store.write("artifacts", [{"path": str((folder / "generator.json").relative_to(output)),
+            "sha256": file_sha256(folder / "generator.json"), "role": "generator_config"}])
+        digest = state_digest(model.state_dict())
+        if initial_hash is None:
+            initial_hash = digest
+            torch.save(model.state_dict(), output / "initial-state.pt")
+        if digest != initial_hash:
+            raise ValueError("Generator initial weights changed between quantizer seeds")
+        store.write("runs", [{"run_id": run_id, "quantizer_seed": seed, "model_seed": config["model_seed"],
+            "data_seed": config["data_seed"], "initial_state_sha256": digest, "config_json": json.dumps(config, sort_keys=True)}])
+        for begin in range(0, len(cases), 1024):
+            chosen = cases[begin:begin + 1024]
+            batch = make_batch([c["visible_history"] for c in chosen], [c["target_item"] for c in chosen],
+                [c["user_id"] for c in chosen], index, config["training"]["input_tokens"], "cpu")
+            store.write("model_inputs", [{"run_id": run_id, "case_id": c["case_id"],
+                "input_ids": batch["input_ids"][i].tolist(), "attention_mask": batch["attention_mask_encoder"][i].tolist()}
+                for i, c in enumerate(chosen)])
+        store.flush()
+        torch.set_num_threads(config.get("execution", {}).get("cpu_threads_per_worker", config["training"]["cpu_threads"]))
+        model.to(config["training"]["device"])
+        result = train_study(model, index, users, cases, windows, config, store, run_id, folder)
+        _write(folder / "result.json", result)
+        store.write("artifacts", [{"path": str((folder / "result.json").relative_to(output)),
+            "sha256": file_sha256(folder / "result.json"), "role": "seed_result"}])
+        return initial_hash, result
+    finally:
+        store.flush()
+        del model
+        gc.collect()
+        if config["training"]["device"] == "cuda":
+            torch.cuda.empty_cache()
 
 
 def run_sid_study(config, output):
-    output = Path(output)
+    output = Path(output).resolve()
     if (output / "schema.json").exists():
         raise ValueError("Study output already exists; refusing duplicate evidence. Use a fresh directory.")
     output.mkdir(parents=True, exist_ok=True)
@@ -370,6 +416,9 @@ def _run_sid_study(config, output):
     spec = config["training"]
     if spec["device"] == "cuda" and not torch.cuda.is_available():
         raise RuntimeError("GPU required; no silent CPU fallback")
+    if config.get("execution"):
+        from rhpr.gr.study_parallel import check_devices
+        check_devices(config)
     torch.set_num_threads(spec["cpu_threads"])
     torch.use_deterministic_algorithms(True)
     torch.backends.cudnn.benchmark = False
@@ -412,6 +461,11 @@ def _run_sid_study(config, output):
         "torch": torch.__version__, "cuda": torch.version.cuda,
         "device": str(torch.cuda.get_device_name() if spec["device"] == "cuda" else "cpu"),
         "exact_published_reproduction": False})
+    if config.get("execution"):
+        protocol = json.loads((output / "protocol.json").read_text())
+        protocol["execution"] = config["execution"]
+        protocol["parallelism"] = "independent seeds in isolated processes; one visible GPU per worker"
+        _write(output / "protocol.json", protocol)
     from importlib.metadata import version
     from rhpr.gr.genpas import GENPAS_REVISION
     _write(output / "input-provenance.json", {"source_revision": GENPAS_REVISION,
@@ -450,40 +504,29 @@ def _run_sid_study(config, output):
                 "sha256": file_sha256(folder / name), "role": "quantizer"}])
     compare_indices(store, indices)
     store.inventory()
-    for seed in config["quantizer_seeds"]:
-        run_id, folder = f"rq-{seed}", output / f"rq-{seed}"
-        index = indices[run_id]
+    if config.get("execution"):
+        from rhpr.gr.study_parallel import launch_workers
+        # Construct the reference on CPU once, independently of worker timing.
         random.seed(config["model_seed"])
         np.random.seed(config["model_seed"])
         torch.manual_seed(config["model_seed"])
-        model = build_study_model(index, source, folder, config["generator"])
-        store.write("artifacts", [{"path": str((folder / "generator.json").relative_to(output)),
-            "sha256": file_sha256(folder / "generator.json"), "role": "generator_config"}])
-        digest = state_digest(model.state_dict())
-        if initial_hash is None:
-            initial_hash = digest
-            torch.save(model.state_dict(), output / "initial-state.pt")
-        if digest != initial_hash:
-            raise ValueError("Generator initial weights changed between quantizer seeds")
-        store.write("runs", [{"run_id": run_id, "quantizer_seed": seed, "model_seed": config["model_seed"],
-            "data_seed": config["data_seed"], "initial_state_sha256": digest, "config_json": json.dumps(config, sort_keys=True)}])
-        # Exact model inputs, not merely a recipe to reconstruct them.
-        for begin in range(0, len(cases), 1024):
-            chosen = cases[begin:begin + 1024]
-            batch = make_batch([c["visible_history"] for c in chosen], [c["target_item"] for c in chosen],
-                [c["user_id"] for c in chosen], index, spec["input_tokens"], "cpu")
-            store.write("model_inputs", [{"run_id": run_id, "case_id": c["case_id"],
-                "input_ids": batch["input_ids"][i].tolist(), "attention_mask": batch["attention_mask_encoder"][i].tolist()}
-                for i, c in enumerate(chosen)])
-        model.to(spec["device"])
-        result = train_study(model, index, users, cases, windows, config, store, run_id, folder)
-        metrics.update({run_id.replace("-", "_") + "_" + key: value for key, value in result.items()})
-        _write(output / "partial-metrics.json", metrics)
-        store.inventory()
-        del model
-        gc.collect()
-        if spec["device"] == "cuda":
-            torch.cuda.empty_cache()
+        reference = build_study_model(indices[f"rq-{config['quantizer_seeds'][0]}"], source,
+                                      output / "initial-generator", config["generator"])
+        initial_hash = state_digest(reference.state_dict())
+        torch.save(reference.state_dict(), output / "initial-state.pt")
+        del reference
+        store.flush()
+        try:
+            metrics = launch_workers(config, output, source_path, windows, initial_hash)
+        finally:
+            store.inventory()
+    else:
+        for seed in config["quantizer_seeds"]:
+            initial_hash, result = train_one_seed(seed, indices[f"rq-{seed}"], users, cases, windows,
+                config, store, source, output, initial_hash)
+            metrics.update({f"rq_{seed}_" + key: value for key, value in result.items()})
+            _write(output / "partial-metrics.json", metrics)
+            store.inventory()
     for name in ("item-embeddings.npy", "initial-state.pt", "study-config.json", "protocol.json", "representation.json", "input-provenance.json",
                  "inputs/catalog.json", "inputs/sequences.json"):
         store.write("artifacts", [{"path": name, "sha256": file_sha256(output / name), "role": name.split(".")[0]}])

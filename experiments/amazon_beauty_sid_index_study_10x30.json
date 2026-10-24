@@ -118,7 +118,8 @@
     ],
     "kernel_sources": [
       "carasik/rhpr-gr-beauty-sentence-t5-rkmeans"
-    ]
+    ],
+    "machine_shape": "NvidiaTeslaT4"
   },
   "reference": {
     "source_revision": "7803b541f646237084ac01692accc8e97053491b",
@@ -128,8 +129,15 @@
       "three encoder plus three decoder layers at d_model128; standard FF, no GenPAS extra FF layer",
       "frozen Sentence-T5 embeddings; CPU sklearn residual Lloyd KMeans, three codebooks256 plus ordinal suffix",
       "twenty finite source-user epochs; shared sampled contiguous windows; constant LR; no early stopping",
-      "one GPU FP16 training; FP32 log-space diagnostic search with deterministic prefix tie-breaking",
+      "two independent GPU seed workers, FP16 training; FP32 log-space diagnostic search with deterministic prefix tie-breaking",
       "source-equivalent valid-child local scoring and raw AR scoring retained separately; no invalid filler beams"
     ]
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
   }
 }
