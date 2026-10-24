@@ -54,9 +54,14 @@ def audit(store, *, verify_files=False):
             n = db.execute(f'SELECT count(*) FROM "{child}" c ANTI JOIN "{parent}" p ON c.{key}=p.{foreign}').fetchone()[0]
             if n:
                 errors.append(f"{child}.{key}: {n} missing {parent} rows")
-        n = db.execute("SELECT count(DISTINCT initial_state_sha256) FROM runs").fetchone()[0]
-        if n > 1:
-            errors.append("Generator initialization differs between runs")
+        n = db.execute("""SELECT count(*) FROM (SELECT model_seed FROM runs GROUP BY model_seed
+            HAVING count(DISTINCT initial_state_sha256)>1)""").fetchone()[0]
+        if n:
+            errors.append("Generator initialization differs within a paired model seed")
+        n = db.execute("""SELECT count(*) FROM (SELECT quantizer_seed,item_id FROM item_codes JOIN runs USING(run_id)
+            GROUP BY quantizer_seed,item_id HAVING count(DISTINCT model_seed)>1 AND count(DISTINCT sid)>1)""").fetchone()[0]
+        if n:
+            errors.append("Fixed quantizer codes differ between generator seeds")
         # A full SID must map to one item in each realization.
         n = db.execute("SELECT count(*) FROM (SELECT run_id,sid FROM item_codes GROUP BY ALL HAVING count(*)>1)").fetchone()[0]
         if n:
