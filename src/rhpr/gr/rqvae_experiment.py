@@ -68,16 +68,22 @@ def run_rqvae_baseline(config, output):
     texts, users, source_ids, counts = load_beauty(resources / "data", config["data"])
     _write(output / "input-provenance.json", {"manifest": manifest, "counts": counts,
         "data": config["data"], "telemetry": "disabled; no study tables, traces, exact panels or probes"})
-    parent = verify_parent_artifacts(config["parent"])
-    embeddings, representation = _encode_items(config, resources, texts, output, device, parent)
-    codes, quantizer = fit_grid_rqvae(embeddings, config["quantizer"], seed, device,
-        grid, original / "configs/experiment/rqvae_train_flat.yaml", output)
+    if config["representation"]["kind"] == "field_encoder":
+        from rhpr.gr.field_rqvae import fit_field_rqvae
+        codes, quantizer, representation = fit_field_rqvae(texts, config["representation"],
+            config["quantizer"], seed, device, grid,
+            original / "configs/experiment/rqvae_train_flat.yaml", output)
+    else:
+        parent = verify_parent_artifacts(config["parent"])
+        embeddings, representation = _encode_items(config, resources, texts, output, device, parent)
+        codes, quantizer = fit_grid_rqvae(embeddings, config["quantizer"], seed, device,
+            grid, original / "configs/experiment/rqvae_train_flat.yaml", output)
+        del embeddings
     index = SidIndex(codes, width=config["quantizer"]["codebook_size"])
     np.save(output / "semantic-ids.npy", index.sids, allow_pickle=False)
     _write(output / "sid-diagnostics.json", index.diagnostics())
     _write(output / "sid-catalogue.json", {"original_item_ids": source_ids,
         "row_order": "internal_item_id_0_based", "semantic_ids_sha256": file_sha256(output / "semantic-ids.npy")})
-    del embeddings
     if device.startswith("cuda"):
         torch.cuda.empty_cache()
     model = build_grid_generator(index.sids, config["generator"], seed, device, grid)

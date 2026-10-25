@@ -8,6 +8,14 @@
 - The active direction is comparing item encoders for SID-based generative
   recommendation. Read `docs/gr-research-brief.md`, `docs/gr-baseline.md`, and
   `docs/research/item-encoders/README.md`.
+- The user specified joint feature-encoder/RQ-VAE reconstruction on2026-10-26:
+  brand embedding+Linear/categories MeanPooling embeddings+Linear/standardized
+  price+Linear,concatenate into native GRID RQ-VAE;CE/BCE/Huber combined by
+  LibMTL uncertainty weighting. Title is explicitly excluded. Read
+  `docs/gr-field-rqvae.md`;config
+  `experiments/amazon_beauty_field_rqvae_tiger_fast_prefix.json`. Preserve the
+  fast generator/training/evaluation control. This metadata objective is not
+  joint NIP training and does not establish that text encoders are inferior.
 - The user authorized a fast Sentence-T5 + native GRID RQ-VAE3x256 + previous
   GRID TIGER4+4/d128 baseline on2026-10-25:3000 quantizer updates,20 generator
   epochs,FP16 generator,validation every10,no study telemetry. Read
@@ -46,8 +54,8 @@
 - Historical reproduction work is in `docs/gr-genpas-tiger-epochs.md`,
   `docs/gr-genpas-tpu.md`, `docs/gr-grid-quality.md` and
   `docs/gr-grid-reproduction.md`. Do not silently revive those protocols.
-- Do not implement a new tokenizer or assert a representation bottleneck before
-  the baseline and diagnostics support that claim.
+- Do not implement unrequested tokenizers or assert a representation bottleneck
+  before the baseline and diagnostics support that claim.
 
 ## Working agreement
 

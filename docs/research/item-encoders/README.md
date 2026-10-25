@@ -1,5 +1,12 @@
 # Next direction: item representations for SID
 
+Update2026-10-26:the user chose a joint structured-field encoder and RQ-VAE,
+reconstructing original brand/categories/price with CE/BCE/Huber and LibMTL
+uncertainty weighting. Title is excluded. See
+[the implementation protocol](../../gr-field-rqvae.md). The fast generator,
+prefix sampling and evaluation remain controlled; the metadata encoder and
+quantizer are trained jointly, with next-item training still a separate stage.
+
 User decision, 2026-10-25: pause the index-diagnostics branch and return to
 comparing item encoders. The user subsequently authorized the
 [Sentence-T5 / RQ-VAE / TIGER baseline](../../gr-rqvae-baseline.md), retaining

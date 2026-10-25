@@ -16,7 +16,7 @@ from rhpr.gr.experiment import _event, _write
 from rhpr.gr.sid import validate_item_embeddings
 
 
-def build_rqvae(source_root, recipe_path, dimension, spec):
+def build_rqvae(source_root, recipe_path, dimension, spec, *, feature_schema=None, field_dim=64):
     from hydra.utils import instantiate
     from omegaconf import OmegaConf
     from rhpr.gr.grid import load_grid
@@ -30,6 +30,11 @@ def build_rqvae(source_root, recipe_path, dimension, spec):
     recipe.model.track_residuals = False
     recipe.model.init_buffer_size = spec["init_buffer_size"]
     recipe.model.quantization_layer.initializer.max_iter = spec["initialization_steps"]
+    if feature_schema is not None:
+        recipe.model._target_ = "rhpr.gr.field_rqvae_native.FieldResidualQuantization"
+        recipe.model.feature_schema = feature_schema
+        recipe.model.field_dim = field_dim
+        recipe.model.reconstruction_loss_function = None
     if spec.get("distance_backend", "upstream") == "torch_cdist":
         # All references in this recipe use the same squared L2 metric,
         # including the initializer. Numeric rounding can differ from upstream.
