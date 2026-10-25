@@ -94,8 +94,10 @@ def run_rqvae_baseline(config, output):
 
     started = time.monotonic()
     stage = config.get("pipeline", {}).get("stage", "full")
-    if stage not in {"full", "quantizer_only"}:
-        raise ValueError("pipeline.stage must be full or quantizer_only")
+    if stage not in {"full", "quantizer_only", "continuous_autoencoder"}:
+        raise ValueError("unsupported pipeline.stage")
+    if stage == "continuous_autoencoder" and config["representation"]["kind"] != "field_encoder":
+        raise ValueError("continuous control requires field_encoder representation")
     seed, device = config["seed"], config["training"]["device"]
     if device.startswith("cuda") and not torch.cuda.is_available():
         raise RuntimeError("GPU RQ-VAE experiment requires CUDA; no CPU fallback")
@@ -114,12 +116,16 @@ def run_rqvae_baseline(config, output):
         "data": config["data"], "telemetry": "disabled; no study tables, traces, exact panels or probes"})
     if config["representation"]["kind"] == "field_encoder":
         from rhpr.gr.field_rqvae import fit_field_rqvae
+        fitter = fit_field_rqvae
+        if stage == "continuous_autoencoder":
+            from rhpr.gr.field_autoencoder import fit_field_autoencoder
+            fitter = fit_field_autoencoder
         title_arguments = {}
         if "title" in config["representation"]["fields"]:
             title_values, title_observed, title_report = _encode_titles(
                 config["representation"]["title"], resources, texts, output, device)
             title_arguments = {"title_embeddings": title_values, "title_observed": title_observed}
-        codes, quantizer, representation = fit_field_rqvae(texts, config["representation"],
+        codes, quantizer, representation = fitter(texts, config["representation"],
             config["quantizer"], seed, device, grid,
             original / "configs/experiment/rqvae_train_flat.yaml", output, **title_arguments)
         if title_arguments:
@@ -133,6 +139,16 @@ def run_rqvae_baseline(config, output):
         codes, quantizer = fit_grid_rqvae(embeddings, config["quantizer"], seed, device,
             grid, original / "configs/experiment/rqvae_train_flat.yaml", output)
         del embeddings
+    if stage == "continuous_autoencoder":
+        _write(output / "autoencoder-catalogue.json", {"original_item_ids": source_ids,
+            "row_order": "internal_item_id_0_based", "quantization_enabled": False})
+        return {"experiment": config["name"], "seed": seed, "stage": stage,
+            "autoencoder_steps": quantizer["steps"], "catalogue_items": counts["items"],
+            "autoencoder_seconds": quantizer["elapsed_seconds"], "embedding_seconds": representation["seconds"],
+            "quantization_enabled": False, "generator_trained": False, "test_evaluations": 0,
+            "elapsed_seconds": time.monotonic() - started,
+            **{f"reconstruction_{name}_loss": value["loss"] for name, value in quantizer["field_reconstruction"].items()
+               if value["loss"] is not None}}
     if config["representation"]["kind"] == "field_encoder" or stage == "quantizer_only":
         statistics = quantizer["semantic_code_statistics"]
         status = {"stage": "sid_collision_resolution", "semantic_codes_exported": True,

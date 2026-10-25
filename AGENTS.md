@@ -8,6 +8,13 @@
 - The active direction is comparing item encoders for SID-based generative
   recommendation. Read `docs/gr-research-brief.md`, `docs/gr-baseline.md`, and
   `docs/research/item-encoders/README.md`.
+- Latest user authorization,2026-10-26:run the separately trained continuous
+  fields+frozen-title autoencoder control,5000updates,seed42,same native neural
+  initialization/latent64/Adagrad1e-3/uncertainty objective. Use
+  `experiments/amazon_beauty_field_title_ae_5k_control.json`;see
+  `docs/gr-field-autoencoder-control.md`. Remove both quantized forward and
+  codebook/commitment loss;no SID,codebook initialization or generator. Compare
+  every field at500-step catalogue evaluations,not only weighted total loss.
 - Latest follow-up,2026-10-26:the user requested a5000-step extension of the
   fields+frozen-title QUANTIZER-ONLY arm. Use
   `experiments/amazon_beauty_field_title_rqvae_5k_diagnostic.json` with identical
