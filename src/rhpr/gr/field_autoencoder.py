@@ -20,6 +20,16 @@ class ContinuousFieldAutoencoder(nn.Module):
         for name in ("feature_encoder", "normalization_layer", "encoder", "decoder", "field_heads", "uncertainty"):
             setattr(self, name, getattr(native, name))
         self.field_names = native.field_names
+        self.loss_policy = {"mode": "uncertainty"}
+        self.loss_normalizers = {name: 1.0 for name in self.field_names}
+
+    def task_weights(self):
+        mode = self.loss_policy["mode"]
+        if mode == "uncertainty":
+            return self.uncertainty.weights()
+        values = [1 / self.loss_normalizers[name] if mode == "fixed_normalized" else float(name == "title")
+                  for name in self.field_names]
+        return self.uncertainty.loss_scale.new_tensor(values)
 
     def forward(self, fields):
         features = self.feature_encoder(fields)
@@ -29,8 +39,62 @@ class ContinuousFieldAutoencoder(nn.Module):
     def objective(self, predictions, fields):
         losses, counts = self.field_heads.losses(predictions, fields)
         active = torch.tensor([counts[name] > 0 for name in self.field_names], device=fields["brand"].device)
-        total = self.uncertainty(torch.stack([losses[name] for name in self.field_names]), active)
+        values = torch.stack([losses[name] for name in self.field_names])
+        if self.loss_policy["mode"] == "uncertainty":
+            total = self.uncertainty(values, active)
+        else:
+            total = (values * self.task_weights() * active).sum()
         return total, losses, counts
+
+
+def configure_objective(model, arrays, policy):
+    """Catalogue constants are fitted once; no generator/test labels are used."""
+    policy = dict(policy or {"mode": "uncertainty"})
+    mode = policy.get("mode")
+    if mode not in {"uncertainty", "fixed_normalized", "title_only"}:
+        raise ValueError("unsupported autoencoder loss policy")
+    if mode == "title_only" and "title" not in model.field_names:
+        raise ValueError("title_only requires frozen title targets")
+    lr = policy.get("uw_learning_rate")
+    if lr is not None and (mode != "uncertainty" or type(lr) not in (int, float) or not np.isfinite(lr) or lr <= 0):
+        raise ValueError("uw_learning_rate requires uncertainty mode and positive finite value")
+    model.loss_policy = policy
+    for parameter in model.uncertainty.parameters():
+        parameter.requires_grad_(mode == "uncertainty")
+    if mode == "fixed_normalized":
+        floor = policy.get("normalizer_floor", 1e-6)
+        if type(floor) not in (int, float) or not np.isfinite(floor) or floor <= 0:
+            raise ValueError("normalizer_floor must be positive finite")
+        brands = arrays["brand"][arrays["brand"] > 0]
+        _, counts = np.unique(brands, return_counts=True)
+        p = counts / counts.sum()
+        constants = {"brand": float(-(p * np.log(p)).sum())}
+        labels = arrays["categories"][arrays["categories_observed"]]
+        p = labels.mean(0).astype(np.float64)
+        safe = np.clip(p, 1e-12, 1-1e-12)
+        constants["categories"] = float(-(p*np.log(safe)+(1-p)*np.log(1-safe)).mean())
+        prices = arrays["price"][arrays["price_observed"]]
+        errors = np.abs(prices - np.median(prices))
+        constants["price"] = float(np.where(errors < 1, .5*errors**2, errors-.5).mean())
+        if "title" in model.field_names:
+            titles = arrays["title"][arrays["title_observed"]]
+            constants["title"] = float(np.square(titles - titles.mean(0)).mean())
+        if any(not np.isfinite(value) for value in constants.values()):
+            raise ValueError("field normalization requires observed finite catalogue targets")
+        model.loss_normalizers = {name: max(value, floor) for name, value in constants.items()}
+        model.loss_policy["catalogue_constant_errors"] = constants
+        model.loss_policy["clamped_normalizers"] = [name for name,value in constants.items() if value < floor]
+    return model.loss_policy
+
+
+def make_autoencoder_optimizer(model, factory):
+    lr = model.loss_policy.get("uw_learning_rate")
+    if lr is None:
+        return factory(params=[p for p in model.parameters() if p.requires_grad])
+    uncertainty = list(model.uncertainty.parameters())
+    ids = {id(p) for p in uncertainty}
+    return factory(params=[{"params": [p for p in model.parameters() if p.requires_grad and id(p) not in ids], "name": "neural"},
+                           {"params": uncertainty, "lr": lr, "name": "uncertainty"}])
 
 
 def build_field_autoencoder(source_root, recipe_path, schema, spec, field_dim):
@@ -89,8 +153,9 @@ def evaluate_autoencoder(model, arrays, device, batch_size, *, capture=None):
         titles = arrays["title"][arrays["title_observed"]]
         result["title"]["catalogue_mean_predictor_mse"] = float(np.square(titles - titles.mean(0)).mean())
     return {"field_reconstruction": result, "latent_norm_mean": norm_sum / examples,
-        "field_weights": dict(zip(names, model.uncertainty.weights().detach().cpu().tolist())),
-        "field_log_variances": model.uncertainty.loss_scale.detach().cpu().tolist()}
+        "field_weights": dict(zip(names, model.task_weights().detach().cpu().tolist())),
+        "field_log_variances": model.uncertainty.loss_scale.detach().cpu().tolist(),
+        "uncertainty_active": model.loss_policy["mode"] == "uncertainty"}
 
 
 def fit_field_autoencoder(texts, representation, spec, seed, device, source_root, recipe_path, output, *,
@@ -112,8 +177,11 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
     preparation_seconds = time.monotonic() - before
     torch.manual_seed(seed)
     model, optimizer_factory, resolved = build_field_autoencoder(source_root, recipe_path, schema, spec, representation["field_dim"])
+    from rhpr.gr.sid_study import state_digest
+    initial_digest = state_digest(model.state_dict())
+    configure_objective(model, arrays, spec.get("loss_policy"))
     model.to(device)
-    optimizer = optimizer_factory(params=model.parameters())
+    optimizer = make_autoencoder_optimizer(model, optimizer_factory)
     data_rng = torch.Generator().manual_seed(seed)
     loader = DataLoader(range(len(texts)), batch_size=spec["batch_size"], shuffle=True,
         drop_last=False, num_workers=0, generator=data_rng)
@@ -150,7 +218,7 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
                 row = {"step": updates, "total_loss": float(loss.detach()),
                     "raw_field_losses": {name: float(value.detach()) for name, value in losses.items()},
                     "field_observed_counts": counts, "scope": "last_training_batch", "gradient_norms": norms,
-                    "field_weights": dict(zip(model.field_names, model.uncertainty.weights().detach().cpu().tolist()))}
+                    "field_weights": dict(zip(model.field_names, model.task_weights().detach().cpu().tolist()))}
                 curves.append(row);_write(output / "field-learning-curves.json", curves)
                 _event("continuous_autoencoder_progress", **row)
                 evaluate(updates)
@@ -158,6 +226,8 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
                 break
     torch.save({"model": model.state_dict(), "optimizer": optimizer.state_dict(), "spec": spec,
         "representation": representation, "feature_schema": schema, "resolved_model": resolved,
+        "loss_policy": model.loss_policy, "loss_normalizers": model.loss_normalizers,
+        "initial_state_sha256": initial_digest,
         "seed": seed, "steps": updates, "data_rng": data_rng.get_state(),
         "rng_cpu": torch.get_rng_state(), "rng_cuda": torch.cuda.get_rng_state_all() if device.startswith("cuda") else [],
         "quantization_enabled": False, "automatic_resume": False}, output / "autoencoder.pt")
@@ -172,7 +242,10 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
         "parameters": sum(p.numel() for p in model.parameters()), "elapsed_seconds": time.monotonic() - started,
         "input_dim": model.feature_encoder.output_dim, "latent_dim": model.encoder.output_dim,
         "optimizer": type(optimizer).__name__, "learning_rate": optimizer.param_groups[0]["lr"],
-        "objective": "same uncertainty-weighted field reconstruction; no codebook/commitment loss",
+        "optimizer_param_groups": [{"name": g.get("name", "all"), "lr": g["lr"]} for g in optimizer.param_groups],
+        "loss_policy": model.loss_policy, "loss_normalizers": model.loss_normalizers,
+        "initial_state_sha256": initial_digest,
+        "objective": model.loss_policy["mode"] + " field reconstruction; no codebook/commitment loss",
         "checkpoint_sha256": file_sha256(output / "autoencoder.pt"),
         "source_recipe_sha256": file_sha256(Path(recipe_path)), **final}
     _write(output / "autoencoder.json", report)

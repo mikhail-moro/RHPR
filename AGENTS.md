@@ -8,6 +8,16 @@
 - The active direction is comparing item encoders for SID-based generative
   recommendation. Read `docs/gr-research-brief.md`, `docs/gr-baseline.md`, and
   `docs/research/item-encoders/README.md`.
+- Latest user authorization,2026-10-26:check multiple fast continuous-AE loss
+  hypotheses,parallel on two T4s. Use
+  `experiments/amazon_beauty_field_ae_loss_suite_2t4.json`;four independent
+  5000-step trials:UW log-variance LR0.03/0.1 (neural Adagrad LR0.001),fixed
+  constant-predictor-normalized losses,and title-only reconstruction with all
+  input fields retained. Same seed42,initial neural weights,FP32,latent64 and
+  batch2048. Reuse byte-verified frozen title targets and the completed original
+  UW control;no baseline rerun,RQ,SID,generator or recommendation claims. See
+  `docs/gr-field-ae-loss-suite.md`. This authorizes one private two-GPU session,
+  not arbitrary follow-up tuning or automatic retries.
 - Latest user authorization,2026-10-26:run the separately trained continuous
   fields+frozen-title autoencoder control,5000updates,seed42,same native neural
   initialization/latent64/Adagrad1e-3/uncertainty objective. Use

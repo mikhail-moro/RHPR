@@ -76,6 +76,11 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == "gr_field_ae_suite":
+        if output_dir is None:
+            raise ValueError("output_dir is required for gr_field_ae_suite")
+        from rhpr.gr.ae_suite import run_autoencoder_suite
+        return run_autoencoder_suite(config, output_dir)
     if kind == "gr_rqvae_baseline":
         if output_dir is None:
             raise ValueError("output_dir is required for gr_rqvae_baseline")
