@@ -22,6 +22,13 @@ def fixture_texts():
 
 
 class ConfigurationTests(unittest.TestCase):
+    def test_5k_run_changes_only_budget_and_explicit_diagnostics(self):
+        old = json.loads((ROOT / "experiments/amazon_beauty_field_rqvae_tiger_fast_prefix.json").read_text())
+        new = json.loads((ROOT / "experiments/amazon_beauty_field_rqvae_tiger_5k.json").read_text())
+        for key in ("training", "generator", "evaluation", "data", "representation", "seed"):
+            self.assertEqual(new[key], old[key])
+        self.assertEqual(new["quantizer"], {**old["quantizer"], "max_steps": 5000, "diagnostics_interval_steps": 500})
+
     def test_generator_and_training_remain_controlled(self):
         baseline = json.loads((ROOT / "experiments/amazon_beauty_rqvae_tiger_fast_prefix_fp16_20epochs.json").read_text())
         config = json.loads((ROOT / "experiments/amazon_beauty_field_rqvae_tiger_fast_prefix.json").read_text())
@@ -35,6 +42,28 @@ class ConfigurationTests(unittest.TestCase):
 
 @unittest.skipUnless(HAS_TORCH, "Requires PyTorch and NumPy")
 class FieldTests(unittest.TestCase):
+    def test_codebook_occupancy_geometry_and_overflow_do_not_require_resolved_sids(self):
+        import numpy as np
+        from rhpr.gr.codebook_diagnostics import diagnose_codebooks, semantic_statistics
+        # A collapse with overflow in the complete code, not just its prefix.
+        codes = np.array([[0, 0], [0, 0], [0, 0], [1, 1]], dtype=np.uint8)
+        books = np.array([[[0.], [1.]], [[0.], [1.]]])
+        encoded = np.array([[0.], [0.], [0.], [2.]])
+        stats = diagnose_codebooks(codes, encoded, books)
+        self.assertEqual(stats["semantic_unique_ids"], 2)
+        self.assertEqual(stats["max_collision_group"], 3)
+        self.assertFalse(stats["suffix_representable"])
+        self.assertEqual(stats["prefixes"][-1]["items_in_overflow_groups"], 3)
+        self.assertEqual(stats["levels"][0]["counts"], [3, 1])
+        self.assertAlmostEqual(stats["levels"][0]["entropy_bits"], 0.8112781244591328)
+        self.assertEqual(stats["quantization_mse"], 0)
+        self.assertEqual(stats["levels"][0]["residual_mse_after"], .25)
+        # Large intermediate groups do not imply complete-SID overflow.
+        separated = semantic_statistics(np.array([[0, 0], [0, 0], [0, 1], [0, 1]]), 2)
+        self.assertTrue(separated["suffix_representable"])
+        with self.assertRaisesRegex(ValueError, "outside codebook"):
+            semantic_statistics(np.array([[2, 0]]), 2)
+
     def test_catalogue_scaling_deduplication_missingness_and_schema_replay(self):
         import numpy as np
         from rhpr.gr.fields import prepare_fields
@@ -126,6 +155,32 @@ again,embeddings,losses=export_field_codes(restored,arrays,'cpu',8)
 np.testing.assert_array_equal(codes,again)
 np.testing.assert_array_equal(embeddings,np.load(root/'fit/item-embeddings.npy'))
 for name in losses:assert abs(losses[name]['loss']-report['field_reconstruction'][name]['loss'])<1e-8
+# Diagnostic probes must leave fit state, BatchNorm, parameters and RNG intact.
+from rhpr.gr.field_rqvae import probe_field_codebooks
+restored.trainer.state.fn=TrainerFn.FITTING;restored.train();restored.field_heads.heads['brand'].eval()
+modes=[m.training for m in restored.modules()]
+before={k:v.clone() for k,v in restored.state_dict().items()};rng=torch.get_rng_state().clone()
+stats=probe_field_codebooks(restored,arrays,'cpu',8,root/'probe',4)
+assert restored.trainer.state.fn==TrainerFn.FITTING
+assert modes==[m.training for m in restored.modules()]
+assert torch.equal(rng,torch.get_rng_state())
+assert all(torch.equal(before[k],v) for k,v in restored.state_dict().items())
+assert stats['items']==32 and len(stats['levels'])==3
+assert (root/'probe/codebook-snapshots/step-00004.npz').is_file()
+# A second identical fit with probes enabled must have the same final weights.
+probed_spec={**spec,'diagnostics_interval_steps':1}
+probed_codes,probed_report,_=fit_field_rqvae(texts,representation,probed_spec,42,'cpu',source,recipe,root/'probed-fit')
+probed_state=torch.load(root/'probed-fit/quantizer.pt',map_location='cpu',weights_only=False)
+assert all(torch.equal(state['model'][k],v) for k,v in probed_state['model'].items())
+np.testing.assert_array_equal(codes,probed_codes)
+curve=json.loads((root/'probed-fit/codebook-learning-curves.json').read_text())
+assert curve and curve[-1]['step']==4
+loss_curve=json.loads((root/'probed-fit/field-learning-curves.json').read_text())
+assert [r['step'] for r in loss_curve]==[4]
+components=loss_curve[-1]['loss_components']
+assert 'codebook_1' in loss_curve[-1]['gradient_norms']
+assert abs(loss_curve[-1]['total_loss']-(components['quantization']*components['quantization_weight']+
+    components['weighted_reconstruction']*components['reconstruction_weight']))<1e-5
 restored.trainer.state.fn=TrainerFn.FITTING;restored.train();restored.zero_grad()
 fields=tensor_fields(arrays,slice(0,8),'cpu')
 _,_,quantization,reconstruction=restored.model_step(ItemData(transformed_features=fields))

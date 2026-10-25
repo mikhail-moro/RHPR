@@ -4,6 +4,11 @@ User decision,2026-10-26:learn feature projections and the quantizer together
 through field reconstruction. Title is explicitly excluded. Configuration:
 `experiments/amazon_beauty_field_rqvae_tiger_fast_prefix.json`.
 
+Active follow-up: `experiments/amazon_beauty_field_rqvae_tiger_5k.json`.
+The user requested5000joint updates and fuller codebook logging after the first
+run failed at collision resolution. The original3000-step configuration is
+retained for historical replay; generator/data/optimizer/objective are unchanged.
+
 | Field | Input | Reconstruction target | Loss |
 | --- | --- | --- | --- |
 | brand | Trainable64D embedding, observed flag, Linear65→64 | Original brand class | Cross entropy over2075classes |
@@ -93,3 +98,46 @@ This comparison removes title and changes the representation/objective together.
 It tests a complete alternative recipe; a gain or loss cannot isolate an effect
 of architecture alone or prove objective mismatch. Later objectives and title
 ablations require explicit matched controls.
+
+## First-run failure and diagnostic follow-up
+
+Private kernel `carasik/rhpr-field-rqvae-tiger-beauty`,version1,commit
+`094b716cb8c73660dade1ab9cc5ec1ae269c2659`,completed all3000joint updates
+in about104seconds,then failed before generator training. Only68semantic tuples
+remained for12101items. Books used5/8/13codes; the largest tuple had1796items.
+Thirteen groups exceeded256suffix values,containing11419items. This is severe
+assignment collapse,not merely occasional duplicate tuples or a beam-search error.
+
+Saved checkpoint CPU replay reproduced the68tuples. Catalogue-native beta
+quantization loss was about28.995(codebook23.196+commitment5.799). Brand
+CE4.740/accuracy0.1086,category BCE0.05339/microF10.4072,and price
+Huber0.1141/MAE6.198in original units are distinct diagnostics. The final training
+batch's total32.55 includes quantization and uncertainty-weighted field errors;
+it must not be presented as reconstruction error alone. Reconstruction without
+quantization uses the same trained decoder and is only an observational probe,
+not a separately trained continuous baseline or a causal bottleneck test.
+
+The5000-step follow-up is a fresh same-seed fit,not an additional5000steps or an
+automatic resume. A full-catalogue eval probe runs after initialization,at every
+500completed updates and finally. Probes preserve CPU/CUDA RNG,all module
+training flags,TrainerFn and BatchNorm state. A real paired CPU fit test verifies
+identical final state_dict and codes with probes enabled/disabled.
+
+- `field-learning-curves.json`:deduplicated positive step numbers,total loss,
+  native quantization/weighted reconstruction terms,raw field errors,weights,
+  observation counts and gradient norms for encoder/decoder/heads/books.
+- `codebook-learning-curves.json` and latest `codebook-diagnostics.json`:full
+  occupancy arrays including dead codes,entropy/perplexity,dominant-code share,
+  latent/quantized variance,centroid norms/separation and residual MSE per level.
+  Include quantized and continuous-input field errors and beta-loss decomposition.
+- `codebook-snapshots/step-NNNNN.npz`:all codebook vectors,per-item semantic
+  codes and occupancy counts in immutable catalogue order.
+- `semantic-code-diagnostics.json`:all prefix collision size histograms,largest
+  groups,full-tuple overflow groups/items and suffix representability.
+- `tokenizer-status.json`:explicit stage,code SHA,seed,largest group and suffix
+  capacity; written before attempting generator construction.
+
+Intermediate-prefix collisions are expected and are not called complete-SID
+overflow. Only the entire semantic tuple determines whether the suffix fits.
+No reset,EMA,LR/precision fallback or suffix widening is introduced. More steps
+may not cure assignment collapse; the diagnostic run tests its trajectory.

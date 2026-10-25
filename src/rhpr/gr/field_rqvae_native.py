@@ -14,6 +14,7 @@ class FieldResidualQuantization(ResidualQuantization):
         self.field_heads = FieldHeads(feature_schema, self.decoder.output_dim)
         self.uncertainty = UncertaintyWeighting(len(FIELD_NAMES))
         self.last_field_losses, self.last_field_counts = {}, {}
+        self.last_loss_components = {}
 
     def encode_fields(self, fields):
         features = self.feature_encoder(fields)
@@ -23,6 +24,8 @@ class FieldResidualQuantization(ResidualQuantization):
         fields = {key: value.to(self.device) for key, value in model_input.transformed_features.items()}
         _, encoded = self.encode_fields(fields)
         codes, residuals, quantized, quantization_loss = self(encoded)
+        # Only the next periodic log needs these scalar graph values. Detach so
+        # diagnostics never retain the preceding optimization graph.
         self.last_field_losses, self.last_field_counts = {}, {}
         reconstruction = quantization_loss.new_zeros(())
         # Preserve GRID's initialization-only updates and subsequent STE path.
@@ -33,4 +36,8 @@ class FieldResidualQuantization(ResidualQuantization):
                 torch.tensor([counts[name] > 0 for name in FIELD_NAMES], device=self.device))
             self.last_field_losses = {name: float(loss.detach()) for name, loss in losses.items()}
             self.last_field_counts = counts
+        self.last_loss_components = {
+            "quantization": quantization_loss.detach(), "weighted_reconstruction": reconstruction.detach(),
+            "quantization_weight": self.quantization_loss_weight,
+            "reconstruction_weight": self.reconstruction_loss_weight}
         return codes, residuals, quantization_loss, reconstruction

@@ -79,6 +79,18 @@ def run_rqvae_baseline(config, output):
         codes, quantizer = fit_grid_rqvae(embeddings, config["quantizer"], seed, device,
             grid, original / "configs/experiment/rqvae_train_flat.yaml", output)
         del embeddings
+    if config["representation"]["kind"] == "field_encoder":
+        statistics = quantizer["semantic_code_statistics"]
+        status = {"stage": "sid_collision_resolution", "semantic_codes_exported": True,
+            "status": "representable" if statistics["suffix_representable"] else "collision_overflow",
+            "max_collision_group": statistics["max_collision_group"],
+            "code_sha": os.environ.get("GITHUB_SHA", "local"), "seed": config["seed"],
+            "suffix_width": config["quantizer"]["codebook_size"]}
+        _write(output / "tokenizer-status.json", status)
+        if not statistics["suffix_representable"]:
+            raise ValueError(f"semantic collision group has {statistics['max_collision_group']} items, "
+                f"exceeding suffix width {config['quantizer']['codebook_size']}; "
+                "see semantic-code-diagnostics.json and quantizer.pt")
     index = SidIndex(codes, width=config["quantizer"]["codebook_size"])
     np.save(output / "semantic-ids.npy", index.sids, allow_pickle=False)
     _write(output / "sid-diagnostics.json", index.diagnostics())

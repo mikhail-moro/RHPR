@@ -16,6 +16,14 @@
   `experiments/amazon_beauty_field_rqvae_tiger_fast_prefix.json`. Preserve the
   fast generator/training/evaluation control. This metadata objective is not
   joint NIP training and does not establish that text encoders are inferior.
+- The first field-RQ-VAE run failed at SID suffix overflow after3000updates:
+  68unique semantic IDs for12101items,largest group1796,used codes5/8/13.
+  The user requested5000updates and codebook diagnostics on2026-10-26. Use
+  `experiments/amazon_beauty_field_rqvae_tiger_5k.json`:fresh same-seed fit,
+  full-catalogue eval probes after initialization/every500steps/final,counts,
+  entropy/perplexity,residual/centroid geometry,raw loss components and snapshots.
+  Preserve architecture,optimizer,uncertainty,fast generator and suffix policy;
+  do not silently widen the suffix or reinitialize dead codes.
 - The user authorized a fast Sentence-T5 + native GRID RQ-VAE3x256 + previous
   GRID TIGER4+4/d128 baseline on2026-10-25:3000 quantizer updates,20 generator
   epochs,FP16 generator,validation every10,no study telemetry. Read
