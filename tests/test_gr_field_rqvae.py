@@ -22,6 +22,18 @@ def fixture_texts():
 
 
 class ConfigurationTests(unittest.TestCase):
+    def test_title_comparison_is_matched_3k_quantizer_only(self):
+        configs = [json.loads((ROOT / "experiments" / name).read_text()) for name in
+            ["amazon_beauty_rqvae_plain_3k_diagnostic.json", "amazon_beauty_field_title_rqvae_3k_diagnostic.json"]]
+        for c in configs:
+            self.assertEqual(c["pipeline"]["stage"], "quantizer_only")
+            self.assertEqual(c["quantizer"]["max_steps"], 3000)
+            self.assertEqual(c["quantizer"]["diagnostics_interval_steps"], 500)
+        for key in ("seed", "data", "training", "generator"):
+            self.assertEqual(configs[0][key], configs[1][key])
+        self.assertEqual(configs[1]["representation"]["fields"], ["brand", "categories", "price", "title"])
+        self.assertEqual(configs[1]["representation"]["title"]["revision"], configs[0]["representation"]["revision"])
+
     def test_5k_run_changes_only_budget_and_explicit_diagnostics(self):
         old = json.loads((ROOT / "experiments/amazon_beauty_field_rqvae_tiger_fast_prefix.json").read_text())
         new = json.loads((ROOT / "experiments/amazon_beauty_field_rqvae_tiger_5k.json").read_text())
@@ -42,6 +54,70 @@ class ConfigurationTests(unittest.TestCase):
 
 @unittest.skipUnless(HAS_TORCH, "Requires PyTorch and NumPy")
 class FieldTests(unittest.TestCase):
+    def test_frozen_title_is_concatenated_directly_and_masked_mse_uses_fixed_target(self):
+        import numpy as np
+        import torch
+        from rhpr.gr.fields import FieldEncoder, FieldHeads, prepare_fields, tensor_fields
+        titles = np.random.default_rng(1).normal(size=(3, 768)).astype("float32")
+        schema, arrays = prepare_fields(fixture_texts(), title_embeddings=titles, title_observed=[True, True, False])
+        encoder = FieldEncoder(schema, 64)
+        fields = tensor_fields(arrays, slice(None), "cpu")
+        encoded = encoder(fields)
+        self.assertEqual(encoded.shape, (3, 960))
+        torch.testing.assert_close(encoded[:, -768:], fields["title"])
+        heads = FieldHeads(schema, 960)
+        predictions = heads(encoded.detach())
+        fields["title"].requires_grad_(True)
+        losses, counts = heads.losses(predictions, fields)
+        self.assertEqual(counts["title"], 2)
+        expected = (predictions["title"][:2] - fields["title"][:2].detach()).square().mean()
+        torch.testing.assert_close(losses["title"], expected)
+        losses["title"].backward()
+        self.assertIsNone(fields["title"].grad)
+        self.assertIsNotNone(heads.heads["title"].weight.grad)
+        with self.assertRaisesRegex(ValueError, "requires frozen title"):
+            prepare_fields(fixture_texts(), schema)
+
+    def test_title_encoder_receives_only_titles_and_quantizer_stage_accepts_measured_overflow(self):
+        import numpy as np
+        from unittest.mock import patch
+        from rhpr.gr.rqvae_experiment import _encode_titles, run_rqvae_baseline
+        from rhpr.gr.codebook_diagnostics import semantic_statistics
+        from rhpr.metrics import validate_metrics
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            def encode(config, resources, texts, output, device):
+                self.assertEqual(texts, ["ignored", "ignored too", "anything"])
+                return np.zeros((3, 768), dtype="float32"), {"seconds": 0.1}
+            with patch("rhpr.gr.rqvae_experiment._encode_items", side_effect=encode):
+                _, mask, meta = _encode_titles({}, root, fixture_texts(), root, "cpu")
+                self.assertTrue(mask.all())
+                self.assertEqual(meta["input_scope"], "title_only")
+                self.assertTrue(meta["frozen"])
+            config = json.loads((ROOT / "experiments/amazon_beauty_field_title_rqvae_3k_diagnostic.json").read_text())
+            config["representation"]["fields"] = ["brand", "categories", "price"]
+            config["training"]["cpu_threads"] = 1
+            codes = np.zeros((257, 3), dtype="int64")
+            def fit(*args, **kwargs):
+                np.save(root / "semantic-codes.npy", codes)
+                return codes, {"steps": 3000, "elapsed_seconds": 1., "used_codes_per_level": [1, 1, 1],
+                    "semantic_code_statistics": semantic_statistics(codes, 256)}, {"seconds": 0.1}
+            with patch("torch.cuda.is_available", return_value=True), \
+                 patch("rhpr.offline_runtime.resolve_dataset_directory", return_value=root), \
+                 patch("rhpr.gr.resources.verify_resources", return_value={}), \
+                 patch("rhpr.gr.resources.unpack_grid", return_value=root), \
+                 patch("rhpr.gr.grid.prepare_grid_source", return_value=root), \
+                 patch("rhpr.gr.rqvae_experiment.load_beauty", return_value=(['x']*257, [], list(range(257)), {'items':257})), \
+                 patch("rhpr.gr.field_rqvae.fit_field_rqvae", side_effect=fit), \
+                 patch("rhpr.gr.grid.build_grid_generator", side_effect=AssertionError("generator constructed")), \
+                 patch("rhpr.gr.rqvae_experiment._evaluate", side_effect=AssertionError("test accessed")):
+                metrics = validate_metrics(run_rqvae_baseline(config, root))
+            self.assertFalse(metrics["generator_trained"])
+            self.assertEqual(metrics["test_evaluations"], 0)
+            self.assertEqual(metrics["max_collision_group"], 257)
+            self.assertFalse(metrics["suffix_representable"])
+            self.assertEqual(json.loads((root / "tokenizer-status.json").read_text())["status"], "collision_overflow")
+
     def test_codebook_occupancy_geometry_and_overflow_do_not_require_resolved_sids(self):
         import numpy as np
         from rhpr.gr.codebook_diagnostics import diagnose_codebooks, semantic_statistics
@@ -123,6 +199,42 @@ class FieldTests(unittest.TestCase):
 
 @unittest.skipUnless(NATIVE_READY, "Requires pinned GRID source and dependencies")
 class NativeJointTests(unittest.TestCase):
+    def test_title_native_fit_restores_four_field_losses_and_exact_codes(self):
+        script = r'''
+import sys,numpy as np,torch
+from pathlib import Path
+from lightning.pytorch import Trainer
+from rhpr.gr.grid import prepare_grid_source
+from rhpr.gr.field_rqvae import fit_field_rqvae,export_field_codes
+from rhpr.gr.rqvae import build_rqvae
+root=Path(sys.argv[2]);source=prepare_grid_source(sys.argv[1],root/'grid')
+texts=[f"Title: T{i}; Brand: B{i%4}; Categories: ['Beauty','C{i%3}']; Price: {i+1}; " for i in range(32)]
+titles=np.random.default_rng(7).normal(size=(32,8)).astype('float32')
+spec=dict(kind='grid_field_rqvae',num_hierarchies=3,codebook_size=4,batch_size=8,max_steps=4,
+ init_buffer_size=8,initialization_steps=2,distance_backend='torch_cdist',diagnostics_interval_steps=2)
+rep=dict(kind='field_encoder',fields=['brand','categories','price','title'],field_dim=4)
+recipe=Path(sys.argv[1])/'configs/experiment/rqvae_train_flat.yaml'
+codes,report,_=fit_field_rqvae(texts,rep,spec,42,'cpu',source,recipe,root/'fit',title_embeddings=titles)
+assert report['input_dim']==20 and 'title' in report['field_reconstruction']
+assert len(report['field_weights'])==4
+state=torch.load(root/'fit/quantizer.pt',map_location='cpu',weights_only=False)
+model,_=build_rqvae(source,recipe,20,spec,feature_schema=state['feature_schema'],field_dim=4)
+model.load_state_dict(state['model'],strict=True)
+for layer,flag in zip(model.quantization_layer_list,state['initialized']):
+ layer.is_initialized=flag;layer.is_initial_step=False
+model.trainer=Trainer(accelerator='cpu',devices=1,logger=False,enable_checkpointing=False,enable_progress_bar=False)
+arrays=dict(np.load(root/'fit/catalogue-fields.npz'))
+again,embeddings,losses=export_field_codes(model,arrays,'cpu',8)
+np.testing.assert_array_equal(again,codes)
+np.testing.assert_array_equal(embeddings[:,-8:],titles)
+assert np.isfinite(losses['title']['loss']) and losses['title']['observed_items']==32
+assert abs(losses['title']['loss']-report['field_reconstruction']['title']['loss'])<1e-8
+'''
+        with tempfile.TemporaryDirectory() as directory:
+            result = subprocess.run([sys.executable, "-c", script, SOURCE, directory],
+                capture_output=True, text=True, timeout=150)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_joint_fit_reload_original_fields_and_all_component_gradients(self):
         script = r'''
 import json,sys,numpy as np,torch

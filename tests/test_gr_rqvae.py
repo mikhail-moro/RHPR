@@ -122,6 +122,11 @@ codes,report=fit_grid_rqvae(values,spec,42,'cpu',source,recipe,root/'fit')
 assert codes.shape==(32,3) and report['steps']==3
 assert np.isfinite(report['reconstruction_mse_normalized_input'])
 state=torch.load(root/'fit/quantizer.pt',map_location='cpu',weights_only=False)
+probed_codes,probed_report=fit_grid_rqvae(values,{**spec,'diagnostics_interval_steps':1},42,'cpu',source,recipe,root/'probed')
+probed_state=torch.load(root/'probed/quantizer.pt',map_location='cpu',weights_only=False)
+assert all(torch.equal(state['model'][key],value) for key,value in probed_state['model'].items())
+np.testing.assert_array_equal(codes,probed_codes)
+assert (root/'probed/codebook-diagnostics.json').is_file()
 restored,resolved=build_rqvae(source,recipe,8,spec)
 restored.load_state_dict(state['model'],strict=True)
 for layer,flag in zip(restored.quantization_layer_list,state['initialized']):

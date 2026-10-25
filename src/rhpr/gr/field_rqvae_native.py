@@ -12,7 +12,8 @@ class FieldResidualQuantization(ResidualQuantization):
         super().__init__(**kwargs)
         self.feature_encoder = FieldEncoder(feature_schema, field_dim)
         self.field_heads = FieldHeads(feature_schema, self.decoder.output_dim)
-        self.uncertainty = UncertaintyWeighting(len(FIELD_NAMES))
+        self.field_names = tuple(feature_schema["fields"])
+        self.uncertainty = UncertaintyWeighting(len(self.field_names))
         self.last_field_losses, self.last_field_counts = {}, {}
         self.last_loss_components = {}
 
@@ -32,8 +33,8 @@ class FieldResidualQuantization(ResidualQuantization):
         if self.trainer.state.fn != TrainerFn.PREDICTING and self.quantization_layer_list[-1].is_initialized:
             predictions = self.field_heads(self.decoder(quantized))
             losses, counts = self.field_heads.losses(predictions, fields)
-            reconstruction = self.uncertainty(torch.stack([losses[name] for name in FIELD_NAMES]),
-                torch.tensor([counts[name] > 0 for name in FIELD_NAMES], device=self.device))
+            reconstruction = self.uncertainty(torch.stack([losses[name] for name in self.field_names]),
+                torch.tensor([counts[name] > 0 for name in self.field_names], device=self.device))
             self.last_field_losses = {name: float(loss.detach()) for name, loss in losses.items()}
             self.last_field_counts = counts
         self.last_loss_components = {

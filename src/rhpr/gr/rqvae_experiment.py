@@ -42,6 +42,47 @@ def _train_rqvae_generator(model, users, index, config, output, device):
     return result
 
 
+def _encode_titles(specification, resources, texts, output, device):
+    import hashlib
+    import numpy as np
+    from rhpr.gr.study_index import extract_features
+
+    titles = [next(value for name, value, status in extract_features(text) if name == "title") for text in texts]
+    observed = np.array([bool(title and title.strip()) for title in titles])
+    values = [title if valid else "" for title, valid in zip(titles, observed)]
+    directory = output / "title-encoder"
+    directory.mkdir(parents=True, exist_ok=True)
+    embeddings, report = _encode_items({"representation": specification}, resources, values, directory, device)
+    report.update(input_scope="title_only", observed_titles=int(observed.sum()),
+        texts_sha256=hashlib.sha256(json.dumps(values, ensure_ascii=False).encode()).hexdigest(), frozen=True)
+    _write(directory / "representation.json", report)
+    return embeddings, observed, report
+
+
+def _quantizer_only_metrics(config, statistics, quantizer, representation, counts, elapsed):
+    full = statistics["prefixes"][-1]
+    result = {"experiment": config["name"], "seed": config["seed"], "stage": "quantizer_only",
+        "catalogue_items": counts["items"], "quantizer_steps": quantizer["steps"],
+        "quantizer_seconds": quantizer["elapsed_seconds"], "embedding_seconds": representation["seconds"],
+        "elapsed_seconds": elapsed, "generator_trained": False, "test_evaluations": 0,
+        "semantic_unique_ids": statistics["semantic_unique_ids"],
+        "max_collision_group": statistics["max_collision_group"],
+        "suffix_representable": statistics["suffix_representable"],
+        "collision_groups": full["collision_groups"], "collided_items": full["collided_items"],
+        "collision_excess_items": full["collision_excess_items"],
+        "collision_excess_fraction": full["collision_excess_items"] / statistics["items"],
+        "collided_item_fraction": full["collided_items"] / statistics["items"],
+        "overflow_groups": full["groups_exceeding_suffix_width"],
+        "items_in_overflow_groups": full["items_in_overflow_groups"]}
+    result.update({f"used_codes_level_{level + 1}": count for level, count in enumerate(quantizer["used_codes_per_level"])})
+    if "reconstruction_mse_normalized_input" in quantizer:
+        result["embedding_reconstruction_mse"] = quantizer["reconstruction_mse_normalized_input"]
+    for name, fields in quantizer.get("field_reconstruction", {}).items():
+        if fields["loss"] is not None:
+            result[f"reconstruction_{name}_loss"] = fields["loss"]
+    return result
+
+
 def run_rqvae_baseline(config, output):
     import numpy as np
     import torch
@@ -52,6 +93,9 @@ def run_rqvae_baseline(config, output):
     from rhpr.offline_runtime import resolve_dataset_directory
 
     started = time.monotonic()
+    stage = config.get("pipeline", {}).get("stage", "full")
+    if stage not in {"full", "quantizer_only"}:
+        raise ValueError("pipeline.stage must be full or quantizer_only")
     seed, device = config["seed"], config["training"]["device"]
     if device.startswith("cuda") and not torch.cuda.is_available():
         raise RuntimeError("GPU RQ-VAE experiment requires CUDA; no CPU fallback")
@@ -70,16 +114,26 @@ def run_rqvae_baseline(config, output):
         "data": config["data"], "telemetry": "disabled; no study tables, traces, exact panels or probes"})
     if config["representation"]["kind"] == "field_encoder":
         from rhpr.gr.field_rqvae import fit_field_rqvae
+        title_arguments = {}
+        if "title" in config["representation"]["fields"]:
+            title_values, title_observed, title_report = _encode_titles(
+                config["representation"]["title"], resources, texts, output, device)
+            title_arguments = {"title_embeddings": title_values, "title_observed": title_observed}
         codes, quantizer, representation = fit_field_rqvae(texts, config["representation"],
             config["quantizer"], seed, device, grid,
-            original / "configs/experiment/rqvae_train_flat.yaml", output)
+            original / "configs/experiment/rqvae_train_flat.yaml", output, **title_arguments)
+        if title_arguments:
+            representation["seconds"] += title_report["seconds"]
+            representation["title_encoder"] = title_report
+            _write(output / "representation.json", representation)
+            del title_values, title_arguments
     else:
         parent = verify_parent_artifacts(config["parent"])
         embeddings, representation = _encode_items(config, resources, texts, output, device, parent)
         codes, quantizer = fit_grid_rqvae(embeddings, config["quantizer"], seed, device,
             grid, original / "configs/experiment/rqvae_train_flat.yaml", output)
         del embeddings
-    if config["representation"]["kind"] == "field_encoder":
+    if config["representation"]["kind"] == "field_encoder" or stage == "quantizer_only":
         statistics = quantizer["semantic_code_statistics"]
         status = {"stage": "sid_collision_resolution", "semantic_codes_exported": True,
             "status": "representable" if statistics["suffix_representable"] else "collision_overflow",
@@ -87,6 +141,10 @@ def run_rqvae_baseline(config, output):
             "code_sha": os.environ.get("GITHUB_SHA", "local"), "seed": config["seed"],
             "suffix_width": config["quantizer"]["codebook_size"]}
         _write(output / "tokenizer-status.json", status)
+        if stage == "quantizer_only":
+            _write(output / "sid-catalogue.json", {"original_item_ids": source_ids,
+                "row_order": "internal_item_id_0_based", "semantic_codes_sha256": file_sha256(output / "semantic-codes.npy")})
+            return _quantizer_only_metrics(config, statistics, quantizer, representation, counts, time.monotonic() - started)
         if not statistics["suffix_representable"]:
             raise ValueError(f"semantic collision group has {statistics['max_collision_group']} items, "
                 f"exceeding suffix width {config['quantizer']['codebook_size']}; "

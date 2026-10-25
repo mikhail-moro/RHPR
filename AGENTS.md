@@ -8,6 +8,17 @@
 - The active direction is comparing item encoders for SID-based generative
   recommendation. Read `docs/gr-research-brief.md`, `docs/gr-baseline.md`, and
   `docs/research/item-encoders/README.md`.
+- Latest user decision,2026-10-26:two QUANTIZER-ONLY3000-step GPU runs to compare
+  ordinary Sentence-T5(full metadata)RQ-VAE with the joint structured encoder
+  plus frozen Sentence-T5(title only). Use
+  `experiments/amazon_beauty_rqvae_plain_3k_diagnostic.json` and
+  `experiments/amazon_beauty_field_title_rqvae_3k_diagnostic.json`. Title768D
+  concatenates directly with learned192D fields;fourth reconstruction head MSE
+  joins uncertainty weighting. Same seed42,3x256,latent64,native optimizer and
+  catalogue diagnostics every500steps. Explicitly no generator/validation/test.
+  Suffix overflow is a recorded measurement in this diagnostic stage,not an
+  execution failure;never repair/widen it. This supersedes initial title exclusion
+  for the new arm only. Read `docs/gr-rqvae-title-comparison.md`.
 - The user specified joint feature-encoder/RQ-VAE reconstruction on2026-10-26:
   brand embedding+Linear/categories MeanPooling embeddings+Linear/standardized
   price+Linear,concatenate into native GRID RQ-VAE;CE/BCE/Huber combined by

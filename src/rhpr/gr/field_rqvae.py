@@ -16,13 +16,15 @@ def export_field_codes(model, arrays, device, batch_size, *, capture=None):
 
     model.to(device).eval()
     model.trainer.state.fn = TrainerFn.PREDICTING
+    names = model.field_names
     codes, embeddings = [], []
-    sums = {name: 0.0 for name in FIELD_NAMES}
-    counts = {name: 0 for name in FIELD_NAMES}
-    continuous_sums = {name: 0.0 for name in FIELD_NAMES}
+    sums = {name: 0.0 for name in names}
+    counts = {name: 0 for name in names}
+    continuous_sums = {name: 0.0 for name in names}
     if capture is not None:
         capture["encoded"] = []
     brand_correct, cat_tp, cat_fp, cat_fn, price_abs_error = 0, 0, 0, 0, 0.0
+    title_cosine, title_squared = 0.0, 0.0
     with torch.inference_mode():
         for begin in range(0, len(arrays["brand"]), batch_size):
             fields = tensor_fields(arrays, slice(begin, begin + batch_size), device)
@@ -38,7 +40,7 @@ def export_field_codes(model, arrays, device, batch_size, *, capture=None):
                 # not a separately trained continuous-autoencoder baseline.
                 continuous = model.field_heads(model.decoder(encoded))
                 continuous_losses, _ = model.field_heads.losses(continuous, fields)
-                for name in FIELD_NAMES:
+                for name in names:
                     continuous_sums[name] += float(continuous_losses[name]) * observed[name]
             brand_mask = fields["brand"] > 0
             brand_correct += int((predictions["brand"][brand_mask].argmax(-1) == fields["brand"][brand_mask] - 1).sum())
@@ -50,20 +52,28 @@ def export_field_codes(model, arrays, device, batch_size, *, capture=None):
             cat_fn += int((~predicted & actual).sum())
             price_mask = fields["price_observed"]
             price_abs_error += float((predictions["price"][price_mask] - fields["price"][price_mask]).abs().sum())
-            for name in FIELD_NAMES:
+            if "title" in names:
+                title_mask = fields["title_observed"]
+                title_cosine += float(torch.nn.functional.cosine_similarity(
+                    predictions["title"][title_mask], fields["title"][title_mask], dim=-1).sum())
+                title_squared += float(fields["title"][title_mask].square().sum())
+            for name in names:
                 sums[name] += float(losses[name]) * observed[name]
                 counts[name] += observed[name]
             codes.append(batch_codes.cpu().numpy())
             embeddings.append(features.cpu().numpy())
     metrics = {
         name: {"loss": sums[name] / counts[name] if counts[name] else None,
-               "observed_items": counts[name]} for name in FIELD_NAMES}
+               "observed_items": counts[name]} for name in names}
     metrics["brand"]["accuracy"] = brand_correct / counts["brand"] if counts["brand"] else None
     metrics["categories"]["micro_f1_at_probability_0_5"] = 2 * cat_tp / max(2 * cat_tp + cat_fp + cat_fn, 1)
     metrics["price"]["mae_standardized"] = price_abs_error / counts["price"] if counts["price"] else None
+    if "title" in names and counts["title"]:
+        metrics["title"]["cosine_similarity"] = title_cosine / counts["title"]
+        metrics["title"]["zero_predictor_mse"] = title_squared / (counts["title"] * model.feature_encoder.title_dim)
     if capture is not None:
         capture["continuous_field_losses"] = {name: continuous_sums[name] / counts[name] if counts[name] else None
-            for name in FIELD_NAMES}
+            for name in names}
     return np.concatenate(codes), np.concatenate(embeddings), metrics
 
 
@@ -89,7 +99,7 @@ def probe_field_codebooks(model, arrays, device, batch_size, output, step):
                 for layer, values in zip(model.quantization_layer_list, stats["levels"]))
             stats["codebook_loss_eval"] = sum(values["residual_mse_after"] for values in stats["levels"])
             stats["commitment_loss_eval"] = stats["native_beta_loss_eval"] - stats["codebook_loss_eval"]
-            stats["field_weights"] = dict(zip(FIELD_NAMES, model.uncertainty.weights().detach().cpu().tolist()))
+            stats["field_weights"] = dict(zip(model.field_names, model.uncertainty.weights().detach().cpu().tolist()))
             stats["field_log_variances"] = model.uncertainty.loss_scale.detach().cpu().tolist()
             stats["probe_seconds"] = time.monotonic() - before
             output = Path(output)
@@ -105,7 +115,8 @@ def probe_field_codebooks(model, arrays, device, batch_size, output, step):
             module.training = mode
 
 
-def fit_field_rqvae(texts, representation, spec, seed, device, source_root, recipe_path, output):
+def fit_field_rqvae(texts, representation, spec, seed, device, source_root, recipe_path, output, *,
+                    title_embeddings=None, title_observed=None):
     import torch
     from lightning.pytorch import Callback, Trainer
     from torch.utils.data import DataLoader
@@ -113,8 +124,11 @@ def fit_field_rqvae(texts, representation, spec, seed, device, source_root, reci
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     preparation_started = time.monotonic()
-    if representation.get("fields") != list(FIELD_NAMES):
-        raise ValueError("this experiment reconstructs brand/categories/price; title is excluded")
+    names = representation.get("fields")
+    if names not in (list(FIELD_NAMES), [*FIELD_NAMES, "title"]):
+        raise ValueError("expected brand/categories/price with optional frozen title")
+    if ("title" in names) != (title_embeddings is not None):
+        raise ValueError("title field declaration and embeddings must agree")
     for key in ("num_hierarchies", "codebook_size", "batch_size", "max_steps",
                 "init_buffer_size", "initialization_steps"):
         if type(spec.get(key)) is not int or spec[key] < 1:
@@ -127,14 +141,15 @@ def fit_field_rqvae(texts, representation, spec, seed, device, source_root, reci
     diagnostic_interval = spec.get("diagnostics_interval_steps")
     if diagnostic_interval is not None and (type(diagnostic_interval) is not int or diagnostic_interval < 1):
         raise ValueError("diagnostics_interval_steps must be a positive integer")
-    schema, arrays = prepare_fields(texts)
+    schema, arrays = prepare_fields(texts, title_embeddings=title_embeddings, title_observed=title_observed)
     _write(output / "feature-schema.json", schema)
     # Persist exact prepared inputs/targets independently of trainable embeddings.
     np.savez_compressed(output / "catalogue-fields.npz", **arrays)
     preparation_seconds = time.monotonic() - preparation_started
     torch.manual_seed(seed)
     field_dim = representation["field_dim"]
-    model, resolved = build_rqvae(source_root, recipe_path, len(FIELD_NAMES) * field_dim,
+    input_dim = len(FIELD_NAMES) * field_dim + schema.get("title_dim", 0)
+    model, resolved = build_rqvae(source_root, recipe_path, input_dim,
         spec, feature_schema=schema, field_dim=field_dim)
     from src.data.loading.components.interfaces import ItemData
 
@@ -197,7 +212,7 @@ def fit_field_rqvae(texts, representation, spec, seed, device, source_root, reci
                     "gradient_norms": self.gradient_norms,
                     "raw_field_losses": module.last_field_losses,
                     "field_observed_counts": module.last_field_counts,
-                    "field_weights": dict(zip(FIELD_NAMES, weights))}
+                    "field_weights": dict(zip(names, weights))}
                 self.curves.append(row)
                 _write(output / "field-learning-curves.json", self.curves)
                 _event("field_rqvae_progress", **row)
@@ -229,15 +244,18 @@ def fit_field_rqvae(texts, representation, spec, seed, device, source_root, reci
     _write(output / "semantic-code-diagnostics.json", semantic_summary)
     if reconstruction["price"]["mae_standardized"] is not None:
         reconstruction["price"]["mae_original_units"] = reconstruction["price"]["mae_standardized"] * schema["price_scale"]
+    if "title" in names:
+        targets = arrays["title"][arrays["title_observed"]]
+        reconstruction["title"]["catalogue_mean_predictor_mse"] = float(np.square(targets - targets.mean(0)).mean())
     np.save(output / "semantic-codes.npy", codes, allow_pickle=False)
     np.save(output / "item-embeddings.npy", embeddings, allow_pickle=False)
     weights = model.uncertainty.weights().detach().cpu().tolist()
     report = {"kind": "grid_field_rqvae", "seed": seed, "config": spec,
         "resolved_model": resolved, "precision": "fp32", "steps": trainer.global_step,
         "parameters": sum(p.numel() for p in model.parameters()),
-        "input_dim": len(FIELD_NAMES) * field_dim, "latent_dim": model.encoder.output_dim,
+        "input_dim": input_dim, "latent_dim": model.encoder.output_dim,
         "item_exposures": progress.examples, "final_training_loss": progress.last_loss,
-        "field_reconstruction": reconstruction, "field_weights": dict(zip(FIELD_NAMES, weights)),
+        "field_reconstruction": reconstruction, "field_weights": dict(zip(names, weights)),
         "field_log_variances": model.uncertainty.loss_scale.detach().cpu().tolist(),
         "semantic_code_statistics": semantic_summary, "diagnostic_seconds": progress.probe_seconds,
         "final_batch_loss_components": {key: float(value) for key, value in model.last_loss_components.items()},
@@ -252,7 +270,7 @@ def fit_field_rqvae(texts, representation, spec, seed, device, source_root, reci
     _write(output / "quantizer.json", report)
     representation_report = {**representation, "seconds": preparation_seconds,
         "shape": list(embeddings.shape), "sha256": file_sha256(output / "item-embeddings.npy"),
-        "training": "joint with RQ-VAE; saved embeddings are learned concatenation before BatchNorm/L2",
+        "training": "joint field projections with RQ-VAE; optional frozen title concatenated directly before BatchNorm/L2",
         "feature_schema_sha256": report["feature_schema_sha256"]}
     _write(output / "representation.json", representation_report)
     return codes, report, representation_report
