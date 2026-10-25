@@ -8,6 +8,12 @@
 - The active direction is comparing item encoders for SID-based generative
   recommendation. Read `docs/gr-research-brief.md`, `docs/gr-baseline.md`, and
   `docs/research/item-encoders/README.md`.
+- Latest follow-up,2026-10-26:the user requested a5000-step extension of the
+  fields+frozen-title QUANTIZER-ONLY arm. Use
+  `experiments/amazon_beauty_field_title_rqvae_5k_diagnostic.json` with identical
+  architecture,optimizer,seed42,objective and500-step diagnostics. Fresh total
+  5000updates,not5000extra and not automatic checkpoint resume. Depth remains
+  unchanged;the user's deeper-network suggestion is a future separate ablation.
 - Latest user decision,2026-10-26:two QUANTIZER-ONLY3000-step GPU runs to compare
   ordinary Sentence-T5(full metadata)RQ-VAE with the joint structured encoder
   plus frozen Sentence-T5(title only). Use

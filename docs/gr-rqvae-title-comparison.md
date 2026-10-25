@@ -1,5 +1,15 @@
 # Plain RQ-VAE versus structured fields with frozen T5 title
 
+Active follow-up,2026-10-26:the user requested5000updates for the fields+title
+arm. Configuration:`amazon_beauty_field_title_rqvae_5k_diagnostic.json`.
+Only the optimization budget changes from3000to5000;keep seed42,architecture,
+native optimizer,objective and catalogue diagnostics every500updates. This is
+a fresh total5000-step run,not5000additional steps or automatic resume. No
+generator/validation/test is run. Network depth is a separate possible ablation,
+not changed in this extension. Inspect occupancy,dominant collision groups,
+quantization loss and title MSE relative to its constant-predictor baselines;
+more unique codes alone does not establish recovery from collapse.
+
 User request,2026-10-26:two GPU runs,3000quantizer updates each,diagnostics
 only. No generator fitting,validation or test evaluation. The previous
 3000/5000field-only runs remain historical controls.
