@@ -5,10 +5,29 @@
 - The history-compression / Query SSM track was closed on 2026-10-21. Read
   `docs/research/closed-history-compression/README.md` for its final evidence.
 - Earlier experiment plans are historical and have no pending GPU launches.
-- The active direction is item representations for SID-based generative
-  recommendation. Read `docs/gr-research-brief.md` and `docs/gr-baseline.md`.
-- The user cancelled the TPU launch and paused reproduction work. The active
-  study (2026-10-24) investigates SID index structure using six RQ-KMeans seeds,
+- The active direction is comparing item encoders for SID-based generative
+  recommendation. Read `docs/gr-research-brief.md`, `docs/gr-baseline.md`, and
+  `docs/research/item-encoders/README.md`.
+- The user authorized a fast Sentence-T5 + native GRID RQ-VAE3x256 + previous
+  GRID TIGER4+4/d128 baseline on2026-10-25:3000 quantizer updates,20 generator
+  epochs,FP16 generator,validation every10,no study telemetry. Read
+  `docs/gr-rqvae-baseline.md`. This is separate from joint encoder training;
+  do not resume the paused index-study kernels.
+- The user authorized restoring the faster early prefix protocol on2026-10-25:
+  sampling is not the item-encoder research axis. Use
+  `experiments/amazon_beauty_rqvae_tiger_fast_prefix_fp16_20epochs.json`.
+  Restore the early4+4/d128 ordinary-FF generator: noSEP,user bins2000,
+  4,977,920parameters,beam20,Adam1e-3/wd1e-4/clip1,batch256/physical128.
+  Every noninitial train position appears once per epoch, latest20 context,
+  131,413examples. Preserve RQ-VAE3x256/3000updates, frozen Sentence-T5,
+  FP16 generator,20epochs, validation only at10and20, NDCG@10 selection.
+  The expanded-FF and plain-FF sampled-window configs are historical;
+  do not launch them as the active baseline or revive the paused studies.
+- The SID index-structure investigation was paused on 2026-10-25 at the user's
+  request. Read `docs/research/paused-sid-index/README.md` and its results ledger
+  before reopening it. It did not establish a causal semantic-collision rule
+  or prove text encoders are defective; SHANY primarily exposed missing brand
+  metadata. The historical study (2026-10-24) used six RQ-KMeans seeds,
   frozen Sentence-T5 embeddings, identical generator initialization and shared
   TIGER/GRID window manifests. Two T4s in one session, one independent seed
   worker per GPU (three seeds each), FP16, 3+3 layers at d128, 20 epochs,
@@ -17,7 +36,7 @@
 - Raw autoregressive scores and valid-child locally renormalized scores are
   separate objectives. Compare exact search and beams under MATCHING scoring.
   Do not interpret six index seeds as six independent generator seeds.
-- The authorized follow-up crosses frozen original rq11/rq22 indices with
+- The completed follow-up crossed frozen original rq11/rq22 indices with
   generator seeds101/202/303, preserving data seed4242 and20epochs. See
   `docs/gr-sid-training-variance.md`. Fixed train/validation probes preserve
   RNG/weights; their Parquet sidecars are distinct from checkpoint evaluations.

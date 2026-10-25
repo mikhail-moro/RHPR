@@ -170,6 +170,7 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
     stop_reason = "epoch_limit"
     mean_epoch_seconds = 0.0
     last_validation = None
+    training_seconds, validation_seconds = 0.0, 0.0
     for epoch in range(1, specification["max_epochs"] + 1):
         # Budget exits only at an epoch boundary, preserving an interpretable
         # full pass. Save selected and last checkpoints for later continuation.
@@ -210,13 +211,18 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                 if skipped_updates > 16:
                     raise FloatingPointError("repeated GR AMP gradient overflows")
         train_seconds = time.monotonic() - epoch_started
+        training_seconds += train_seconds
         row = {"epoch": epoch, "updates": updates, "amp_skipped_updates": skipped_updates,
                "train_examples": len(targets),
                "train_loss_sum_over_codes": total_loss / len(targets), "train_seconds": train_seconds}
-        if epoch == 1 or epoch % specification["validation_interval"] == 0 or epoch == specification["max_epochs"]:
+        if ((epoch == 1 and specification.get("validate_first_epoch", True))
+                or epoch % specification["validation_interval"] == 0
+                or epoch == specification["max_epochs"]):
+            validation_started = time.monotonic()
             last_validation, _, _ = _evaluate(model, validation, sid_index,
                                              specification["evaluation_batch_size"], device,
                                              precision=evaluation_precision)
+            validation_seconds += time.monotonic() - validation_started
             row["validation"] = last_validation
             score = last_validation["ndcg@10"]
             if score > best_metric:
@@ -255,6 +261,9 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
               "amp_skipped_updates": skipped_updates,
               "training_precision": precision, "evaluation_precision": evaluation_precision,
               "best_epoch": best_epoch, "training_seconds": time.monotonic() - started,
+              "optimizer_training_seconds": training_seconds,
+              "validation_seconds": validation_seconds,
+              "validation_checks": sum("validation" in row for row in curves),
               "stopping_reason": stop_reason,
               "validation_ndcg10": best_metric,
               "training_examples_per_epoch": len(targets)}

@@ -240,6 +240,44 @@ class PrecisionAndStoppingContractTests(unittest.TestCase):
         self.assertEqual(values["training_epochs"], 4)
         self.assertEqual([row["epoch"] for row in curves if "validation" in row], [1, 2, 4])
 
+    def test_rqvae_prefix_epochs_cover_all_targets_and_validate_only_at_10_and_20(self):
+        from rhpr.gr.rqvae_experiment import _train_rqvae_generator
+        users, index, config = self.fixtures()
+        config["training"].update(sampling="all_train_prefixes", max_epochs=20,
+            min_epochs=20, validation_interval=10, validate_first_epoch=False,
+            patience_epochs=20)
+        model = self.tiny_model()
+        selected_state = {}
+        checks = []
+
+        def validation(active_model, examples, sid_index, batch_size, device, precision):
+            checks.append(len(checks) + 1)
+            if len(checks) == 1:
+                selected_state.update({key: value.detach().clone() for key, value in active_model.state_dict().items()})
+            return {"ndcg@10": 1.0 if len(checks) == 1 else 0.5}, None, None
+
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp)
+            with patch("rhpr.gr.experiment._evaluate", side_effect=validation), patch("rhpr.gr.experiment._event"):
+                values = _train_rqvae_generator(model, users, index, config, output, "cpu")
+            curves = json.loads((output / "training-curves.json").read_text())
+            last = self.torch.load(output / "generator-last.pt", map_location="cpu", weights_only=False)
+            stream = json.loads((output / "training-stream.json").read_text())
+            self.assertEqual([row["epoch"] for row in curves if "validation" in row], [10, 20])
+            self.assertEqual(len(checks), 2)
+            self.assertTrue(all(row["train_examples"] == 6 for row in curves))
+            self.assertEqual(values["epochs"], 20)
+            self.assertEqual(values["updates"], 40)
+            self.assertEqual(values["model_examples_consumed"], 120)
+            self.assertEqual(values["selected_epoch"], 10)
+            self.assertEqual(values["validation_checks"], 2)
+            self.assertEqual(values["stop_reason"], "epoch_limit")
+            self.assertEqual(last["epoch"], 20)
+            self.assertEqual(stream["examples_per_epoch"], 6)
+            self.assertAlmostEqual(values["training_seconds"], sum(row["train_seconds"] for row in curves))
+            for key, value in model.state_dict().items():
+                self.assertTrue(self.torch.equal(selected_state[key], value), key)
+
 
 if __name__ == "__main__":
     unittest.main()

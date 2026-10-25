@@ -1,0 +1,139 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-gr-rqvae"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "per-user leave-last-two; all train prefix targets exactly once per epoch; test context includes observed validation target",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-gr-beauty-sentence-t5-rkmeans"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "name": "beauty-sentence-t5-rqvae-tiger-fast-prefix-fp16-20epochs",
+  "kind": "gr_rqvae_baseline",
+  "representation": {
+    "kind": "external_embeddings",
+    "model": "sentence-transformers/sentence-t5-base",
+    "revision": "fc5d4628481afbbaaacd7af6bb07cf9d3865f781",
+    "sha256": "607895c3dbe7a6a5aa6272dde55dd190e8bc40fa97532830de161d118aca5314",
+    "catalog_sha256": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+    "parent_file": "item-embeddings.npy"
+  },
+  "quantizer": {
+    "kind": "grid_rqvae",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "max_steps": 3000,
+    "batch_size": 2048,
+    "init_buffer_size": 3072,
+    "initialization_steps": 1000,
+    "distance_backend": "torch_cdist"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "batch_size": 256,
+    "physical_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 20,
+    "min_epochs": 20,
+    "patience": 5,
+    "validation_interval": 10,
+    "evaluation_batch_size": 32,
+    "max_seconds": 7200,
+    "sampling": "all_train_prefixes",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 20
+  },
+  "evaluation": {
+    "test_after_selection": true,
+    "item_level": true,
+    "collision_resolution": "append mandatory ordinal 0..group_size-1, fail on codebook overflow",
+    "invalid_beams": "retain as miss at original rank",
+    "selection_metric": "validation item NDCG@10"
+  },
+  "reference": {
+    "exact_published_reproduction": false,
+    "generator_recipe": "Exact early 4+4/d128 ordinary-FF generator and training hyperparameters from amazon_beauty_gr_baseline.json",
+    "quantizer_recipe": "GRID rqvae_train_flat.yaml at2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "training_recipe": "All 131413 noninitial training positions exactly once per epoch; latest20 context; seed+epoch permutation; no sampled-window augmentation",
+    "deviations": [
+      "native GRID RQ-VAE 3x256 replaces early RQ-KMeans; frozen cached Sentence-T5 unchanged",
+      "20 complete target-position epochs instead of early maximum100; validation only at10and20; NDCG@10 checkpoint selection",
+      "early generator user bins2000, noSEP, ordinary FF, beam20, FP16, Adam1e-3/wd1e-4/clip1, batch256/physical128 restored",
+      "no study telemetry, exact panels, training probes or runtime profiling"
+    ],
+    "early_run_git_sha": "2975942b9a2baa92f9b46c20a0755ff870f80165",
+    "sampling_change_authorized": "2026-10-25: sampling is not the research axis; use the faster early protocol"
+  },
+  "parent": {
+    "kernel": "carasik/rhpr-gr-beauty-sentence-t5-rkmeans",
+    "source_code_sha": "2975942b9a2baa92f9b46c20a0755ff870f80165",
+    "files": {
+      "run-manifest.json": {
+        "sha256": "d0d96892758eda471d2e8584158da9b9559615629e9cde7321d05144f6eed20d",
+        "size_bytes": 3471
+      },
+      "representation.json": {
+        "sha256": "fc713b79e6f8dcdd805029bf3c5531463dc9f34115c4b3d1629776ed07a0b26d",
+        "size_bytes": 423
+      },
+      "item-embeddings.npy": {
+        "sha256": "607895c3dbe7a6a5aa6272dde55dd190e8bc40fa97532830de161d118aca5314",
+        "size_bytes": 37174400
+      }
+    },
+    "reuse_tokenizer": false
+  }
+}
