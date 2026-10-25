@@ -13,12 +13,16 @@
   epochs,FP16 generator,validation every10,no study telemetry. Read
   `docs/gr-rqvae-baseline.md`. This is separate from joint encoder training;
   do not resume the paused index-study kernels.
-- The user stopped the expanded-FF version and authorized the faster ordinary
-  T5-FF generator on2026-10-25. Use
-  `experiments/amazon_beauty_rqvae_tiger_plain_ff_fp16_20epochs.json`:
-  `mlp_layers=null`,4+4/d128,4,722,048parameters. Preserve the RQ-VAE,
-  sampling,batch512,FP16,20epochs and validation every10. Keep the expanded
-  configuration as history, not the next run to dispatch.
+- The user authorized restoring the faster early prefix protocol on2026-10-25:
+  sampling is not the item-encoder research axis. Use
+  `experiments/amazon_beauty_rqvae_tiger_fast_prefix_fp16_20epochs.json`.
+  Restore the early4+4/d128 ordinary-FF generator: noSEP,user bins2000,
+  4,977,920parameters,beam20,Adam1e-3/wd1e-4/clip1,batch256/physical128.
+  Every noninitial train position appears once per epoch, latest20 context,
+  131,413examples. Preserve RQ-VAE3x256/3000updates, frozen Sentence-T5,
+  FP16 generator,20epochs, validation only at10and20, NDCG@10 selection.
+  The expanded-FF and plain-FF sampled-window configs are historical;
+  do not launch them as the active baseline or revive the paused studies.
 - The SID index-structure investigation was paused on 2026-10-25 at the user's
   request. Read `docs/research/paused-sid-index/README.md` and its results ledger
   before reopening it. It did not establish a causal semantic-collision rule

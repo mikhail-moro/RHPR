@@ -1,5 +1,39 @@
 # Sentence-T5 + native GRID RQ-VAE + TIGER,20epochs
 
+## Active fast prefix baseline (2026-10-25)
+
+The user chose the early fast protocol: sampling is not an axis of the
+item-encoder research. Use
+`experiments/amazon_beauty_rqvae_tiger_fast_prefix_fp16_20epochs.json`.
+The sampled-window configurations below are retained as history.
+
+Restore the exact generator and optimizer recipe from
+`amazon_beauty_gr_baseline.json`, verified against completed run
+`2975942b9a2baa92f9b46c20a0755ff870f80165`:4+4/d128,ordinary FF1024,
+dropout0.1,user bins2000,noSEP,beam20,4,977,920parameters. Adam1e-3,
+weight decay1e-4,clip1,effective batch256/physical128,FP16; FP32 evaluation.
+Keep the current frozen Sentence-T5 inputs and native GRID RQ-VAE3x256,
+3000updates and saved differentiable state unchanged.
+
+Each epoch enumerates all131,413noninitial train positions once, with at most
+20previous items and seed+epoch shuffle, retaining incomplete final batches.
+Validation input is the latest20train items; test adds the observed validation
+item. No held-out target enters its own context. Four SID codes per item give
+80encoder SID positions plus one user token:81positions, verified by actual
+CPU forward. The prior stream fed120raw positions plus30SEP tokens:150total,
+and its first epoch produced289,689examples, rather than131,413.
+
+Run20complete target-position epochs, validation only at10and20(no epoch1
+check), select by validation item NDCG@10, then test once. This is not an
+equal-exposure comparison with20sampled-window epochs. Keep best and last
+checkpoints, scalar curves and sampling/count metadata; no study telemetry
+or profiling. Old configs still select the original sampled-window trainer.
+Timing separates optimizer training, validation and complete training-loop
+elapsed time. The old early run averaged about78seconds per epoch on T4;
+this is a reference, not a guaranteed timing for the new quantizer/run.
+
+## Historical sampled-window configurations
+
 Authorized by the user on2026-10-25. One private GPU run, seed42. Configuration:
 `experiments/amazon_beauty_rqvae_tiger_fp16_20epochs.json`.
 

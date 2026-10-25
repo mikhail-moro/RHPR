@@ -15,6 +15,23 @@ READY = SOURCE and all(importlib.util.find_spec(n) for n in
 
 
 class RunContractTests(unittest.TestCase):
+    def test_fast_prefix_recipe_restores_early_baseline_without_changing_quantizer(self):
+        config = json.loads((ROOT / "experiments/amazon_beauty_rqvae_tiger_fast_prefix_fp16_20epochs.json").read_text())
+        old = json.loads((ROOT / "experiments/amazon_beauty_gr_baseline.json").read_text())
+        previous = json.loads((ROOT / "experiments/amazon_beauty_rqvae_tiger_plain_ff_fp16_20epochs.json").read_text())
+        self.assertEqual(config["generator"], old["generator"])
+        self.assertEqual(config["data"], old["data"])
+        self.assertEqual(config["quantizer"], previous["quantizer"])
+        self.assertEqual(config["representation"], previous["representation"])
+        for field in ("batch_size", "physical_batch_size", "learning_rate", "weight_decay", "grad_clip_norm"):
+            self.assertEqual(config["training"][field], old["training"][field])
+        self.assertEqual(config["training"]["sampling"], "all_train_prefixes")
+        self.assertEqual(config["training"]["precision"], "fp16")
+        self.assertEqual(config["training"]["max_epochs"], 20)
+        self.assertEqual(config["training"]["min_epochs"], 20)
+        self.assertEqual(config["training"]["validation_interval"], 10)
+        self.assertFalse(config["training"]["validate_first_epoch"])
+
     def test_requested_recipe_preserves_old_generator_and_removes_heavy_diagnostics(self):
         config = json.loads((ROOT / "experiments/amazon_beauty_rqvae_tiger_fp16_20epochs.json").read_text())
         old = json.loads((ROOT / "experiments/amazon_beauty_grid_epochs_fp16_b512.json").read_text())
@@ -144,6 +161,19 @@ selection=train_epoch_generator(model,users,index,config,out,'cpu')
 assert selection['epochs']==2 and selection['validation_checks']==1
 assert (out/'generator-best.pt').is_file() and (out/'generator-last.pt').is_file()
 assert not (out/'tables').exists() and not (out/'catalogue-scores').exists()
+# Fit the prefix adapter with the same actual RQ-VAE SID index and GRID model.
+from rhpr.gr.rqvae_experiment import _train_rqvae_generator
+prefix_config=dict(seed=42,data={'history_items':2},training=dict(
+    sampling='all_train_prefixes',max_epochs=2,min_epochs=2,validation_interval=2,
+    validate_first_epoch=False,patience_epochs=2,learning_rate=.001,weight_decay=1e-4,
+    precision='fp32',evaluation_precision='fp32',evaluation_batch_size=2,max_seconds=60,
+    batch_size=4,physical_batch_size=2,grad_clip_norm=1.0))
+prefix=root/'prefix-generator';prefix.mkdir()
+selected=_train_rqvae_generator(model,users,index,prefix_config,prefix,'cpu')
+assert selected['epochs']==2 and selected['validation_checks']==1
+assert selected['model_examples_consumed']==16 and selected['updates']==4
+assert selected['checkpoint_metric']=='validation_item_ndcg@10'
+assert (prefix/'generator-best.pt').is_file() and (prefix/'generator-last.pt').is_file()
 print('Native RQ-VAE reload, all component gradients, and generator fit passed')
 '''
         with tempfile.TemporaryDirectory() as folder:

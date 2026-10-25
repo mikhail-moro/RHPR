@@ -4,6 +4,11 @@ User decision, 2026-10-25: pause the index-diagnostics branch and return to
 comparing item encoders. The user subsequently authorized the
 [Sentence-T5 / RQ-VAE / TIGER baseline](../../gr-rqvae-baseline.md), retaining
 the old GRID4+4/d128 generator with FP16,20epochs and validation every10.
+The user subsequently chose the faster early prefix protocol, since sampling
+is not the research axis. The active config is
+`experiments/amazon_beauty_rqvae_tiger_fast_prefix_fp16_20epochs.json`:
+every train target once per epoch, latest20context, early ordinary-FF4+4/d128,
+noSEP,user bins2000,FP16,20epochs and validation only at10and20.
 The RQ-VAE uses the native GRID3x256 recipe and3000updates; this first run
 does not jointly train the text encoder. No encoder sweep is queued.
 See the original [research brief](../../gr-research-brief.md)
