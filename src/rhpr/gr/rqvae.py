@@ -46,6 +46,10 @@ def export_codes(model, values, device, batch_size):
     from lightning.pytorch.trainer.states import TrainerFn
 
     # Native forward uses TrainerFn, independently of Module.training.
+    # Lightning tears down its strategy after fit and moves the module to CPU.
+    # Export is outside Trainer.predict, so explicitly restore the requested
+    # device before making CUDA batches (including BatchNorm buffers).
+    model.to(device)
     model.trainer.state.fn = TrainerFn.PREDICTING
     model.eval()
     result, squared_error, elements = [], 0.0, 0
@@ -121,8 +125,8 @@ def fit_grid_rqvae(values, spec, seed, device, source_root, recipe_path, output)
     flags = [bool(layer.is_initialized) for layer in model.quantization_layer_list]
     if not all(flags):
         raise RuntimeError("RQ-VAE codebooks did not initialize")
-    codes, mse = export_codes(model, values, device, spec["batch_size"])
-    np.save(output / "semantic-codes.npy", codes, allow_pickle=False)
+    fit_seconds = time.monotonic() - started
+    # Keep completed optimization even if a subsequent export/check fails.
     torch.save({"model": model.state_dict(), "optimizer": trainer.optimizers[0].state_dict(),
         "spec": spec, "seed": seed, "input_dim": values.shape[1], "resolved_model": resolved,
         "initialized": flags, "steps": trainer.global_step,
@@ -130,13 +134,17 @@ def fit_grid_rqvae(values, spec, seed, device, source_root, recipe_path, output)
         "rng_cuda": torch.cuda.get_rng_state_all() if device.startswith("cuda") else [],
         "source_recipe_sha256": file_sha256(Path(recipe_path)),
         "automatic_resume": False}, output / "quantizer.pt")
+    _event("rqvae_fit_checkpoint_saved", steps=trainer.global_step,
+           fit_seconds=fit_seconds, checkpoint="quantizer.pt")
+    codes, mse = export_codes(model, values, device, spec["batch_size"])
+    np.save(output / "semantic-codes.npy", codes, allow_pickle=False)
     report = {"kind": "grid_rqvae", "seed": seed, "config": spec, "resolved_model": resolved,
         "input_dim": values.shape[1], "latent_dim": model.encoder.output_dim,
         "precision": "fp32", "steps": trainer.global_step, "batches": progress.batches,
         "item_exposures": progress.examples, "final_training_loss": progress.last_loss,
         "reconstruction_mse_normalized_input": mse,
         "used_codes_per_level": [int(len(np.unique(codes[:, level]))) for level in range(codes.shape[1])],
-        "elapsed_seconds": time.monotonic() - started,
+        "fit_seconds": fit_seconds, "elapsed_seconds": time.monotonic() - started,
         "source_recipe": "GRID configs/experiment/rqvae_train_flat.yaml",
         "source_recipe_sha256": file_sha256(Path(recipe_path)),
         "checkpoint_sha256": file_sha256(output / "quantizer.pt"),

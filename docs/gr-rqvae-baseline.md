@@ -62,6 +62,24 @@ forward requires a Lightning trainer:attach a Trainer and set its state to
 PREDICTING when exporting (`export_codes` does this); a normal new Trainer can
 subsequently own training. Automatic training resume is not implemented.
 
+### First-run export fix and precision
+
+Version1 completed3000quantizer updates in about109seconds on T4, then failed
+before SID export:Lightning's fit teardown had moved the model to CPU, while
+the external exporter built CUDA inputs. Explicitly move the whole module,
+including BatchNorm buffers, to the export device. Save `quantizer.pt` before
+export so a later failure does not discard completed training. This is an
+adapter device-lifecycle error, not a numerical training failure.
+
+The pinned GRID recipe requests BF16-mixed on its original hardware. Our T4
+run uses FP32 for the quantizer and FP16 for the generator. FP16 AMP for the
+quantizer would need explicit treatment:its native manual initialization uses
+raw SGD steps, so enabling Lightning's gradient scaler alone would change
+initialization unless scaling/unscaling is handled. Keep nearest-code distance,
+residual/loss arithmetic and initialization FP32 while experimenting with AMP
+MLPs, and measure actual benefit before changing this short preprocessing step.
+No quantizer precision change is included in the export fix.
+
 Changing quantizer/encoder weights later can change SID assignments; joint
 training needs an explicit objective and code-update policy. This first run
 provides a saved differentiable baseline, not an implicit joint-training method.

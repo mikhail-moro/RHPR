@@ -34,6 +34,56 @@ class RunContractTests(unittest.TestCase):
 
 @unittest.skipUnless(READY, "Requires pinned GRID source and GR dependencies")
 class NativeRQTests(unittest.TestCase):
+    def test_completed_fit_checkpoint_survives_export_failure(self):
+        script = r'''
+import sys,torch,numpy as np
+from pathlib import Path
+from unittest.mock import patch
+from rhpr.gr.grid import prepare_grid_source
+from rhpr.gr.rqvae import fit_grid_rqvae
+root=Path(sys.argv[2]);source=prepare_grid_source(sys.argv[1],root/'grid')
+spec=dict(num_hierarchies=3,codebook_size=4,batch_size=8,max_steps=1,
+    init_buffer_size=8,initialization_steps=2,distance_backend='torch_cdist')
+values=np.random.default_rng(3).normal(size=(32,8)).astype('float32')
+with patch('rhpr.gr.rqvae.export_codes',side_effect=RuntimeError('export failed')):
+    try:
+        fit_grid_rqvae(values,spec,42,'cpu',source,
+            Path(sys.argv[1])/'configs/experiment/rqvae_train_flat.yaml',root/'fit')
+    except RuntimeError as error:
+        assert str(error)=='export failed'
+    else:raise AssertionError('export failure hidden')
+state=torch.load(root/'fit/quantizer.pt',map_location='cpu',weights_only=False)
+assert state['steps']==1 and all(state['initialized'])
+assert state['optimizer'] and state['model']
+assert not (root/'fit/semantic-codes.npy').exists()
+'''
+        with tempfile.TemporaryDirectory() as folder:
+            result = subprocess.run([sys.executable, "-c", script, SOURCE, folder],
+                capture_output=True, text=True, timeout=90)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_cuda_fit_export_survives_lightning_teardown(self):
+        import torch
+        if not torch.cuda.is_available():
+            self.skipTest("Requires CUDA for the actual post-fit device transition")
+        script = r'''
+import sys,numpy as np
+from pathlib import Path
+from rhpr.gr.grid import prepare_grid_source
+from rhpr.gr.rqvae import fit_grid_rqvae
+root=Path(sys.argv[2]);source=prepare_grid_source(sys.argv[1],root/'grid')
+spec=dict(num_hierarchies=3,codebook_size=4,batch_size=8,max_steps=3,
+    init_buffer_size=8,initialization_steps=2,distance_backend='torch_cdist')
+codes,report=fit_grid_rqvae(np.random.default_rng(3).normal(size=(32,8)).astype('float32'),
+    spec,42,'cuda:0',source,Path(sys.argv[1])/'configs/experiment/rqvae_train_flat.yaml',root/'fit')
+assert codes.shape==(32,3) and report['steps']==3
+assert (root/'fit/quantizer.pt').is_file() and (root/'fit/semantic-codes.npy').is_file()
+'''
+        with tempfile.TemporaryDirectory() as folder:
+            result = subprocess.run([sys.executable, "-c", script, SOURCE, folder],
+                capture_output=True, text=True, timeout=120)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_native_fit_reload_gradient_flow_and_generator_training(self):
         script = r'''
 import json,sys,torch,numpy as np
