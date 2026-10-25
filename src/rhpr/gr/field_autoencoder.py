@@ -27,9 +27,12 @@ class ContinuousFieldAutoencoder(nn.Module):
         mode = self.loss_policy["mode"]
         if mode == "uncertainty":
             return self.uncertainty.weights()
-        values = [1 / self.loss_normalizers[name] if mode == "fixed_normalized" else float(name == "title")
+        values = [float(name == "title") if mode == "title_only" else 1 / self.loss_normalizers[name]
                   for name in self.field_names]
-        return self.uncertainty.loss_scale.new_tensor(values)
+        weights = self.uncertainty.loss_scale.new_tensor(values)
+        if hasattr(self, "task_balancer"):
+            weights = weights * self.task_balancer.multipliers().detach()
+        return weights
 
     def forward(self, fields):
         features = self.feature_encoder(fields)
@@ -51,17 +54,24 @@ def configure_objective(model, arrays, policy):
     """Catalogue constants are fitted once; no generator/test labels are used."""
     policy = dict(policy or {"mode": "uncertainty"})
     mode = policy.get("mode")
-    if mode not in {"uncertainty", "fixed_normalized", "title_only"}:
+    if mode not in {"uncertainty", "fixed_normalized", "title_only", "equal", "fixed_sqrt", "dwa", "gradnorm"}:
         raise ValueError("unsupported autoencoder loss policy")
     if mode == "title_only" and "title" not in model.field_names:
         raise ValueError("title_only requires frozen title targets")
     lr = policy.get("uw_learning_rate")
     if lr is not None and (mode != "uncertainty" or type(lr) not in (int, float) or not np.isfinite(lr) or lr <= 0):
         raise ValueError("uw_learning_rate requires uncertainty mode and positive finite value")
+    for key, default in (("temperature", 2.0), ("alpha", 1.5), ("weight_learning_rate", .025)):
+        value = policy.get(key, default)
+        if type(value) not in (int, float) or not np.isfinite(value) or value <= 0:
+            raise ValueError(f"{key} must be positive finite")
+    if hasattr(model, "task_balancer"):
+        del model.task_balancer
     model.loss_policy = policy
+    model.loss_normalizers = {name: 1.0 for name in model.field_names}
     for parameter in model.uncertainty.parameters():
         parameter.requires_grad_(mode == "uncertainty")
-    if mode == "fixed_normalized":
+    if mode in {"fixed_normalized", "fixed_sqrt", "dwa", "gradnorm"}:
         floor = policy.get("normalizer_floor", 1e-6)
         if type(floor) not in (int, float) or not np.isfinite(floor) or floor <= 0:
             raise ValueError("normalizer_floor must be positive finite")
@@ -81,13 +91,22 @@ def configure_objective(model, arrays, policy):
             constants["title"] = float(np.square(titles - titles.mean(0)).mean())
         if any(not np.isfinite(value) for value in constants.values()):
             raise ValueError("field normalization requires observed finite catalogue targets")
-        model.loss_normalizers = {name: max(value, floor) for name, value in constants.items()}
+        power = .5 if mode == "fixed_sqrt" else 1.0
+        model.loss_normalizers = {name: max(value, floor) ** power for name, value in constants.items()}
         model.loss_policy["catalogue_constant_errors"] = constants
         model.loss_policy["clamped_normalizers"] = [name for name,value in constants.items() if value < floor]
+    if mode in {"dwa", "gradnorm"}:
+        from rhpr.gr.vendor.libmtl_balancing import TaskBalancer
+        model.task_balancer = TaskBalancer(len(model.field_names), policy).to(model.uncertainty.loss_scale.device)
     return model.loss_policy
 
 
 def make_autoencoder_optimizer(model, factory):
+    if model.loss_policy["mode"] == "gradnorm":
+        weights = list(model.task_balancer.parameters())
+        ids = {id(p) for p in weights}
+        return factory(params=[{"params": [p for p in model.parameters() if p.requires_grad and id(p) not in ids], "name": "neural"},
+            {"params": weights, "lr": model.loss_policy.get("weight_learning_rate", .025), "name": "gradnorm"}])
     lr = model.loss_policy.get("uw_learning_rate")
     if lr is None:
         return factory(params=[p for p in model.parameters() if p.requires_grad])
@@ -196,7 +215,7 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
 
     evaluate(0)
     while updates < spec["max_steps"]:
-        for indices in loader:
+        for batch_index, indices in enumerate(loader):
             model.train()
             fields = tensor_fields(arrays, indices.numpy(), device)
             optimizer.zero_grad(set_to_none=True)
@@ -204,6 +223,13 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
             loss, losses, counts = model.objective(predictions, fields)
             if not bool(torch.isfinite(loss)):
                 raise FloatingPointError("nonfinite continuous autoencoder loss")
+            balancer = getattr(model, "task_balancer", None)
+            if balancer is not None:
+                # Keep separate roots so each GradNorm probe traverses only
+                # its own head, rather than backpropagating zeros through all.
+                normalized = [losses[name] / model.loss_normalizers[name] for name in model.field_names]
+                shared_weight = [m.weight for m in model.decoder.modules() if isinstance(m, nn.Linear)][-1]
+                balancer.backward_weights(normalized, shared_weight, list(counts.values()))
             loss.backward()
             norms = {}
             if (updates + 1) % spec["diagnostics_interval_steps"] == 0 or updates + 1 == spec["max_steps"]:
@@ -213,12 +239,19 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
                 if not all(np.isfinite(value) for value in norms.values()):
                     raise FloatingPointError("nonfinite continuous autoencoder gradients")
             optimizer.step()
+            if balancer is not None:
+                balancer.observe(normalized, list(counts.values()))
+                if batch_index + 1 == len(loader):
+                    balancer.finish_pass()
             updates += 1;exposures += len(indices)
             if updates % spec["diagnostics_interval_steps"] == 0 or updates == spec["max_steps"]:
                 row = {"step": updates, "total_loss": float(loss.detach()),
                     "raw_field_losses": {name: float(value.detach()) for name, value in losses.items()},
                     "field_observed_counts": counts, "scope": "last_training_batch", "gradient_norms": norms,
                     "field_weights": dict(zip(model.field_names, model.task_weights().detach().cpu().tolist()))}
+                if balancer is not None:
+                    row["balancing_diagnostics"] = {"complete_catalogue_passes": int(balancer.passes),
+                        "multipliers": balancer.multipliers().detach().cpu().tolist(), **balancer.diagnostics}
                 curves.append(row);_write(output / "field-learning-curves.json", curves)
                 _event("continuous_autoencoder_progress", **row)
                 evaluate(updates)

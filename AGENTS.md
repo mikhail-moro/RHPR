@@ -8,6 +8,14 @@
 - The active direction is comparing item encoders for SID-based generative
   recommendation. Read `docs/gr-research-brief.md`, `docs/gr-baseline.md`, and
   `docs/research/item-encoders/README.md`.
+- Latest follow-up:the user requested alternatives to UW and asked about
+  available compute. Run one private two-T4 continuous-AE suite using
+  `experiments/amazon_beauty_field_ae_nonuw_2t4.json`:equal raw sum,square-root
+  constant normalization,DWA(T2) and GradNorm(alpha1.5,weight Adagrad LR0.025),
+  5000updates each,same seed42/neural initialization/Adagrad0.001/FP32.
+  DWA/GradNorm use the completed fixed-normalized AE as control. Preserve all
+  per-field losses/checkpoints/weight diagnostics;no RQ,generator or SID yet.
+  See `docs/gr-field-ae-nonuw.md`;do not automatically tune or retry trials.
 - Latest user authorization,2026-10-26:check multiple fast continuous-AE loss
   hypotheses,parallel on two T4s. Use
   `experiments/amazon_beauty_field_ae_loss_suite_2t4.json`;four independent
