@@ -5,10 +5,19 @@
 - The history-compression / Query SSM track was closed on 2026-10-21. Read
   `docs/research/closed-history-compression/README.md` for its final evidence.
 - Earlier experiment plans are historical and have no pending GPU launches.
-- The active direction is item representations for SID-based generative
-  recommendation. Read `docs/gr-research-brief.md` and `docs/gr-baseline.md`.
-- The user cancelled the TPU launch and paused reproduction work. The active
-  study (2026-10-24) investigates SID index structure using six RQ-KMeans seeds,
+- The active direction is comparing item encoders for SID-based generative
+  recommendation. Read `docs/gr-research-brief.md`, `docs/gr-baseline.md`, and
+  `docs/research/item-encoders/README.md`.
+- The user authorized a fast Sentence-T5 + native GRID RQ-VAE3x256 + previous
+  GRID TIGER4+4/d128 baseline on2026-10-25:3000 quantizer updates,20 generator
+  epochs,FP16 generator,validation every10,no study telemetry. Read
+  `docs/gr-rqvae-baseline.md`. This is separate from joint encoder training;
+  do not resume the paused index-study kernels.
+- The SID index-structure investigation was paused on 2026-10-25 at the user's
+  request. Read `docs/research/paused-sid-index/README.md` and its results ledger
+  before reopening it. It did not establish a causal semantic-collision rule
+  or prove text encoders are defective; SHANY primarily exposed missing brand
+  metadata. The historical study (2026-10-24) used six RQ-KMeans seeds,
   frozen Sentence-T5 embeddings, identical generator initialization and shared
   TIGER/GRID window manifests. Two T4s in one session, one independent seed
   worker per GPU (three seeds each), FP16, 3+3 layers at d128, 20 epochs,
@@ -17,7 +26,7 @@
 - Raw autoregressive scores and valid-child locally renormalized scores are
   separate objectives. Compare exact search and beams under MATCHING scoring.
   Do not interpret six index seeds as six independent generator seeds.
-- The authorized follow-up crosses frozen original rq11/rq22 indices with
+- The completed follow-up crossed frozen original rq11/rq22 indices with
   generator seeds101/202/303, preserving data seed4242 and20epochs. See
   `docs/gr-sid-training-variance.md`. Fixed train/validation probes preserve
   RNG/weights; their Parquet sidecars are distinct from checkpoint evaluations.

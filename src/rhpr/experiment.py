@@ -76,6 +76,11 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == "gr_rqvae_baseline":
+        if output_dir is None:
+            raise ValueError("output_dir is required for gr_rqvae_baseline")
+        from rhpr.gr.rqvae_experiment import run_rqvae_baseline
+        return run_rqvae_baseline(config, output_dir)
     if kind == "gr_sid_index_study":
         if output_dir is None:
             raise ValueError("output_dir is required for gr_sid_index_study")
