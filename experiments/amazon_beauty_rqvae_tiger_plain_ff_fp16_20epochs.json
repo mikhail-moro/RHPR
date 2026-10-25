@@ -1,0 +1,139 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-gr-rqvae"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "author full training rows and contiguous augmentation buffered into batches512; validation/test latest20; full-catalogue item metrics",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-gr-beauty-sentence-t5-rkmeans"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "name": "beauty-sentence-t5-rqvae-tiger-plain-ff-fp16-20epochs",
+  "kind": "gr_rqvae_baseline",
+  "representation": {
+    "kind": "external_embeddings",
+    "model": "sentence-transformers/sentence-t5-base",
+    "revision": "fc5d4628481afbbaaacd7af6bb07cf9d3865f781",
+    "sha256": "607895c3dbe7a6a5aa6272dde55dd190e8bc40fa97532830de161d118aca5314",
+    "catalog_sha256": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+    "parent_file": "item-embeddings.npy"
+  },
+  "quantizer": {
+    "kind": "grid_rqvae",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "max_steps": 3000,
+    "batch_size": 2048,
+    "init_buffer_size": 3072,
+    "initialization_steps": 1000,
+    "distance_backend": "torch_cdist"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.15,
+    "mlp_layers": null,
+    "num_user_bins": null,
+    "separator_token": true,
+    "codebook_size": 256,
+    "beam_width": 10,
+    "should_check_prefix": false
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "batch_size": 512,
+    "physical_batch_size": 512,
+    "learning_rate": 0.0005,
+    "weight_decay": 1e-06,
+    "grad_clip_norm": null,
+    "source_user_batch_size": 32,
+    "sequence_length": 120,
+    "max_augmented_batch": 512,
+    "early_stopping_metric": "ndcg@10",
+    "checkpoint_metric": "recall@10",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "evaluation_batch_size": 256,
+    "max_seconds": 10800,
+    "schedule": "epochs",
+    "max_epochs": 20,
+    "validation_interval_epochs": 10,
+    "patience_epochs": 20
+  },
+  "evaluation": {
+    "test_after_selection": true,
+    "item_level": true,
+    "quality_not_evaluated": false,
+    "purpose": "single-seed GRID quality diagnostic; FP16 and effective batch512 are explicit departures from reference FP32/batch256"
+  },
+  "reference": {
+    "exact_published_reproduction": false,
+    "generator_recipe": "Same4+4/d128 baseline with ordinary T5 feed-forward blocks; mlp_layers=null removes GRID extra hidden FF layer",
+    "quantizer_recipe": "GRID rqvae_train_flat.yaml at2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "deviations": [
+      "cached Sentence-T5-base instead of GRID Flan-T5-XL",
+      "one GPU; FP32 quantizer, FP16 generator, batch512",
+      "finite shuffled catalogue repeated until3000 RQ-VAE optimizer steps; native GRID initialization/STE/loss/Adagrad",
+      "squared-L2 cdist for quantization and initialization; rounding differences possible",
+      "20 source-user generator epochs; validation every10; validation Recall@10 selection",
+      "no profiling, study-store telemetry, exact panels or training probes",
+      "user-authorized ordinary T5 FF instead of expanded GRID mlp_layers=2; all data/quantizer/training/evaluation fields preserved"
+    ]
+  },
+  "parent": {
+    "kernel": "carasik/rhpr-gr-beauty-sentence-t5-rkmeans",
+    "source_code_sha": "2975942b9a2baa92f9b46c20a0755ff870f80165",
+    "files": {
+      "run-manifest.json": {
+        "sha256": "d0d96892758eda471d2e8584158da9b9559615629e9cde7321d05144f6eed20d",
+        "size_bytes": 3471
+      },
+      "representation.json": {
+        "sha256": "fc713b79e6f8dcdd805029bf3c5531463dc9f34115c4b3d1629776ed07a0b26d",
+        "size_bytes": 423
+      },
+      "item-embeddings.npy": {
+        "sha256": "607895c3dbe7a6a5aa6272dde55dd190e8bc40fa97532830de161d118aca5314",
+        "size_bytes": 37174400
+      }
+    },
+    "reuse_tokenizer": false
+  }
+}

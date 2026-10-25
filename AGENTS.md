@@ -13,6 +13,12 @@
   epochs,FP16 generator,validation every10,no study telemetry. Read
   `docs/gr-rqvae-baseline.md`. This is separate from joint encoder training;
   do not resume the paused index-study kernels.
+- The user stopped the expanded-FF version and authorized the faster ordinary
+  T5-FF generator on2026-10-25. Use
+  `experiments/amazon_beauty_rqvae_tiger_plain_ff_fp16_20epochs.json`:
+  `mlp_layers=null`,4+4/d128,4,722,048parameters. Preserve the RQ-VAE,
+  sampling,batch512,FP16,20epochs and validation every10. Keep the expanded
+  configuration as history, not the next run to dispatch.
 - The SID index-structure investigation was paused on 2026-10-25 at the user's
   request. Read `docs/research/paused-sid-index/README.md` and its results ledger
   before reopening it. It did not establish a causal semantic-collision rule

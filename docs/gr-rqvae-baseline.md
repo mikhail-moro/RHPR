@@ -3,6 +3,28 @@
 Authorized by the user on2026-10-25. One private GPU run, seed42. Configuration:
 `experiments/amazon_beauty_rqvae_tiger_fp16_20epochs.json`.
 
+Update:the user stopped the expanded-FF run and authorized the faster
+`experiments/amazon_beauty_rqvae_tiger_plain_ff_fp16_20epochs.json`.
+The original configuration below is preserved as historical provenance.
+
+## Active ordinary-FF configuration
+
+Only `generator.mlp_layers` changes from2to null. Four encoder and four decoder
+layers,d128,d_ff1024,dropout0.15,separator,batch512,FP16 training,20source-user
+epochs and validation every10 remain the same. RQ-VAE3x256,Sentence-T5 inputs,
+sampling,LR,selection and evaluation also remain the same.
+
+The native GRID constructor now retains ordinary T5 feed-forward blocks instead
+of replacing each one with `128→1024→1024→128`. Parameter count falls from
+13,128,064to4,722,048. At identical batch1/seq120,CPU-profiler recognized forward
+matmul FLOPs fell from2,134,824,373to834,590,133. This is a compute comparison,
+not a measured CUDA training speedup. The previous heavy recipe took about
+0.530seconds/update on T4, consistent with about300seconds for566updates.
+
+This is an intentional architecture change for faster experiments, not a claim
+that the expanded released GRID generator is reproduced. Both configurations
+retain the standalone native GRID RQ-VAE and its saved differentiable components.
+
 ## Requested generator and protocol
 
 Reuse the generator fields from `amazon_beauty_grid_epochs_fp16_b512.json`,
