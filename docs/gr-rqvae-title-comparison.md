@@ -67,3 +67,32 @@ The title arm additionally saves `title-encoder/item-embeddings.npy` and its
 model/revision/text-hash provenance,`catalogue-fields.npz` with fixed title
 targets,learned concatenations,per-field losses/weights,and all trainable field
 components. The title encoder itself stays the resource-pinned pretrained model.
+
+## Completed3000-step diagnostics
+
+Both new kernels completed at commit `20dc54faaf2cac5c8fa7fd14cb37165154e01a2a`.
+
+| Arm | Unique semantic tuples | Max group | Used codes | Suffix fits |
+| --- | ---: | ---: | --- | --- |
+| Plain Sentence-T5/RQ-VAE |11991|4|143/256/256|yes|
+| Structured fields + frozen title |845|1162|10/42/157|no|
+
+Title improves tuple diversity relative to the prior field-only3k run(68tuples,
+max group1796),but severe assignment collapse and suffix overflow remain.
+The diagnostic stage deliberately completes with this measurement;COMPLETE
+does not mean that the index can be used by the unchanged generator.
+
+Title reconstruction MSE is0.00255964 versus zero-predictor0.00130208 and
+catalogue-mean-predictor0.000287248. Cosine is0.53673. Thus the small-looking
+raw MSE is not evidence of successful title reconstruction. Brand CE4.5305,
+category BCE0.04653 and price Huber0.25711 are separate objectives;the native
+beta quantization loss is about30.216,versus0.0001205in the plain arm.
+These results are one seed;they do not isolate the training failure's cause.
+
+The plain run DID log diagnostics:13stdout progress/codebook events,seven
+catalogue probes at1/500/1000/1500/2000/2500/3000,full JSON curves,and seven
+NPZ codebook snapshots. Its stdout summary was shorter than the field arm.
+Future plain-run console summaries now include perplexity,suffix status,
+quantization MSE,embedding reconstruction MSE and native beta loss. Explicit
+scope labels distinguish full-catalogue eval from last-training-batch loss.
+No retraining is needed to recover the completed run's already saved diagnostics.

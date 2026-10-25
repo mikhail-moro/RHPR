@@ -19,6 +19,11 @@
   Suffix overflow is a recorded measurement in this diagnostic stage,not an
   execution failure;never repair/widen it. This supersedes initial title exclusion
   for the new arm only. Read `docs/gr-rqvae-title-comparison.md`.
+- Both3kdiagnostic runs completed:plain11991tuples/max group4/used143,256,256;
+  fields+title845tuples/max1162/used10,42,157,still suffix overflow. The plain
+  run has13stdout events and7full probe snapshots;its console summary was
+  shorter,not absent. Future plain logs now expose matching summary fields.
+  Do not retrain to recover these artifacts or call title a complete collapse fix.
 - The user specified joint feature-encoder/RQ-VAE reconstruction on2026-10-26:
   brand embedding+Linear/categories MeanPooling embeddings+Linear/standardized
   price+Linear,concatenate into native GRID RQ-VAE;CE/BCE/Huber combined by

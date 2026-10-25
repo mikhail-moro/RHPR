@@ -167,10 +167,16 @@ def fit_grid_rqvae(values, spec, seed, device, source_root, recipe_path, output)
                 _write(output / "codebook-learning-curves.json", self.curves)
                 _event("rqvae_codebooks", step=step, semantic_unique_ids=stats["semantic_unique_ids"],
                     max_collision_group=stats["max_collision_group"],
-                    used_codes=[row["used_codes"] for row in stats["levels"]])
+                    used_codes=[row["used_codes"] for row in stats["levels"]],
+                    perplexity=[row["perplexity"] for row in stats["levels"]],
+                    suffix_representable=stats["suffix_representable"],
+                    quantization_mse=stats["quantization_mse"],
+                    embedding_reconstruction_mse=stats["embedding_reconstruction_mse_normalized_input"],
+                    native_beta_loss_eval=stats["native_beta_loss_eval"], scope="full_catalogue_eval")
             if step and step != self.last_log and step % 500 == 0:
                 self.last_log = step
-                _event("rqvae_progress", updates=step, loss=self.last_loss)
+                _event("rqvae_progress", updates=step, loss=self.last_loss,
+                    step=step, total_loss=self.last_loss, scope="last_training_batch")
 
     progress = Progress()
     # Native loss/initialization remain intact; disable only metric emission.

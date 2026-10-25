@@ -122,7 +122,16 @@ codes,report=fit_grid_rqvae(values,spec,42,'cpu',source,recipe,root/'fit')
 assert codes.shape==(32,3) and report['steps']==3
 assert np.isfinite(report['reconstruction_mse_normalized_input'])
 state=torch.load(root/'fit/quantizer.pt',map_location='cpu',weights_only=False)
-probed_codes,probed_report=fit_grid_rqvae(values,{**spec,'diagnostics_interval_steps':1},42,'cpu',source,recipe,root/'probed')
+from unittest.mock import patch
+events=[]
+with patch('rhpr.gr.rqvae._event',side_effect=lambda phase,**row:events.append((phase,row))):
+    probed_codes,probed_report=fit_grid_rqvae(values,{**spec,'diagnostics_interval_steps':1},42,'cpu',source,recipe,root/'probed')
+book_logs=[row for phase,row in events if phase=='rqvae_codebooks']
+assert book_logs and book_logs[-1]['step']==3
+for key in ['used_codes','perplexity','suffix_representable','quantization_mse',
+            'embedding_reconstruction_mse','native_beta_loss_eval']:
+    assert key in book_logs[-1],key
+assert book_logs[-1]['scope']=='full_catalogue_eval'
 probed_state=torch.load(root/'probed/quantizer.pt',map_location='cpu',weights_only=False)
 assert all(torch.equal(state['model'][key],value) for key,value in probed_state['model'].items())
 np.testing.assert_array_equal(codes,probed_codes)
