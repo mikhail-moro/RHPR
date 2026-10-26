@@ -161,9 +161,13 @@ def launch_workers(plan_path, *, worker_module="rhpr.gr.ae_suite", event_prefix=
                 if status.get("warmup"):warmups[str(status["warmup"]["seed"])] = status["warmup"]
             if p.returncode != 0:failures.append({"worker": a["slot"], "exit_code": p.returncode})
         by_seed = config.get("warmup") or config.get("compare_initialization_by_seed")
-        groups = {str(r["seed"]) if by_seed else "all" for r in results.values()}
+        def initialization_group(row):
+            if config.get("compare_initialization_by_shape"):
+                return row["initialization_group"]
+            return str(row["seed"]) if by_seed else "all"
+        groups = {initialization_group(r) for r in results.values()}
         for group in groups:
-            rows = [r for r in results.values() if not by_seed or str(r["seed"]) == group]
+            rows = [r for r in results.values() if initialization_group(r) == group]
             for key in ("initial_state_sha256", "initial_full_state_sha256"):
                 if len({r[key] for r in rows if key in r}) > 1:
                     failures.append({"message": f"{key} differs between trials in group {group}"})

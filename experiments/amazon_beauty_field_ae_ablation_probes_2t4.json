@@ -1,0 +1,515 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-gr-ae-ablation-probes"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "per-user leave-last-two; all train prefix targets exactly once per epoch; test context includes observed validation target",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-field-ae-title-5k",
+      "carasik/rhpr-ae-warmup-probes"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "name": "beauty-ae-architecture-reconstruction-mtl-probes-9variants-2seeds",
+  "kind": "gr_ae_warmup_probe",
+  "representation": {
+    "kind": "field_encoder",
+    "fields": [
+      "brand",
+      "categories",
+      "price",
+      "title"
+    ],
+    "field_dim": 64,
+    "title": {
+      "kind": "sentence_transformer",
+      "model": "sentence-transformers/sentence-t5-base",
+      "revision": "fc5d4628481afbbaaacd7af6bb07cf9d3865f781",
+      "max_length": 256,
+      "batch_size": 64
+    },
+    "objective": "Continuous AE field reconstruction, then native RQ-VAE with identical fixed-normalized CE/BCE/Huber/title MSE",
+    "missing_policy": "input observed indicator; exclude missing field targets and their uncertainty regularizer",
+    "title_concatenation": "direct frozen768D; no learned projection; 192D structured +768D title =960D"
+  },
+  "quantizer": {
+    "kind": "continuous_field_autoencoder",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "max_steps": 5000,
+    "batch_size": 2048,
+    "init_buffer_size": 3072,
+    "initialization_steps": 1000,
+    "distance_backend": "torch_cdist",
+    "diagnostics_interval_steps": 500,
+    "latent_dim": 64,
+    "snapshot_steps": [
+      0,
+      100,
+      250,
+      500,
+      1000,
+      2000,
+      3500,
+      5000
+    ],
+    "loss_policy": {
+      "mode": "fixed_normalized",
+      "normalizer_floor": 1e-06
+    }
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "precision": "fp32"
+  },
+  "reference": {
+    "exact_published_reproduction": false,
+    "deviations": [
+      "Nine isolated interventions times two seeds;fixed5000AE updates and unchanged probe schedule;no adaptive stopping",
+      "Architecture/optimization:latent128 only,neural LR0.0003 only,or frozen BN running statistics only (affine parameters train)",
+      "Objectives:no price loss (input retained),cosine title loss with own mean-predictor normalization,title-only reconstruction(all inputs retained)",
+      "MTL:LibMTL UW with weight LR0.03 (neural0.001),DWA T2,GradNorm alpha1.5/weightLR0.025;all reused from tested code",
+      "Same3x256raw-latent full-catalogue RQ-KMeans;latent dimension follows AE64or128;fixed seed+level,n_init1,max300,tol1e-4",
+      "Reuse pinned completed AE64 fixed-normalized curves and frozen-T5 RQ-VAE reference;no repeated control fits",
+      "Save complete checkpoints/latents/codes/books and all comparable per-field metrics including title MSE and cosine under every objective",
+      "No generator,NIP loss,collaborative objective,validation/test,automatic retries or extra tuning"
+    ]
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "trials": [
+    {
+      "id": "latent128_s42",
+      "variant": "latent128",
+      "seed": 42,
+      "loss_policy": {
+        "mode": "fixed_normalized",
+        "normalizer_floor": 1e-06
+      },
+      "quantizer_overrides": {
+        "latent_dim": 128
+      }
+    },
+    {
+      "id": "latent128_s43",
+      "variant": "latent128",
+      "seed": 43,
+      "loss_policy": {
+        "mode": "fixed_normalized",
+        "normalizer_floor": 1e-06
+      },
+      "quantizer_overrides": {
+        "latent_dim": 128
+      }
+    },
+    {
+      "id": "slower_lr_s42",
+      "variant": "slower_lr",
+      "seed": 42,
+      "loss_policy": {
+        "mode": "fixed_normalized",
+        "normalizer_floor": 1e-06
+      },
+      "quantizer_overrides": {
+        "neural_learning_rate": 0.0003
+      },
+      "expected_initial_state_sha256": "56da423e243262fbeda4a444959429f9482f7b695b31f4299d392e446ab5b63a"
+    },
+    {
+      "id": "slower_lr_s43",
+      "variant": "slower_lr",
+      "seed": 43,
+      "loss_policy": {
+        "mode": "fixed_normalized",
+        "normalizer_floor": 1e-06
+      },
+      "quantizer_overrides": {
+        "neural_learning_rate": 0.0003
+      },
+      "expected_initial_state_sha256": "4ae9d78170b05c5fd25320330febc9d178477f00d0b86b256d89f4204cdccdcf"
+    },
+    {
+      "id": "frozen_bn_s42",
+      "variant": "frozen_bn",
+      "seed": 42,
+      "loss_policy": {
+        "mode": "fixed_normalized",
+        "normalizer_floor": 1e-06
+      },
+      "quantizer_overrides": {
+        "freeze_batchnorm_running_stats": true
+      },
+      "expected_initial_state_sha256": "56da423e243262fbeda4a444959429f9482f7b695b31f4299d392e446ab5b63a"
+    },
+    {
+      "id": "frozen_bn_s43",
+      "variant": "frozen_bn",
+      "seed": 43,
+      "loss_policy": {
+        "mode": "fixed_normalized",
+        "normalizer_floor": 1e-06
+      },
+      "quantizer_overrides": {
+        "freeze_batchnorm_running_stats": true
+      },
+      "expected_initial_state_sha256": "4ae9d78170b05c5fd25320330febc9d178477f00d0b86b256d89f4204cdccdcf"
+    },
+    {
+      "id": "no_price_s42",
+      "variant": "no_price",
+      "seed": 42,
+      "loss_policy": {
+        "mode": "fixed_normalized",
+        "normalizer_floor": 1e-06,
+        "field_weights": {
+          "price": 0.0
+        }
+      },
+      "quantizer_overrides": {},
+      "expected_initial_state_sha256": "56da423e243262fbeda4a444959429f9482f7b695b31f4299d392e446ab5b63a"
+    },
+    {
+      "id": "no_price_s43",
+      "variant": "no_price",
+      "seed": 43,
+      "loss_policy": {
+        "mode": "fixed_normalized",
+        "normalizer_floor": 1e-06,
+        "field_weights": {
+          "price": 0.0
+        }
+      },
+      "quantizer_overrides": {},
+      "expected_initial_state_sha256": "4ae9d78170b05c5fd25320330febc9d178477f00d0b86b256d89f4204cdccdcf"
+    },
+    {
+      "id": "cosine_title_s42",
+      "variant": "cosine_title",
+      "seed": 42,
+      "loss_policy": {
+        "mode": "fixed_normalized",
+        "normalizer_floor": 1e-06,
+        "title_loss": "cosine"
+      },
+      "quantizer_overrides": {},
+      "expected_initial_state_sha256": "56da423e243262fbeda4a444959429f9482f7b695b31f4299d392e446ab5b63a"
+    },
+    {
+      "id": "cosine_title_s43",
+      "variant": "cosine_title",
+      "seed": 43,
+      "loss_policy": {
+        "mode": "fixed_normalized",
+        "normalizer_floor": 1e-06,
+        "title_loss": "cosine"
+      },
+      "quantizer_overrides": {},
+      "expected_initial_state_sha256": "4ae9d78170b05c5fd25320330febc9d178477f00d0b86b256d89f4204cdccdcf"
+    },
+    {
+      "id": "title_only_s42",
+      "variant": "title_only",
+      "seed": 42,
+      "loss_policy": {
+        "mode": "fixed_normalized",
+        "normalizer_floor": 1e-06,
+        "field_weights": {
+          "brand": 0.0,
+          "categories": 0.0,
+          "price": 0.0
+        }
+      },
+      "quantizer_overrides": {},
+      "expected_initial_state_sha256": "56da423e243262fbeda4a444959429f9482f7b695b31f4299d392e446ab5b63a"
+    },
+    {
+      "id": "title_only_s43",
+      "variant": "title_only",
+      "seed": 43,
+      "loss_policy": {
+        "mode": "fixed_normalized",
+        "normalizer_floor": 1e-06,
+        "field_weights": {
+          "brand": 0.0,
+          "categories": 0.0,
+          "price": 0.0
+        }
+      },
+      "quantizer_overrides": {},
+      "expected_initial_state_sha256": "4ae9d78170b05c5fd25320330febc9d178477f00d0b86b256d89f4204cdccdcf"
+    },
+    {
+      "id": "uw_lr003_s42",
+      "variant": "uw_lr003",
+      "seed": 42,
+      "loss_policy": {
+        "mode": "uncertainty",
+        "uw_learning_rate": 0.03
+      },
+      "quantizer_overrides": {},
+      "expected_initial_state_sha256": "56da423e243262fbeda4a444959429f9482f7b695b31f4299d392e446ab5b63a"
+    },
+    {
+      "id": "uw_lr003_s43",
+      "variant": "uw_lr003",
+      "seed": 43,
+      "loss_policy": {
+        "mode": "uncertainty",
+        "uw_learning_rate": 0.03
+      },
+      "quantizer_overrides": {},
+      "expected_initial_state_sha256": "4ae9d78170b05c5fd25320330febc9d178477f00d0b86b256d89f4204cdccdcf"
+    },
+    {
+      "id": "dwa_s42",
+      "variant": "dwa",
+      "seed": 42,
+      "loss_policy": {
+        "mode": "dwa",
+        "temperature": 2.0
+      },
+      "quantizer_overrides": {},
+      "expected_initial_state_sha256": "56da423e243262fbeda4a444959429f9482f7b695b31f4299d392e446ab5b63a"
+    },
+    {
+      "id": "dwa_s43",
+      "variant": "dwa",
+      "seed": 43,
+      "loss_policy": {
+        "mode": "dwa",
+        "temperature": 2.0
+      },
+      "quantizer_overrides": {},
+      "expected_initial_state_sha256": "4ae9d78170b05c5fd25320330febc9d178477f00d0b86b256d89f4204cdccdcf"
+    },
+    {
+      "id": "gradnorm_s42",
+      "variant": "gradnorm",
+      "seed": 42,
+      "loss_policy": {
+        "mode": "gradnorm",
+        "alpha": 1.5,
+        "weight_learning_rate": 0.025
+      },
+      "quantizer_overrides": {},
+      "expected_initial_state_sha256": "56da423e243262fbeda4a444959429f9482f7b695b31f4299d392e446ab5b63a"
+    },
+    {
+      "id": "gradnorm_s43",
+      "variant": "gradnorm",
+      "seed": 43,
+      "loss_policy": {
+        "mode": "gradnorm",
+        "alpha": 1.5,
+        "weight_learning_rate": 0.025
+      },
+      "quantizer_overrides": {},
+      "expected_initial_state_sha256": "4ae9d78170b05c5fd25320330febc9d178477f00d0b86b256d89f4204cdccdcf"
+    }
+  ],
+  "parent": {
+    "kernel": "carasik/rhpr-field-ae-title-5k",
+    "source_code_sha": "9792ff38ba9733fa15822e7ec0fe61d8b0af7e2f",
+    "files": {
+      "autoencoder.json": {
+        "sha256": "68a4d36977972c3ab2e236bca5dc58b35bdbff0793ec70c83893da57a9b90d71",
+        "size_bytes": 1659
+      },
+      "catalogue-fields.npz": {
+        "sha256": "a18181a54014a1df479780abee23609e5e711e7b32d021498c4e8e9b56ec2db5",
+        "size_bytes": 34659921
+      },
+      "feature-schema.json": {
+        "sha256": "b4288ae06e2ab0b519bfb5257b0ea99179f3a81593a7195ecde3bc4f98da656e",
+        "size_bytes": 45454
+      },
+      "run-manifest.json": {
+        "sha256": "13f69b1fe07f91790c659b4323f92e94369cc939520f46344443fb1d792bd7b9",
+        "size_bytes": 6083
+      }
+    }
+  },
+  "compare_initialization_by_seed": true,
+  "kmeans": {
+    "kind": "ae_residual_kmeans",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "latent_dim": 64,
+    "n_init": 1,
+    "max_iter": 300,
+    "tol": 0.0001,
+    "cpu_threads": 1,
+    "normalize_latents": false,
+    "normalize_residuals": false
+  },
+  "ablation_suite": true,
+  "compare_initialization_by_shape": true,
+  "controls_parent": {
+    "kernel": "carasik/rhpr-ae-warmup-probes",
+    "source_code_sha": "2f26ea92de59aa5570efb5b041b474190db45ace",
+    "files": {
+      "run-manifest.json": {
+        "sha256": "7114411fea3f10904cd8289fc0af551f3f3ca84bc16fa0cb69719db024ee0105",
+        "size_bytes": 6020
+      },
+      "probe-curves.json": {
+        "sha256": "af88054ed9df02ac90e4267868c00004ab263f29060c73fc485160fdeb700ec8",
+        "size_bytes": 22382
+      }
+    }
+  },
+  "control_diagnostics": {
+    "42:0": {
+      "path": "trials/ae_s42/checkpoints/step-00000/kmeans.json",
+      "sha256": "cd279686656b4bc43fb7f95aeeb05238f5ed8e8fd3201fd580fe7e6d9308c6f5",
+      "size_bytes": 22452
+    },
+    "42:100": {
+      "path": "trials/ae_s42/checkpoints/step-00100/kmeans.json",
+      "sha256": "2bb001d62b08b293006e081b5898925f661880542694d77c457c4d235ef8420c",
+      "size_bytes": 21347
+    },
+    "42:250": {
+      "path": "trials/ae_s42/checkpoints/step-00250/kmeans.json",
+      "sha256": "c0776c7840477047494b3b834bae63b6bf309a9e17c50a92c69697f346c5cc9e",
+      "size_bytes": 21389
+    },
+    "42:500": {
+      "path": "trials/ae_s42/checkpoints/step-00500/kmeans.json",
+      "sha256": "d1dc05118054b8ae446ab33b04f8e9327be0c73e2af4fc295242027cea19baf5",
+      "size_bytes": 21385
+    },
+    "42:1000": {
+      "path": "trials/ae_s42/checkpoints/step-01000/kmeans.json",
+      "sha256": "78044c86a021e4d15487fbc1a2085c4ac718da3e1ca68cddc4ac67b7ea23a747",
+      "size_bytes": 21539
+    },
+    "42:2000": {
+      "path": "trials/ae_s42/checkpoints/step-02000/kmeans.json",
+      "sha256": "51254f3a3a8e6e5c95e262cc21480b069fdb01322eb495ace48deb8e8345b52f",
+      "size_bytes": 21436
+    },
+    "42:3500": {
+      "path": "trials/ae_s42/checkpoints/step-03500/kmeans.json",
+      "sha256": "e6f9430a4e4f9e90435198297dcb2c24394f2303e2e269d807324c83a597b191",
+      "size_bytes": 21497
+    },
+    "42:5000": {
+      "path": "trials/ae_s42/checkpoints/step-05000/kmeans.json",
+      "sha256": "b15fb7248df3dcce0c119fb43beec8044bb696a232e005dea80568355413cabe",
+      "size_bytes": 21434
+    },
+    "43:0": {
+      "path": "trials/ae_s43/checkpoints/step-00000/kmeans.json",
+      "sha256": "810e5ff3e1420bbe767c930a76962a27a4f77da70bc6de4e506d72429bea65f3",
+      "size_bytes": 22450
+    },
+    "43:100": {
+      "path": "trials/ae_s43/checkpoints/step-00100/kmeans.json",
+      "sha256": "ceefccc6239b5cca65646e62aa2046ed9131c66cf5b29df5c447eb2617f11133",
+      "size_bytes": 21232
+    },
+    "43:250": {
+      "path": "trials/ae_s43/checkpoints/step-00250/kmeans.json",
+      "sha256": "3f285514e7a425c0975c7c50a5c6736551b73c6984760200f291718de97a193f",
+      "size_bytes": 21326
+    },
+    "43:500": {
+      "path": "trials/ae_s43/checkpoints/step-00500/kmeans.json",
+      "sha256": "20c1cbcf09cde441f6832f4e8f50e76cda41269e90efd08d6c8cb4d5f81b99ce",
+      "size_bytes": 21364
+    },
+    "43:1000": {
+      "path": "trials/ae_s43/checkpoints/step-01000/kmeans.json",
+      "sha256": "d60e49b889bbdf488033c32827cb7ee8f2a4ad5e30682fc09b03c3892166840c",
+      "size_bytes": 21409
+    },
+    "43:2000": {
+      "path": "trials/ae_s43/checkpoints/step-02000/kmeans.json",
+      "sha256": "c2da4849479c2dc6f10a3ac40cdce0c3c996795335e2629ad1c0012c7a1eb54c",
+      "size_bytes": 21491
+    },
+    "43:3500": {
+      "path": "trials/ae_s43/checkpoints/step-03500/kmeans.json",
+      "sha256": "364ea25b8885c8bdae65b5af855724842ae77ef4c28024775fc91e698e1282e8",
+      "size_bytes": 21458
+    },
+    "43:5000": {
+      "path": "trials/ae_s43/checkpoints/step-05000/kmeans.json",
+      "sha256": "adf75d89ff3aef0728054cddb9ad30ffe7cf0a6018e0467f691a08ce4e40475a",
+      "size_bytes": 21377
+    }
+  },
+  "embedding_reference": {
+    "label": "Frozen T5 \u2192 RQ-VAE (final)",
+    "kind": "completed_embedding_only_rqvae",
+    "kernel": "carasik/rhpr-rqvae-tiger-beauty",
+    "version": 4,
+    "source_sha": "6e37388a2dcd7f786bc49d47ac381459ef1de323",
+    "quantizer_steps": 3000,
+    "seed": 42,
+    "input": "frozen Sentence-T5 embedding of full serialized metadata",
+    "field_ae_warmup": false,
+    "quantizer": "native GRID RQ-VAE3x256,64D latent",
+    "checkpoint_sha256": "11bf708c3ee8c02107f02aa26e60be616b136dffda707a9ede96b206c337de76",
+    "new_training": false,
+    "metrics": {
+      "price_r2": 0.20057993465886648,
+      "price_r2_trim99": 0.2988117790630359,
+      "train_proxy_gain_bits": 0.3398920831464726,
+      "train_prefix_coherence": 0.00578825044196325,
+      "first_codes_used": 143,
+      "unigram_nll_bits": 6.822116176861911,
+      "conditional_nll_bits": 6.482224093715439,
+      "relative_nll_reduction": 0.049822089559140026,
+      "latent_dimension99": 14,
+      "semantic_unique_ids": 11991,
+      "max_collision_group": 4,
+      "relative_quantization_mse": 0.02090611556398216,
+      "first_entropy_bits": 6.935201982713968,
+      "first_perplexity": 122.37813285004404,
+      "train_proxy_gain_bits_null_mean": -0.2046441418939057,
+      "train_proxy_gain_bits_null_std": 0.006265224987141808,
+      "train_proxy_gain_bits_excess_vs_null": 0.5445362250403784,
+      "train_prefix_coherence_null_mean": 0.0009354252927414959,
+      "train_prefix_coherence_null_std": 1.728173220007562e-05,
+      "train_prefix_coherence_excess_vs_null": 0.004852825149221754
+    }
+  }
+}

@@ -2,6 +2,20 @@
 
 ## Research status
 
+- Latest request,2026-10-26:run AE-parameter/reconstruction/MTL curve probes,
+  still WITHOUT TIGER. Use `experiments/amazon_beauty_field_ae_ablation_probes_2t4.json`;
+  see `docs/gr-field-ae-ablation-probes.md`. One private two-T4 session,nine
+  interventions x seeds42/43,each5000fixed updates,same eight checkpoints.
+  Variants:latent128,neural LR0.0003,frozen BN running stats(affine trains),
+  no-price reconstruction(input retained),cosine title loss,title-only,UW
+  weight LR0.03,DWA T2,GradNorm alpha1.5/weightLR0.025. Hold other settings
+  fixed;reuse pinned original title inputs,completed fixed-normalized AE curves
+  and frozen-T5/RQ-VAE reference. Keep raw-latent3x256KMeans,dimension follows
+  AE64/128;initial neural equality is checked within(seed,shape). Save complete
+  checkpoints/latents/books/codes,per-field MSE/cosine,TRAIN-only proxies and
+  comparison plots. No generator,validation/test,collaborative objective,
+  automatic extra tuning/retries or Telegram.
+
 - Latest user clarification,2026-10-26:run fixed AE warm-up stopping probes
   WITHOUT TIGER. Use `experiments/amazon_beauty_field_ae_warmup_probes_2t4.json`;
   see `docs/gr-field-ae-warmup-probes.md`. One private two-T4 session,two

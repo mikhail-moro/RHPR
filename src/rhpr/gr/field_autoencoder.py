@@ -14,19 +14,30 @@ from rhpr.gr.rqvae import build_rqvae
 
 class FieldReconstructionObjective:
     """Shared scalar objective; independent of the continuous/quantized path."""
+    def field_losses(self, predictions, fields):
+        losses, counts = self.field_heads.losses(predictions, fields)
+        if self.loss_policy.get("title_loss", "mse") == "cosine" and counts.get("title", 0):
+            valid = fields["title_observed"]
+            losses["title"] = (1 - nn.functional.cosine_similarity(
+                predictions["title"][valid], fields["title"][valid].detach(), dim=-1)).mean()
+        return losses, counts
+
     def task_weights(self):
         mode = self.loss_policy["mode"]
         if mode == "uncertainty":
             return self.uncertainty.weights()
         values = [float(name == "title") if mode == "title_only" else 1 / self.loss_normalizers[name]
                   for name in self.field_names]
+        multipliers = self.loss_policy.get("field_weights", {})
+        if multipliers:
+            values = [value * multipliers.get(name, 1.0) for name, value in zip(self.field_names, values)]
         weights = self.uncertainty.loss_scale.new_tensor(values)
         if hasattr(self, "task_balancer"):
             weights = weights * self.task_balancer.multipliers().detach()
         return weights
 
     def objective(self, predictions, fields):
-        losses, counts = self.field_heads.losses(predictions, fields)
+        losses, counts = self.field_losses(predictions, fields)
         active = torch.tensor([counts[name] > 0 for name in self.field_names], device=fields["brand"].device)
         values = torch.stack([losses[name] for name in self.field_names])
         if self.loss_policy["mode"] == "uncertainty":
@@ -60,6 +71,16 @@ def configure_objective(model, arrays, policy):
         raise ValueError("unsupported autoencoder loss policy")
     if mode == "title_only" and "title" not in model.field_names:
         raise ValueError("title_only requires frozen title targets")
+    title_loss = policy.get("title_loss", "mse")
+    if title_loss not in {"mse", "cosine"} or (title_loss == "cosine" and "title" not in model.field_names):
+        raise ValueError("title_loss must be mse or cosine with title targets")
+    weights = policy.get("field_weights", {})
+    if (not isinstance(weights, dict) or set(weights) - set(model.field_names)
+            or any(type(v) not in (int, float) or not np.isfinite(v) or v < 0 for v in weights.values())
+            or (weights and mode == "uncertainty")
+            or not any(weights.get(name, 1.0) > 0 for name in model.field_names
+                       if mode != "title_only" or name == "title")):
+        raise ValueError("field_weights require finite nonnegative weights and an active non-UW field")
     lr = policy.get("uw_learning_rate")
     if lr is not None and (mode != "uncertainty" or type(lr) not in (int, float) or not np.isfinite(lr) or lr <= 0):
         raise ValueError("uw_learning_rate requires uncertainty mode and positive finite value")
@@ -90,7 +111,12 @@ def configure_objective(model, arrays, policy):
         constants["price"] = float(np.where(errors < 1, .5*errors**2, errors-.5).mean())
         if "title" in model.field_names:
             titles = arrays["title"][arrays["title_observed"]]
-            constants["title"] = float(np.square(titles - titles.mean(0)).mean())
+            if title_loss == "cosine":
+                means = np.broadcast_to(titles.mean(0), titles.shape)
+                constants["title"] = float((1 - nn.functional.cosine_similarity(
+                    torch.as_tensor(titles), torch.as_tensor(means.copy()), dim=-1)).mean())
+            else:
+                constants["title"] = float(np.square(titles - titles.mean(0)).mean())
         if any(not np.isfinite(value) for value in constants.values()):
             raise ValueError("field normalization requires observed finite catalogue targets")
         power = .5 if mode == "fixed_sqrt" else 1.0
@@ -129,7 +155,7 @@ def evaluate_autoencoder(model, arrays, device, batch_size, *, capture=None):
     modes = {module: module.training for module in model.modules()}
     names = model.field_names
     sums, counts = dict.fromkeys(names, 0.0), dict.fromkeys(names, 0)
-    correct, tp, fp, fn, price_error, cosine, title_squared = 0, 0, 0, 0, 0., 0., 0.
+    correct, tp, fp, fn, price_error, cosine, title_squared, title_mse = 0, 0, 0, 0, 0., 0., 0., 0.
     norm_sum, examples = 0., 0
     if capture is not None:
         capture.update(features=[], latent=[])
@@ -142,7 +168,7 @@ def evaluate_autoencoder(model, arrays, device, batch_size, *, capture=None):
                     features, latent, predicted = model(fields)
                     if not all(torch.isfinite(t).all() for t in [features, latent, *predicted.values()]):
                         raise FloatingPointError("nonfinite continuous autoencoder evaluation")
-                    losses, observed = model.field_heads.losses(predicted, fields)
+                    losses, observed = model.field_losses(predicted, fields)
                     for name in names:
                         sums[name] += float(losses[name]) * observed[name]
                         counts[name] += observed[name]
@@ -157,6 +183,7 @@ def evaluate_autoencoder(model, arrays, device, batch_size, *, capture=None):
                         valid = fields["title_observed"]
                         cosine += float(nn.functional.cosine_similarity(predicted["title"][valid], fields["title"][valid]).sum())
                         title_squared += float(fields["title"][valid].square().sum())
+                        title_mse += float((predicted["title"][valid] - fields["title"][valid]).square().sum())
                     norm_sum += float(latent.norm(dim=-1).sum());examples += len(latent)
                     if capture is not None:
                         capture["features"].append(features.cpu().numpy());capture["latent"].append(latent.cpu().numpy())
@@ -170,6 +197,8 @@ def evaluate_autoencoder(model, arrays, device, batch_size, *, capture=None):
     result["price"]["mae_standardized"] = price_error / counts["price"] if counts["price"] else None
     if "title" in names and counts["title"]:
         result["title"].update(cosine_similarity=cosine / counts["title"],
+            mse=title_mse / (counts["title"] * model.feature_encoder.title_dim),
+            loss_kind=model.loss_policy.get("title_loss", "mse"),
             zero_predictor_mse=title_squared / (counts["title"] * model.feature_encoder.title_dim))
         titles = arrays["title"][arrays["title_observed"]]
         result["title"]["catalogue_mean_predictor_mse"] = float(np.square(titles - titles.mean(0)).mean())
@@ -189,6 +218,12 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
             raise ValueError(f"autoencoder {key} must be a positive integer")
     if spec["batch_size"] < 2 or len(texts) % spec["batch_size"] == 1:
         raise ValueError("BatchNorm requires at least two items per batch")
+    neural_lr = spec.get("neural_learning_rate")
+    if neural_lr is not None and (type(neural_lr) not in (int, float) or not np.isfinite(neural_lr) or neural_lr <= 0):
+        raise ValueError("neural_learning_rate must be positive finite")
+    freeze_bn = spec.get("freeze_batchnorm_running_stats", False)
+    if type(freeze_bn) is not bool:
+        raise ValueError("freeze_batchnorm_running_stats must be boolean")
     snapshot_steps = spec.get("snapshot_steps", [])
     if (not isinstance(snapshot_steps, list)
             or any(type(s) is not int or not 0 <= s <= spec["max_steps"] for s in snapshot_steps)
@@ -210,6 +245,10 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
     configure_objective(model, arrays, spec.get("loss_policy"))
     model.to(device)
     optimizer = make_autoencoder_optimizer(model, optimizer_factory)
+    if neural_lr is not None:
+        for group in optimizer.param_groups:
+            if group.get("name", "neural") in {"neural", "all"}:
+                group["lr"] = neural_lr
     data_rng = torch.Generator().manual_seed(seed)
     loader = DataLoader(range(len(texts)), batch_size=spec["batch_size"], shuffle=True,
         drop_last=False, num_workers=0, generator=data_rng)
@@ -263,6 +302,10 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
     while updates < spec["max_steps"] and not stop:
         for batch_index, indices in enumerate(loader):
             model.train()
+            if freeze_bn:
+                for module in model.modules():
+                    if isinstance(module, nn.modules.batchnorm._BatchNorm):
+                        module.eval()  # Affine parameters remain trainable.
             fields = tensor_fields(arrays, indices.numpy(), device)
             optimizer.zero_grad(set_to_none=True)
             _, _, predictions = model(fields)
