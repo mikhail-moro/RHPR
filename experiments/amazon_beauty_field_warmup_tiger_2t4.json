@@ -1,0 +1,199 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-gr-frozen-sid-generator"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "per-user leave-last-two; all train prefix targets exactly once per epoch; test context includes observed validation target",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-field-ae-warmup-rq"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "name": "beauty-frozen-ae-vs-joint-rq-tiger-fp16-20epochs-2seeds-2t4",
+  "kind": "gr_frozen_sid_generator_suite",
+  "representation": {
+    "kind": "frozen_semantic_codes",
+    "trainable": false,
+    "description": "Saved completed structured-field+Sentence-T5(title) AE-warm-start native RQ indices; no encoder or quantizer fit"
+  },
+  "quantizer": {
+    "kind": "frozen_field_rqvae_index",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "retrain": false
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "batch_size": 256,
+    "physical_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 20,
+    "min_epochs": 20,
+    "patience": 5,
+    "validation_interval": 10,
+    "evaluation_batch_size": 32,
+    "max_seconds": 7200,
+    "sampling": "all_train_prefixes",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 20
+  },
+  "evaluation": {
+    "test_after_selection": true,
+    "item_level": true,
+    "collision_resolution": "append mandatory ordinal 0..group_size-1, fail on codebook overflow",
+    "invalid_beams": "retain as miss at original rank",
+    "selection_metric": "validation item NDCG@10"
+  },
+  "reference": {
+    "exact_published_reproduction": false,
+    "generator_control": "experiments/amazon_beauty_rqvae_tiger_fast_prefix_fp16_20epochs.json",
+    "deviations": [
+      "Only four completed semantic indices change:entire-AE-freeze and joint refinement,quantizer pipeline seeds42/43",
+      "One fixed generator/data seed42 across all four fits; neural parameter hash checked against shared CPU control before training; SID lookup data intentionally differ",
+      "Reuse exact early4+4/d128 ordinaryFF1024,dropout0.1,userbins2000,noSEP,beam20,Adam1e-3/wd1e-4/clip1,batch256/physical128,FP16 training and FP32 evaluation",
+      "20complete all-prefix epochs;validation only10/20;select by validation itemNDCG@10;test once after selection;no study telemetry or quantizer reruns",
+      "Mandatory catalogue-order suffix appended to every3-code semantic tuple using the unchanged SidIndex policy",
+      "Earlier GPU book initializations were not bitwise matched;this evaluates the four saved candidate indices and is not a strictly isolated causal freeze-policy ablation",
+      "Two pipeline/index seeds are not independent generator-seed repetitions;no automatic tuning,retries or CPU fallback"
+    ]
+  },
+  "parent": {
+    "kernel": "carasik/rhpr-field-ae-warmup-rq",
+    "source_code_sha": "2fb587ce2acf1f2ec29b71ba82bbd1890ff27383",
+    "files": {
+      "run-manifest.json": {
+        "sha256": "2f920543e59c767b0f10042efaa69cfc52c3e66b499d9bda00068cb3ef4d3921",
+        "size_bytes": 7523
+      },
+      "input-provenance.json": {
+        "sha256": "7b855d9a4027228f5d82f454800d34e040390f538e8aca44cfa19970711c0671",
+        "size_bytes": 136498
+      },
+      "suite-results.json": {
+        "sha256": "974177403cf8dba7ef61d35b2245bb4b62a75479f0ecd4c184f27ab27986e82b",
+        "size_bytes": 503167
+      }
+    }
+  },
+  "trials": [
+    {
+      "id": "ae_s42",
+      "quantizer_seed": 42,
+      "freeze_policy": "ae",
+      "semantic_codes": {
+        "path": "trials/ae_s42/semantic-codes.npy",
+        "sha256": "2ef8d18d91a3d761902193056ac0941fba3203dc9ab81d84661796bb6a6b959d",
+        "size_bytes": 290552
+      },
+      "quantizer_report": {
+        "path": "trials/ae_s42/quantizer.json",
+        "sha256": "9c17706685143b4e711e280318971d9fb2898b83f88c67555577dfa8e00ee774",
+        "size_bytes": 70414
+      }
+    },
+    {
+      "id": "ae_s43",
+      "quantizer_seed": 43,
+      "freeze_policy": "ae",
+      "semantic_codes": {
+        "path": "trials/ae_s43/semantic-codes.npy",
+        "sha256": "054014c9655cdaf4c00e82e9528d21a081adb59fbe38e12f30dd27a7c4f1640b",
+        "size_bytes": 290552
+      },
+      "quantizer_report": {
+        "path": "trials/ae_s43/quantizer.json",
+        "sha256": "ab2f6da4f3ca43cfa8d7fc86f6ddedd807264aa87dbdab5e78480b7eda957621",
+        "size_bytes": 70462
+      }
+    },
+    {
+      "id": "joint_s42",
+      "quantizer_seed": 42,
+      "freeze_policy": "joint",
+      "semantic_codes": {
+        "path": "trials/joint_s42/semantic-codes.npy",
+        "sha256": "56d9cd3e7494b676d3652d96a3d9760acc0b74007c52a5b338b8071101fe0755",
+        "size_bytes": 290552
+      },
+      "quantizer_report": {
+        "path": "trials/joint_s42/quantizer.json",
+        "sha256": "5009e26547f39467af415d56928bbe387d3010c9951d418aba3896cb4ae583b4",
+        "size_bytes": 71142
+      }
+    },
+    {
+      "id": "joint_s43",
+      "quantizer_seed": 43,
+      "freeze_policy": "joint",
+      "semantic_codes": {
+        "path": "trials/joint_s43/semantic-codes.npy",
+        "sha256": "c5a013199d9fbef1ddafcce065712d4c299cd6b1d0e100f6b9d492a239f526ac",
+        "size_bytes": 290552
+      },
+      "quantizer_report": {
+        "path": "trials/joint_s43/quantizer.json",
+        "sha256": "1ac5cdb76552f1f5b52dd12ea06e90e8cb8b59bc449a674e235fb94b11d4d01f",
+        "size_bytes": 71270
+      }
+    }
+  ],
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  }
+}

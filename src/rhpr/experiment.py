@@ -76,6 +76,11 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == "gr_frozen_sid_generator_suite":
+        if output_dir is None:
+            raise ValueError("output_dir is required for gr_frozen_sid_generator_suite")
+        from rhpr.gr.generator_suite import run_generator_suite
+        return run_generator_suite(config, output_dir)
     if kind in {"gr_field_ae_suite", "gr_field_rq_suite"}:
         if output_dir is None:
             raise ValueError(f"output_dir is required for {kind}")

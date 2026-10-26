@@ -127,7 +127,7 @@ def run_worker(plan_path, slot):
     status["status"] = "complete";atomic_json(status_path, status)
 
 
-def launch_workers(plan_path):
+def launch_workers(plan_path, *, worker_module="rhpr.gr.ae_suite", event_prefix="ae_suite"):
     plan_path = Path(plan_path).resolve();plan = json.loads(plan_path.read_text())
     config, output = plan["config"], Path(plan["output"])
     processes, streams, readers, current = [], [], [], {}
@@ -135,7 +135,7 @@ def launch_workers(plan_path):
         for a in plan["assignments"]:
             path = output / "workers" / f"worker-{a['slot']}.log"
             stream = path.open("w");streams.append(stream)
-            p = subprocess.Popen([sys.executable, "-u", "-m", "rhpr.gr.ae_suite", "--plan", str(plan_path),
+            p = subprocess.Popen([sys.executable, "-u", "-m", worker_module, "--plan", str(plan_path),
                 "--slot", str(a["slot"])], stdout=stream, stderr=subprocess.STDOUT,
                 env=worker_environment(config, a))
             processes.append(p);readers.append(path.open())
@@ -149,8 +149,8 @@ def launch_workers(plan_path):
                     try:event = json.loads(line)
                     except ValueError:continue
                     if not isinstance(event, dict):continue
-                    if event.get("phase") == "ae_suite_trial_start":current[slot] = event["trial"]
-                    _event("ae_suite_worker_event", worker=slot, trial=current.get(slot), event=event)
+                    if event.get("phase") == event_prefix + "_trial_start":current[slot] = event["trial"]
+                    _event(event_prefix + "_worker_event", worker=slot, trial=current.get(slot), event=event)
             if not alive:break
             time.sleep(.5)
         results, failures, warmups = {}, [], {}
@@ -171,7 +171,7 @@ def launch_workers(plan_path):
         summary = {"results": results, "failures": failures, "parallel_workers": len(processes), "warmups": warmups}
         atomic_json(output / "suite-results.json", summary)
         if failures or len(results) != len(config["trials"]):
-            raise RuntimeError("AE suite incomplete; see suite-results.json and worker logs")
+            raise RuntimeError(f"{event_prefix} incomplete; see suite-results.json and worker logs")
         return summary
     finally:
         for p in processes:

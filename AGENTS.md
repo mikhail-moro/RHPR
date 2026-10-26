@@ -8,6 +8,30 @@
 - The active direction is comparing item encoders for SID-based generative
   recommendation. Read `docs/gr-research-brief.md`, `docs/gr-baseline.md`, and
   `docs/research/item-encoders/README.md`.
+- Latest user authorization,2026-10-26:compare the completed entire-AE-freeze
+  and joint-refinement semantic indices using the same TIGER. Use
+  `experiments/amazon_beauty_field_warmup_tiger_2t4.json`;see
+  `docs/gr-field-warmup-tiger.md`. One private two-T4 session,four generator
+  fits on saved indices ae/joint x quantizer seeds42/43,with generator/data
+  seed42 fixed across all four. Byte-pin the completed warm-up parent's source,
+  manifest,catalogue order,semantic-code arrays and reports. No encoder,
+  quantizer,book initialization or embedding reruns. Preserve early4+4/d128,
+  FP16,all131413train-prefix positions per epoch,20epochs,validation10/20,
+  NDCG@10 selection and one final full-catalogue free-beam20test per model.
+  Keep ordinal suffix/invalid beam accounting unchanged. Check initial neural
+  parameter hash against shared CPU control before training;immutable SID
+  lookup data intentionally differ. Save best/last,curves,predictions and
+  training/index provenance;no study telemetry or automatic retries/tuning.
+  Two index seeds are not independent generator-seed repeats. Earlier native
+  GPU initializations did not produce bitwise matched third books;this tests
+  the saved candidate indices,not a perfectly isolated causal freeze ablation.
+- Completed warm-up suite:all six fits successful in12.56minutes. At3x256/
+  latent64,full AE freeze produced12004/12018distinct tuples,max group3;
+  joint produced11542/11258,max15/17;input-feature freeze11674/11296,max8/14.
+  Earlier cold fixed-normalized64D control produced188,max907. Warm-ups both
+  stopped3500steps;PCA99%dimension5,nominal24bit active count8. Joint improves
+  brand/category/title reconstruction relative to full freeze. Warm-up adds
+  compute;this does not isolate codebook lag or establish better NIP yet.
 - Latest user authorization,2026-10-26:continuous AE warm-up then native RQ-VAE
   in three modes:joint,entire AE frozen,feature-encoder-only frozen. This
   supersedes the earlier four-arm plan with separate full RQ-KMeans variants.
