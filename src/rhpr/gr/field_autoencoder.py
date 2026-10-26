@@ -207,16 +207,31 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
     loader = DataLoader(range(len(texts)), batch_size=spec["batch_size"], shuffle=True,
         drop_last=False, num_workers=0, generator=data_rng)
     curves, evaluations = [], []
+    monitor = None
+    if spec.get("warmup_stopping"):
+        from rhpr.gr.ae_warmup import SpectralPlateau
+        monitor = SpectralPlateau(spec["warmup_stopping"], spec["max_steps"])
     started, updates, exposures = time.monotonic(), 0, 0
+    stop = False
 
     def evaluate(step):
-        row = {"step": step, **evaluate_autoencoder(model, arrays, device, spec["batch_size"])}
+        capture = {} if monitor is not None else None
+        row = {"step": step, **evaluate_autoencoder(model, arrays, device, spec["batch_size"], capture=capture)}
+        plateau = False
+        if monitor is not None:
+            from rhpr.gr.ae_warmup import latent_spectrum
+            spectrum = latent_spectrum(np.concatenate(capture["latent"]), spec["codebook_size"], spec["num_hierarchies"])
+            plateau = monitor.observe(step, spectrum)
+            row["latent_spectrum"] = spectrum
+            row["spectral_plateau"] = plateau
+            _write(output / "warmup-spectra.json", monitor.rows)
         evaluations.append(row)
         _write(output / "reconstruction-learning-curves.json", evaluations)
         _event("continuous_autoencoder_evaluation", **row)
+        return plateau
 
     evaluate(0)
-    while updates < spec["max_steps"]:
+    while updates < spec["max_steps"] and not stop:
         for batch_index, indices in enumerate(loader):
             model.train()
             fields = tensor_fields(arrays, indices.numpy(), device)
@@ -256,16 +271,19 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
                         "multipliers": balancer.multipliers().detach().cpu().tolist(), **balancer.diagnostics}
                 curves.append(row);_write(output / "field-learning-curves.json", curves)
                 _event("continuous_autoencoder_progress", **row)
-                evaluate(updates)
-            if updates == spec["max_steps"]:
+                stop = evaluate(updates)
+            if stop or updates == spec["max_steps"]:
                 break
+    stopping = {"reason": "spectral_plateau" if stop else "max_steps", "actual_steps": updates,
+        "max_steps": spec["max_steps"], "criterion": spec.get("warmup_stopping"),
+        "paper": "https://arxiv.org/html/2605.06870", "residual_rate_adaptation": monitor is not None}
     torch.save({"model": model.state_dict(), "optimizer": optimizer.state_dict(), "spec": spec,
         "representation": representation, "feature_schema": schema, "resolved_model": resolved,
         "loss_policy": model.loss_policy, "loss_normalizers": model.loss_normalizers,
         "initial_state_sha256": initial_digest,
         "seed": seed, "steps": updates, "data_rng": data_rng.get_state(),
         "rng_cpu": torch.get_rng_state(), "rng_cuda": torch.cuda.get_rng_state_all() if device.startswith("cuda") else [],
-        "quantization_enabled": False, "automatic_resume": False}, output / "autoencoder.pt")
+        "quantization_enabled": False, "automatic_resume": False, "stopping": stopping}, output / "autoencoder.pt")
     capture = {}
     final = evaluate_autoencoder(model, arrays, device, spec["batch_size"], capture=capture)
     np.save(output / "item-embeddings.npy", np.concatenate(capture["features"]), allow_pickle=False)
@@ -273,7 +291,7 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
     if final["field_reconstruction"]["price"]["mae_standardized"] is not None:
         final["field_reconstruction"]["price"]["mae_original_units"] = final["field_reconstruction"]["price"]["mae_standardized"] * schema["price_scale"]
     report = {"kind": "continuous_field_autoencoder", "quantization_enabled": False,
-        "seed": seed, "steps": updates, "precision": "fp32", "item_exposures": exposures,
+        "seed": seed, "steps": updates, "precision": "fp32", "item_exposures": exposures, "stopping": stopping,
         "parameters": sum(p.numel() for p in model.parameters()), "elapsed_seconds": time.monotonic() - started,
         "input_dim": model.feature_encoder.output_dim, "latent_dim": model.encoder.output_dim,
         "optimizer": type(optimizer).__name__, "learning_rate": optimizer.param_groups[0]["lr"],

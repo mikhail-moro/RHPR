@@ -39,6 +39,10 @@ class FieldResidualQuantization(FieldReconstructionObjective, ResidualQuantizati
         self._full_reconstruction_epoch = all(layer.is_initialized for layer in self.quantization_layer_list)
         self._balancing_batches = 0
 
+    def on_train_batch_start(self, batch, batch_idx):
+        from rhpr.gr.ae_staging import enforce_stage_modes
+        enforce_stage_modes(self)
+
     def on_train_batch_end(self, outputs, batch, batch_idx):
         if self.last_field_losses:
             self.reconstruction_updates += 1

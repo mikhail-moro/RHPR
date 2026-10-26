@@ -8,6 +8,22 @@
 - The active direction is comparing item encoders for SID-based generative
   recommendation. Read `docs/gr-research-brief.md`, `docs/gr-baseline.md`, and
   `docs/research/item-encoders/README.md`.
+- Latest user authorization,2026-10-26:continuous AE warm-up then native RQ-VAE
+  in three modes:joint,entire AE frozen,feature-encoder-only frozen. This
+  supersedes the earlier four-arm plan with separate full RQ-KMeans variants.
+  Use `experiments/amazon_beauty_field_ae_warmup_rq_2t4.json`;see
+  `docs/gr-field-ae-warmup-rq.md`. One private two-T4 session,two pipeline
+  seeds42/43,one shared AE per seed,then three5000-main-update RQ branches.
+  Transfer embeddings/projections,BN buffers,MLP encoder/decoder,heads and loss
+  state. Native mini-batch residual KMeans initializer remains unchanged.
+  AE max5000,min2000,500-step catalogue PCA;stop after four equal active-mode
+  counts using reverse water-filling at aggregate nominal24bits. This is a
+  heuristic adaptation of2605.06870 to3x256 residual books,not a proven bound
+  or guarantee of reconstruction convergence. Also log8bit count and PCA99pct.
+  Keep fixed-normalized four-field objective,latent64,Adagrad0.001,FP32 and
+  batch2048. Reset optimizer accumulators at phase transition,freeze eval modes
+  and verify frozen buffers/weights. Save both phases,drift,field losses,usage
+  and collisions. No KL,generator,suffix repair,automatic retries or tuning.
 - Latest user authorization,2026-10-26:increase RQ latent/code-vector dim64
   to128 with two5000-update runs,fixed normalization and GradNorm,on two T4s.
   Use `experiments/amazon_beauty_field_rq_latent128_2t4.json`;see

@@ -89,10 +89,20 @@ def probe_field_codebooks(model, arrays, device, batch_size, output, step):
     capture = {}
     try:
         with torch.random.fork_rng(devices=cuda_devices):
-            codes, _, reconstruction = export_field_codes(model, arrays, device, batch_size, capture=capture)
+            codes, features, reconstruction = export_field_codes(model, arrays, device, batch_size, capture=capture)
             books = np.stack([layer.centroids.detach().cpu().numpy() for layer in model.quantization_layer_list])
             encoded = np.concatenate(capture.pop("encoded"))
             stats = diagnose_codebooks(codes, encoded, books)
+            if hasattr(model, "ae_anchor_latents"):
+                from rhpr.gr.ae_warmup import latent_spectrum
+                stats["warmup_latent_drift_mse"] = float(np.square(encoded - model.ae_anchor_latents).mean())
+                stats["warmup_feature_drift_mse"] = float(np.square(features - model.ae_anchor_features).mean())
+                stats["latent_spectrum"] = latent_spectrum(encoded, books.shape[1], books.shape[0])
+                stats["codebook_effective_dimensions_99pct"] = [
+                    latent_spectrum(book, books.shape[1], 1)["effective_dimension_99pct"] for book in books]
+                quantized = books[np.arange(len(books))[None, :], codes].sum(1)
+                stats["quantized_effective_dimension_99pct"] = latent_spectrum(
+                    quantized, books.shape[1], books.shape[0])["effective_dimension_99pct"]
             stats.update(step=step, quantized_field_reconstruction=reconstruction, **capture)
             stats["native_beta_loss_eval"] = sum(
                 (1 + float(layer.loss_function.beta)) * values["residual_mse_after"]
@@ -116,7 +126,7 @@ def probe_field_codebooks(model, arrays, device, batch_size, output, step):
 
 
 def fit_field_rqvae(texts, representation, spec, seed, device, source_root, recipe_path, output, *,
-                    title_embeddings=None, title_observed=None):
+                    title_embeddings=None, title_observed=None, warmup_checkpoint=None):
     import torch
     from lightning.pytorch import Callback, Trainer
     from torch.utils.data import DataLoader
@@ -153,12 +163,21 @@ def fit_field_rqvae(texts, representation, spec, seed, device, source_root, reci
         spec, feature_schema=schema, field_dim=field_dim)
     from rhpr.gr.field_autoencoder import configure_objective
     from rhpr.gr.sid_study import state_digest
+    warmup = None
+    if warmup_checkpoint is not None:
+        configure_objective(model, arrays, spec.get("loss_policy"))
+        from rhpr.gr.ae_staging import load_warmup
+        warmup = load_warmup(model, warmup_checkpoint, schema, representation, spec)
+        _write(output / "warmup-transfer.json", warmup)
+    elif spec.get("freeze_policy"):
+        raise ValueError("freeze_policy requires a continuous AE warm-up checkpoint")
     common_prefixes = ("feature_encoder.", "normalization_layer.", "encoder.", "decoder.", "field_heads.", "uncertainty.")
     initial_digest = state_digest({k: v for k, v in model.state_dict().items() if k.startswith(common_prefixes)})
     initial_full_digest = state_digest(model.state_dict())
     if spec.get("expected_initial_state_sha256", initial_digest) != initial_digest:
         raise ValueError("initial neural weights differ from the registered AE control")
-    configure_objective(model, arrays, spec.get("loss_policy"))
+    if warmup is None:
+        configure_objective(model, arrays, spec.get("loss_policy"))
     from src.data.loading.components.interfaces import ItemData
 
     def collate(indices):
@@ -242,8 +261,12 @@ def fit_field_rqvae(texts, representation, spec, seed, device, source_root, reci
     if trainer.global_step != spec["max_steps"] or not all(flags):
         raise RuntimeError("field RQ-VAE did not finish its declared initialized fit")
     fit_seconds = time.monotonic() - started
+    if warmup is not None:
+        from rhpr.gr.ae_staging import finish_stage
+        warmup = finish_stage(model, warmup)
+        _write(output / "warmup-transfer.json", warmup)
     torch.save({"model": model.state_dict(), "optimizer": trainer.optimizers[0].state_dict(),
-        "spec": spec, "representation": representation, "feature_schema": schema,
+        "spec": spec, "representation": representation, "feature_schema": schema, "warmup": warmup,
         "resolved_model": resolved, "initialized": flags, "seed": seed,
         "loss_policy": model.loss_policy, "loss_normalizers": model.loss_normalizers,
         "initial_state_sha256": initial_digest, "initial_full_state_sha256": initial_full_digest,
@@ -286,11 +309,14 @@ def fit_field_rqvae(texts, representation, spec, seed, device, source_root, reci
         "source_recipe_sha256": file_sha256(Path(recipe_path)),
         "objective": "sum_l codebook+beta0.25 commitment; " + model.loss_policy["mode"] + " field reconstruction",
         "normalization": "catalogue price z-score then learned per-field projections; native GRID BatchNorm+L2 before MLP",
-        "joint_training_scope": "feature encoder and RQ-VAE by field reconstruction; no NIP gradients"}
+        "joint_training_scope": ("warm-started RQ; freeze policy=" + warmup["freeze_policy"] + "; no NIP gradients")
+            if warmup is not None else "feature encoder and RQ-VAE by field reconstruction; no NIP gradients",
+        "warmup": warmup}
     _write(output / "quantizer.json", report)
     representation_report = {**representation, "seconds": preparation_seconds,
         "shape": list(embeddings.shape), "sha256": file_sha256(output / "item-embeddings.npy"),
-        "training": "joint field projections with RQ-VAE; optional frozen title concatenated directly before BatchNorm/L2",
+        "training": ("warm-started field encoder; freeze policy=" + warmup["freeze_policy"])
+            if warmup is not None else "joint field projections with RQ-VAE; optional frozen title concatenated directly before BatchNorm/L2",
         "feature_schema_sha256": report["feature_schema_sha256"]}
     _write(output / "representation.json", representation_report)
     return codes, report, representation_report

@@ -28,7 +28,21 @@ def assignments(config, available_gpus):
             raise RuntimeError("AE suite requires two CUDA GPUs; no hardware fallback")
     elif devices != ["cpu", "cpu"]:
         raise ValueError("CPU verification needs two explicit CPU workers")
-    return [{"slot": i, "device": d, "trials": trials[i::2]} for i,d in enumerate(devices)]
+    jobs = [{"slot": i, "device": d, "trials": trials[i::2]} for i,d in enumerate(devices)]
+    if config.get("warmup"):
+        seeds = []
+        for job in jobs:
+            values = {t.get("seed") for t in job["trials"]}
+            if len(values) != 1 or any(type(s) is not int or s < 0 for s in values):
+                raise ValueError("staged worker requires one explicit pipeline seed")
+            seeds.append(next(iter(values)))
+            if sorted(t.get("freeze_policy", "") for t in job["trials"]) != ["ae", "embeddings", "joint"]:
+                raise ValueError("staged seed needs joint, ae and embeddings freeze branches")
+            if any(t["loss_policy"] != config["warmup"]["loss_policy"] for t in job["trials"]):
+                raise ValueError("warm-up and RQ objectives must match")
+        if len(set(seeds)) != 2 or config["quantizer"]["kind"] != "grid_field_rqvae":
+            raise ValueError("staged suite requires two pipeline seeds and native RQ")
+    return jobs
 
 
 def run_worker(plan_path, slot):
@@ -53,11 +67,38 @@ def run_worker(plan_path, slot):
     status = {"slot": slot, "device": assignment["device"], "status": "running", "results": {}, "failures": [],
         "hardware": torch.cuda.get_device_name(0) if device != "cpu" else "cpu"}
     atomic_json(status_path, status)
+    warmup_checkpoint = None
+    if config.get("warmup"):
+        seed = assignment["trials"][0]["seed"]
+        directory = root / "warmup" / f"seed{seed}"
+        try:
+            _event("ae_suite_warmup_start", worker=slot, seed=seed)
+            warm_spec = {**config["quantizer"], **config["warmup"], "kind": "continuous_field_autoencoder"}
+            _, report, _ = fit_field_autoencoder(texts, config["representation"], warm_spec,
+                seed, device, plan["source"], plan["recipe"], directory,
+                title_embeddings=titles, title_observed=observed)
+            warmup_checkpoint = directory / "autoencoder.pt"
+            status["warmup"] = report
+            atomic_json(status_path, status)
+            _event("ae_suite_warmup_complete", worker=slot, seed=seed, steps=report["steps"], stopping=report["stopping"])
+            gc.collect()
+            if device != "cpu":torch.cuda.empty_cache()
+        except Exception as error:
+            directory.mkdir(parents=True, exist_ok=True)
+            (directory / "failure.log").write_text(traceback.format_exc())
+            status["failures"].append({"stage": "warmup", "seed": seed,
+                "exception_type": type(error).__name__, "message": str(error),
+                "dependent_trials": [t["id"] for t in assignment["trials"]]})
+            status["status"] = "failed";atomic_json(status_path, status)
+            _event("ae_suite_warmup_failed", **status["failures"][-1])
+            return
     for trial in assignment["trials"]:
         name = trial["id"];status["current_trial"] = name;atomic_json(status_path, status)
         _event("ae_suite_trial_start", trial=name, worker=slot, loss_policy=trial["loss_policy"])
         directory = root / "trials" / name;directory.mkdir(parents=True, exist_ok=True)
         spec = {**config["quantizer"], "loss_policy": trial["loss_policy"]}
+        if warmup_checkpoint is not None:
+            spec["freeze_policy"] = trial["freeze_policy"]
         if config.get("expected_initial_state_sha256"):
             spec["expected_initial_state_sha256"] = config["expected_initial_state_sha256"]
         try:
@@ -65,12 +106,14 @@ def run_worker(plan_path, slot):
             if spec["kind"] == "grid_field_rqvae":
                 from rhpr.gr.field_rqvae import fit_field_rqvae
                 fit = fit_field_rqvae
+            kwargs = {"title_embeddings": titles, "title_observed": observed}
+            if warmup_checkpoint is not None:kwargs["warmup_checkpoint"] = warmup_checkpoint
+            seed = trial.get("seed", config["seed"])
             _, report, _ = fit(texts, config["representation"], spec,
-                config["seed"], device, plan["source"], plan["recipe"], directory,
-                title_embeddings=titles, title_observed=observed)
+                seed, device, plan["source"], plan["recipe"], directory, **kwargs)
             status["results"][name] = report
             atomic_json(directory / "trial-manifest.json", {"status": "complete", "trial": trial,
-                "seed": config["seed"], "device": assignment["device"], "code_sha": os.environ.get("GITHUB_SHA", "local"),
+                "seed": seed, "device": assignment["device"], "code_sha": os.environ.get("GITHUB_SHA", "local"),
                 "initial_state_sha256": report["initial_state_sha256"]})
             _event("ae_suite_trial_complete", trial=name, worker=slot, fields=report["field_reconstruction"])
         except Exception as error:
@@ -110,17 +153,22 @@ def launch_workers(plan_path):
                     _event("ae_suite_worker_event", worker=slot, trial=current.get(slot), event=event)
             if not alive:break
             time.sleep(.5)
-        results, failures = {}, []
+        results, failures, warmups = {}, [], {}
         for a,p in zip(plan["assignments"], processes):
             status_path = output / "workers" / f"worker-{a['slot']}.json"
             if status_path.exists():
                 status = json.loads(status_path.read_text());results.update(status["results"]);failures.extend(status["failures"])
+                if status.get("warmup"):warmups[str(status["warmup"]["seed"])] = status["warmup"]
             if p.returncode != 0:failures.append({"worker": a["slot"], "exit_code": p.returncode})
-        hashes = {r["initial_state_sha256"] for r in results.values()}
-        if len(hashes) > 1:failures.append({"message": "initial neural weights differ between trials"})
-        full_hashes = {r["initial_full_state_sha256"] for r in results.values() if "initial_full_state_sha256" in r}
-        if len(full_hashes) > 1:failures.append({"message": "initial full RQ states differ between trials"})
-        summary = {"results": results, "failures": failures, "parallel_workers": len(processes)}
+        groups = {str(r["seed"]) if config.get("warmup") else "all" for r in results.values()}
+        for group in groups:
+            rows = [r for r in results.values() if not config.get("warmup") or str(r["seed"]) == group]
+            for key in ("initial_state_sha256", "initial_full_state_sha256"):
+                if len({r[key] for r in rows if key in r}) > 1:
+                    failures.append({"message": f"{key} differs between trials in group {group}"})
+            if config.get("warmup") and len({r["warmup"]["checkpoint_sha256"] for r in rows}) > 1:
+                failures.append({"message": f"warm-up checkpoints differ in group {group}"})
+        summary = {"results": results, "failures": failures, "parallel_workers": len(processes), "warmups": warmups}
         atomic_json(output / "suite-results.json", summary)
         if failures or len(results) != len(config["trials"]):
             raise RuntimeError("AE suite incomplete; see suite-results.json and worker logs")
@@ -158,7 +206,8 @@ def run_autoencoder_suite(config, output):
     os.environ.update(HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1", TOKENIZERS_PARALLELISM="false")
     (output / "workers").mkdir()
     _write(output / "input-provenance.json", {"manifest": manifest, "counts": counts, "parent": config["parent"],
-        "original_item_ids": ids, "initialization": f"same seed{config['seed']} and source constructor per independent trial"})
+        "original_item_ids": ids, "initialization": "one shared continuous AE per pipeline seed; identical RQ initialization within seed"
+            if config.get("warmup") else f"same seed{config['seed']} and source constructor per independent trial"})
     plan = {"config": config, "assignments": plan_assignments, "output": str(output), "resources": str(resources),
         "source": str(source), "recipe": str(original / "configs/experiment/rqvae_train_flat.yaml"),
         "parent_fields": str(parent / "catalogue-fields.npz")}
@@ -189,6 +238,10 @@ def run_autoencoder_suite(config, output):
             metrics[name + "_collided_items"] = r["semantic_code_statistics"]["prefixes"][-1]["collided_items"]
             for level, used in enumerate(r["used_codes_per_level"], 1):
                 metrics[name + "_used_codes_level_" + str(level)] = used
+    for seed,r in summary.get("warmups", {}).items():
+        metrics["warmup_seed" + seed + "_steps"] = r["steps"]
+        metrics["warmup_seed" + seed + "_seconds"] = r["elapsed_seconds"]
+        metrics["warmup_seed" + seed + "_spectral_plateau"] = r["stopping"]["reason"] == "spectral_plateau"
     return metrics
 
 
