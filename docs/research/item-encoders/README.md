@@ -1,5 +1,11 @@
 # Next direction: item representations for SID
 
+Latest clarification,2026-10-26:the study focuses on **field-level item encoders**.
+Title-only reconstruction is a control for the usefulness of textual semantics,
+not a replacement main method. The current downstream experiment evaluates saved
+GradNorm field-AE→RQ-KMeans indices with matched TIGER;see
+[the protocol](../../gr-field-gradnorm-tiger.md).
+
 Update2026-10-26:the user chose a joint structured-field encoder and RQ-VAE,
 reconstructing original brand/categories/price with CE/BCE/Huber and LibMTL
 uncertainty weighting. Title is excluded. See

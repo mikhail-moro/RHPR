@@ -1,0 +1,248 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-gr-gradnorm-tiger"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "per-user leave-last-two; all train prefix targets exactly once per epoch; test context includes observed validation target",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-ae-ablation-probes"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "name": "beauty-frozen-gradnorm-ae5000-kmeans-tiger-20epochs-2seeds",
+  "kind": "gr_frozen_sid_generator_suite",
+  "representation": {
+    "kind": "frozen_field_ae_index",
+    "trainable": false,
+    "description": "Byte-pinned GradNorm field AE5000\u2192RQ-KMeans indices;no encoder/quantizer forward or fit"
+  },
+  "quantizer": {
+    "kind": "frozen_ae_rqkmeans",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "latent_dim": 64,
+    "n_init": 1,
+    "max_iter": 300,
+    "tol": 0.0001,
+    "cpu_threads": 1,
+    "normalize_latents": false,
+    "normalize_residuals": false
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "batch_size": 256,
+    "physical_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 20,
+    "min_epochs": 20,
+    "patience": 5,
+    "validation_interval": 10,
+    "evaluation_batch_size": 32,
+    "max_seconds": 7200,
+    "sampling": "all_train_prefixes",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 20
+  },
+  "evaluation": {
+    "test_after_selection": true,
+    "item_level": true,
+    "collision_resolution": "append mandatory ordinal 0..group_size-1, fail on codebook overflow",
+    "invalid_beams": "retain as miss at original rank",
+    "selection_metric": "validation item NDCG@10"
+  },
+  "reference": {
+    "exact_published_reproduction": false,
+    "generator_control": "experiments/amazon_beauty_field_ae_rqkmeans_tiger_2t4.json",
+    "deviations": [
+      "Exactly two new TIGER fits on the saved final5000-update GradNorm field-AE\u2192KMeans indices,seeds42/43",
+      "Reuse exact codes/books/reports with hashes and AE/pipeline identity;no AE forward,neural/KMeans fit or nearest-centroid re-export",
+      "Same catalogue/suffix,4+4/d128,FP16,batch256/physical128,Adam0.001/wd0.0001/clip1,all131413prefix targets per epoch,20epochs,val10/20,NDCG10selection,one FP32freebeam20test",
+      "Generator/data seed42 shared across both index seeds;assert initial neural and train-case hashes against completed controls",
+      "Reuse completed fixed-normalized AE3500\u2192KMeans TIGER controls;do not repeat them;AE training budgets differ3500vs5000",
+      "This tests transfer of selected TRAIN index proxies to downstream ranking,not a confirmatory independent held-out dataset study",
+      "Item-encoder research focuses on field-level representations;title-only is a semantic-information control and is not launched here",
+      "No generator/AE hyperparameter search,title-only fit,extra controls,automatic retries or Telegram"
+    ]
+  },
+  "parent": {
+    "kernel": "carasik/rhpr-ae-ablation-probes",
+    "source_code_sha": "d13dd8aada6c1f60ce36409147c261af5a09b608",
+    "files": {
+      "run-manifest.json": {
+        "sha256": "1edb9acb4042ab5202adee349a424117eaaebb2d9b6a0e155f78e09dc455da60",
+        "size_bytes": 18464
+      },
+      "input-provenance.json": {
+        "sha256": "85819f2627204720fb08d7a0ad687378a6cf53ee2b31fe634ff15a195f2c81e7",
+        "size_bytes": 136588
+      },
+      "suite-results.json": {
+        "sha256": "c7a70358b3a00f5e0275831dec8f9a77b4e9d10d096f6afe05833904368b59ef",
+        "size_bytes": 325486
+      }
+    }
+  },
+  "trials": [
+    {
+      "id": "gradnorm_s42",
+      "parent_trial": "gradnorm_s42",
+      "expected_variant": "gradnorm",
+      "quantizer_seed": 42,
+      "freeze_policy": "ae",
+      "ae_steps": 5000,
+      "ae_checkpoint_sha256": "abeca9961a3984fe9c0617e5de3e478bd2dd9c8fb09646a347124af5092daccb",
+      "semantic_codes": {
+        "path": "trials/gradnorm_s42/checkpoints/step-05000/semantic-codes.npy",
+        "sha256": "c90215cf979524fc8baac988fed613baca9ab236a18aa067704d1bafb7ea9e38",
+        "size_bytes": 145340
+      },
+      "codebooks": {
+        "path": "trials/gradnorm_s42/checkpoints/step-05000/codebooks.npy",
+        "sha256": "a1ec39e67aff5e1caecb4771f36cd7280e4458bc712719d230a382d8c6f2a20f",
+        "size_bytes": 196736
+      },
+      "kmeans_report": {
+        "path": "trials/gradnorm_s42/checkpoints/step-05000/kmeans.json",
+        "sha256": "8bd8e7565aeed86da6561eea950b97489f3bcab5e52b9511d9d5c23bbfc542c3",
+        "size_bytes": 21344
+      },
+      "ae_report": {
+        "path": "trials/gradnorm_s42/checkpoints/step-05000/autoencoder.json",
+        "sha256": "7a158758499044cb26dd692e5416a56f62c21f8d00c443c3f149fb6a88a61e76",
+        "size_bytes": 4209
+      }
+    },
+    {
+      "id": "gradnorm_s43",
+      "parent_trial": "gradnorm_s43",
+      "expected_variant": "gradnorm",
+      "quantizer_seed": 43,
+      "freeze_policy": "ae",
+      "ae_steps": 5000,
+      "ae_checkpoint_sha256": "587e34aa46045bfdfca9413864b6574874c7abec2004be5562bea00dfdb974c6",
+      "semantic_codes": {
+        "path": "trials/gradnorm_s43/checkpoints/step-05000/semantic-codes.npy",
+        "sha256": "376a639e4b23045fac61f9e6141f400968a335f65716df9197d71b1421504d3d",
+        "size_bytes": 145340
+      },
+      "codebooks": {
+        "path": "trials/gradnorm_s43/checkpoints/step-05000/codebooks.npy",
+        "sha256": "0313a6f14925d91928de8ad03bba4bcec8fff23d886d8c358cdd2389f1a775fe",
+        "size_bytes": 196736
+      },
+      "kmeans_report": {
+        "path": "trials/gradnorm_s43/checkpoints/step-05000/kmeans.json",
+        "sha256": "b64144bc10fafaed031470fb9aaaa0c7ce182e3c08889c36310d58cc139e5bff",
+        "size_bytes": 21502
+      },
+      "ae_report": {
+        "path": "trials/gradnorm_s43/checkpoints/step-05000/autoencoder.json",
+        "sha256": "1c1a72eed6ec71956bfc7f8c34a1a507a0cb1e98c52d2cefddc84f3d629747d4",
+        "size_bytes": 4198
+      }
+    }
+  ],
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "expected_initial_state_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff",
+  "expected_train_cases_sha256": "6f7ba06c70a6a218d4e620ac77ce41142baf762f7e62902c9fc9b6f7b45d847f",
+  "controls": {
+    "kernel": "carasik/rhpr-ae-rqkmeans-tiger",
+    "source_code_sha": "2ba30f85977472cafefff621542f2d320972c2ca",
+    "suite_results_sha256": "5d3caf0c71c8dad0973f4384e97dcad51e6ce9fe77d7be9d294e90e06a76ac4c",
+    "budget_note": "Completed fixed-normalized AE3500\u2192RQ-KMeans versus new GradNorm AE5000\u2192RQ-KMeans;shared TIGER protocol,not isolated equal-budget objective ablation",
+    "runs": {
+      "ae_rqkm_s42": {
+        "test": {
+          "duplicate_prediction_fraction": 0.0,
+          "duplicate_predictions": 0,
+          "evaluation_examples": 22363,
+          "invalid_prediction_fraction": 0.0001274426508071368,
+          "invalid_predictions": 57,
+          "ndcg@10": 0.02003148932133084,
+          "ndcg@5": 0.015026538274289096,
+          "prediction_count": 447260,
+          "recall@10": 0.03957429682958458,
+          "recall@5": 0.02405759513482091,
+          "seconds": 47.844558327000414
+        },
+        "selected_epoch": 20,
+        "generator_initial_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff"
+      },
+      "ae_rqkm_s43": {
+        "test": {
+          "duplicate_prediction_fraction": 0.0,
+          "duplicate_predictions": 0,
+          "evaluation_examples": 22363,
+          "invalid_prediction_fraction": 3.8009211644233777e-05,
+          "invalid_predictions": 17,
+          "ndcg@10": 0.019112541410061933,
+          "ndcg@5": 0.014384420743326949,
+          "prediction_count": 447260,
+          "recall@10": 0.03800921164423378,
+          "recall@5": 0.02320797746277333,
+          "seconds": 48.873180150999815
+        },
+        "selected_epoch": 20,
+        "generator_initial_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff"
+      }
+    }
+  }
+}

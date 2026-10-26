@@ -2,6 +2,20 @@
 
 ## Research status
 
+- Latest request,2026-10-26:run TIGER on saved GradNorm field-encoder indices.
+  Use `experiments/amazon_beauty_field_gradnorm_tiger_2t4.json`;see
+  `docs/gr-field-gradnorm-tiger.md`. One private two-T4 session,two generator
+  fits on ablation source d13dd8aada6c1f60ce36409147c261af5a09b608,
+  gradnorm_s42/43 at AE5000. Reuse exact saved RQ-KMeans codes/books/reports;
+  no encoder forward,AE/quantizer fit or nearest-centroid re-export. Preserve
+  shared generator/data seed42,4+4/d128,FP16,20epochs,all-prefix protocol,
+  validation10/20,NDCG10selection and one FP32beam20test;verify original neural
+  and case hashes. Reuse completed AE3500→KMeans TIGER controls rather than
+  rerunning them;different AE budgets prevent a pure objective-only claim.
+  Field-level encoders are the research focus;title-only is a text-semantics
+  control,not the main method and not launched here. No extra controls,tuning,
+  automatic retries or Telegram.
+
 - Latest request,2026-10-26:run AE-parameter/reconstruction/MTL curve probes,
   still WITHOUT TIGER. Use `experiments/amazon_beauty_field_ae_ablation_probes_2t4.json`;
   see `docs/gr-field-ae-ablation-probes.md`. One private two-T4 session,nine

@@ -52,7 +52,11 @@ def prepare_indices(config, parent, source_ids, output):
     records = {}
     for trial in config["trials"]:
         directory = output / "indices" / trial["id"];directory.mkdir(parents=True)
-        if config["quantizer"]["kind"] == "ae_residual_kmeans":
+        if config["quantizer"]["kind"] == "frozen_ae_rqkmeans":
+            from rhpr.gr.ae_rqkmeans import load_frozen_ae_kmeans_index
+            codes, origin = load_frozen_ae_kmeans_index(config, trial, parent, source_ids, directory)
+            report = None
+        elif config["quantizer"]["kind"] == "ae_residual_kmeans":
             from rhpr.gr.ae_rqkmeans import prepare_ae_kmeans_index
             codes, origin = prepare_ae_kmeans_index(config, trial, parent, source_ids, directory)
             report = None
@@ -72,6 +76,9 @@ def prepare_indices(config, parent, source_ids, output):
             raise ValueError("parent code matrix does not match catalogue/levels")
         index = SidIndex(codes, width=config["quantizer"]["codebook_size"])
         diagnostics = index.diagnostics()
+        if "source_semantic_statistics" in origin and any(diagnostics[k] != value
+                for k, value in origin["source_semantic_statistics"].items()):
+            raise ValueError("saved KMeans semantic statistics disagree with the candidate codes")
         if report is not None and any(diagnostics[k] != report["semantic_code_statistics"][k]
                for k in ("semantic_unique_ids", "max_collision_group")):
             raise ValueError("parent semantic statistics disagree with saved codes")
