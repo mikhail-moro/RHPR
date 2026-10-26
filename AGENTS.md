@@ -2,6 +2,36 @@
 
 ## Research status
 
+- Latest authorization,2026-10-27:run TIGER20epochs on the completed graph
+  candidates atlambda0.3,k20,20kproposals. Use
+  `experiments/amazon_beauty_sid_graph_tiger_2t4.json` and
+  `docs/gr-sid-graph-tiger.md`. Exactly three new fits in one private two-T4
+  session:original/swapped RQ-KMeans on the same worker,swapped native RQ-VAE
+  on the other. Reuse completed original RQ-VAE source6e37388a,whose seed/data/
+  generator/training configs match;old RQ-KMeans100epoch run is not a control.
+  Frozen index dataset:`carasik/rhpr-sid-graph-indices`,manifest3df39c67….
+  Preserve exact complete SID paths INCLUDING suffix viafrom_full_sids;no
+  centroid assignment,suffix regeneration,encoder/quantizer/graph fitting.
+  Shared seed42,4+4/d128,FP16,batch256/physical128,all131413prefix cases,
+  20complete epochs,val10/20,NDCG10selection,one FP32freebeam20test. Check
+  initial neural5f4a24fa…and case6f7ba06c…hashes. Save full checkpoints,
+  curves and per-user test predictions. No otherlambda,k,InfoNCE,extra seeds,
+  tuning,automatic retries or Telegram. Field branch remains closed.
+
+- Latest request,2026-10-27:the Field RQ-VAE branch is closed. The active
+  experiment is CPU-only fixed-tree SID graph placement;see
+  `docs/gr-sid-graph-swap.md` and
+  `experiments/amazon_beauty_sid_graph_swap_cpu.json`. Reuse frozen full-metadata
+  Sentence-T5 embeddings and saved native RQ-VAE/normalized-residual RQ-KMeans
+  indices. Swap complete paths including suffix;preserve all prefix occupancies.
+  Fixed semantic/CF graphs,75/25 TRAIN-user split,weighted-LCP and one sampled
+  InfoNCE objective;save legacy RQ diagnostics and independent-user metrics.
+  Current local probe completed18trials/90snapshots in203.7seconds;no generator
+  trained or GPU/Kaggle submission. Artifacts:`/workspace/artifacts/sid-graph-swap`.
+  Small positive gain changes do not establish a downstream improvement;paired
+  user-bootstrap intervals overlap zero. All earlier Field fits below are
+  historical,no pending launches. Preserve paused TPU edits;no Telegram.
+
 - Latest request,2026-10-26:run TIGER on saved GradNorm field-encoder indices.
   Use `experiments/amazon_beauty_field_gradnorm_tiger_2t4.json`;see
   `docs/gr-field-gradnorm-tiger.md`. One private two-T4 session,two generator

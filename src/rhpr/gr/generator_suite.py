@@ -114,12 +114,11 @@ def run_trial(trial, config, users, output, source, device, expected_initial=Non
     import torch
     from rhpr.gr.grid import build_grid_generator
     from rhpr.gr.rqvae_experiment import _train_rqvae_generator
-    from rhpr.gr.sid import SidIndex
+    from rhpr.gr.full_sid_index import load_generator_index
     from rhpr.gr.sid_study import state_digest
 
     directory = output / "trials" / trial["id"];directory.mkdir(parents=True, exist_ok=True)
-    codes = np.load(output / "indices" / trial["id"] / "semantic-codes.npy", allow_pickle=False)
-    index = SidIndex(codes, width=config["quantizer"]["codebook_size"])
+    index = load_generator_index(output / "indices" / trial["id"], config["quantizer"]["codebook_size"])
     random.seed(config["seed"]);np.random.seed(config["seed"]);torch.manual_seed(config["seed"])
     model = build_grid_generator(index.sids, config["generator"], config["seed"], device, source)
     # SID lookup buffers intentionally differ; hash the actual tied neural
@@ -194,9 +193,13 @@ def run_generator_suite(config, output):
     jobs = assignments(config, torch.cuda.device_count())
     resources = resolve_dataset_directory(config["resources"]["path"])
     resource_manifest = verify_resources(resources, config["resources"]["manifest_sha256"])
-    parent = verify_parent_artifacts(config["parent"])
     _, users, source_ids, counts = load_beauty(resources / "data", config["data"])
-    indices = prepare_indices(config, parent, source_ids, output)
+    if config["quantizer"]["kind"] == "frozen_full_sids":
+        from rhpr.gr.full_sid_index import prepare_full_sid_indices
+        indices = prepare_full_sid_indices(config, source_ids, output)
+    else:
+        parent = verify_parent_artifacts(config["parent"])
+        indices = prepare_indices(config, parent, source_ids, output)
     stream = training_manifest(users, config)
     if stream["examples_per_epoch"] != counts["train_examples"]:
         raise ValueError("training manifest disagrees with original data counts")
@@ -208,8 +211,8 @@ def run_generator_suite(config, output):
     source = prepare_grid_source(original, scratch / "runtime")
     os.environ.update(HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1", TOKENIZERS_PARALLELISM="false")
     first = config["trials"][0]["id"]
-    index = SidIndex(np.load(output / "indices" / first / "semantic-codes.npy", allow_pickle=False),
-        width=config["quantizer"]["codebook_size"])
+    from rhpr.gr.full_sid_index import load_generator_index
+    index = load_generator_index(output / "indices" / first, config["quantizer"]["codebook_size"])
     control = build_grid_generator(index.sids, config["generator"], config["seed"], "cpu", source)
     initial = state_digest(dict(control.named_parameters()))
     if config.get("expected_initial_state_sha256", initial) != initial:
@@ -219,7 +222,7 @@ def run_generator_suite(config, output):
     del control;gc.collect()
     (output / "workers").mkdir()
     _write(output / "input-provenance.json", {"manifest": resource_manifest, "counts": counts,
-        "parent": config["parent"], "indices": indices, "telemetry_enabled": False,
+        "parent": config.get("parent", config.get("frozen_indices")), "indices": indices, "telemetry_enabled": False,
         "training_cases": stream, "generator_seed": config["seed"]})
     if config.get("controls"):
         _write(output / "controls.json", config["controls"])

@@ -1,0 +1,42 @@
+{
+  "name": "beauty_t5_sid_graph_swap_cpu",
+  "kind": "sid_graph_swap_probe",
+  "data": "/workspace/scratch/gr-beauty-input/data",
+  "embeddings": "/workspace/scratch/gr-beauty-completed-v2/item-embeddings.npy",
+  "embeddings_sha256": "607895c3dbe7a6a5aa6272dde55dd190e8bc40fa97532830de161d118aca5314",
+  "fields": "/workspace/scratch/field-ae-results/catalogue-fields.npz",
+  "indices": [
+    {
+      "id": "t5_rqvae",
+      "kind": "rqvae",
+      "codes": "/workspace/artifacts/codebook-t5-vs-field/baseline/semantic-ids.npy",
+      "latents": "/workspace/artifacts/codebook-t5-vs-field/geometry/t5/latents.npy",
+      "books": "/workspace/artifacts/codebook-t5-vs-field/geometry/t5/books.npy",
+      "source": "/workspace/artifacts/codebook-t5-vs-field/baseline/run-manifest.json"
+    },
+    {
+      "id": "t5_rqkmeans",
+      "kind": "normalized_residual_kmeans",
+      "codes": "/workspace/scratch/gr-beauty-completed-v2/semantic-ids.npy",
+      "books": "/workspace/scratch/gr-beauty-completed-v2/quantizer-centroids.npy",
+      "source": "/workspace/scratch/gr-beauty-completed-v2/run-manifest.json"
+    }
+  ],
+  "split": {"unit": "TRAIN users", "seed": 2701, "heldout_fraction": 0.25},
+  "graph": {"maximum_k": 50, "minimum_cf_users": 2, "semantic_weights": "positive_cosine", "block": 256},
+  "search": {"seed": 2702, "proposals": 20000, "snapshots": [0, 1000, 5000, 10000, 20000], "semantic_depth": 3},
+  "contrastive": {"seed": 2703, "negatives": 16, "positives_per_anchor": 2, "temperature": 0.2},
+  "trials": [
+    {"id": "cf_only", "kind": "weighted", "k": 20, "lambda": 0.0},
+    {"id": "lambda_0p3", "kind": "weighted", "k": 20, "lambda": 0.3},
+    {"id": "lambda_1", "kind": "weighted", "k": 20, "lambda": 1.0},
+    {"id": "lambda_3", "kind": "weighted", "k": 20, "lambda": 3.0},
+    {"id": "semantic_only", "kind": "semantic", "k": 20, "lambda": 1.0},
+    {"id": "infonce_lambda_1", "kind": "infonce", "k": 20, "lambda": 1.0},
+    {"id": "k5_lambda_1", "kind": "weighted", "k": 5, "lambda": 1.0},
+    {"id": "k50_lambda_1", "kind": "weighted", "k": 50, "lambda": 1.0},
+    {"id": "random_matched", "kind": "random", "k": 20, "lambda": 1.0}
+  ],
+  "output": "/workspace/artifacts/sid-graph-swap",
+  "cpu_threads": 2
+}

@@ -140,8 +140,31 @@ class SidIndex:
         if len(self.sid_to_item) != self.num_items:
             raise AssertionError("resolved SIDs must be unique")
         self.trie = PrefixTrie(self.sids)
+        self._suffix_order = "catalogue_row_order"
         for array in (self.semantic_codes, self.sids, self.item_ids):
             array.setflags(write=False)
+
+    @classmethod
+    def from_full_sids(cls, full_sids: object, width: int = 256) -> "SidIndex":
+        """Keep already assigned suffixes instead of regenerating row ordinals.
+
+        A graph placement permutes complete valid leaf paths between items.
+        Require exactly the canonical leaf set for each semantic prefix, but
+        preserve which item owns each suffix. Ordinary construction is unchanged.
+        """
+        paths = _integer_matrix(full_sids, "full_sids")
+        if paths.shape[1] < 2:
+            raise ValueError("full SIDs need semantic codes and a suffix")
+        index = cls(paths[:, :-1], width=width)
+        if (np.any(paths < 0) or np.any(paths >= index.width)
+                or not np.array_equal(np.unique(paths, axis=0), np.unique(index.sids, axis=0))):
+            raise ValueError("full SIDs must be unique complete ordinal paths for each prefix")
+        paths.setflags(write=False)
+        index.sids = paths
+        index.sid_to_item = MappingProxyType({tuple(map(int, sid)): i for i, sid in enumerate(paths)})
+        index.trie = PrefixTrie(paths)
+        index._suffix_order = "preserved_full_paths"
+        return index
 
     def diagnostics(self) -> dict[str, object]:
         """Return JSON-safe tokenizer diagnostics; no user interactions are read."""
@@ -171,7 +194,7 @@ class SidIndex:
             "collision_excess_items": self.num_items - len(self._group_counts),
             "max_collision_group": max(self._group_counts.values()),
             "resolved_unique_ids": len(self.sid_to_item),
-            "collision_suffix_order": "catalogue_row_order",
+            "collision_suffix_order": self._suffix_order,
             "level_statistics": levels,
         }
 
