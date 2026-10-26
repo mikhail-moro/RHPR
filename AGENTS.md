@@ -8,6 +8,22 @@
 - The active direction is comparing item encoders for SID-based generative
   recommendation. Read `docs/gr-research-brief.md`, `docs/gr-baseline.md`, and
   `docs/research/item-encoders/README.md`.
+- Latest user authorization,2026-10-26:run two TIGER fits on AE->RQ-KMeans,
+  pipeline seeds42/43,one private two-T4 session. Use
+  `experiments/amazon_beauty_field_ae_rqkmeans_tiger_2t4.json`;see
+  `docs/gr-field-ae-rqkmeans-tiger.md`. Use byte-pinned original3500-step AE
+  catalogue latent arrays from the completed warm-up kernel;no AE/encoder/
+  decoder/embedding update or re-export. Fit sequential full-catalogue sklearn
+  Lloyd KMeans3x256 on raw64D latents,CPU thread1,n_init1,max_iter300,tol1e-4,
+  random_state=AEseed+level,without latent/residual normalization. Then freeze
+  the resulting SID index and train only TIGER. Preserve the completed
+  AE-freeze generator control's4+4/d128,FP16,20epochs,all131413prefix cases,
+  validation10/20,NDCG@10selection and final FP32free-beam20test. Generator/
+  data seed42 is shared;match initial neural and case hashes against completed
+  control `carasik/rhpr-field-warmup-tiger` source10b53b8. Copy completed
+  controls rather than rerunning them. No3k-budget comparison,price ablation,
+  automatic tuning/retries or Telegram. Save books,codes,fit diagnostics,
+  source AE identity,generator checkpoints/curves/predictions and run metadata.
 - Latest user authorization,2026-10-26:compare the completed entire-AE-freeze
   and joint-refinement semantic indices using the same TIGER. Use
   `experiments/amazon_beauty_field_warmup_tiger_2t4.json`;see

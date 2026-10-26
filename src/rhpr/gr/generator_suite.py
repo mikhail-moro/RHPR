@@ -51,30 +51,36 @@ def prepare_indices(config, parent, source_ids, output):
         raise ValueError("parent index catalogue/order differs from generator data")
     records = {}
     for trial in config["trials"]:
-        codes_path = verify_file(parent, trial["semantic_codes"])
-        report_path = verify_file(parent, trial["quantizer_report"])
-        report = json.loads(report_path.read_text())
-        if (report["seed"] != trial["quantizer_seed"] or report["warmup"]["freeze_policy"] != trial["freeze_policy"]
-                or report["config"]["num_hierarchies"] != config["quantizer"]["num_hierarchies"]
-                or report["config"]["codebook_size"] != config["quantizer"]["codebook_size"]
-                or not report["warmup"]["frozen_state_verified"]):
-            raise ValueError("parent quantizer report differs from declared trial")
-        codes = np.load(codes_path, allow_pickle=False)
+        directory = output / "indices" / trial["id"];directory.mkdir(parents=True)
+        if config["quantizer"]["kind"] == "ae_residual_kmeans":
+            from rhpr.gr.ae_rqkmeans import prepare_ae_kmeans_index
+            codes, origin = prepare_ae_kmeans_index(config, trial, parent, source_ids, directory)
+            report = None
+        else:
+            codes_path = verify_file(parent, trial["semantic_codes"])
+            report_path = verify_file(parent, trial["quantizer_report"])
+            report = json.loads(report_path.read_text())
+            if (report["seed"] != trial["quantizer_seed"] or report["warmup"]["freeze_policy"] != trial["freeze_policy"]
+                    or report["config"]["num_hierarchies"] != config["quantizer"]["num_hierarchies"]
+                    or report["config"]["codebook_size"] != config["quantizer"]["codebook_size"]
+                    or not report["warmup"]["frozen_state_verified"]):
+                raise ValueError("parent quantizer report differs from declared trial")
+            codes = np.load(codes_path, allow_pickle=False)
+            origin = {"semantic_codes": trial["semantic_codes"], "quantizer_report": trial["quantizer_report"],
+                "quantizer_retrained": False}
         if codes.shape != (len(source_ids), config["quantizer"]["num_hierarchies"]):
             raise ValueError("parent code matrix does not match catalogue/levels")
         index = SidIndex(codes, width=config["quantizer"]["codebook_size"])
         diagnostics = index.diagnostics()
-        if any(diagnostics[k] != report["semantic_code_statistics"][k]
+        if report is not None and any(diagnostics[k] != report["semantic_code_statistics"][k]
                for k in ("semantic_unique_ids", "max_collision_group")):
             raise ValueError("parent semantic statistics disagree with saved codes")
-        directory = output / "indices" / trial["id"];directory.mkdir(parents=True)
         np.save(directory / "semantic-codes.npy", codes, allow_pickle=False)
         np.save(directory / "semantic-ids.npy", index.sids, allow_pickle=False)
         _write(directory / "sid-diagnostics.json", diagnostics)
         record = {"trial": trial["id"], "parent": config["parent"]["kernel"],
             "source_code_sha": manifest["git_sha"], "quantizer_seed": trial["quantizer_seed"],
-            "freeze_policy": trial["freeze_policy"], "semantic_codes": trial["semantic_codes"],
-            "quantizer_report": trial["quantizer_report"], "quantizer_retrained": False,
+            "freeze_policy": trial["freeze_policy"], **origin,
             "semantic_ids_sha256": file_sha256(directory / "semantic-ids.npy"), "diagnostics": diagnostics}
         _write(directory / "index-provenance.json", record);records[trial["id"]] = record
     _write(output / "sid-catalogue.json", {"original_item_ids": source_ids,
@@ -130,7 +136,8 @@ def run_trial(trial, config, users, output, source, device, expected_initial=Non
         user_ids=test[1], target_item_ids=test[2])
     result = {"trial": trial["id"], "seed": config["seed"], "quantizer_seed": trial["quantizer_seed"],
         "freeze_policy": trial["freeze_policy"], "initial_state_sha256": initial, "parameters": parameters,
-        "selection": selection, "test": scores, "quantizer_retrained": False, "test_evaluations": 1}
+        "selection": selection, "test": scores,
+        "quantizer_retrained": config["quantizer"]["kind"] == "ae_residual_kmeans", "test_evaluations": 1}
     _write(directory / "result.json", result)
     return result
 
@@ -186,6 +193,8 @@ def run_generator_suite(config, output):
     stream = training_manifest(users, config)
     if stream["examples_per_epoch"] != counts["train_examples"]:
         raise ValueError("training manifest disagrees with original data counts")
+    if config.get("expected_train_cases_sha256", stream["train_cases_sha256"]) != stream["train_cases_sha256"]:
+        raise ValueError("training cases differ from completed TIGER control")
     _write(output / "shared-training-stream.json", stream)
     scratch = Path(config["resources"]["scratch_path"])
     original = unpack_grid(resources / "grid-source.bin", scratch / "original")
@@ -196,6 +205,8 @@ def run_generator_suite(config, output):
         width=config["quantizer"]["codebook_size"])
     control = build_grid_generator(index.sids, config["generator"], config["seed"], "cpu", source)
     initial = state_digest(dict(control.named_parameters()))
+    if config.get("expected_initial_state_sha256", initial) != initial:
+        raise ValueError("generator neural parameters differ from completed TIGER control")
     _write(output / "initialization.json", {"initial_state_sha256": initial,
         "scope": "shared CPU neural-parameter control; fixed SID lookup data excluded", "seed": config["seed"]})
     del control;gc.collect()
@@ -203,12 +214,15 @@ def run_generator_suite(config, output):
     _write(output / "input-provenance.json", {"manifest": resource_manifest, "counts": counts,
         "parent": config["parent"], "indices": indices, "telemetry_enabled": False,
         "training_cases": stream, "generator_seed": config["seed"]})
+    if config.get("controls"):
+        _write(output / "controls.json", config["controls"])
     plan = {"config": config, "assignments": jobs, "output": str(output), "resources": str(resources), "source": str(source),
         "initial_state_sha256": initial}
     plan_path = output / "workers/plan.json";atomic_json(plan_path, plan)
     summary = launch_workers(plan_path, worker_module="rhpr.gr.generator_suite", event_prefix="generator_suite")
     metrics = {"runs": len(summary["results"]), "parallel_workers": 2, "generator_seed": config["seed"],
-        "quantizer_retrained": False, "telemetry_enabled": False, "catalogue_items": len(source_ids),
+        "quantizer_retrained": config["quantizer"]["kind"] == "ae_residual_kmeans",
+        "autoencoder_retrained": False, "telemetry_enabled": False, "catalogue_items": len(source_ids),
         "elapsed_seconds": time.monotonic()-started}
     for name, result in summary["results"].items():
         metrics[name + "_epochs"] = result["selection"]["epochs"]

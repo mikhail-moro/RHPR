@@ -1,0 +1,222 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-gr-ae-rqkmeans-tiger"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "per-user leave-last-two; all train prefix targets exactly once per epoch; test context includes observed validation target",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-field-ae-warmup-rq"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "name": "beauty-frozen-field-ae-rqkmeans-tiger-fp16-20epochs-2seeds-2t4",
+  "kind": "gr_frozen_sid_generator_suite",
+  "representation": {
+    "kind": "frozen_ae_latents",
+    "trainable": false,
+    "description": "Byte-pinned original catalogue latent arrays from the completed3500-update AE;no neural encoding or AE/RQ-VAE training"
+  },
+  "quantizer": {
+    "kind": "ae_residual_kmeans",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "latent_dim": 64,
+    "n_init": 1,
+    "max_iter": 300,
+    "tol": 0.0001,
+    "cpu_threads": 1,
+    "normalize_latents": false,
+    "normalize_residuals": false
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "batch_size": 256,
+    "physical_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 20,
+    "min_epochs": 20,
+    "patience": 5,
+    "validation_interval": 10,
+    "evaluation_batch_size": 32,
+    "max_seconds": 7200,
+    "sampling": "all_train_prefixes",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 20
+  },
+  "evaluation": {
+    "test_after_selection": true,
+    "item_level": true,
+    "collision_resolution": "append mandatory ordinal 0..group_size-1, fail on codebook overflow",
+    "invalid_beams": "retain as miss at original rank",
+    "selection_metric": "validation item NDCG@10"
+  },
+  "reference": {
+    "exact_published_reproduction": false,
+    "generator_control": "experiments/amazon_beauty_field_warmup_tiger_2t4.json",
+    "deviations": [
+      "Two new TIGER fits only:AE pipeline seeds42/43 with sequential full-catalogue residual Lloyd KMeans3x256,64D,one initialization,max300,tol1e-4,seed+level,CPU thread1",
+      "Use original byte-pinned GPU-evaluated AE latent arrays,not a new CPU encoder forward;no AE/decoder/embedding/native RQ-VAE fit",
+      "Raw AE latent geometry and residual scale preserved;no L2,standardization,PCA or residual normalization",
+      "Exploratory CPU prototype used CPU-reexported AE latents;floating-point/runtime differences may change assignments,so original-parent arrays are the definitive experiment inputs",
+      "Generator/data seed42,early4+4/d128,FP16,Adam1e-3/wd1e-4/clip1,batch256/physical128,131413all-prefix cases per epoch,20epochs,validation10/20,NDCG@10selection and one FP32beam20test unchanged",
+      "Two independent GPU workers with CPU thread1 each;check neural initialization and train-case hashes against completed AE-freeze control",
+      "Reuse completed native-RQ5k generator controls;no repeated controls,3000-step experiment,price-loss ablation,automatic tuning or retries"
+    ]
+  },
+  "parent": {
+    "kernel": "carasik/rhpr-field-ae-warmup-rq",
+    "source_code_sha": "2fb587ce2acf1f2ec29b71ba82bbd1890ff27383",
+    "files": {
+      "run-manifest.json": {
+        "sha256": "2f920543e59c767b0f10042efaa69cfc52c3e66b499d9bda00068cb3ef4d3921",
+        "size_bytes": 7523
+      },
+      "input-provenance.json": {
+        "sha256": "7b855d9a4027228f5d82f454800d34e040390f538e8aca44cfa19970711c0671",
+        "size_bytes": 136498
+      },
+      "suite-results.json": {
+        "sha256": "974177403cf8dba7ef61d35b2245bb4b62a75479f0ecd4c184f27ab27986e82b",
+        "size_bytes": 503167
+      }
+    }
+  },
+  "trials": [
+    {
+      "id": "ae_rqkm_s42",
+      "quantizer_seed": 42,
+      "freeze_policy": "ae",
+      "ae_latents": {
+        "path": "warmup/seed42/latent-embeddings.npy",
+        "sha256": "87608e0e2378f168e56c04e38efc2e881fa63b0257119b5973710e88fbd46d8e",
+        "size_bytes": 3097984
+      },
+      "ae_report": {
+        "path": "warmup/seed42/autoencoder.json",
+        "sha256": "b75d781fab6551283b15fd8f0bab5b6f3a1774b9890fa3c767e4f28d5a5509e4",
+        "size_bytes": 2592
+      },
+      "ae_steps": 3500,
+      "ae_checkpoint_sha256": "578d302c8837e0ec38a125ddec5493e11a87e3e53cee4ca95493e76a834948c9"
+    },
+    {
+      "id": "ae_rqkm_s43",
+      "quantizer_seed": 43,
+      "freeze_policy": "ae",
+      "ae_latents": {
+        "path": "warmup/seed43/latent-embeddings.npy",
+        "sha256": "cd582e568d198d8c272b16954ea89d2931f106fdc120f1b040a1064f5daff747",
+        "size_bytes": 3097984
+      },
+      "ae_report": {
+        "path": "warmup/seed43/autoencoder.json",
+        "sha256": "f8c3c971e31095210fe18d89bfc3ca9044494544e6bb4ce7a3c32c5fe5dc2a25",
+        "size_bytes": 2593
+      },
+      "ae_steps": 3500,
+      "ae_checkpoint_sha256": "63c264d98e6b4960b50fb9434a521ccab52f5da9e2b168ca6fa12b1c3dcd7454"
+    }
+  ],
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "expected_initial_state_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff",
+  "expected_train_cases_sha256": "6f7ba06c70a6a218d4e620ac77ce41142baf762f7e62902c9fc9b6f7b45d847f",
+  "controls": {
+    "kernel": "carasik/rhpr-field-warmup-tiger",
+    "source_code_sha": "10b53b8a3c7d9bf17f66909d2d4a819faf96e622",
+    "suite_results_sha256": "b1c1864bebddc4447143e3f126057603228ebc926ae24674d79b61fae46121a9",
+    "runs": {
+      "ae_s42": {
+        "test": {
+          "duplicate_prediction_fraction": 0.0,
+          "duplicate_predictions": 0,
+          "evaluation_examples": 22363,
+          "invalid_prediction_fraction": 3.130170370701605e-05,
+          "invalid_predictions": 14,
+          "ndcg@10": 0.020281291447726398,
+          "ndcg@5": 0.015285942932933252,
+          "prediction_count": 447260,
+          "recall@10": 0.03984259714707329,
+          "recall@5": 0.024236462013146717,
+          "seconds": 49.719723108999915
+        },
+        "selected_epoch": 20,
+        "generator_initial_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff"
+      },
+      "ae_s43": {
+        "test": {
+          "duplicate_prediction_fraction": 0.0,
+          "duplicate_predictions": 0,
+          "evaluation_examples": 22363,
+          "invalid_prediction_fraction": 0.0001453293386397174,
+          "invalid_predictions": 65,
+          "ndcg@10": 0.020240541651554457,
+          "ndcg@5": 0.014889184418929904,
+          "prediction_count": 447260,
+          "recall@10": 0.04042391450163216,
+          "recall@5": 0.023699861378169297,
+          "seconds": 50.00286049700003
+        },
+        "selected_epoch": 20,
+        "generator_initial_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff"
+      }
+    }
+  }
+}
