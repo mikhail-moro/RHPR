@@ -1,0 +1,210 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-gr-rqvae"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "per-user leave-last-two; all train prefix targets exactly once per epoch; test context includes observed validation target",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-field-ae-title-5k"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "name": "beauty-field-rq-fixed-vs-gradnorm-2t4",
+  "kind": "gr_field_rq_suite",
+  "representation": {
+    "kind": "field_encoder",
+    "fields": [
+      "brand",
+      "categories",
+      "price",
+      "title"
+    ],
+    "field_dim": 64,
+    "title": {
+      "kind": "sentence_transformer",
+      "model": "sentence-transformers/sentence-t5-base",
+      "revision": "fc5d4628481afbbaaacd7af6bb07cf9d3865f781",
+      "max_length": 256,
+      "batch_size": 64
+    },
+    "objective": "Native RQ-VAE3x256 codebook+beta0.25 commitment plus fixed-normalized or GradNorm-balanced CE/BCE/Huber/title MSE",
+    "missing_policy": "input observed indicator; exclude missing field targets and their uncertainty regularizer",
+    "title_concatenation": "direct frozen768D; no learned projection; 192D structured +768D title =960D"
+  },
+  "quantizer": {
+    "kind": "grid_field_rqvae",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "max_steps": 5000,
+    "batch_size": 2048,
+    "init_buffer_size": 3072,
+    "initialization_steps": 1000,
+    "distance_backend": "torch_cdist",
+    "diagnostics_interval_steps": 500
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "precision": "fp32"
+  },
+  "reference": {
+    "exact_published_reproduction": false,
+    "neural_recipe": "Native GRID rqvae_train_flat.yaml at2fe3475b2d369580234093f35d52b1a2f54d0472; same common neural initialization as completed AE control",
+    "deviations": [
+      "Two quantizer-only5000-step native RQ-VAE controls on two isolated T4workers",
+      "Same neural initialization,loss calibration,seed42,batch2048,FP32 and neural Adagrad0.001 as completed continuous-AE controls",
+      "Native initializer,STE,three256-code books,latent64 and summed codebook+beta0.25 commitment at weight1 unchanged",
+      "GradNorm balances only four reconstruction tasks using last shared decoder weight; no fifth quantization task",
+      "First complete reconstruction-only catalogue pass initializes GradNorm reference; initializer partial passes excluded; all physical batches/exposures recorded",
+      "No generator or ordinal SID construction; semantic collisions and suffix overflow are measurements"
+    ]
+  },
+  "pipeline": {
+    "stage": "quantizer_only_loss_suite"
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "trials": [
+    {
+      "id": "fixed_normalized",
+      "loss_policy": {
+        "mode": "fixed_normalized",
+        "normalizer_floor": 1e-06
+      }
+    },
+    {
+      "id": "gradnorm",
+      "loss_policy": {
+        "mode": "gradnorm",
+        "alpha": 1.5,
+        "weight_learning_rate": 0.025
+      }
+    }
+  ],
+  "parent": {
+    "kernel": "carasik/rhpr-field-ae-title-5k",
+    "source_code_sha": "9792ff38ba9733fa15822e7ec0fe61d8b0af7e2f",
+    "files": {
+      "autoencoder.json": {
+        "sha256": "68a4d36977972c3ab2e236bca5dc58b35bdbff0793ec70c83893da57a9b90d71",
+        "size_bytes": 1659
+      },
+      "catalogue-fields.npz": {
+        "sha256": "a18181a54014a1df479780abee23609e5e711e7b32d021498c4e8e9b56ec2db5",
+        "size_bytes": 34659921
+      },
+      "feature-schema.json": {
+        "sha256": "b4288ae06e2ab0b519bfb5257b0ea99179f3a81593a7195ecde3bc4f98da656e",
+        "size_bytes": 45454
+      },
+      "run-manifest.json": {
+        "sha256": "13f69b1fe07f91790c659b4323f92e94369cc939520f46344443fb1d792bd7b9",
+        "size_bytes": 6083
+      }
+    }
+  },
+  "expected_initial_state_sha256": "56da423e243262fbeda4a444959429f9482f7b695b31f4299d392e446ab5b63a",
+  "ae_controls": {
+    "fixed_normalized": {
+      "kernel": "carasik/rhpr-field-ae-loss-suite",
+      "code_sha": "c643ab7f47a38f58770aa2e521a7df7f97bb4326",
+      "report_sha256": "39e951395c5940b0351131d4a95de688fd72d144e5a7f31379a867ce842bb03e",
+      "initial_state_sha256": "56da423e243262fbeda4a444959429f9482f7b695b31f4299d392e446ab5b63a",
+      "steps": 5000,
+      "item_exposures": 10084229,
+      "field_reconstruction": {
+        "brand": {
+          "accuracy": 0.1101873184413503,
+          "loss": 4.774074679348615,
+          "observed_items": 9983
+        },
+        "categories": {
+          "loss": 0.02793415712986753,
+          "micro_f1_at_probability_0_5": 0.7049599109694716,
+          "observed_items": 12101
+        },
+        "price": {
+          "loss": 0.002267553435111504,
+          "mae_original_units": 0.64696809287874,
+          "mae_standardized": 0.03276198586890912,
+          "observed_items": 11516
+        },
+        "title": {
+          "catalogue_mean_predictor_mse": 0.00028724808362312615,
+          "cosine_similarity": 0.9031567316234196,
+          "loss": 0.00024068603311439587,
+          "observed_items": 12101,
+          "zero_predictor_mse": 0.001302083320198409
+        }
+      }
+    },
+    "gradnorm": {
+      "kernel": "carasik/rhpr-field-ae-nonuw",
+      "code_sha": "4ee7a937310613473f5ca5e8c3f024299b69da76",
+      "report_sha256": "11c1732bfacf7252bc76f0a2371c844caf109e28358027c21bb563fcf26618e7",
+      "initial_state_sha256": "56da423e243262fbeda4a444959429f9482f7b695b31f4299d392e446ab5b63a",
+      "steps": 5000,
+      "item_exposures": 10084229,
+      "field_reconstruction": {
+        "brand": {
+          "accuracy": 0.3370730241410398,
+          "loss": 3.1374113018307574,
+          "observed_items": 9983
+        },
+        "categories": {
+          "loss": 0.019128577178471117,
+          "micro_f1_at_probability_0_5": 0.8029068436713207,
+          "observed_items": 12101
+        },
+        "price": {
+          "loss": 0.025364657179958738,
+          "mae_original_units": 3.3277812299998537,
+          "mae_standardized": 0.1685163809964126,
+          "observed_items": 11516
+        },
+        "title": {
+          "catalogue_mean_predictor_mse": 0.00028724808362312615,
+          "cosine_similarity": 0.8025189639221448,
+          "loss": 0.0005194571547544772,
+          "observed_items": 12101,
+          "zero_predictor_mse": 0.001302083320198409
+        }
+      }
+    }
+  }
+}

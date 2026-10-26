@@ -16,7 +16,10 @@ from rhpr.gr.experiment import _event, _write
 from rhpr.gr.sid import validate_item_embeddings
 
 
-def build_rqvae(source_root, recipe_path, dimension, spec):
+def build_rqvae(source_root, recipe_path, dimension, spec, *, feature_schema=None, field_dim=64):
+    latent_dim = spec.get("latent_dim")
+    if latent_dim is not None and (type(latent_dim) is not int or latent_dim < 1):
+        raise ValueError("quantizer.latent_dim must be a positive integer")
     from hydra.utils import instantiate
     from omegaconf import OmegaConf
     from rhpr.gr.grid import load_grid
@@ -26,10 +29,19 @@ def build_rqvae(source_root, recipe_path, dimension, spec):
     recipe.embedding_dim = dimension
     recipe.num_hierarchies = spec["num_hierarchies"]
     recipe.codebook_width = spec["codebook_size"]
+    if latent_dim is not None:
+        # Decoder input and all book/initializer dimensions reference this
+        # value in the native recipe. Leave its default untouched otherwise.
+        recipe.model.encoder.output_dim = latent_dim
     recipe.model.verbose = False
     recipe.model.track_residuals = False
     recipe.model.init_buffer_size = spec["init_buffer_size"]
     recipe.model.quantization_layer.initializer.max_iter = spec["initialization_steps"]
+    if feature_schema is not None:
+        recipe.model._target_ = "rhpr.gr.field_rqvae_native.FieldResidualQuantization"
+        recipe.model.feature_schema = feature_schema
+        recipe.model.field_dim = field_dim
+        recipe.model.reconstruction_loss_function = None
     if spec.get("distance_backend", "upstream") == "torch_cdist":
         # All references in this recipe use the same squared L2 metric,
         # including the initializer. Numeric rounding can differ from upstream.
@@ -41,7 +53,7 @@ def build_rqvae(source_root, recipe_path, dimension, spec):
     return model, OmegaConf.to_container(recipe.model, resolve=True)
 
 
-def export_codes(model, values, device, batch_size):
+def export_codes(model, values, device, batch_size, *, capture=None):
     import torch
     from lightning.pytorch.trainer.states import TrainerFn
 
@@ -53,6 +65,9 @@ def export_codes(model, values, device, batch_size):
     model.trainer.state.fn = TrainerFn.PREDICTING
     model.eval()
     result, squared_error, elements = [], 0.0, 0
+    continuous_error = 0.0
+    if capture is not None:
+        capture["encoded"] = []
     with torch.inference_mode():
         for begin in range(0, len(values), batch_size):
             batch = torch.as_tensor(values[begin:begin + batch_size], device=device)
@@ -60,12 +75,49 @@ def export_codes(model, values, device, batch_size):
             encoded = model.encoder(normalized)
             codes, _, quantized, _ = model(encoded)
             reconstruction = model.decoder(quantized)
+            if capture is not None:
+                capture["encoded"].append(encoded.cpu().numpy())
+                continuous_error += float((model.decoder(encoded) - normalized).square().sum())
             if not torch.isfinite(reconstruction).all():
                 raise FloatingPointError("nonfinite RQ-VAE reconstruction")
             squared_error += float((reconstruction - normalized).square().sum())
             elements += normalized.numel()
             result.append(codes.cpu().numpy())
+    if capture is not None:
+        capture["continuous_embedding_mse_normalized_input"] = continuous_error / elements
     return np.concatenate(result), squared_error / elements
+
+
+def probe_grid_rqvae(model, values, device, batch_size, output, step):
+    """The same catalogue occupancy/geometry probe as the structured arm."""
+    import torch
+    from rhpr.gr.codebook_diagnostics import diagnose_codebooks
+
+    modes = {module: module.training for module in model.modules()}
+    fn = model.trainer.state.fn
+    devices = [torch.device(device).index or 0] if device.startswith("cuda") else []
+    before, capture = time.monotonic(), {}
+    try:
+        with torch.random.fork_rng(devices=devices):
+            codes, mse = export_codes(model, values, device, batch_size, capture=capture)
+            books = np.stack([layer.centroids.detach().cpu().numpy() for layer in model.quantization_layer_list])
+            stats = diagnose_codebooks(codes, np.concatenate(capture.pop("encoded")), books)
+            stats.update(step=step, embedding_reconstruction_mse_normalized_input=mse, **capture)
+            stats["codebook_loss_eval"] = sum(level["residual_mse_after"] for level in stats["levels"])
+            stats["commitment_loss_eval"] = sum(float(layer.loss_function.beta) * level["residual_mse_after"]
+                for layer, level in zip(model.quantization_layer_list, stats["levels"]))
+            stats["native_beta_loss_eval"] = stats["codebook_loss_eval"] + stats["commitment_loss_eval"]
+            stats["probe_seconds"] = time.monotonic() - before
+            directory = Path(output) / "codebook-snapshots"
+            directory.mkdir(parents=True, exist_ok=True)
+            np.savez_compressed(directory / f"step-{step:05d}.npz", semantic_codes=codes, codebooks=books,
+                counts=np.array([row["counts"] for row in stats["levels"]]))
+            _write(Path(output) / "codebook-diagnostics.json", stats)
+            return stats
+    finally:
+        model.trainer.state.fn = fn
+        for module, mode in modes.items():
+            module.training = mode
 
 
 def fit_grid_rqvae(values, spec, seed, device, source_root, recipe_path, output):
@@ -84,6 +136,9 @@ def fit_grid_rqvae(values, spec, seed, device, source_root, recipe_path, output)
         raise ValueError("catalogue is smaller than RQ-VAE initialization buffer")
     if spec["batch_size"] < 2 or len(values) % spec["batch_size"] == 1:
         raise ValueError("RQ-VAE BatchNorm needs at least two items in each batch")
+    interval = spec.get("diagnostics_interval_steps")
+    if interval is not None and (type(interval) is not int or interval < 1):
+        raise ValueError("diagnostics_interval_steps must be a positive integer")
     torch.manual_seed(seed)
     model, resolved = build_rqvae(source_root, recipe_path, values.shape[1], spec)
     from src.data.loading.components.interfaces import ItemData
@@ -98,6 +153,8 @@ def fit_grid_rqvae(values, spec, seed, device, source_root, recipe_path, output)
     class Progress(Callback):
         def __init__(self):
             self.last_loss, self.batches, self.examples = None, 0, 0
+            self.last_probe, self.last_log = -1, -1
+            self.curves, self.probe_seconds = [], 0.0
 
         def on_train_batch_end(self, trainer, module, outputs, batch, batch_idx):
             loss = outputs["loss"] if isinstance(outputs, dict) else outputs
@@ -106,8 +163,27 @@ def fit_grid_rqvae(values, spec, seed, device, source_root, recipe_path, output)
             self.batches += 1
             self.examples += len(batch[0].transformed_features["input_embedding"])
             self.last_loss = float(loss.detach())
-            if trainer.global_step and trainer.global_step % 500 == 0:
-                _event("rqvae_progress", updates=trainer.global_step, loss=self.last_loss)
+            step = trainer.global_step
+            if interval and step > 0 and step != self.last_probe and all(
+                    layer.is_initialized for layer in module.quantization_layer_list) and (
+                    self.last_probe < 0 or step % interval == 0 or step == spec["max_steps"]):
+                stats = probe_grid_rqvae(module, values, device, spec["batch_size"], output, step)
+                self.curves.append(stats)
+                self.last_probe = step
+                self.probe_seconds += stats["probe_seconds"]
+                _write(output / "codebook-learning-curves.json", self.curves)
+                _event("rqvae_codebooks", step=step, semantic_unique_ids=stats["semantic_unique_ids"],
+                    max_collision_group=stats["max_collision_group"],
+                    used_codes=[row["used_codes"] for row in stats["levels"]],
+                    perplexity=[row["perplexity"] for row in stats["levels"]],
+                    suffix_representable=stats["suffix_representable"],
+                    quantization_mse=stats["quantization_mse"],
+                    embedding_reconstruction_mse=stats["embedding_reconstruction_mse_normalized_input"],
+                    native_beta_loss_eval=stats["native_beta_loss_eval"], scope="full_catalogue_eval")
+            if step and step != self.last_log and step % 500 == 0:
+                self.last_log = step
+                _event("rqvae_progress", updates=step, loss=self.last_loss,
+                    step=step, total_loss=self.last_loss, scope="last_training_batch")
 
     progress = Progress()
     # Native loss/initialization remain intact; disable only metric emission.
@@ -138,11 +214,15 @@ def fit_grid_rqvae(values, spec, seed, device, source_root, recipe_path, output)
            fit_seconds=fit_seconds, checkpoint="quantizer.pt")
     codes, mse = export_codes(model, values, device, spec["batch_size"])
     np.save(output / "semantic-codes.npy", codes, allow_pickle=False)
+    from rhpr.gr.codebook_diagnostics import semantic_statistics
+    semantic_summary = semantic_statistics(codes, spec["codebook_size"])
+    _write(output / "semantic-code-diagnostics.json", semantic_summary)
     report = {"kind": "grid_rqvae", "seed": seed, "config": spec, "resolved_model": resolved,
         "input_dim": values.shape[1], "latent_dim": model.encoder.output_dim,
         "precision": "fp32", "steps": trainer.global_step, "batches": progress.batches,
         "item_exposures": progress.examples, "final_training_loss": progress.last_loss,
         "reconstruction_mse_normalized_input": mse,
+        "semantic_code_statistics": semantic_summary, "diagnostic_seconds": progress.probe_seconds,
         "used_codes_per_level": [int(len(np.unique(codes[:, level]))) for level in range(codes.shape[1])],
         "fit_seconds": fit_seconds, "elapsed_seconds": time.monotonic() - started,
         "source_recipe": "GRID configs/experiment/rqvae_train_flat.yaml",
