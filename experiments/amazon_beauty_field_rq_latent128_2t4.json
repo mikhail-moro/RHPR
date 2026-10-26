@@ -1,0 +1,250 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-gr-rqvae"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "per-user leave-last-two; all train prefix targets exactly once per epoch; test context includes observed validation target",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-field-ae-title-5k"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "name": "beauty-field-rq-latent128-fixed-vs-gradnorm",
+  "kind": "gr_field_rq_suite",
+  "representation": {
+    "kind": "field_encoder",
+    "fields": [
+      "brand",
+      "categories",
+      "price",
+      "title"
+    ],
+    "field_dim": 64,
+    "title": {
+      "kind": "sentence_transformer",
+      "model": "sentence-transformers/sentence-t5-base",
+      "revision": "fc5d4628481afbbaaacd7af6bb07cf9d3865f781",
+      "max_length": 256,
+      "batch_size": 64
+    },
+    "objective": "Native RQ-VAE3x256 codebook+beta0.25 commitment plus fixed-normalized or GradNorm-balanced CE/BCE/Huber/title MSE",
+    "missing_policy": "input observed indicator; exclude missing field targets and their uncertainty regularizer",
+    "title_concatenation": "direct frozen768D; no learned projection; 192D structured +768D title =960D"
+  },
+  "quantizer": {
+    "kind": "grid_field_rqvae",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "max_steps": 5000,
+    "batch_size": 2048,
+    "init_buffer_size": 3072,
+    "initialization_steps": 1000,
+    "distance_backend": "torch_cdist",
+    "diagnostics_interval_steps": 500,
+    "latent_dim": 128
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "precision": "fp32"
+  },
+  "reference": {
+    "exact_published_reproduction": false,
+    "neural_recipe": "Native GRID rqvae_train_flat.yaml at2fe3475b2d369580234093f35d52b1a2f54d0472; encoder output/book/initializer dimensions and decoder input set to128",
+    "deviations": [
+      "Dimension ablation:latent64 to128; keep three256-code books,960D field/title input,hidden widths,loss policies,beta0.25,outer weights and learning rates",
+      "Two fresh5000-main-update RQ trials,seed42,batch2048,FP32,on two isolated T4workers",
+      "Compare with completed same-policy latent64 RQ controls; neither64D controls nor AE models rerun",
+      "Same complete initial128D state required between objectives; cross-dimensional initial weights/hashes differ because shapes and constructor RNG consumption change",
+      "No compensation for mean-MSE gradient scaling with dimension; report norms divided by sqrt(dim) and dimensionless relative quantization errors",
+      "No generator,ordinal suffix repair or automatic retries"
+    ]
+  },
+  "pipeline": {
+    "stage": "quantizer_only_loss_suite"
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "trials": [
+    {
+      "id": "fixed_normalized",
+      "loss_policy": {
+        "mode": "fixed_normalized",
+        "normalizer_floor": 1e-06
+      }
+    },
+    {
+      "id": "gradnorm",
+      "loss_policy": {
+        "mode": "gradnorm",
+        "alpha": 1.5,
+        "weight_learning_rate": 0.025
+      }
+    }
+  ],
+  "parent": {
+    "kernel": "carasik/rhpr-field-ae-title-5k",
+    "source_code_sha": "9792ff38ba9733fa15822e7ec0fe61d8b0af7e2f",
+    "files": {
+      "autoencoder.json": {
+        "sha256": "68a4d36977972c3ab2e236bca5dc58b35bdbff0793ec70c83893da57a9b90d71",
+        "size_bytes": 1659
+      },
+      "catalogue-fields.npz": {
+        "sha256": "a18181a54014a1df479780abee23609e5e711e7b32d021498c4e8e9b56ec2db5",
+        "size_bytes": 34659921
+      },
+      "feature-schema.json": {
+        "sha256": "b4288ae06e2ab0b519bfb5257b0ea99179f3a81593a7195ecde3bc4f98da656e",
+        "size_bytes": 45454
+      },
+      "run-manifest.json": {
+        "sha256": "13f69b1fe07f91790c659b4323f92e94369cc939520f46344443fb1d792bd7b9",
+        "size_bytes": 6083
+      }
+    }
+  },
+  "rq64_controls": {
+    "fixed_normalized": {
+      "kernel": "carasik/rhpr-field-rq-balancing",
+      "code_sha": "3dc5c122d42744ab4599aad9a77885f5ed516cfa",
+      "report_sha256": "23965f57fcc11e999b3182c94bb90d51e08f19985202f003cd10cec5d4a1f082",
+      "latent_dim": 64,
+      "steps": 5000,
+      "reconstruction_updates": 5000,
+      "initialization_only_batches": 4,
+      "item_exposures": 10092234,
+      "parameters": 5167690,
+      "field_reconstruction": {
+        "brand": {
+          "accuracy": 0.06701392367023941,
+          "loss": 5.678220825134173,
+          "observed_items": 9983
+        },
+        "categories": {
+          "loss": 0.043360860097367414,
+          "micro_f1_at_probability_0_5": 0.49452638856879466,
+          "observed_items": 12101
+        },
+        "price": {
+          "loss": 0.025775123455022444,
+          "mae_original_units": 3.002224012672782,
+          "mae_standardized": 0.15203040422106337,
+          "observed_items": 11516
+        },
+        "title": {
+          "catalogue_mean_predictor_mse": 0.00028724808362312615,
+          "cosine_similarity": 0.8945849262360807,
+          "loss": 0.00026020068213860887,
+          "observed_items": 12101,
+          "zero_predictor_mse": 0.001302083320198409
+        }
+      },
+      "used_codes_per_level": [
+        7,
+        10,
+        16
+      ],
+      "semantic_unique_ids": 188,
+      "max_collision_group": 907,
+      "codebook_diagnostics_sha256": "c5ab932e113a22841751fc47e61e8721c974ded81765f7d159f6aafa44d0409a",
+      "geometry": {
+        "latent_norm_mean": 14.488390922546387,
+        "latent_norm_mean_over_sqrt_dim": 1.8110488653182983,
+        "quantization_mse": 8.870758454402155,
+        "quantization_mse_over_zero_predictor_mse": 0.8913227800903205,
+        "quantization_mse_over_mean_predictor_mse": 0.9015610506733321,
+        "quantized_norm_mean_over_sqrt_dim": 0.39846864342689514,
+        "quantized_norm_source": "Full semantic code array and checkpoint centroids; independently verified CPU calculation"
+      }
+    },
+    "gradnorm": {
+      "kernel": "carasik/rhpr-field-rq-balancing",
+      "code_sha": "3dc5c122d42744ab4599aad9a77885f5ed516cfa",
+      "report_sha256": "1d1ff930a42cd8799f8fcd39d6a8c0d0776f50d8bc81ddbeb0a6ab517702357c",
+      "latent_dim": 64,
+      "steps": 5000,
+      "reconstruction_updates": 5000,
+      "initialization_only_batches": 4,
+      "item_exposures": 10092234,
+      "parameters": 5167694,
+      "field_reconstruction": {
+        "brand": {
+          "accuracy": 0.08895121706901733,
+          "loss": 5.2522257057636255,
+          "observed_items": 9983
+        },
+        "categories": {
+          "loss": 0.037388622356873784,
+          "micro_f1_at_probability_0_5": 0.5869161872472203,
+          "observed_items": 12101
+        },
+        "price": {
+          "loss": 0.0418147967676087,
+          "mae_original_units": 3.9236889765386334,
+          "mae_standardized": 0.198692708679602,
+          "observed_items": 11516
+        },
+        "title": {
+          "catalogue_mean_predictor_mse": 0.00028724808362312615,
+          "cosine_similarity": 0.8852360915097409,
+          "loss": 0.0002831517213502751,
+          "observed_items": 12101,
+          "zero_predictor_mse": 0.001302083320198409
+        }
+      },
+      "used_codes_per_level": [
+        6,
+        10,
+        16
+      ],
+      "semantic_unique_ids": 144,
+      "max_collision_group": 1312,
+      "codebook_diagnostics_sha256": "e8cea86ca074b1e7fa2fc8ae1b54d6faec44b82700899b8a5669dcc66598875d",
+      "geometry": {
+        "latent_norm_mean": 14.204574584960938,
+        "latent_norm_mean_over_sqrt_dim": 1.7755718231201172,
+        "quantization_mse": 5.625111338709515,
+        "quantization_mse_over_zero_predictor_mse": 0.8368377142090049,
+        "quantization_mse_over_mean_predictor_mse": 0.901298392532475,
+        "quantized_norm_mean_over_sqrt_dim": 0.41894128918647766,
+        "quantized_norm_source": "Full semantic code array and checkpoint centroids; independently verified CPU calculation"
+      }
+    }
+  }
+}

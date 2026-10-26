@@ -17,6 +17,9 @@ from rhpr.gr.sid import validate_item_embeddings
 
 
 def build_rqvae(source_root, recipe_path, dimension, spec, *, feature_schema=None, field_dim=64):
+    latent_dim = spec.get("latent_dim")
+    if latent_dim is not None and (type(latent_dim) is not int or latent_dim < 1):
+        raise ValueError("quantizer.latent_dim must be a positive integer")
     from hydra.utils import instantiate
     from omegaconf import OmegaConf
     from rhpr.gr.grid import load_grid
@@ -26,6 +29,10 @@ def build_rqvae(source_root, recipe_path, dimension, spec, *, feature_schema=Non
     recipe.embedding_dim = dimension
     recipe.num_hierarchies = spec["num_hierarchies"]
     recipe.codebook_width = spec["codebook_size"]
+    if latent_dim is not None:
+        # Decoder input and all book/initializer dimensions reference this
+        # value in the native recipe. Leave its default untouched otherwise.
+        recipe.model.encoder.output_dim = latent_dim
     recipe.model.verbose = False
     recipe.model.track_residuals = False
     recipe.model.init_buffer_size = spec["init_buffer_size"]

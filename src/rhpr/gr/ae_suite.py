@@ -165,6 +165,8 @@ def run_autoencoder_suite(config, output):
     plan_path = output / "workers/plan.json";atomic_json(plan_path, plan)
     if config.get("ae_controls"):
         _write(output / "ae-controls.json", config["ae_controls"])
+    if config.get("rq64_controls"):
+        _write(output / "rq64-controls.json", config["rq64_controls"])
     _event("ae_suite_start", assignments=plan_assignments)
     summary = launch_workers(plan_path)
     quantized = config["quantizer"]["kind"] == "grid_field_rqvae"

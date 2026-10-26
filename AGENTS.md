@@ -8,6 +8,15 @@
 - The active direction is comparing item encoders for SID-based generative
   recommendation. Read `docs/gr-research-brief.md`, `docs/gr-baseline.md`, and
   `docs/research/item-encoders/README.md`.
+- Latest user authorization,2026-10-26:increase RQ latent/code-vector dim64
+  to128 with two5000-update runs,fixed normalization and GradNorm,on two T4s.
+  Use `experiments/amazon_beauty_field_rq_latent128_2t4.json`;see
+  `docs/gr-field-rq-latent128.md`. Keep3x256,input960,hidden widths,LRs,beta,
+  initializer,seed42,batch2048 and FP32. Reuse completed64D RQ controls.
+  Initial128D hashes must match BETWEEN new arms;do not require the old64D
+  hash across different shapes. Log norms divided by sqrt(dim),relative
+  quantization MSE,all field metrics,book usage and collisions. No generator,
+  codebook-LR change,extra AE fits,suffix repair or automatic tuning/retries.
 - Latest user authorization,2026-10-26:restore native RQ-VAE with the completed
   fixed-normalized and GradNorm objectives,one private two-T4 session,two
   independent5000-update quantizer-only trials. Use

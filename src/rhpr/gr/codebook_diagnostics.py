@@ -65,4 +65,14 @@ def diagnose_codebooks(codes, encoded, codebooks):
         latent_mean_dim_variance=float(encoded.astype(np.float64).var(0).mean()),
         quantized_mean_dim_variance=float(quantized.var(0).mean()),
         quantization_mse=float(np.mean(residual ** 2)))
+    dimension = encoded.shape[1]
+    zero_mse = float(np.mean(encoded.astype(np.float64) ** 2))
+    mean_mse = summary["latent_mean_dim_variance"]
+    summary.update(latent_dim=dimension,
+        latent_norm_mean_over_sqrt_dim=summary["latent_norm_mean"] / float(np.sqrt(dimension)),
+        quantized_norm_mean=float(np.linalg.norm(quantized, axis=1).mean()),
+        quantized_norm_mean_over_sqrt_dim=float(np.linalg.norm(quantized, axis=1).mean() / np.sqrt(dimension)),
+        latent_zero_predictor_mse=zero_mse,
+        quantization_mse_over_zero_predictor_mse=summary["quantization_mse"] / zero_mse if zero_mse > 0 else None,
+        quantization_mse_over_mean_predictor_mse=summary["quantization_mse"] / mean_mse if mean_mse > 0 else None)
     return summary
