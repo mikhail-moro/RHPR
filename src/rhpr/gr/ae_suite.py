@@ -160,9 +160,10 @@ def launch_workers(plan_path, *, worker_module="rhpr.gr.ae_suite", event_prefix=
                 status = json.loads(status_path.read_text());results.update(status["results"]);failures.extend(status["failures"])
                 if status.get("warmup"):warmups[str(status["warmup"]["seed"])] = status["warmup"]
             if p.returncode != 0:failures.append({"worker": a["slot"], "exit_code": p.returncode})
-        groups = {str(r["seed"]) if config.get("warmup") else "all" for r in results.values()}
+        by_seed = config.get("warmup") or config.get("compare_initialization_by_seed")
+        groups = {str(r["seed"]) if by_seed else "all" for r in results.values()}
         for group in groups:
-            rows = [r for r in results.values() if not config.get("warmup") or str(r["seed"]) == group]
+            rows = [r for r in results.values() if not by_seed or str(r["seed"]) == group]
             for key in ("initial_state_sha256", "initial_full_state_sha256"):
                 if len({r[key] for r in rows if key in r}) > 1:
                     failures.append({"message": f"{key} differs between trials in group {group}"})

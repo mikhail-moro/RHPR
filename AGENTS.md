@@ -2,6 +2,19 @@
 
 ## Research status
 
+- Latest user clarification,2026-10-26:run fixed AE warm-up stopping probes
+  WITHOUT TIGER. Use `experiments/amazon_beauty_field_ae_warmup_probes_2t4.json`;
+  see `docs/gr-field-ae-warmup-probes.md`. One private two-T4 session,two
+  continuous AE trajectories seeds42/43,5000fixed updates,same field/title
+  inputs,latent64,fixed-normalized objective and native Adagrad0.001/FP32.
+  Save complete checkpoints and GPU-eval latents at0/100/250/500/1000/2000/
+  3500/5000;no adaptive stopping or PCA projection. Fit identical raw-latent
+  RQ-KMeans3x256 at each checkpoint and record geometry,reconstruction,usage,
+  collisions and catalogue/TRAIN-only first-prefix behavioural proxies.
+  Preserve raw arrays,curves,provenance and plots. No generator,TIGER,
+  validation/test metrics,collaborative loss,automatic tuning/retries or
+  Telegram. The preliminary four-TIGER plan was cancelled before submission.
+
 - The history-compression / Query SSM track was closed on 2026-10-21. Read
   `docs/research/closed-history-compression/README.md` for its final evidence.
 - Earlier experiment plans are historical and have no pending GPU launches.

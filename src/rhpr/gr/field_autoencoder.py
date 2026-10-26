@@ -189,6 +189,11 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
             raise ValueError(f"autoencoder {key} must be a positive integer")
     if spec["batch_size"] < 2 or len(texts) % spec["batch_size"] == 1:
         raise ValueError("BatchNorm requires at least two items per batch")
+    snapshot_steps = spec.get("snapshot_steps", [])
+    if (not isinstance(snapshot_steps, list)
+            or any(type(s) is not int or not 0 <= s <= spec["max_steps"] for s in snapshot_steps)
+            or snapshot_steps != sorted(set(snapshot_steps))):
+        raise ValueError("snapshot_steps must be sorted unique integers within the AE budget")
     before = time.monotonic()
     schema, arrays = prepare_fields(texts, title_embeddings=title_embeddings, title_observed=title_observed)
     if schema["fields"] != representation["fields"]:
@@ -200,6 +205,8 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
     model, optimizer_factory, resolved = build_field_autoencoder(source_root, recipe_path, schema, spec, representation["field_dim"])
     from rhpr.gr.sid_study import state_digest
     initial_digest = state_digest(model.state_dict())
+    if spec.get("expected_initial_state_sha256", initial_digest) != initial_digest:
+        raise ValueError("AE initial neural weights differ from the completed control")
     configure_objective(model, arrays, spec.get("loss_policy"))
     model.to(device)
     optimizer = make_autoencoder_optimizer(model, optimizer_factory)
@@ -214,17 +221,39 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
     started, updates, exposures = time.monotonic(), 0, 0
     stop = False
 
+    def checkpoint(step, directory, stopping):
+        directory.mkdir(parents=True, exist_ok=True)
+        torch.save({"model": model.state_dict(), "optimizer": optimizer.state_dict(), "spec": spec,
+            "representation": representation, "feature_schema": schema, "resolved_model": resolved,
+            "loss_policy": model.loss_policy, "loss_normalizers": model.loss_normalizers,
+            "initial_state_sha256": initial_digest,
+            "seed": seed, "steps": step, "data_rng": data_rng.get_state(),
+            "rng_cpu": torch.get_rng_state(), "rng_cuda": torch.cuda.get_rng_state_all() if device.startswith("cuda") else [],
+            "quantization_enabled": False, "automatic_resume": False, "stopping": stopping}, directory / "autoencoder.pt")
+
     def evaluate(step):
-        capture = {} if monitor is not None else None
+        capture = {} if monitor is not None or step in snapshot_steps else None
         row = {"step": step, **evaluate_autoencoder(model, arrays, device, spec["batch_size"], capture=capture)}
         plateau = False
-        if monitor is not None:
+        if capture is not None:
             from rhpr.gr.ae_warmup import latent_spectrum
-            spectrum = latent_spectrum(np.concatenate(capture["latent"]), spec["codebook_size"], spec["num_hierarchies"])
-            plateau = monitor.observe(step, spectrum)
+            latents = np.concatenate(capture["latent"])
+            spectrum = latent_spectrum(latents, spec["codebook_size"], spec["num_hierarchies"])
             row["latent_spectrum"] = spectrum
+        if monitor is not None:
+            plateau = monitor.observe(step, spectrum)
             row["spectral_plateau"] = plateau
             _write(output / "warmup-spectra.json", monitor.rows)
+        if step in snapshot_steps:
+            directory = output / "checkpoints" / f"step-{step:05d}"
+            checkpoint(step, directory, {"reason": "fixed_probe", "actual_steps": step})
+            np.save(directory / "latent-embeddings.npy", latents, allow_pickle=False)
+            _write(directory / "autoencoder.json", {"kind": "continuous_field_autoencoder",
+                "quantization_enabled": False, "seed": seed, "steps": step,
+                "latent_dim": model.encoder.output_dim, "initial_state_sha256": initial_digest,
+                "checkpoint_sha256": file_sha256(directory / "autoencoder.pt"),
+                "loss_policy": model.loss_policy, "loss_normalizers": model.loss_normalizers,
+                **row})
         evaluations.append(row)
         _write(output / "reconstruction-learning-curves.json", evaluations)
         _event("continuous_autoencoder_evaluation", **row)
@@ -249,7 +278,8 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
                 balancer.backward_weights(normalized, shared_weight, list(counts.values()))
             loss.backward()
             norms = {}
-            if (updates + 1) % spec["diagnostics_interval_steps"] == 0 or updates + 1 == spec["max_steps"]:
+            if ((updates + 1) % spec["diagnostics_interval_steps"] == 0
+                    or updates + 1 == spec["max_steps"] or updates + 1 in snapshot_steps):
                 for name in ("feature_encoder", "encoder", "decoder", "field_heads", "uncertainty"):
                     values = [p.grad.detach().square().sum() for p in getattr(model, name).parameters() if p.grad is not None]
                     norms[name] = float(torch.stack(values).sum().sqrt()) if values else 0.0
@@ -261,7 +291,8 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
                 if batch_index + 1 == len(loader):
                     balancer.finish_pass()
             updates += 1;exposures += len(indices)
-            if updates % spec["diagnostics_interval_steps"] == 0 or updates == spec["max_steps"]:
+            if (updates % spec["diagnostics_interval_steps"] == 0
+                    or updates == spec["max_steps"] or updates in snapshot_steps):
                 row = {"step": updates, "total_loss": float(loss.detach()),
                     "raw_field_losses": {name: float(value.detach()) for name, value in losses.items()},
                     "field_observed_counts": counts, "scope": "last_training_batch", "gradient_norms": norms,
@@ -277,13 +308,7 @@ def fit_field_autoencoder(texts, representation, spec, seed, device, source_root
     stopping = {"reason": "spectral_plateau" if stop else "max_steps", "actual_steps": updates,
         "max_steps": spec["max_steps"], "criterion": spec.get("warmup_stopping"),
         "paper": "https://arxiv.org/html/2605.06870", "residual_rate_adaptation": monitor is not None}
-    torch.save({"model": model.state_dict(), "optimizer": optimizer.state_dict(), "spec": spec,
-        "representation": representation, "feature_schema": schema, "resolved_model": resolved,
-        "loss_policy": model.loss_policy, "loss_normalizers": model.loss_normalizers,
-        "initial_state_sha256": initial_digest,
-        "seed": seed, "steps": updates, "data_rng": data_rng.get_state(),
-        "rng_cpu": torch.get_rng_state(), "rng_cuda": torch.cuda.get_rng_state_all() if device.startswith("cuda") else [],
-        "quantization_enabled": False, "automatic_resume": False, "stopping": stopping}, output / "autoencoder.pt")
+    checkpoint(updates, output, stopping)
     capture = {}
     final = evaluate_autoencoder(model, arrays, device, spec["batch_size"], capture=capture)
     np.save(output / "item-embeddings.npy", np.concatenate(capture["features"]), allow_pickle=False)
