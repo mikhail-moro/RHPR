@@ -99,7 +99,7 @@ def probe_field_codebooks(model, arrays, device, batch_size, output, step):
                 for layer, values in zip(model.quantization_layer_list, stats["levels"]))
             stats["codebook_loss_eval"] = sum(values["residual_mse_after"] for values in stats["levels"])
             stats["commitment_loss_eval"] = stats["native_beta_loss_eval"] - stats["codebook_loss_eval"]
-            stats["field_weights"] = dict(zip(model.field_names, model.uncertainty.weights().detach().cpu().tolist()))
+            stats["field_weights"] = dict(zip(model.field_names, model.task_weights().detach().cpu().tolist()))
             stats["field_log_variances"] = model.uncertainty.loss_scale.detach().cpu().tolist()
             stats["probe_seconds"] = time.monotonic() - before
             output = Path(output)
@@ -151,6 +151,14 @@ def fit_field_rqvae(texts, representation, spec, seed, device, source_root, reci
     input_dim = len(FIELD_NAMES) * field_dim + schema.get("title_dim", 0)
     model, resolved = build_rqvae(source_root, recipe_path, input_dim,
         spec, feature_schema=schema, field_dim=field_dim)
+    from rhpr.gr.field_autoencoder import configure_objective
+    from rhpr.gr.sid_study import state_digest
+    common_prefixes = ("feature_encoder.", "normalization_layer.", "encoder.", "decoder.", "field_heads.", "uncertainty.")
+    initial_digest = state_digest({k: v for k, v in model.state_dict().items() if k.startswith(common_prefixes)})
+    initial_full_digest = state_digest(model.state_dict())
+    if spec.get("expected_initial_state_sha256", initial_digest) != initial_digest:
+        raise ValueError("initial neural weights differ from the registered AE control")
+    configure_objective(model, arrays, spec.get("loss_policy"))
     from src.data.loading.components.interfaces import ItemData
 
     def collate(indices):
@@ -205,7 +213,7 @@ def fit_field_rqvae(texts, representation, spec, seed, device, source_root, reci
                     suffix_representable=stats["suffix_representable"], quantization_mse=stats["quantization_mse"])
             if step > 0 and step != self.last_logged_step and (step % 500 == 0 or step == spec["max_steps"]):
                 self.last_logged_step = step
-                weights = module.uncertainty.weights().detach().cpu().tolist()
+                weights = module.task_weights().detach().cpu().tolist()
                 components = {key: float(value) for key, value in module.last_loss_components.items()}
                 row = {"step": step, "total_loss": self.last_loss,
                     "loss_components": components,
@@ -213,6 +221,9 @@ def fit_field_rqvae(texts, representation, spec, seed, device, source_root, reci
                     "raw_field_losses": module.last_field_losses,
                     "field_observed_counts": module.last_field_counts,
                     "field_weights": dict(zip(names, weights))}
+                if hasattr(module, "task_balancer"):
+                    row["balancing_diagnostics"] = {"complete_catalogue_passes": int(module.task_balancer.passes),
+                        "multipliers": module.task_balancer.multipliers().detach().cpu().tolist(), **module.task_balancer.diagnostics}
                 self.curves.append(row)
                 _write(output / "field-learning-curves.json", self.curves)
                 _event("field_rqvae_progress", **row)
@@ -234,6 +245,10 @@ def fit_field_rqvae(texts, representation, spec, seed, device, source_root, reci
     torch.save({"model": model.state_dict(), "optimizer": trainer.optimizers[0].state_dict(),
         "spec": spec, "representation": representation, "feature_schema": schema,
         "resolved_model": resolved, "initialized": flags, "seed": seed,
+        "loss_policy": model.loss_policy, "loss_normalizers": model.loss_normalizers,
+        "initial_state_sha256": initial_digest, "initial_full_state_sha256": initial_full_digest,
+        "reconstruction_updates": model.reconstruction_updates,
+        "initialization_only_batches": model.initialization_batches,
         "steps": trainer.global_step, "rng_cpu": torch.get_rng_state(),
         "rng_cuda": torch.cuda.get_rng_state_all() if device.startswith("cuda") else [],
         "source_recipe_sha256": file_sha256(Path(recipe_path)), "automatic_resume": False},
@@ -249,13 +264,18 @@ def fit_field_rqvae(texts, representation, spec, seed, device, source_root, reci
         reconstruction["title"]["catalogue_mean_predictor_mse"] = float(np.square(targets - targets.mean(0)).mean())
     np.save(output / "semantic-codes.npy", codes, allow_pickle=False)
     np.save(output / "item-embeddings.npy", embeddings, allow_pickle=False)
-    weights = model.uncertainty.weights().detach().cpu().tolist()
+    weights = model.task_weights().detach().cpu().tolist()
     report = {"kind": "grid_field_rqvae", "seed": seed, "config": spec,
         "resolved_model": resolved, "precision": "fp32", "steps": trainer.global_step,
         "parameters": sum(p.numel() for p in model.parameters()),
         "input_dim": input_dim, "latent_dim": model.encoder.output_dim,
         "item_exposures": progress.examples, "final_training_loss": progress.last_loss,
         "field_reconstruction": reconstruction, "field_weights": dict(zip(names, weights)),
+        "loss_policy": model.loss_policy, "loss_normalizers": model.loss_normalizers,
+        "initial_state_sha256": initial_digest, "initial_full_state_sha256": initial_full_digest,
+        "reconstruction_updates": model.reconstruction_updates,
+        "initialization_only_batches": model.initialization_batches,
+        "optimizer_param_groups": [{"name": g.get("name", "all"), "lr": g["lr"]} for g in trainer.optimizers[0].param_groups],
         "field_log_variances": model.uncertainty.loss_scale.detach().cpu().tolist(),
         "semantic_code_statistics": semantic_summary, "diagnostic_seconds": progress.probe_seconds,
         "final_batch_loss_components": {key: float(value) for key, value in model.last_loss_components.items()},
@@ -264,7 +284,7 @@ def fit_field_rqvae(texts, representation, spec, seed, device, source_root, reci
         "checkpoint_sha256": file_sha256(output / "quantizer.pt"),
         "feature_schema_sha256": file_sha256(output / "feature-schema.json"),
         "source_recipe_sha256": file_sha256(Path(recipe_path)),
-        "objective": "sum_l codebook+beta0.25 commitment; sum_f L_f/(2*exp(s_f))+s_f/2 on observed fields",
+        "objective": "sum_l codebook+beta0.25 commitment; " + model.loss_policy["mode"] + " field reconstruction",
         "normalization": "catalogue price z-score then learned per-field projections; native GRID BatchNorm+L2 before MLP",
         "joint_training_scope": "feature encoder and RQ-VAE by field reconstruction; no NIP gradients"}
     _write(output / "quantizer.json", report)

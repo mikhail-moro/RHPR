@@ -8,6 +8,16 @@
 - The active direction is comparing item encoders for SID-based generative
   recommendation. Read `docs/gr-research-brief.md`, `docs/gr-baseline.md`, and
   `docs/research/item-encoders/README.md`.
+- Latest user authorization,2026-10-26:restore native RQ-VAE with the completed
+  fixed-normalized and GradNorm objectives,one private two-T4 session,two
+  independent5000-update quantizer-only trials. Use
+  `experiments/amazon_beauty_field_rq_balancing_2t4.json`;see
+  `docs/gr-field-rq-balancing.md`. Keep3x256/latent64/native initializer/STE,
+  summed codebook+beta0.25commitment at weight1,and neural Adagrad0.001/FP32.
+  GradNorm balances only four field losses,not the quantization auxiliary.
+  Reuse byte-pinned frozen titles and completed AE controls;verify the same
+  initial neural hash before training. Record actual initialization batches
+  separately from main reconstruction updates. No generator or suffix repair.
 - Latest follow-up:the user requested alternatives to UW and asked about
   available compute. Run one private two-T4 continuous-AE suite using
   `experiments/amazon_beauty_field_ae_nonuw_2t4.json`:equal raw sum,square-root

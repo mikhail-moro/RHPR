@@ -12,17 +12,8 @@ from rhpr.gr.fields import prepare_fields, tensor_fields
 from rhpr.gr.rqvae import build_rqvae
 
 
-class ContinuousFieldAutoencoder(nn.Module):
-    def __init__(self, native):
-        super().__init__()
-        # Construct the full native model first: common parameters retain the
-        # RQ arm's initialization/RNG ordering. Unused books are then discarded.
-        for name in ("feature_encoder", "normalization_layer", "encoder", "decoder", "field_heads", "uncertainty"):
-            setattr(self, name, getattr(native, name))
-        self.field_names = native.field_names
-        self.loss_policy = {"mode": "uncertainty"}
-        self.loss_normalizers = {name: 1.0 for name in self.field_names}
-
+class FieldReconstructionObjective:
+    """Shared scalar objective; independent of the continuous/quantized path."""
     def task_weights(self):
         mode = self.loss_policy["mode"]
         if mode == "uncertainty":
@@ -34,11 +25,6 @@ class ContinuousFieldAutoencoder(nn.Module):
             weights = weights * self.task_balancer.multipliers().detach()
         return weights
 
-    def forward(self, fields):
-        features = self.feature_encoder(fields)
-        latent = self.encoder(self.normalization_layer(features))
-        return features, latent, self.field_heads(self.decoder(latent))
-
     def objective(self, predictions, fields):
         losses, counts = self.field_heads.losses(predictions, fields)
         active = torch.tensor([counts[name] > 0 for name in self.field_names], device=fields["brand"].device)
@@ -48,6 +34,22 @@ class ContinuousFieldAutoencoder(nn.Module):
         else:
             total = (values * self.task_weights() * active).sum()
         return total, losses, counts
+
+
+class ContinuousFieldAutoencoder(FieldReconstructionObjective, nn.Module):
+    def __init__(self, native):
+        super().__init__()
+        # Construct native RQ first to preserve common initialization/RNG order.
+        for name in ("feature_encoder", "normalization_layer", "encoder", "decoder", "field_heads", "uncertainty"):
+            setattr(self, name, getattr(native, name))
+        self.field_names = native.field_names
+        self.loss_policy = {"mode": "uncertainty"}
+        self.loss_normalizers = {name: 1.0 for name in self.field_names}
+
+    def forward(self, fields):
+        features = self.feature_encoder(fields)
+        latent = self.encoder(self.normalization_layer(features))
+        return features, latent, self.field_heads(self.decoder(latent))
 
 
 def configure_objective(model, arrays, policy):

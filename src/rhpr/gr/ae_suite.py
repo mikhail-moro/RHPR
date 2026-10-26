@@ -1,4 +1,4 @@
-"""Independent AE hypothesis workers; one isolated process per GPU."""
+"""Independent field AE/RQ hypothesis workers; one isolated process per GPU."""
 import argparse
 import gc
 import json
@@ -58,8 +58,14 @@ def run_worker(plan_path, slot):
         _event("ae_suite_trial_start", trial=name, worker=slot, loss_policy=trial["loss_policy"])
         directory = root / "trials" / name;directory.mkdir(parents=True, exist_ok=True)
         spec = {**config["quantizer"], "loss_policy": trial["loss_policy"]}
+        if config.get("expected_initial_state_sha256"):
+            spec["expected_initial_state_sha256"] = config["expected_initial_state_sha256"]
         try:
-            _, report, _ = fit_field_autoencoder(texts, config["representation"], spec,
+            fit = fit_field_autoencoder
+            if spec["kind"] == "grid_field_rqvae":
+                from rhpr.gr.field_rqvae import fit_field_rqvae
+                fit = fit_field_rqvae
+            _, report, _ = fit(texts, config["representation"], spec,
                 config["seed"], device, plan["source"], plan["recipe"], directory,
                 title_embeddings=titles, title_observed=observed)
             status["results"][name] = report
@@ -112,6 +118,8 @@ def launch_workers(plan_path):
             if p.returncode != 0:failures.append({"worker": a["slot"], "exit_code": p.returncode})
         hashes = {r["initial_state_sha256"] for r in results.values()}
         if len(hashes) > 1:failures.append({"message": "initial neural weights differ between trials"})
+        full_hashes = {r["initial_full_state_sha256"] for r in results.values() if "initial_full_state_sha256" in r}
+        if len(full_hashes) > 1:failures.append({"message": "initial full RQ states differ between trials"})
         summary = {"results": results, "failures": failures, "parallel_workers": len(processes)}
         atomic_json(output / "suite-results.json", summary)
         if failures or len(results) != len(config["trials"]):
@@ -127,6 +135,7 @@ def launch_workers(plan_path):
 
 
 def run_autoencoder_suite(config, output):
+    """Shared field suite entry point; historical name also supports RQ."""
     import numpy as np
     import torch
     from rhpr.gr.data import load_beauty
@@ -154,14 +163,30 @@ def run_autoencoder_suite(config, output):
         "source": str(source), "recipe": str(original / "configs/experiment/rqvae_train_flat.yaml"),
         "parent_fields": str(parent / "catalogue-fields.npz")}
     plan_path = output / "workers/plan.json";atomic_json(plan_path, plan)
+    if config.get("ae_controls"):
+        _write(output / "ae-controls.json", config["ae_controls"])
     _event("ae_suite_start", assignments=plan_assignments)
     summary = launch_workers(plan_path)
+    quantized = config["quantizer"]["kind"] == "grid_field_rqvae"
+    expected_initial = config.get("expected_initial_state_sha256")
+    if expected_initial and any(r["initial_state_sha256"] != expected_initial for r in summary["results"].values()):
+        raise ValueError("initial neural weights differ from the completed AE controls")
     metrics = {"trials": len(summary["results"]), "parallel_workers": 2, "elapsed_seconds": time.monotonic()-started,
-        "quantization_enabled": False, "generator_trained": False, "test_evaluations": 0}
+        "catalogue_items": len(texts),
+        "quantization_enabled": quantized, "generator_trained": False, "test_evaluations": 0}
     for name,r in summary["results"].items():
         metrics[name + "_steps"] = r["steps"]
         for field, values in r["field_reconstruction"].items():
             metrics[name + "_" + field + "_loss"] = values["loss"]
+        if quantized:
+            metrics[name + "_fit_seconds"] = r["fit_seconds"]
+            metrics[name + "_reconstruction_updates"] = r["reconstruction_updates"]
+            metrics[name + "_initialization_only_batches"] = r["initialization_only_batches"]
+            for key in ("semantic_unique_ids", "max_collision_group", "suffix_representable"):
+                metrics[name + "_" + key] = r["semantic_code_statistics"][key]
+            metrics[name + "_collided_items"] = r["semantic_code_statistics"]["prefixes"][-1]["collided_items"]
+            for level, used in enumerate(r["used_codes_per_level"], 1):
+                metrics[name + "_used_codes_level_" + str(level)] = used
     return metrics
 
 
