@@ -2,6 +2,18 @@
 
 ## Research status
 
+- Latest request,2026-10-27:inspect user-level validation differences and explain
+  graph proposal selection/alternative signals. Training saved val aggregates
+  only. Prepare one short inference-only replay on the four frozen epoch20
+  checkpoints;see `docs/gr-sid-validation-replay.md` and
+  `experiments/amazon_beauty_sid_validation_replay_2t4.json`. CPUfull replay
+  costs about3hours;two-T4 replay expected5–8minutes. No optimizer/training,
+  model selection or test pass. Pin every checkpoint/SID/report;FP32batch32,
+  beam20,preserve complete paths and record any aggregate numerical drift.
+  Save per-user val predictions/ranks/metrics for all22363users. No other
+  training,CF-method experiments,retries or Telegram. Current graph is sparse:
+  88.3%top20edges have one shared TRAIN user;this is a hypothesis,not a cause.
+
 - Latest authorization,2026-10-27:run TIGER20epochs on the completed graph
   candidates atlambda0.3,k20,20kproposals. Use
   `experiments/amazon_beauty_sid_graph_tiger_2t4.json` and
