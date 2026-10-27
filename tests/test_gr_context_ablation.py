@@ -44,6 +44,20 @@ class ContextTests(unittest.TestCase):
             for k in ['checkpoint','sids','selection','reference_predictions']:
                 self.assertEqual(len(t[k]['sha256']),64)
 
+    def test_robustness_has_ten_retained_models_and_explicit_population_policy(self):
+        c=json.loads((ROOT/'experiments/amazon_beauty_sid_context_robustness_2t4.json').read_text())
+        self.assertEqual(c['training'],{'device':'cuda'})
+        self.assertEqual(len(c['trials']),10)
+        epochs=[t.get('checkpoint_epoch',c['validation']['checkpoint_epoch']) for t in c['trials']]
+        self.assertEqual(epochs.count(20),4);self.assertEqual(epochs.count(10),6)
+        cohort=c['context_ablation']['cohorts'][0]
+        self.assertEqual(cohort,dict(id='all_users',minimum_history=3,lengths=[3,5,9,20],allow_short_histories=True,primary=True))
+        self.assertEqual(len(c['comparisons']),6)
+        for pair in c['comparisons']:
+            if pair['epoch']==10:
+                self.assertTrue(pair['baseline'].endswith('_random'))
+                self.assertEqual(pair['control_kind'],'random_reassignment_not_original')
+
 
 @unittest.skipUnless(READY,'Requires pinned GRID and native dependencies')
 class NativeTests(unittest.TestCase):
@@ -76,13 +90,18 @@ torch.save(dict(model=model.state_dict(),epoch=60,updates=0,config=old),parent/'
 np.savez_compressed(parent/'reference.npz',semantic_ids=ids,scores=scores,user_ids=examples[1],target_item_ids=examples[2])
 def pin(name):
  p=parent/name;return dict(path=name,sha256=file_sha256(p),size_bytes=p.stat().st_size)
-c=dict(seed=42,name='fixture',data=spec,generator=gen,expected_training=train_spec,training=dict(device='cpu'),
- validation=dict(batch_size=32,precision='fp32',checkpoint_epoch=60),
- context_ablation=dict(lengths=[3,5,6],cohorts=[dict(id='history6plus',minimum_history=6,lengths=[3,5,6],primary=True),dict(id='history5plus',minimum_history=5,lengths=[3,5],primary=False)]),
+reference_pin=pin('reference.npz');reference_parent=root/'reference_parent';reference_parent.mkdir()
+(parent/'reference.npz').rename(reference_parent/'reference.npz')
+(reference_parent/'run-manifest.json').write_text(json.dumps(dict(git_sha='reference',config=old)))
+refmanifest=reference_parent/'run-manifest.json'
+c=dict(seed=42,name='fixture',data=spec,generator=gen,expected_training=dict(global_budget_must_not_be_used=True),training=dict(device='cpu'),
+ validation=dict(batch_size=32,precision='fp32',checkpoint_epoch=20),
+ context_ablation=dict(lengths=[3,5,6],cohorts=[dict(id='history6plus',minimum_history=6,lengths=[3,5,6],primary=True),dict(id='history5plus',minimum_history=5,lengths=[3,5],primary=False),dict(id='all_users',minimum_history=3,lengths=[3,5,6],allow_short_histories=True,primary=False)]),
  resources=dict(path=str(resources),manifest_sha256='fixture',scratch_path=str(root/'scratch')),
- parents={'p':dict(kernel='owner/fixture',path=str(parent),source_code_sha='parent',files={'run-manifest.json':{k:v for k,v in pin('run-manifest.json').items() if k!='path'}})},
+ parents={'p':dict(kernel='owner/fixture',path=str(parent),source_code_sha='parent',files={'run-manifest.json':{k:v for k,v in pin('run-manifest.json').items() if k!='path'}}),
+          'reference':dict(kernel='owner/reference',path=str(reference_parent),source_code_sha='reference',files={'run-manifest.json':dict(sha256=file_sha256(refmanifest),size_bytes=refmanifest.stat().st_size)})},
  execution=dict(worker_devices=['cpu','cpu'],cpu_threads_per_worker=1),
- trials=[dict(id=f'model{i}',parent='p',checkpoint=pin('best.pt'),sids=pin('sids.npy'),selection=pin('selection.json'),reference_predictions=pin('reference.npz')) for i in range(2)])
+ trials=[dict(id=f'model{i}',parent='p',checkpoint_epoch=60,expected_training=train_spec,checkpoint=pin('best.pt'),sids=pin('sids.npy'),selection=pin('selection.json'),reference_predictions=reference_pin,reference_predictions_parent='reference') for i in range(2)])
 out=root/'out';out.mkdir()
 with patch('rhpr.gr.resources.verify_resources',return_value={}),patch('rhpr.gr.resources.unpack_grid',return_value=Path(sys.argv[1])),patch('rhpr.gr.experiment._train_generator',side_effect=AssertionError('training called')):
  metrics=validate_metrics(run_validation_replay(c,out))
@@ -90,10 +109,12 @@ assert metrics['models']==2 and metrics['optimizer_steps']==metrics['test_evalua
 assert metrics['validation_evaluations']==6
 for t in c['trials']:
  d=out/'trials'/t['id'];r=json.loads((d/'result.json').read_text())
- assert r['model_unchanged'] and r['validation_evaluations']==3 and r['parent_full_context_predictions_exact']
+ assert r['model_unchanged'] and r['epoch']==60 and r['validation_evaluations']==3 and r['parent_full_context_predictions_exact']
  assert [v['unchanged_input_users'] for v in r['unchanged_input_controls']]==[3,1,2]
  assert all(v['changed_predictions_with_unchanged_input']==0 for v in r['unchanged_input_controls'])
- assert [(v['id'],v['users']) for v in r['context_cohorts']]==[('history6plus',1),('history5plus',2)]
+ assert [(v['id'],v['users']) for v in r['context_cohorts']]==[('history6plus',1),('history5plus',2),('all_users',3)]
+ assert r['context_cohorts'][-1]['allow_short_histories']
+ assert r['context_cohorts'][-1]['mean_effective_history_by_length']['6']==14/3
  with np.load(d/'context-user-metrics.npz') as f:
   np.testing.assert_array_equal(f['user_ids'],[0,1,2]);np.testing.assert_array_equal(f['context_lengths'],[3,5,6])
   assert f['rank'].shape==(3,3)

@@ -27,12 +27,13 @@ def replay_trial(trial, config, resources, parents, source, output, device):
         if parent_manifest['config'][key]!=config[key]:
             raise ValueError('parent validation protocol mismatch: '+key)
     checkpoint=torch.load(paths['checkpoint'],map_location='cpu',weights_only=False)
-    if checkpoint['epoch']!=config['validation']['checkpoint_epoch']:
+    checkpoint_epoch=trial.get('checkpoint_epoch',config['validation']['checkpoint_epoch'])
+    if type(checkpoint_epoch) is not int or checkpoint_epoch < 1 or checkpoint['epoch']!=checkpoint_epoch:
         raise ValueError('selected checkpoint epoch mismatch')
     for key in ['data','generator','seed']:
         if checkpoint['config'][key]!=config[key]:
             raise ValueError('checkpoint protocol mismatch: '+key)
-    if checkpoint['config']['training']!=config['expected_training']:
+    if checkpoint['config']['training']!=trial.get('expected_training',config['expected_training']):
         raise ValueError('checkpoint training budget differs')
     sids=np.load(paths['sids'],allow_pickle=False);index=SidIndex.from_full_sids(sids,config['generator']['codebook_size'])
     model=build_grid_generator(sids,config['generator'],config['seed'],device,source)
@@ -42,7 +43,8 @@ def replay_trial(trial, config, resources, parents, source, output, device):
     examples=build_examples(users,config['data']['history_items'],'validation')
     if config.get('context_ablation'):
         from rhpr.gr.context_ablation import evaluate_context_ablation
-        paths['reference_predictions']=verify_file(parent,trial['reference_predictions'])
+        reference_parent=Path(parents[trial.get('reference_predictions_parent',trial['parent'])])
+        paths['reference_predictions']=verify_file(reference_parent,trial['reference_predictions'])
         return evaluate_context_ablation(model,index,examples,users,trial,config,paths,before,output,device)
     score,predictions,probabilities=_evaluate(model,examples,index,config['validation']['batch_size'],device,
                                             precision=config['validation']['precision'])
@@ -61,7 +63,7 @@ def replay_trial(trial, config, resources, parents, source, output, device):
     np.savez_compressed(directory/'validation-user-metrics.npz',user_ids=examples[1],target_item_ids=examples[2],
                         rank=rank,**per_user)
     reference=json.loads(paths['selection'].read_text())['selected_validation']
-    result=dict(trial=trial['id'],seed=config['seed'],epoch=config['validation']['checkpoint_epoch'],
+    result=dict(trial=trial['id'],seed=config['seed'],epoch=checkpoint_epoch,
         validation=score,original_validation=reference,
         replay_delta={k:score[k]-reference[k] for k in per_user},
         checkpoint_sha256=file_sha256(paths['checkpoint']),sids_sha256=file_sha256(paths['sids']),

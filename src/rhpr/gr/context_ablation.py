@@ -39,13 +39,16 @@ def evaluate_context_ablation(model, index, examples, users, trial, config, path
             np.asarray([u.user_id for u in users]), examples[1])):
         raise ValueError('history metadata and validation user order differ')
     for cohort in spec['cohorts']:
+        capped=cohort.get('allow_short_histories',False)
         if (type(cohort['minimum_history']) is not int or cohort['minimum_history'] < 1
+                or type(capped) is not bool
                 or not cohort['lengths'] or len(set(cohort['lengths'])) != len(cohort['lengths'])
-                or any(n not in lengths or n > cohort['minimum_history'] for n in cohort['lengths'])):
+                or any(n not in lengths or (not capped and n > cohort['minimum_history']) for n in cohort['lengths'])):
             raise ValueError('every cohort must contain the same users with enough history for all its lengths')
     directory = Path(output)/'trials'/trial['id']; directory.mkdir(parents=True, exist_ok=True)
     selection = json.loads(paths['selection'].read_text())
-    if selection['selected_epoch'] != config['validation']['checkpoint_epoch']:
+    checkpoint_epoch=trial.get('checkpoint_epoch',config['validation']['checkpoint_epoch'])
+    if selection['selected_epoch'] != checkpoint_epoch:
         raise ValueError('reference selection epoch differs from frozen checkpoint')
     reference = selection['selected_validation']
     history_lengths = np.asarray([len(u.train) for u in users])
@@ -87,6 +90,9 @@ def evaluate_context_ablation(model, index, examples, users, trial, config, path
             raise ValueError('declared fixed context cohort is empty')
         cohorts.append(dict(id=cohort['id'],minimum_history=cohort['minimum_history'],
             primary=cohort.get('primary',False),users=int(mask.sum()),
+            allow_short_histories=cohort.get('allow_short_histories',False),
+            mean_effective_history_by_length={str(n):float(np.minimum(history_lengths[mask],n).mean())
+                                              for n in cohort['lengths']},
             user_ids_sha256=hashlib.sha256(examples[1][mask].tobytes()).hexdigest(),
             metrics_by_length={str(length):{key:float(value[mask].mean())
                 for key,value in all_values[length].items()} for length in cohort['lengths']}))
@@ -95,7 +101,7 @@ def evaluate_context_ablation(model, index, examples, users, trial, config, path
     for key in all_values[width]:
         arrays[key] = np.stack([all_values[n][key] for n in lengths],axis=1)
     np.savez_compressed(directory/'context-user-metrics.npz',**arrays)
-    result = dict(trial=trial['id'],seed=config['seed'],epoch=config['validation']['checkpoint_epoch'],
+    result = dict(trial=trial['id'],seed=config['seed'],epoch=checkpoint_epoch,
         validation=anchor_score,original_validation=reference,
         replay_delta={key:anchor_score[key]-reference[key] for key in all_values[width]},
         checkpoint_sha256=file_sha256(paths['checkpoint']),sids_sha256=file_sha256(paths['sids']),

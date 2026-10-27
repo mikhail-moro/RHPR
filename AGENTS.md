@@ -2,6 +2,20 @@
 
 ## Research status
 
+- Latest authorization,2026-10-27:context robustness on all10retained models,
+  user explicitly chose full15–20min inference scope. See
+  `docs/gr-sid-context-robustness.md` and
+  `experiments/amazon_beauty_sid_context_robustness_2t4.json`. Four epoch20
+  original/cooc-swap models acrossRQKMeans/RQVAE; six epoch10ALSuniform/
+  priority/random models. Original10checkpoints do not survive; compare10ALS
+  againstsame-family random,not later originals. Full22363-user cap policies
+  min(K,h) plus fixed>=20/9/5cohorts,all3/5/9/20passes with samebatchlayout.
+  Parent/code/checkpoint/SID/selection/reference hashes and pertrialepoch/budget
+  guards. Exactlyone2T4session,40validationpasses,zero fitting/optimizer/test.
+  Reuse60data locally:all-user interaction3to20+0.0016153CI[0.000389,0.002875].
+  Do not pool different controls or call shared-seed cases independent repeats.
+  No extra training,uploads,candidates,seeds,retries or Telegram.
+
 - Completed context ablation,2026-10-27:no pending GPUjobs. Source32b7ce00,
   kernel`carasik/rhpr-context-length-replay`. See
   `docs/gr-sid-context-ablation-results.md` and local artifacts
