@@ -2,6 +2,20 @@
 
 ## Research status
 
+- Submitted identical-index seed oracle once,2026-10-28:private Kaggle
+  `carasik/rhpr-sid-seed-oracle`version1RUNNING. GitHubActions40589179704
+  succeededsubmit-only,Telegramskipped. Executable178883fe87351ee81ea70830688782129370584d.
+  ActualnotebooksourceASTverifiedexactconfig+all177embeddedcommittedGitblob
+  hashes,package321c269addc30abe861ca4b3a8197e0e2031872d9d928b5c33279b961b80b4b0.
+  SameoriginalSIDfileb196711dceedce81a991d995aa5c86ccd35288d5cdfe3f7aedb174de86470dae.
+  Seeds42/43neuralonly,shareddata/order42. Each4977920params20epochs,val5/10/15/20,
+  2T4offline/twoexistingprivatedatasets/no test. Oraclecomputedfromsavedbeams
+  atcompletion,not a learnedrouter. Standard893testsOK(76skips),3targetedOK
+  includingrealparent+isolatedCPUworkers+checkpointedfits+oracle,mispairguards.
+  Receipts`/workspace/artifacts/sid-seed-oracle/{submission,preflight,source-audit}.json`.
+  Quota10.73GPUhoursbeforelaunch. No resultyet;do notresubmit/retry/extend or
+  continuouslypoll. Waitforusercompletion/statusrequest. PausedTPUfilesuntouched.
+
 - Latest authorization,2026-10-28:identical originalRQKMeans index,two fresh
   TIGERgenerator seeds42/43,20epochs,val5/10/15/20,on2T4. See
   `docs/gr-sid-seed-oracle.md` and `amazon_beauty_sid_seed_oracle_2t4.json`.

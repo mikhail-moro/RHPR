@@ -36,3 +36,18 @@ the fresh seed42control despite byte-identical initial weights/data/order.
 
 Expected execution about30–40minutes plus queue,one fit per T4. Exactly one
 kernel`carasik/rhpr-sid-seed-oracle`;two existing private datasets,offline runtime.
+
+## Submission
+
+Submitted once via [GitHub Actions40589179704](https://github.com/mikhail-moro/RHPR/actions/runs/40589179704),
+submit-only;no Telegram. Private [Kaggle notebook](https://www.kaggle.com/code/carasik/rhpr-sid-seed-oracle)
+version1reports RUNNING. Executablecommit`178883fe87351ee81ea70830688782129370584d`.
+Actualsource config and all177embedded Gitblob hashes independently match that
+commit;packageSHA256`321c269addc30abe861ca4b3a8197e0e2031872d9d928b5c33279b961b80b4b0`.
+OriginalSIDfileSHA256`b196711dceedce81a991d995aa5c86ccd35288d5cdfe3f7aedb174de86470dae`.
+
+Preflight verifies131413cases and original file identity;CPU neural hashes42/43
+are pinned in config. Standard suite893testsOK(76optional skips);targeted3OK,
+including actual parent orchestration,two isolated CPUworkers,tiny training fits,
+checkpointed budgets,independent oracle and mismatch rejection. No result yet.
+Receipts:`/workspace/artifacts/sid-seed-oracle/`. No retries or extra fits.
