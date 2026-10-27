@@ -2,6 +2,35 @@
 
 ## Research status
 
+- Context-ALS CPU implementation,2026-10-27:user requested typical preceding
+  history embeddings per target item and same SID swaps. No GPU launch. See
+  `docs/gr-sid-context-signal.md`,config`amazon_beauty_sid_context_prepare_cpu`.
+  Frozen ALS raw means within H,then equal context mean per target;TRAIN-only
+  same75/25users,primarywindow20/sensitivity5. Minimum2distinct context users,
+  reliability u/(u+10),positive cosine top20 BEFORE reliability edge weighting.
+  Weighted-cosine neighbor ranking audited separately:top100incoming mass41.46%
+  vs corrected11.91%,oldALS4.32%. Both final candidates256swaps,482/481changed.
+  Heldout TRAIN count-model gain original0.411252,oldALS0.413672,context20
+  0.447136/context5 0.444777bits;not NDCG or validated quality proxy.219items
+  no fitcontext,875only1user;34%short1–2contexts. Semantic distortion differs,
+  and confidence policy differs from old ALS:do not claim isolated CF effect.
+  Artifacts`/workspace/artifacts/sid-context-signal/cosine-neighbors` include
+  curves.png,allitem supports,primaryvectors/graph,candidatepaths/owners/moves,
+  provenance and support-controlled reliability.17tests pass,1native skipped.
+  ALS20control should join next substantive generator experiment,not separate
+  quota-consuming reconstruction. No new generator session authorized here.
+
+- ALS20clarification,2026-10-27:long-run epoch20 predictions exist for both
+  original and same frozenALSindex;weights best/last are60only. Normalval20
+  original0.03642522 vs ALS0.03637116(-0.15%),cooc20pair-3.88%,sameALSpair60
+  +2.25%. JointuserCI for ALS-vs-cooc effect at20 and ALS effect change20to60
+  both include0. Index budgets256ALSvs62cooc accepted swaps also differ.
+  Cannot redo truncated-context inference at ALS20from saved beams alone.
+  Cooccode is normalized binary-user cosine;knownproblem sparse edge support
+  88.3%with1common user,not proven missing normalization. Read-only audit:
+  `/workspace/artifacts/sid-context-robustness/als20-audit/README.md`. No newGPU
+  inference/training authorized or launched for this clarification.
+
 - Completed robustness,2026-10-27:original d4305b9c session completed10models/
   40passes,zero fitting/test,no replacement/cancellation. Firstlog34.65sec,
   runtime33.86sec,body1077.88sec,whole1117.78sec;externalwait/stdoutsilence

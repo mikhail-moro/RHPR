@@ -61,3 +61,23 @@ target, context cap, effective length, rank, NDCG and Recall. Full raw beams
 remain on the private Kaggle output; their independent hashes are retained locally.
 
 No additional experiment is pending or automatically authorized by these findings.
+
+## Clarification: ALS20 metrics do exist
+
+The same long original/ALS trajectories retained epoch20 validation predictions:
+original0.03642522, swapped0.03637116, effect−0.15%. At60the corresponding scores
+are0.03985706/0.04075540,+2.25%. These ordinary full-context metrics should be
+considered alongside the cooccurrence20effect−3.88%;the previous context-sweep
+summary omitted ALS20because its weights were overwritten, not because its
+validation outputs were absent. Joint user-bootstrap intervals for ALS-minus-cooc
+swap effects at20and the ALS effect change20to60both include0. Budgets also
+remain different (256vs62accepted swaps),so this is not a pure signal ablation.
+
+The checkpoint-retention limitation prevents a counterfactual3/5/9context sweep
+at ALS20without new training. For future duration studies, retain the specified
+intermediate weight snapshots as well as validation predictions.
+
+Cooccurrence was normalized cosine on binary TRAIN-user incidence, with global
+weight normalization in the LCP objective. The known concern is sparse evidence
+(88.3%of top20edges have only1common user),not a demonstrated normalization bug.
+Full audit:`/workspace/artifacts/sid-context-robustness/als20-audit/README.md`.
