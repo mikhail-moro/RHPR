@@ -7,6 +7,7 @@ a TIGER-style functional baseline, not a reproduction of a published score.
 from __future__ import annotations
 
 import importlib.metadata
+import hashlib
 from contextlib import nullcontext
 import json
 import os
@@ -219,9 +220,13 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                 or epoch % specification["validation_interval"] == 0
                 or epoch == specification["max_epochs"]):
             validation_started = time.monotonic()
-            last_validation, _, _ = _evaluate(model, validation, sid_index,
+            last_validation, validation_ids, validation_scores = _evaluate(model, validation, sid_index,
                                              specification["evaluation_batch_size"], device,
                                              precision=evaluation_precision)
+            if config.get("evaluation", {}).get("save_validation_predictions", False):
+                np.savez_compressed(output / f"validation-epoch-{epoch:03d}.npz",
+                    semantic_ids=validation_ids, scores=validation_scores,
+                    user_ids=validation[1], target_item_ids=validation[2])
             validation_seconds += time.monotonic() - validation_started
             row["validation"] = last_validation
             score = last_validation["ndcg@10"]
@@ -239,6 +244,8 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                     "scaler": scaler.state_dict(), "epoch": epoch, "updates": updates,
                     "torch_rng": torch.get_rng_state(),
                     "cuda_rng": torch.cuda.get_rng_state_all() if device.startswith("cuda") else [],
+                    "python_rng": random.getstate(), "numpy_rng": np.random.get_state(),
+                    "sid_matrix_sha256": hashlib.sha256(sid_index.sids.tobytes()).hexdigest(),
                     "config": config, "best_epoch": best_epoch, "best_metric": best_metric,
                     "stale_validation_checks": stale, "amp_skipped_updates": skipped_updates},
                    output / "generator-last.pt")

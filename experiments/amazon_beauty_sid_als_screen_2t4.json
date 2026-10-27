@@ -1,0 +1,266 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-sid-als-screen"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "per-user leave-last-two; all train prefix targets exactly once per epoch; test context includes observed validation target",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-sid-als-screen"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "name": "beauty-als-swap-screen-10epochs-validation-only",
+  "kind": "gr_frozen_sid_generator_suite",
+  "representation": {
+    "kind": "frozen_t5_als_graph_index",
+    "trainable": false
+  },
+  "quantizer": {
+    "kind": "frozen_full_sids",
+    "num_hierarchies": 3,
+    "codebook_size": 256
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "batch_size": 256,
+    "physical_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 10,
+    "min_epochs": 10,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 32,
+    "max_seconds": 3600,
+    "sampling": "all_train_prefixes",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 10
+  },
+  "evaluation": {
+    "test_after_selection": false,
+    "item_level": true,
+    "collision_resolution": "preserve byte-pinned complete SID paths including original suffix ownership",
+    "invalid_beams": "retain as miss at original rank",
+    "selection_metric": "validation item NDCG@10",
+    "save_validation_predictions": true,
+    "screening_metric": "validation item NDCG@10 at epoch10;best5/10selection recorded separately"
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "expected_initial_state_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff",
+  "expected_train_cases_sha256": "6f7ba06c70a6a218d4e620ac77ce41142baf762f7e62902c9fc9b6f7b45d847f",
+  "frozen_indices": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-sid-als-screen",
+    "manifest_sha256": "31cfb0e4c5dc80a8358dcd12fa99ea905b84d87af3207c92d1d0e004ef09128e"
+  },
+  "trials": [
+    {
+      "id": "t5_rqvae_uniform",
+      "asset_id": "t5_rqvae_uniform",
+      "family": "t5_rqvae",
+      "role": "swapped",
+      "semantic_lambda": 0.3,
+      "expected_variant": "als_uniform",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths"
+    },
+    {
+      "id": "t5_rqkmeans_uniform",
+      "asset_id": "t5_rqkmeans_uniform",
+      "family": "t5_rqkmeans",
+      "role": "swapped",
+      "semantic_lambda": 0.3,
+      "expected_variant": "als_uniform",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths"
+    },
+    {
+      "id": "t5_rqvae_priority",
+      "asset_id": "t5_rqvae_priority",
+      "family": "t5_rqvae",
+      "role": "swapped",
+      "semantic_lambda": 0.3,
+      "expected_variant": "als_priority",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths"
+    },
+    {
+      "id": "t5_rqkmeans_priority",
+      "asset_id": "t5_rqkmeans_priority",
+      "family": "t5_rqkmeans",
+      "role": "swapped",
+      "semantic_lambda": 0.3,
+      "expected_variant": "als_priority",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths"
+    },
+    {
+      "id": "t5_rqvae_random",
+      "asset_id": "t5_rqvae_random",
+      "family": "t5_rqvae",
+      "role": "random",
+      "semantic_lambda": 0.0,
+      "expected_variant": "random_changed_set",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths"
+    },
+    {
+      "id": "t5_rqkmeans_random",
+      "asset_id": "t5_rqkmeans_random",
+      "family": "t5_rqkmeans",
+      "role": "random",
+      "semantic_lambda": 0.0,
+      "expected_variant": "random_changed_set",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths"
+    }
+  ],
+  "controls": {
+    "kind": "reuse_epoch10_validation_only",
+    "runs": {
+      "rqvae_original": {
+        "epoch": 10,
+        "validation": {
+          "duplicate_prediction_fraction": 0.0,
+          "duplicate_predictions": 0,
+          "evaluation_examples": 22363,
+          "invalid_prediction_fraction": 8.9433439162903e-06,
+          "invalid_predictions": 4,
+          "ndcg@10": 0.027354881136027135,
+          "ndcg@5": 0.020246946886263367,
+          "prediction_count": 447260,
+          "recall@10": 0.053883647095649065,
+          "recall@5": 0.03188302106157492,
+          "seconds": 45.941373828999986
+        },
+        "training_curves_sha256": "04337561a899218c9c83818b2350cebfd359cb4ea104b763d0a017715da47f2f",
+        "source_code_sha": "6e37388a2dcd7f786bc49d47ac381459ef1de323"
+      },
+      "kmeans_original": {
+        "epoch": 10,
+        "validation": {
+          "duplicate_prediction_fraction": 0.0,
+          "duplicate_predictions": 0,
+          "evaluation_examples": 22363,
+          "invalid_prediction_fraction": 0.00039797880427491837,
+          "invalid_predictions": 178,
+          "ndcg@10": 0.030609296761094626,
+          "ndcg@5": 0.02305422690422033,
+          "prediction_count": 447260,
+          "recall@10": 0.060591155032866786,
+          "recall@5": 0.0369807270938604,
+          "seconds": 48.499916356000085
+        },
+        "training_curves_sha256": "6ee206422bf5a1ed86daa769b5e30b58d5274b0ba183d5b47a3b624d98e6feac",
+        "source_code_sha": "0c1c44cd4698ff3b8d1de4d12cc0b94e053543ce"
+      },
+      "rqvae_swapped": {
+        "epoch": 10,
+        "validation": {
+          "duplicate_prediction_fraction": 0.0,
+          "duplicate_predictions": 0,
+          "evaluation_examples": 22363,
+          "invalid_prediction_fraction": 9.166927514197559e-05,
+          "invalid_predictions": 41,
+          "ndcg@10": 0.026005744797076513,
+          "ndcg@5": 0.019499859383818367,
+          "prediction_count": 447260,
+          "recall@10": 0.051513660957832136,
+          "recall@5": 0.03130170370701605,
+          "seconds": 48.66161084999999
+        },
+        "training_curves_sha256": "6b18b54310a386c02ccfa696887c39d8550c8721bb4beb22b76d39bcf595c10d",
+        "source_code_sha": "0c1c44cd4698ff3b8d1de4d12cc0b94e053543ce"
+      },
+      "kmeans_swapped": {
+        "epoch": 10,
+        "validation": {
+          "duplicate_prediction_fraction": 0.0,
+          "duplicate_predictions": 0,
+          "evaluation_examples": 22363,
+          "invalid_prediction_fraction": 0.0005924965344542325,
+          "invalid_predictions": 265,
+          "ndcg@10": 0.030796848444951452,
+          "ndcg@5": 0.02243982615126604,
+          "prediction_count": 447260,
+          "recall@10": 0.06188793990072888,
+          "recall@5": 0.03595224254348701,
+          "seconds": 47.98513057700029
+        },
+        "training_curves_sha256": "df75d593529aa0f92ab4c0292e48263b7efd9c7e6a80b9e1d86628f0d455141f",
+        "source_code_sha": "0c1c44cd4698ff3b8d1de4d12cc0b94e053543ce"
+      }
+    },
+    "note": "Original/legacy cooc-swap controls have no epoch5predictions. Extra read-only validation must preserve training weights/RNG;native test checks this. No new control fits."
+  },
+  "reference": {
+    "exact_published_reproduction": false,
+    "new_fits": 6,
+    "training_epochs": 10,
+    "validation_epochs": [
+      5,
+      10
+    ],
+    "test_evaluations": 0,
+    "index_preparation": "ALS64/.1/alpha20/20iterations on fixed75%TRAINusers;positivecos k20;lambda0.3",
+    "search": "max100kproposals;cap256accepted;common256achieved in each family;uniform versus priority",
+    "random_control": "derange exactly the priority-changed item set;preserve their available original paths;not matched for semantic distortion/transposition count",
+    "comparability": "Uniform/priority differ in proposal mechanism;both use ALS. Legacycooc20ktrials differ in edit budgets,so they are contextual references,not pure CF-signal ablations.",
+    "budget_endpoint": "Rank candidates at epoch10,even if best validation occurred at epoch5. Save best/last,optimizer/scaler/TorchCPU/CUDA/Python/NumPy RNG and exact indices for later continuation."
+  }
+}

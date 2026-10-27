@@ -2,6 +2,21 @@
 
 ## Research status
 
+- Latest authorization,2026-10-27:screen the next graph hypotheses with10TIGER
+  epochs,validation5/10. See `docs/gr-sid-als-screen.md` and
+  `experiments/amazon_beauty_sid_als_screen_2t4.json`. Exactly six new fits:
+  two frozen T5index families x ALSuniform/ALSpriority/random-on-priority-itemset.
+  Reuse original/legacycooc epoch10controls. ALSimplicit0.7.3/64factors/.1reg/
+  alpha20/20iterations on fixed75%TRAINusers;no encoder/quantizer updates.
+  Max100kchecks/cap256accepted;all guided trajectories reached256. Preserve
+  exact full paths and suffixes. Shared seed42,4+4/d128,FP16,all-prefix sampling.
+  Primary score is epoch10validation,even if best5/10differs. Save per-user
+  validation at5/10 and full last checkpoint with optimizer/scaler/allRNG for
+  later continuation. No test access/evaluation or automatic20epochfinalists.
+  Private derived public-Amazon inputs:`carasik/rhpr-sid-als-screen`. No raw
+  reviews,text,names,email,credentials;transfer audit under local artifacts.
+  Do not launch otherCFmethods,tuning,seeds,retries or Telegram. Field stays closed.
+
 - Latest request,2026-10-27:inspect user-level validation differences and explain
   graph proposal selection/alternative signals. Training saved val aggregates
   only. Prepare one short inference-only replay on the four frozen epoch20

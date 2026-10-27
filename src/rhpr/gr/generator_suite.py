@@ -134,16 +134,24 @@ def run_trial(trial, config, users, output, source, device, expected_initial=Non
     selection = _train_rqvae_generator(model, users, index, config, directory, device)
     if selection["epochs"] != config["training"]["max_epochs"]:
         raise RuntimeError("generator stopped before its declared complete epoch budget")
-    test = build_examples(users, config["data"]["history_items"], "test")
-    scores, ids, probabilities = _evaluate(model, test, index,
-        config["training"]["evaluation_batch_size"], device, precision=config["training"]["evaluation_precision"])
-    _write(directory / "test-metrics.json", scores)
-    np.savez_compressed(directory / "test-predictions.npz", semantic_ids=ids, scores=probabilities,
-        user_ids=test[1], target_item_ids=test[2])
+    do_test = config.get("evaluation", {}).get("test_after_selection", True)
+    scores = {}
+    if do_test:
+        test = build_examples(users, config["data"]["history_items"], "test")
+        scores, ids, probabilities = _evaluate(model, test, index,
+            config["training"]["evaluation_batch_size"], device, precision=config["training"]["evaluation_precision"])
+        _write(directory / "test-metrics.json", scores)
+        np.savez_compressed(directory / "test-predictions.npz", semantic_ids=ids, scores=probabilities,
+            user_ids=test[1], target_item_ids=test[2])
+    curve = json.loads((directory / "training-curves.json").read_text())
+    endpoint = curve[-1]
+    if endpoint["epoch"] != config["training"]["max_epochs"] or "validation" not in endpoint:
+        raise RuntimeError("screening endpoint must have a fixed-budget validation")
     result = {"trial": trial["id"], "seed": config["seed"], "quantizer_seed": trial["quantizer_seed"],
         "freeze_policy": trial["freeze_policy"], "initial_state_sha256": initial, "parameters": parameters,
         "selection": selection, "test": scores,
-        "quantizer_retrained": config["quantizer"]["kind"] == "ae_residual_kmeans", "test_evaluations": 1}
+        "quantizer_retrained": config["quantizer"]["kind"] == "ae_residual_kmeans", "test_evaluations": int(do_test),
+        "validation_at_budget": endpoint["validation"], "screening_epoch": endpoint["epoch"]}
     _write(directory / "result.json", result)
     return result
 
@@ -168,7 +176,8 @@ def run_worker(plan_path, slot):
         try:
             result = run_trial(trial, config, users, output, plan["source"], device, plan.get("initial_state_sha256"))
             status["results"][name] = result
-            _event("frozen_sid_generator_complete", trial=name, test=result["test"])
+            _event("frozen_sid_generator_complete", trial=name, test=result["test"],
+                validation_at_budget=result["validation_at_budget"])
         except Exception as error:
             directory = output / "trials" / name;directory.mkdir(parents=True, exist_ok=True)
             (directory / "failure.log").write_text(traceback.format_exc())
@@ -240,6 +249,8 @@ def run_generator_suite(config, output):
         metrics[name + "_training_seconds"] = result["selection"]["training_seconds"]
         metrics[name + "_validation_seconds"] = result["selection"]["validation_seconds"]
         metrics[name + "_test_evaluations"] = result["test_evaluations"]
+        for key, value in result["validation_at_budget"].items():
+            metrics[name + "_validation_at_budget_" + key.replace("@", "")] = value
         for key, value in result["test"].items():metrics[name + "_test_" + key.replace("@", "")] = value
     return metrics
 

@@ -37,6 +37,8 @@ def prepare_full_sid_indices(config, source_ids, output):
         if (candidate['family'] != trial['family'] or candidate['role'] != trial['role']
                 or candidate['semantic_lambda'] != trial['semantic_lambda']):
             raise ValueError('frozen graph candidate identity mismatch')
+        if 'expected_variant' in trial and candidate.get('variant')!=trial['expected_variant']:
+            raise ValueError('frozen graph proposal/signal variant mismatch')
         # Only paths registered in the verified resource manifest can be opened.
         names = [candidate[k] for k in ['sids','original_sids','owner']]
         if any(n not in entries for n in names):

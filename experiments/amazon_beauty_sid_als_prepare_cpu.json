@@ -1,0 +1,66 @@
+{
+  "name": "beauty-als-priority-offline-index-screen",
+  "data": "/workspace/scratch/gr-beauty-input/data",
+  "output": "/workspace/artifacts/sid-als-screen",
+  "sources": {
+    "embeddings": {
+      "path": "/workspace/scratch/gr-beauty-completed-v2/item-embeddings.npy",
+      "sha256": "607895c3dbe7a6a5aa6272dde55dd190e8bc40fa97532830de161d118aca5314"
+    },
+    "user_split": {
+      "path": "/workspace/artifacts/sid-graph-swap/user-split.npz",
+      "sha256": "987fa0737c4bcbbaa530f6e1bfdd5eeb5be366dddcd1381f8f0054c78f5b862f"
+    },
+    "semantic_graph": {
+      "path": "/workspace/artifacts/sid-graph-swap/semantic-graph.npz",
+      "sha256": "073d1b5e0f98ffad812d06390c0030836b3028b5ea7c0145e293648efab59ccf"
+    },
+    "heldout_graph": {
+      "path": "/workspace/artifacts/sid-graph-swap/heldout_cf-graph.npz",
+      "sha256": "f8cf30a8d918885e4f6eaa957bd3dfc5a72388fd42796c0a17505c1125beab62"
+    },
+    "fields": {
+      "path": "/workspace/scratch/field-ae-results/catalogue-fields.npz",
+      "sha256": "a18181a54014a1df479780abee23609e5e711e7b32d021498c4e8e9b56ec2db5"
+    },
+    "t5_rqvae": {
+      "path": "/workspace/artifacts/codebook-t5-vs-field/baseline/semantic-ids.npy",
+      "sha256": "e5c9019774dd1576c29aaa37cd266e40d4143f1712bee733783b9ed1e7e238a6"
+    },
+    "t5_rqkmeans": {
+      "path": "/workspace/scratch/gr-beauty-completed-v2/semantic-ids.npy",
+      "sha256": "b196711dceedce81a991d995aa5c86ccd35288d5cdfe3f7aedb174de86470dae"
+    }
+  },
+  "als": {
+    "factors": 64,
+    "regularization": 0.1,
+    "alpha": 20.0,
+    "iterations": 20,
+    "seed": 2712,
+    "cpu_threads": 2
+  },
+  "neighbors": 20,
+  "minimum_cf_users": 2,
+  "random_seed": 2715,
+  "search": {
+    "semantic_lambda": 0.3,
+    "max_proposals": 100000,
+    "accepted_cap": 256,
+    "uniform_seed": 2702,
+    "priority_seed": 2713,
+    "snapshot_accepted": [
+      32,
+      64,
+      128,
+      256
+    ],
+    "priority": {
+      "anchor_fraction": 0.25,
+      "support_shrinkage": 10.0,
+      "uniform_fraction": 0.2,
+      "semantic_partner_pool": 8,
+      "refresh_proposals": 500
+    }
+  }
+}
