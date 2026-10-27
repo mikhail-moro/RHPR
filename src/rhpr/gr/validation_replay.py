@@ -40,6 +40,10 @@ def replay_trial(trial, config, resources, parents, source, output, device):
     before=state_digest(model.state_dict())
     _,users,_,_=load_beauty(Path(resources)/'data',config['data'])
     examples=build_examples(users,config['data']['history_items'],'validation')
+    if config.get('context_ablation'):
+        from rhpr.gr.context_ablation import evaluate_context_ablation
+        paths['reference_predictions']=verify_file(parent,trial['reference_predictions'])
+        return evaluate_context_ablation(model,index,examples,users,trial,config,paths,before,output,device)
     score,predictions,probabilities=_evaluate(model,examples,index,config['validation']['batch_size'],device,
                                             precision=config['validation']['precision'])
     if state_digest(model.state_dict())!=before:
@@ -117,11 +121,16 @@ def run_validation_replay(config, output):
     path=output/'workers/plan.json';atomic_json(path,plan)
     summary=launch_workers(path,worker_module='rhpr.gr.validation_replay',event_prefix='validation_replay')
     metrics=dict(models=len(summary['results']),training_performed=False,optimizer_steps=0,test_evaluations=0,
-                 validation_evaluations=len(summary['results']),elapsed_seconds=time.monotonic()-started)
+                 validation_evaluations=sum(r['validation_evaluations'] for r in summary['results'].values()),
+                 elapsed_seconds=time.monotonic()-started)
     for name,result in summary['results'].items():
         for key in ['ndcg@5','ndcg@10','recall@5','recall@10']:
             metrics[name+'_validation_'+key.replace('@','')]=result['validation'][key]
             metrics[name+'_replay_delta_'+key.replace('@','')]=result['replay_delta'][key]
+        for cohort in result.get('context_cohorts',[]):
+            for length, score in cohort['metrics_by_length'].items():
+                metrics[f'{name}_{cohort["id"]}_L{length}_ndcg10']=score['ndcg@10']
+                metrics[f'{name}_{cohort["id"]}_L{length}_recall10']=score['recall@10']
     return metrics
 
 

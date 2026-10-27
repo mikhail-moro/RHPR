@@ -1,0 +1,199 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-context-ablation"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "per-user leave-last-two; all train prefix targets exactly once per epoch; test context includes observed validation target",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "name": "beauty-frozen-epoch60-context-length-ablation",
+  "kind": "gr_frozen_validation_replay",
+  "training": {
+    "device": "cuda"
+  },
+  "expected_training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "batch_size": 256,
+    "physical_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 60,
+    "min_epochs": 60,
+    "patience": 5,
+    "validation_interval": 10,
+    "evaluation_batch_size": 32,
+    "max_seconds": 14400,
+    "sampling": "all_train_prefixes",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 60
+  },
+  "validation": {
+    "precision": "fp32",
+    "batch_size": 32,
+    "checkpoint_epoch": 60
+  },
+  "context_ablation": {
+    "lengths": [
+      3,
+      5,
+      9,
+      20
+    ],
+    "cohorts": [
+      {
+        "id": "history20plus",
+        "minimum_history": 20,
+        "lengths": [
+          3,
+          5,
+          9,
+          20
+        ],
+        "primary": true
+      },
+      {
+        "id": "history9plus",
+        "minimum_history": 9,
+        "lengths": [
+          3,
+          5,
+          9
+        ],
+        "primary": false
+      },
+      {
+        "id": "history5plus",
+        "minimum_history": 5,
+        "lengths": [
+          3,
+          5
+        ],
+        "primary": false
+      }
+    ],
+    "protocol": "All original validation users in original order and FP32 batch32; pad older items in fixed20positions. Slice common cohorts only after inference. No training or test."
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-rqkmeans-als-long"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "parents": {
+    "long": {
+      "kernel": "carasik/rhpr-rqkmeans-als-long",
+      "source_code_sha": "10e716dfe69a7afef766e7647c876a07478c2714",
+      "files": {
+        "run-manifest.json": {
+          "sha256": "1060a26d742e17491aa4ff8805c738ae12cc9b229e284f171fdca6cd57155e12",
+          "size_bytes": 6715
+        }
+      }
+    }
+  },
+  "trials": [
+    {
+      "id": "t5_rqkmeans_original",
+      "parent": "long",
+      "checkpoint": {
+        "path": "trials/t5_rqkmeans_original/generator-best.pt",
+        "sha256": "09a3e5ed366645a7ab7e155cc903bf0b444077c0f586a69d6ff82ce60b7e9a2d",
+        "size_bytes": 19975689
+      },
+      "sids": {
+        "path": "indices/t5_rqkmeans_original/semantic-ids.npy",
+        "sha256": "b196711dceedce81a991d995aa5c86ccd35288d5cdfe3f7aedb174de86470dae",
+        "size_bytes": 387360
+      },
+      "selection": {
+        "path": "trials/t5_rqkmeans_original/training-selection.json",
+        "sha256": "96bde8d5c817c8234e2c23342e89b00a93542864bde270755d81d07f34a3dab5",
+        "size_bytes": 1283
+      },
+      "reference_predictions": {
+        "path": "trials/t5_rqkmeans_original/validation-epoch-060.npz",
+        "sha256": "eee9cb73b39cca773cebacc9ff1b3320807ec0bb1ba85e5daf322d1655c3b0a9",
+        "size_bytes": 3247899
+      }
+    },
+    {
+      "id": "t5_rqkmeans_uniform",
+      "parent": "long",
+      "checkpoint": {
+        "path": "trials/t5_rqkmeans_uniform/generator-best.pt",
+        "sha256": "ad379ecf5548ff84b58049c5a047b31fced8a7e88249be28df92e92475d7e7bc",
+        "size_bytes": 19975689
+      },
+      "sids": {
+        "path": "indices/t5_rqkmeans_uniform/semantic-ids.npy",
+        "sha256": "e2325ac1ddfee856d00ad3119c73de257b875ca176067193313f761147dcf5c5",
+        "size_bytes": 387360
+      },
+      "selection": {
+        "path": "trials/t5_rqkmeans_uniform/training-selection.json",
+        "sha256": "c5b26b0fd1c25e8dec3e355a88f29c76481461df786356c547c25cc569e17e57",
+        "size_bytes": 1288
+      },
+      "reference_predictions": {
+        "path": "trials/t5_rqkmeans_uniform/validation-epoch-060.npz",
+        "sha256": "08e63aff17ab890d168fc5e68a6d891a0fc9dd2a9610eaff2a3d5f5385c6fe00",
+        "size_bytes": 3249882
+      }
+    }
+  ]
+}

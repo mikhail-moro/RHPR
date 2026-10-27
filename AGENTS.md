@@ -2,6 +2,39 @@
 
 ## Research status
 
+- Latest authorization,2026-10-27:inference-only fixed-user context truncation.
+  See `docs/gr-sid-context-ablation.md` and
+  `experiments/amazon_beauty_sid_context_ablation_2t4.json`. Exactly the two
+  frozen epoch60checkpoints from `carasik/rhpr-rqkmeans-als-long`,source10e716df;
+  pin source/checkpoints/SIDs/selection/referencepredictions. No fitting,optimizer,
+  checkpointselection,indexupdates,testevaluation or upload. One model per T4,
+  FP32batch32/freebeam20. Mask old events toPAD in the original20positions,
+  retaining identical full-user batch layout across lengths3/5/9/20. Primary
+  cohort1019users history>=20usesall4lengths;secondary4242history>=9uses3/5/9
+  and10980history>=5uses3/5. Primary interaction is change in swap advantage
+  from3to20within the same users/targets. Save allpredictions and compactuser
+  metrics,verify modelunchanged and exact outputs on unchanged-input rows;
+  report parent replaydrift. No otherGPUjobs,seeds,retries or Telegram.
+
+- Completed long-run analysis,2026-10-27:the two60epoch fits finished;no pending
+  launches. Artifacts `/workspace/artifacts/sid-als-long/analysis/README.md`.
+  Epoch60validation NDCG10 original0.03985706 vs ALSswap0.04075540(+2.25%),
+  paired-user interval for delta[-0.000694,+0.002469];all6checkpoint intervals
+  overlap0. Late30/40/50/60mean gain+0.375%.987better/961worse at60;
+  descriptive>=3/4late checks with no opposite signs gives281better/288worse,
+  1126mixed-sign users. Full user/item Parquet,complete stable-group CSVs,
+  extrema,histories,paths and all12validation predictions saved. Both fits
+  consumed7884780examples;7AMPskips each,30833actual updates out of30840.
+  Earlier rarebrush10906anecdote is not replicated:both hit26/26at60;rare
+  TRAINtarget-count1–4cohort has41vs37hits. History5–9has consistent late
+  descriptive gain;multiple post-hoc cohorts/one fitted pair prevent a claim.
+  TRAIN-only exact-ID context-profile probe also saved:ALSalready improves
+  first-branch last5contextcoherence~0.97%,but low-support profiles have poor
+  disjoint-user reproducibility. `context-hypothesis.md` formulates a frozen
+  prefix encoder/context-distribution graph with confidence shrinkage;it is
+  a proposal,not a launched experiment. No new training,swaps,test evaluation,
+  GPU sessions or Telegram were used for this analysis.
+
 - Latest authorization,2026-10-27:two longer fits,original RQ-KMeans versus
   the latest screen's ALSuniform candidate. User chose60epochs and then
   explicitly corrected validation to every10epochs. See
