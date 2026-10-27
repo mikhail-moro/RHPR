@@ -60,6 +60,12 @@ class ParentArtifactContractTests(unittest.TestCase):
         parent["path"] = str(directory)
         self.assertEqual(verify_parent_artifacts(parent, self.inputs), directory)
 
+    def test_known_mount_does_not_scan_unrelated_remote_inputs(self):
+        directory = self.inputs / 'notebooks/owner/notebook'
+        parent = self.write_parent(directory)
+        with patch.object(Path,'rglob',side_effect=AssertionError('unnecessary remote traversal')):
+            self.assertEqual(verify_parent_artifacts(parent,self.inputs),directory)
+
     def test_equal_size_byte_substitution_is_rejected_by_hash(self):
         directory = self.inputs / "notebook"
         parent = self.write_parent(directory)

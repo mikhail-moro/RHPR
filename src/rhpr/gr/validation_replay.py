@@ -111,9 +111,16 @@ def run_validation_replay(config, output):
         raise ValueError('validation replay is FP32 batch32 and has no training settings')
     started=time.monotonic();output=Path(output).resolve();jobs=assignments(config,torch.cuda.device_count())
     resources=resolve_dataset_directory(config['resources']['path'])
+    _event('validation_replay_resource_verify_started')
     manifest=verify_resources(resources,config['resources']['manifest_sha256'])
-    parents={key:str(verify_parent_artifacts(spec)) for key,spec in config['parents'].items()}
+    _event('validation_replay_resource_verify_complete')
+    parents={}
+    for key,spec in config['parents'].items():
+        _event('validation_replay_parent_verify_started',parent=key,kernel=spec['kernel'])
+        parents[key]=str(verify_parent_artifacts(spec))
+        _event('validation_replay_parent_verify_complete',parent=key)
     _,_,_,counts=load_beauty(resources/'data',config['data'])
+    _event('validation_replay_data_ready',**counts)
     scratch=Path(config['resources']['scratch_path']);original=unpack_grid(resources/'grid-source.bin',scratch/'original')
     source=prepare_grid_source(original,scratch/'runtime')
     os.environ.update(HF_HUB_OFFLINE='1',TRANSFORMERS_OFFLINE='1',TOKENIZERS_PARALLELISM='false')

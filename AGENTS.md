@@ -2,6 +2,32 @@
 
 ## Research status
 
+- Completed robustness,2026-10-27:original d4305b9c session completed10models/
+  40passes,zero fitting/test,no replacement/cancellation. Firstlog34.65sec,
+  runtime33.86sec,body1077.88sec,whole1117.78sec;externalwait/stdoutsilence
+  unresolved,not evidence of piphang. All40rawbeamfiles verified,allparent
+  predictions exact,statesunchanged. See`docs/gr-sid-context-robustness-results.md`
+  and `/workspace/artifacts/sid-context-robustness/analysis/README.md`.
+  All22363users:20epochRQKMeans/cooc3to20interaction-0.002195userCI
+  [-0.003255,-0.001106],targetCIalso negative.20epochRQVAE/coocflat
+  -0.000144CIincludes0. Allfour10ALS/random interactionsCIinclude0.
+  Thus60ALSpositive findingisconfiguration-specific,notuniversal.20/60indices
+  differinsignal/budget,notisolatedduration. Allseed42/sharedcontrols;no
+  independentseedclaim.1,019matchedcohort also heterogeneous.894520rowParquet
+  andallcurves/CIs/contributions retained. Prepared startup/loggingfixes were
+  notusedinthisrun. No pendingGPUjobs or newexperimentauthorization.
+
+- Historical diagnostic before completion,2026-10-27:context robustness source d4305b9c is reported
+  Running with empty stdout after>30min. API also RUNNING/no persistedoutputs;
+  CLI liveprobe noevents,SDK logstream400no body. Rootcauseunknown. GlobalGPU
+  quota increased;user askedtoStopviaUI because cancelAPIrequires sessionID
+  unavailablefromstatus/metadata. Do notsubmitduplicate whileold RUNNING.
+  Prepared startup-onlyfixes:Python markerbeforewrites/bootstrap,GRprepare/
+  pip/importprogress,piptimeout300sec,lazyparentrglobfallback,validationprepare
+  phases.29tests pass. See`docs/gr-sid-context-startup-diagnostic.md`. Models,
+  cohorts,FP32batch32 and40inferencepasses unchanged. Resumeoriginaltaskonly
+  after oldstopconfirmed;no newtraining/tuning or extra experimentalvariants.
+
 - Latest authorization,2026-10-27:context robustness on all10retained models,
   user explicitly chose full15–20min inference scope. See
   `docs/gr-sid-context-robustness.md` and

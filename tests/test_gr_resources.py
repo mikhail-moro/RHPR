@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import runpy
+import subprocess
 import sys
 import tempfile
 from types import SimpleNamespace
@@ -247,8 +248,19 @@ class GRRuntimePrecheckTests(unittest.TestCase):
                 self.assertIn(flag, command)
             self.assertEqual(report["torch"], "2.10.0+cu128")
             self.assertTrue(report["platform_torch_reused"])
+            self.assertEqual(run.call_args.kwargs['timeout'],300)
             self.assertEqual(json.loads((root / "runtime-bootstrap.json").read_text()), report)
             self.assertEqual(os.environ["HF_HUB_OFFLINE"], "1")
+
+    def test_stalled_offline_install_has_a_bounded_timeout(self):
+        with tempfile.TemporaryDirectory() as temporary, patch.dict(sys.modules):
+            sys.modules.pop('torch',None)
+            root=Path(temporary);runtime,_=self.fixture(root)
+            runtime['installation_timeout_seconds']=17
+            with patch('rhpr.gr.runtime.subprocess.run',side_effect=subprocess.TimeoutExpired('pip',17)) as run:
+                with self.assertRaises(subprocess.TimeoutExpired):install_gr_runtime(runtime,root)
+            self.assertEqual(run.call_args.kwargs['timeout'],17)
+            self.assertNotIn('torch',sys.modules)
 
     def test_wrong_platform_torch_is_rejected_after_fake_install(self):
         with tempfile.TemporaryDirectory() as temporary, patch.dict(sys.modules), patch.dict(os.environ), \
