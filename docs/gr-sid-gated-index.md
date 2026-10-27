@@ -121,6 +121,30 @@ No new dependencies are needed.
 
 Before submission,11.24GPUhours remained and the previous context screen was
 COMPLETE. Expected about35–45minutes execution after GPUassignment,queue extra.
-Kernel:`carasik/rhpr-gated-sid-tiger-screen`. Submit exactly once through the
-existing GitHubActions workflow,submit-only,Telegramfalse. Do not launch a
-replacement while this version is queued/running or poll training repeatedly.
+Kernel:`carasik/rhpr-gated-sid-tiger-screen`. Exactly one submission;no Telegram.
+Do not launch a replacement while this version is queued/running or poll training
+repeatedly.
+
+## Submission receipt
+
+GitHubActions dispatch returned HTTP401and was not accepted;no workflow run was
+created. The authenticated GitHubconnector remained available for repository
+access. Submitted once with the official KaggleCLI directly,creating version1.
+Status confirmed RUNNING. This is not a replacement for an already accepted job.
+
+Executable sourcecommit`45d7dab1d35a55821585e17423f32eb197a5cce3`,treeba42770e….
+To exclude unrelated local paused edits,the176embedded source/resource files
+were independently matched to the recursive GitHubtree by GitblobSHA1. The
+one differing unrelated file was substituted only inside the in-memory package;
+the user's local worktree was preserved. Runner builder and experiment JSON were
+also matched to the commit. This avoids labeling a dirty local package as the
+published source revision.
+
+Kaggle's returned source was parsed without executing it. Its exact experiment
+JSON and embedded package match the submitted artifacts. Package SHA256:
+`c358125a17c2a447d96aa56f142c1718771285861f08ec59ad538fdcc4592f85`.
+Metadata confirms version1/private/GPU/T4/internetoff/TPUoff and the two existing
+dataset mounts. Receipts:
+`/workspace/artifacts/sid-gated-index/source-audit.json` and `submission.json`.
+No new GPU results are claimed at submission time. Wait for user completion or
+status request;do not resubmit or continuously poll this session.

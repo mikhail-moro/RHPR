@@ -2,6 +2,18 @@
 
 ## Research status
 
+- Submitted gatedindex once,2026-10-27:Kaggle
+  `carasik/rhpr-gated-sid-tiger-screen`version1RUNNING. GHworkflowdispatch401
+  was notaccepted/no workflowrun;usedofficialKaggleCLI directly,not a duplicate.
+  Executablecommit45d7dab1d35a55821585e17423f32eb197a5cce3. All176embedded
+  filesmatchedGitblobhashes;unrelatedpausedlocalfile substitutedonlyinmemory,
+  worktreepreserved. ActualKagglesourceASTconfirmedexactconfig+packagehash
+  c358125a17c2a447d96aa56f142c1718771285861f08ec59ad538fdcc4592f85.
+  Private/T4/GPU/internetoff/twoexistingdatasets metadata verified. Receipts
+  `/workspace/artifacts/sid-gated-index/source-audit.json`and`submission.json`.
+  Exactly2fits20epochs,val5/10/15/20asbelow. No resultsyet;no resubmission,
+  retry,Telegram or continuouspolling. Waitforusercompletion/statusrequest.
+
 - Latest authorization,2026-10-27:conditional original/ALSindex,20epochs,val
   5/10/15/20. See`docs/gr-sid-gated-index.md`,config`amazon_beauty_sid_gated_index_2t4`.
   Exactly2freshfits:original_with_branch(originalbothbranches)andgated_original_als
