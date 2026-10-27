@@ -2,6 +2,17 @@
 
 ## Research status
 
+- Latest authorization,2026-10-28:identical originalRQKMeans index,two fresh
+  TIGERgenerator seeds42/43,20epochs,val5/10/15/20,on2T4. See
+  `docs/gr-sid-seed-oracle.md` and `amazon_beauty_sid_seed_oracle_2t4.json`.
+  Fixed data/order seed42 and exact old frozen original SIDbytes. No quantizer,
+  ALS,swap,branch token or test. Preserve all8validation beams and full best/last
+  states. Independently score best-of-two NDCG10 after fits,save paired-oracle
+  and per-user ranks. One pair controls ordinary neural-training diversity,
+  not a causal index-gain estimate. No extension,retry,extra seeds or Telegram.
+  Shared worker launcher groups initialization checks by generator seed;worker
+  expected hashes pinned per trial,TRAINstream remains common. Launch pending.
+
 - Completed gatedindex analysis,2026-10-27:no pendingGPUjobs. See
   `docs/gr-sid-gated-index-results.md`,artifacts`/workspace/artifacts/sid-gated-index/analysis`.
   Both20epochs/10280updates/zeroAMPskips/4978176params. All8rawpredictionfiles

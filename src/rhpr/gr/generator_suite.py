@@ -21,6 +21,21 @@ def assignments(config, gpu_count):
         raise ValueError("frozen SID suite requires the all_train_prefixes control")
     if config["generator"]["codebook_size"] != config["quantizer"]["codebook_size"]:
         raise ValueError("generator and index widths differ")
+    if any('generator_seed' in t for t in config['trials']):
+        if any(type(t.get('generator_seed')) is not int or not 0 <= t['generator_seed'] < 2**32
+               for t in config['trials']):
+            raise ValueError('every seeded trial requires an explicit nonnegative generator_seed')
+        if config.get('index_gate'):
+            raise ValueError('per-trial generator seeds are separate from the conditional-index experiment')
+        if config.get('compare_initialization_by_seed') is not True:
+            raise ValueError('distinct neural seeds require initialization comparison grouped by seed')
+    if config.get('evaluation', {}).get('paired_same_index_oracle'):
+        if (len(config['trials']) != 2 or not all(t.get('use_original_paths') is True for t in config['trials'])
+                or len({t.get('generator_seed') for t in config['trials']}) != 2
+                or config['quantizer']['kind'] != 'frozen_full_sids'
+                or not config['evaluation'].get('save_validation_predictions')
+                or config['evaluation'].get('test_after_selection', True)):
+            raise ValueError('same-index oracle requires two original-path seeds and saved validation only')
     if config.get('index_gate'):
         gate = config['index_gate']
         short = next((t for t in config['trials'] if t['id'] == gate['short_trial']), None)
@@ -30,6 +45,11 @@ def assignments(config, gpu_count):
                 or config['generator'].get('separator_token') or config['generator'].get('should_check_prefix')):
             raise ValueError('invalid original/ALS conditional index protocol')
     return jobs
+
+
+def generator_config(config, trial):
+    """Change neural RNG only; the trainer retains config.seed for case order."""
+    return {**config, 'seed': trial.get('generator_seed', config['seed'])}
 
 
 def load_trial_index(trial_id, config, output):
@@ -158,8 +178,10 @@ def run_trial(trial, config, users, output, source, device, expected_initial=Non
 
     directory = output / "trials" / trial["id"];directory.mkdir(parents=True, exist_ok=True)
     index = load_trial_index(trial['id'], config, output)
-    random.seed(config["seed"]);np.random.seed(config["seed"]);torch.manual_seed(config["seed"])
-    model = build_trial_generator(index, config, device, source)
+    model_config = generator_config(config, trial)
+    neural_seed = model_config['seed']
+    random.seed(neural_seed);np.random.seed(neural_seed);torch.manual_seed(neural_seed)
+    model = build_trial_generator(index, model_config, device, source)
     if config.get('index_gate'):
         _write(directory / 'conditional-index.json', index.provenance())
     # SID lookup buffers intentionally differ; hash the actual tied neural
@@ -169,7 +191,8 @@ def run_trial(trial, config, users, output, source, device, expected_initial=Non
     _write(directory / "generator.json", {"parameters": parameters, "config": config["generator"],
         "initial_parameter_sha256": initial, "provenance": model.rhpr_grid_provenance})
     _write(directory / "initialization.json", {"initial_state_sha256": initial,
-        "scope": "named neural parameters; SID lookup data differ by design", "seed": config["seed"]})
+        "scope": "named neural parameters excluding immutable SID lookup data", "seed": neural_seed,
+        "training_order_seed": config['seed']})
     if expected_initial is not None and initial != expected_initial:
         raise ValueError("generator neural initialization differs from the shared control")
     selection = _train_rqvae_generator(model, users, index, config, directory, device)
@@ -188,7 +211,8 @@ def run_trial(trial, config, users, output, source, device, expected_initial=Non
     endpoint = curve[-1]
     if endpoint["epoch"] != config["training"]["max_epochs"] or "validation" not in endpoint:
         raise RuntimeError("screening endpoint must have a fixed-budget validation")
-    result = {"trial": trial["id"], "seed": config["seed"], "quantizer_seed": trial["quantizer_seed"],
+    result = {"trial": trial["id"], "seed": neural_seed, "quantizer_seed": trial["quantizer_seed"],
+        "generator_seed": neural_seed, "training_order_seed": config['seed'],
         "freeze_policy": trial["freeze_policy"], "initial_state_sha256": initial, "parameters": parameters,
         "selection": selection, "test": scores,
         "quantizer_retrained": config["quantizer"]["kind"] == "ae_residual_kmeans", "test_evaluations": int(do_test),
@@ -215,7 +239,8 @@ def run_worker(plan_path, slot):
         name = trial["id"];status["current_trial"] = name;atomic_json(status_path, status)
         _event("generator_suite_trial_start", trial=name, stage="frozen_sid_generator", worker=slot)
         try:
-            result = run_trial(trial, config, users, output, plan["source"], device, plan.get("initial_state_sha256"))
+            expected = plan.get('initial_state_sha256_by_trial', {}).get(name, plan.get('initial_state_sha256'))
+            result = run_trial(trial, config, users, output, plan["source"], device, expected)
             status["results"][name] = result
             _event("frozen_sid_generator_complete", trial=name, test=result["test"],
                 validation_at_budget=result["validation_at_budget"])
@@ -250,6 +275,9 @@ def run_generator_suite(config, output):
     else:
         parent = verify_parent_artifacts(config["parent"])
         indices = prepare_indices(config, parent, source_ids, output)
+    if config.get('evaluation', {}).get('paired_same_index_oracle'):
+        if len({r['semantic_ids_sha256'] for r in indices.values()}) != 1:
+            raise ValueError('same-index seed control has different SID file hashes')
     stream = training_manifest(users, config)
     if stream["examples_per_epoch"] != counts["train_examples"]:
         raise ValueError("training manifest disagrees with original data counts")
@@ -260,24 +288,42 @@ def run_generator_suite(config, output):
     original = unpack_grid(resources / "grid-source.bin", scratch / "original")
     source = prepare_grid_source(original, scratch / "runtime")
     os.environ.update(HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1", TOKENIZERS_PARALLELISM="false")
-    first = config["trials"][0]["id"]
+    first_trial = config['trials'][0]
+    first = first_trial['id']
     index = load_trial_index(first, config, output)
-    control = build_trial_generator(index, config, 'cpu', source)
+    control = build_trial_generator(index, generator_config(config, first_trial), 'cpu', source)
     initial = state_digest(dict(control.named_parameters()))
     if config.get("expected_initial_state_sha256", initial) != initial:
         raise ValueError("generator neural parameters differ from completed TIGER control")
     _write(output / "initialization.json", {"initial_state_sha256": initial,
-        "scope": "shared CPU neural-parameter control; fixed SID lookup data excluded", "seed": config["seed"]})
+        "scope": "first CPU neural-parameter control; fixed SID lookup data excluded",
+        "seed": first_trial.get('generator_seed', config['seed'])})
     del control;gc.collect()
+    initial_by_trial = {}
+    if any('generator_seed' in t for t in config['trials']):
+        for trial in config['trials']:
+            index = load_trial_index(trial['id'], config, output)
+            control = build_trial_generator(index, generator_config(config, trial), 'cpu', source)
+            trial_initial = state_digest(dict(control.named_parameters()))
+            if trial.get('expected_initial_state_sha256', trial_initial) != trial_initial:
+                raise ValueError('seeded generator initialization differs from its pinned CPU control')
+            initial_by_trial[trial['id']] = trial_initial
+            del control;gc.collect()
+        _write(output / 'initializations-by-trial.json', dict(
+            initial_state_sha256_by_trial=initial_by_trial, training_order_seed=config['seed'],
+            generator_seeds={t['id']: t['generator_seed'] for t in config['trials']}))
     (output / "workers").mkdir()
     _write(output / "input-provenance.json", {"manifest": resource_manifest, "counts": counts,
         "parent": config.get("parent", config.get("frozen_indices")), "indices": indices, "telemetry_enabled": False,
         "index_gate": config.get('index_gate'),
-        "training_cases": stream, "generator_seed": config["seed"]})
+        "training_cases": stream, "generator_seed": config["seed"],
+        "generator_seeds_by_trial": {t['id']: t.get('generator_seed', config['seed']) for t in config['trials']}})
     if config.get("controls"):
         _write(output / "controls.json", config["controls"])
     plan = {"config": config, "assignments": jobs, "output": str(output), "resources": str(resources), "source": str(source),
         "initial_state_sha256": initial}
+    if initial_by_trial:
+        plan['initial_state_sha256_by_trial'] = initial_by_trial
     plan_path = output / "workers/plan.json";atomic_json(plan_path, plan)
     summary = launch_workers(plan_path, worker_module="rhpr.gr.generator_suite", event_prefix="generator_suite")
     metrics = {"runs": len(summary["results"]), "parallel_workers": 2, "generator_seed": config["seed"],
@@ -285,6 +331,8 @@ def run_generator_suite(config, output):
         "autoencoder_retrained": False, "telemetry_enabled": False, "catalogue_items": len(source_ids),
         "elapsed_seconds": time.monotonic()-started}
     for name, result in summary["results"].items():
+        if initial_by_trial:
+            metrics[name + '_generator_seed'] = result['generator_seed']
         metrics[name + "_epochs"] = result["selection"]["epochs"]
         metrics[name + "_selected_epoch"] = result["selection"]["selected_epoch"]
         metrics[name + "_training_seconds"] = result["selection"]["training_seconds"]
@@ -293,6 +341,13 @@ def run_generator_suite(config, output):
         for key, value in result["validation_at_budget"].items():
             metrics[name + "_validation_at_budget_" + key.replace("@", "")] = value
         for key, value in result["test"].items():metrics[name + "_test_" + key.replace("@", "")] = value
+    if config.get('evaluation', {}).get('paired_same_index_oracle'):
+        from rhpr.gr.sid_seed_oracle import saved_same_index_oracle
+        oracle = saved_same_index_oracle(config, users, output)
+        last = oracle['epochs'][-1]
+        metrics.update(oracle_ndcg10=last['oracle_ndcg10'], oracle_recall10=last['oracle_recall10'],
+                       oracle_relative_gain_percent=last['relative_gain_percent'])
+        _event('generator_suite_oracle_complete', **last)
     return metrics
 
 
