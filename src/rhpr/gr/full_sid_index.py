@@ -34,10 +34,16 @@ def prepare_full_sid_indices(config, source_ids, output):
         name = trial['id']; candidate = manifest['indices'].get(trial['asset_id'])
         if candidate is None:
             raise ValueError('unknown frozen graph candidate')
-        if (candidate['family'] != trial['family'] or candidate['role'] != trial['role']
-                or candidate['semantic_lambda'] != trial['semantic_lambda']):
+        original_control = trial.get('use_original_paths', False)
+        if original_control and (original_control is not True or trial['role'] != 'original'
+                or trial['semantic_lambda'] != 0 or trial.get('expected_variant') != 'original'):
+            raise ValueError('original-path control requires explicit original identity')
+        if (candidate['family'] != trial['family'] or (not original_control and
+                (candidate['role'] != trial['role']
+                 or candidate['semantic_lambda'] != trial['semantic_lambda']))):
             raise ValueError('frozen graph candidate identity mismatch')
-        if 'expected_variant' in trial and candidate.get('variant')!=trial['expected_variant']:
+        if (not original_control and 'expected_variant' in trial
+                and candidate.get('variant') != trial['expected_variant']):
             raise ValueError('frozen graph proposal/signal variant mismatch')
         # Only paths registered in the verified resource manifest can be opened.
         names = [candidate[k] for k in ['sids','original_sids','owner']]
@@ -49,13 +55,25 @@ def prepare_full_sid_indices(config, source_ids, output):
                 or not np.array_equal(np.sort(owner),np.arange(len(source_ids)))
                 or original.shape != paths.shape or not np.array_equal(paths,original[owner])):
             raise ValueError('graph candidate owner permutation or full paths mismatch')
+        source_path = candidate['sids']
+        if original_control:
+            source_path = candidate['original_sids']
+            paths = original
+            owner = np.arange(len(source_ids), dtype=np.int64)
+            candidate = {'family': candidate['family'], 'role': 'original',
+                'variant': 'original', 'semantic_lambda': 0, 'sids': source_path,
+                'original_sids': source_path, 'owner': None,
+                'derived_from_asset': trial['asset_id'], 'owner_construction': 'identity'}
         index = SidIndex.from_full_sids(paths,width=config['quantizer']['codebook_size'])
         if (trial['role']=='original' and np.any(owner!=np.arange(len(owner)))):
             raise ValueError('original control was permuted')
         directory = Path(output)/'indices'/name;directory.mkdir(parents=True)
         # Preserve input .npy bytes, including supplied suffix ownership.
-        shutil.copyfile(assets/candidate['sids'],directory/'semantic-ids.npy')
-        shutil.copyfile(assets/candidate['owner'],directory/'owner.npy')
+        shutil.copyfile(assets/source_path,directory/'semantic-ids.npy')
+        if original_control:
+            np.save(directory/'owner.npy',owner,allow_pickle=False)
+        else:
+            shutil.copyfile(assets/candidate['owner'],directory/'owner.npy')
         np.save(directory/'semantic-codes.npy',index.semantic_codes,allow_pickle=False)
         diagnostics=index.diagnostics()
         (directory/'sid-diagnostics.json').write_text(json.dumps(diagnostics,indent=2)+'\n')

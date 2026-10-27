@@ -2,6 +2,19 @@
 
 ## Research status
 
+- Latest authorization,2026-10-27:two longer fits,original RQ-KMeans versus
+  the latest screen's ALSuniform candidate. User chose60epochs and then
+  explicitly corrected validation to every10epochs. See
+  `docs/gr-sid-als-long.md` and `experiments/amazon_beauty_sid_als_long_2t4.json`.
+  Two fresh matched fits,one per T4,shared seed42,GRID4+4/d128,FP16,all-prefix
+  sampling. Frozen indices reuse the existing private ALSscreen dataset;no
+  graph/quantizer/encoder refit or upload. Explicit original-path control keeps
+  manifest-pinned original bytes and identity ownership. Primary endpoint is
+  epoch60validation,also retain10/20/30/40/50trajectory and best separately.
+  Save all per-user validation predictions and full last state. No test access,
+  extra candidates,seeds,tuning,automatic retries or Telegram. Earlier screen
+  restrictions are historical for its completed run,not a block on these fits.
+
 - Latest authorization,2026-10-27:screen the next graph hypotheses with10TIGER
   epochs,validation5/10. See `docs/gr-sid-als-screen.md` and
   `experiments/amazon_beauty_sid_als_screen_2t4.json`. Exactly six new fits:

@@ -1,0 +1,156 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-sid-als-long"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "per-user leave-last-two; all train prefix targets exactly once per epoch; test context includes observed validation target",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-sid-als-screen"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "name": "beauty-rqkmeans-als-swap-long-60epochs-validation-only",
+  "kind": "gr_frozen_sid_generator_suite",
+  "representation": {
+    "kind": "frozen_t5_als_graph_index",
+    "trainable": false
+  },
+  "quantizer": {
+    "kind": "frozen_full_sids",
+    "num_hierarchies": 3,
+    "codebook_size": 256
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "batch_size": 256,
+    "physical_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 60,
+    "min_epochs": 60,
+    "patience": 5,
+    "validation_interval": 10,
+    "evaluation_batch_size": 32,
+    "max_seconds": 14400,
+    "sampling": "all_train_prefixes",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 60
+  },
+  "evaluation": {
+    "test_after_selection": false,
+    "item_level": true,
+    "collision_resolution": "preserve byte-pinned complete SID paths including original suffix ownership",
+    "invalid_beams": "retain as miss at original rank",
+    "selection_metric": "validation item NDCG@10",
+    "save_validation_predictions": true,
+    "screening_metric": "Primary: validation item NDCG@10 at epoch60; also report fixed epochs10/20/30/40/50 and best-validation checkpoint separately."
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "expected_initial_state_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff",
+  "expected_train_cases_sha256": "6f7ba06c70a6a218d4e620ac77ce41142baf762f7e62902c9fc9b6f7b45d847f",
+  "frozen_indices": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-sid-als-screen",
+    "manifest_sha256": "31cfb0e4c5dc80a8358dcd12fa99ea905b84d87af3207c92d1d0e004ef09128e"
+  },
+  "trials": [
+    {
+      "id": "t5_rqkmeans_original",
+      "asset_id": "t5_rqkmeans_uniform",
+      "family": "t5_rqkmeans",
+      "role": "original",
+      "semantic_lambda": 0.0,
+      "expected_variant": "original",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths",
+      "use_original_paths": true
+    },
+    {
+      "id": "t5_rqkmeans_uniform",
+      "asset_id": "t5_rqkmeans_uniform",
+      "family": "t5_rqkmeans",
+      "role": "swapped",
+      "semantic_lambda": 0.3,
+      "expected_variant": "als_uniform",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths"
+    }
+  ],
+  "reference": {
+    "exact_published_reproduction": false,
+    "new_fits": 6,
+    "training_epochs": 10,
+    "validation_epochs": [
+      5,
+      10
+    ],
+    "test_evaluations": 0,
+    "index_preparation": "ALS64/.1/alpha20/20iterations on fixed75%TRAINusers;positivecos k20;lambda0.3",
+    "search": "max100kproposals;cap256accepted;common256achieved in each family;uniform versus priority",
+    "random_control": "derange exactly the priority-changed item set;preserve their available original paths;not matched for semantic distortion/transposition count",
+    "comparability": "Uniform/priority differ in proposal mechanism;both use ALS. Legacycooc20ktrials differ in edit budgets,so they are contextual references,not pure CF-signal ablations.",
+    "budget_endpoint": "Rank candidates at epoch10,even if best validation occurred at epoch5. Save best/last,optimizer/scaler/TorchCPU/CUDA/Python/NumPy RNG and exact indices for later continuation."
+  },
+  "research_question": {
+    "hypothesis": "The fixed ALS-swapped index may require longer generator training before quality separates from the original index.",
+    "candidate_selection": "ALS uniform selected by epoch10 NDCG@10 among the current three RQ-KMeans screen variants; exploratory validation-based selection, not a new independent test.",
+    "scope": "Exactly two fresh 60-epoch fits; no graph refit, extra candidate, seed, automatic retry or test evaluation.",
+    "comparison": "Identical initialization/data/order/optimizer, one original and one frozen ALS uniform SID lookup, one worker each.",
+    "interpretation": "Late widening, convergence or reversal must be assessed on the full validation trajectory; a final non-plateau remains inconclusive about asymptotic performance."
+  }
+}
