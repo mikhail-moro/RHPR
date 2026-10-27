@@ -2,6 +2,18 @@
 
 ## Research status
 
+- Submitted randomSIDcorruption once,2026-10-28:private
+  `carasik/rhpr-sid-corruption-screen`version1RUNNING. GitHubActions40595947524
+  succeededsubmit-only,noTelegram. Executable1e87396aa65fd8b2dc9259a650e501cec25eec35.
+  ActualKagglesourceASTexactconfig+all178embeddedcommittedGitblobhashesverified,
+  package3f4491646dc4bdd907de55f76f7f6d53832144e8256d8ebfcd9f0a80aafcc542.
+  Private/GPU/T4/offline/3existingdatasets/TPUoffverified. CPUpreflightall5neural
+  initialhashesmatchandSID/ownerhashespinned;897testsOK(78skips),4targetedOK
+  includingrealassets+nativefits+teacher/RNGguards. Receiptsunder
+  `/workspace/artifacts/sid-corruption/`(preflight,submission,source-audit).
+  No resultyet. Five20epochfits,val5/10/15/20asbelow. No resubmission,retry,
+  extension,extraseeds,Telegramorcontinuouspolling;waitforusercompletion/status.
+
 - Latest authorization,2026-10-28:random whole-SID corruption0/5/20/50/100%,
   five freshTIGERfits20epochs,val5/10/15/20,on2T4. See`docs/gr-sid-corruption.md`
   and`amazon_beauty_sid_corruption_2t4.json`. SameoriginalRQKM,neural/order42,

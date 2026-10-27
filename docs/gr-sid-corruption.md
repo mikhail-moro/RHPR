@@ -76,3 +76,14 @@ one permutation realization, one fitted seed, and one dataset/budget.
 Implementation: `src/rhpr/gr/sid_corruption.py`, optional preparation in
 `generator_suite.py`, and an opt-in teacher-forced sidecar in `experiment.py`.
 CPU preflight and launch receipts: `/workspace/artifacts/sid-corruption/`.
+
+## Submission
+
+Submitted once via [GitHub Actions40595947524](https://github.com/mikhail-moro/RHPR/actions/runs/40595947524),
+submit-only, no Telegram. Private [Kaggle notebook](https://www.kaggle.com/code/carasik/rhpr-sid-corruption-screen)
+version1reports RUNNING. Executablecommit`1e87396aa65fd8b2dc9259a650e501cec25eec35`.
+Actual notebook config and all178embedded Gitblob hashes independently match
+that commit;packageSHA256`3f4491646dc4bdd907de55f76f7f6d53832144e8256d8ebfcd9f0a80aafcc542`.
+Private/T4/offline/threeexistingdatasets metadata verified. Standard897testsOK
+(78optional skips);four targeted checks pass with real frozen assets and native
+teacher-forced evaluation/training. No results yet. No duplicate or extra fits.
