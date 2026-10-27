@@ -2,6 +2,20 @@
 
 ## Research status
 
+- Completed context ablation,2026-10-27:no pending GPUjobs. Source32b7ce00,
+  kernel`carasik/rhpr-context-length-replay`. See
+  `docs/gr-sid-context-ablation-results.md` and local artifacts
+  `/workspace/artifacts/sid-context-ablation/analysis/README.md`. Eight inference
+  passes,zero training/test,227secbody. Primary same1019history>=20users:
+  swap NDCG10change at L3/5/9/20=-9.78%/+1.50%/+9.20%/+18.51%.
+  Prespecified3to20interaction+0.0140825,userCI[0.003764,0.023628];
+  target-block sensitivityCI[0.002382,0.026132]. Secondary history>=9and>=5
+  interactions positive butCIoverlap0. Both models peak in absolute quality at9,
+  then decline at20. Exact parent replay,unchanged-input controls and weight
+  hashes all pass;all8rawbeamfiles independently verified in memory. One fitted
+  epoch60pair only,not seed/epochreplication or a pure semantic/CFcomparison.
+  Data/Parquet/contributions/figures retained;no next experiment authorized.
+
 - Latest authorization,2026-10-27:inference-only fixed-user context truncation.
   See `docs/gr-sid-context-ablation.md` and
   `experiments/amazon_beauty_sid_context_ablation_2t4.json`. Exactly the two
