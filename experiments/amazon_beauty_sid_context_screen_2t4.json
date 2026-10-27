@@ -1,0 +1,177 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-sid-context-screen"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "per-user leave-last-two; all train prefix targets exactly once per epoch; test context includes observed validation target",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-sid-context-screen"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "name": "beauty-rqkmeans-context-als-20epochs-validation-only",
+  "kind": "gr_frozen_sid_generator_suite",
+  "representation": {
+    "kind": "frozen_t5_context_als_graph_index",
+    "trainable": false
+  },
+  "quantizer": {
+    "kind": "frozen_full_sids",
+    "num_hierarchies": 3,
+    "codebook_size": 256
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "batch_size": 256,
+    "physical_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 20,
+    "min_epochs": 20,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 32,
+    "max_seconds": 7200,
+    "sampling": "all_train_prefixes",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 20
+  },
+  "evaluation": {
+    "test_after_selection": false,
+    "item_level": true,
+    "collision_resolution": "preserve byte-pinned complete SID paths including original suffix ownership",
+    "invalid_beams": "retain as miss at original rank",
+    "selection_metric": "validation item NDCG@10",
+    "save_validation_predictions": true,
+    "screening_metric": "Primary: validation item NDCG@10 at epoch20. Report fixed epochs5/10/15 and best-validation selection separately."
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "expected_initial_state_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff",
+  "expected_train_cases_sha256": "6f7ba06c70a6a218d4e620ac77ce41142baf762f7e62902c9fc9b6f7b45d847f",
+  "frozen_indices": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-sid-context-screen",
+    "manifest_sha256": "8878eb9f8b3f5f3174a763e501d8387f1c85b298651e6485b6638b9c87782209"
+  },
+  "trials": [
+    {
+      "id": "rqkmeans_original",
+      "asset_id": "item_als",
+      "family": "t5_rqkmeans",
+      "role": "original",
+      "semantic_lambda": 0.0,
+      "expected_variant": "original",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths",
+      "use_original_paths": true
+    },
+    {
+      "id": "item_als",
+      "asset_id": "item_als",
+      "family": "t5_rqkmeans",
+      "role": "swapped",
+      "semantic_lambda": 0.3,
+      "expected_variant": "als_uniform",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths"
+    },
+    {
+      "id": "context_als_20",
+      "asset_id": "context_20",
+      "family": "t5_rqkmeans",
+      "role": "swapped",
+      "semantic_lambda": 0.3,
+      "expected_variant": "context_als_window20",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths"
+    },
+    {
+      "id": "context_als_5",
+      "asset_id": "context_5",
+      "family": "t5_rqkmeans",
+      "role": "swapped",
+      "semantic_lambda": 0.3,
+      "expected_variant": "context_als_window5",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths"
+    }
+  ],
+  "reference": {
+    "exact_published_reproduction": false,
+    "new_fits": 4,
+    "training_epochs": 20,
+    "validation_epochs": [
+      5,
+      10,
+      15,
+      20
+    ],
+    "test_evaluations": 0,
+    "index_preparation": "Frozen original RQ-KMeans,exact previous item-ALS uniform,and context-ALS cosine-neighbor windows20/5.",
+    "search": "256accepted swaps per swapped index;maximum100000uniform proposals;lambda0.3;k20",
+    "comparability": "Context signal also uses distinct-context-user confidence. Equal accepted-move count,not equal semantic distortion or changed item sets.",
+    "budget_endpoint": "Primary endpoint epoch20;save all four validation predictions,best and full last states. No refit,retry,test or automatic extension."
+  },
+  "research_question": {
+    "hypothesis": "Grouping items with similar preceding TRAIN contexts may make SID prefixes more useful for next-item prediction than direct-item ALS proximity.",
+    "candidate_selection": "Window20 fixed by generator context length;window5 is a prespecified sensitivity. Neither candidate selected on recommender validation.",
+    "scope": "Exactly four fresh20epoch fits,one shared seed42,two workers with two sequential fits each;no graph/ALS/quantizer fit or test evaluation.",
+    "comparison": "Same dataset,allTRAINprefix targets,epoch order,initial neural parameters,optimizer and training/evaluation precision across all four models.",
+    "interpretation": "Exploratory shared-seed validation comparison,not independent replication or causal isolation of context representation from confidence policy."
+  }
+}

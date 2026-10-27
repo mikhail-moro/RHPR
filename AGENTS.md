@@ -2,6 +2,20 @@
 
 ## Research status
 
+- Latest authorization,2026-10-27:four matched20epoch TIGERfits,validation5/10/
+  15/20,one private2T4session. See`docs/gr-sid-context-screen.md` and
+  `experiments/amazon_beauty_sid_context_screen_2t4.json`. Fresh originalRQKM,
+  exact prioritemALS256swap control,contextALSwindow20and5cosine-neighbor
+  candidates. EachGPUrunscontrolthencontext;sharedseed42/exactprevious
+  data,initialization,stream,optimizer/FP16train/FP32batch32freebeam20eval.
+  Primaryendpoint20,no test,tuning,extra variants,seeds,retries or Telegram.
+  Saveall16validationpredictions,best/full-last20states. No intermediate
+  5/10/15weights promised. Newprivateinput`carasik/rhpr-sid-context-screen`,
+  manifest8878eb9f8b3f5f3174a763e501d8387f1c85b298651e6485b6638b9c87782209.
+  Two realasset/launch tests andfive existingALS/nativecadence tests passed.
+  Quota12.26hoursbefore submission;prior replayCOMPLETE. Expected60–80min
+  execution,queueadditional. Kernel`carasik/rhpr-context-als-tiger-screen`.
+
 - Context-ALS CPU implementation,2026-10-27:user requested typical preceding
   history embeddings per target item and same SID swaps. No GPU launch. See
   `docs/gr-sid-context-signal.md`,config`amazon_beauty_sid_context_prepare_cpu`.
