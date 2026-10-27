@@ -2,6 +2,25 @@
 
 ## Research status
 
+- Completed contextALSscreen analysis,2026-10-27:no pendingGPUjobs. See
+  `docs/gr-sid-context-screen-results.md`,artifacts`/workspace/artifacts/sid-context-screen`.
+  All4fits20epochs,10280updates,zeroAMPskips,16validationfiles independently
+  verified,sharedinitial/stream/indexhashesmatch. All-userNDCG10 original
+  0.036943,itemALS0.035149(-4.86%),context20 0.035796(-3.10%),context5
+  0.034211(-7.39%).20+TRAINevents cohort1019users:original0.039276,
+  itemALS0.044327(+12.86%),context20 0.045146(+14.95%),context5 0.041013
+  (+4.42%).All20+user/targetcluster95%CIsinclude0. Newcontext20vsitemALS
+  only+1.85%,alsoCIincludes0. Context20negative5/10/15,positiveonly20;
+  context5positiveon20+all4checks,butnotindependentreplication. Otherlength
+  binsnegativeat20. Modelseesmin(h,20),differentusercohortsnotcausaltruncation.
+  Paired2000bootstrapsseed2740+cohort,posthoc/unadjusted/onefitseed. CPUgraph
+  proxiesimprovedwithoutaggregateTIGERgain. Tables/2figures/all16userranks/
+  target-support/pathchange flags/PQ+NPZsaved.73raw/smallfiles51MBcachedin
+  `/tmp/rhpr-context-screen-completed`;authoritativeprivateKaggleretainsall8
+  best/laststates,filenamesconfirmedbutweightsnotdownloaded. Scripts
+  `analyze_sid_context_screen.py`/`report_sid_context_screen.py`reproduceCPU
+  analysis. No newinference,training,test,routingrule or experimentlaunched.
+
 - Submitted contextALS20screen once,2026-10-27:Kaggle
   `carasik/rhpr-context-als-tiger-screen`version1QUEUED. GitHubActions40541334398
   succeeded submit-only,noTelegram. Executablecommit9dcee38f1fe77cff18daf093246c7c81e9dc0751
