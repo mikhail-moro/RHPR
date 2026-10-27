@@ -2,6 +2,24 @@
 
 ## Research status
 
+- Completed identical-index seed control,2026-10-28:no pendingGPUjobs. See
+  `docs/gr-sid-seed-oracle-results.md`,artifacts`/workspace/artifacts/sid-seed-oracle/analysis`.
+  SameoriginalRQKM,neural42/43,data/order42,both20epochs/2628260examples/
+  10280updates/zeroAMPskips/4977920params/no test. All8rawbeams independently
+  rescored,NDCG/Recall5/10,invalid/duplicatecounts,cachedranks/oracle match.
+  Seed42NDCG10=0.03644111,seed43=0.03621833,oracle0.04785565(+31.32%).
+  Oldoriginal/ALS20oracle0.04729654(+28.03%). Same-indexexclusivehits404/382,
+  shared1196,miss20381;oracleRecall10=8.8629%(1982hits),oldpair1984hits.
+  Same-indexheadroomat5/10/15/20:+29.55/+32.55/+30.30/+31.32%;notindependent
+  replications. LargeoracleoccurswithoutSIDchange;noadditionalhierarchy-specific
+  oraclebenefitshown. Doesnotquantifycausalshare,proveequivalenceorlearnable
+  routing. Headroomdifference(same-different)+0.0010606,user95%[-0.0000441,
+  +0.0021789],targetCIalso0;fixed-weightintervalsnotseedvariability. Fresh42
+  differsfromold42despitehash/protocolmatch;GPUtrainingnondeterminismremains.
+  Raw46smallfiles25.88MBin/tmp/rhpr-seed-oracle-completed;fourstatefilenames
+  retainedonprivateKaggle,contentsnotdownloaded/verified. ScriptsreproduceCPU
+  analysis;no newtraining/inference/test/Telegram. Waitfornextresearchdirection.
+
 - Submitted identical-index seed oracle once,2026-10-28:private Kaggle
   `carasik/rhpr-sid-seed-oracle`version1RUNNING. GitHubActions40589179704
   succeededsubmit-only,Telegramskipped. Executable178883fe87351ee81ea70830688782129370584d.
