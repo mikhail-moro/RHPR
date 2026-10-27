@@ -21,7 +21,41 @@ def assignments(config, gpu_count):
         raise ValueError("frozen SID suite requires the all_train_prefixes control")
     if config["generator"]["codebook_size"] != config["quantizer"]["codebook_size"]:
         raise ValueError("generator and index widths differ")
+    if config.get('index_gate'):
+        gate = config['index_gate']
+        short = next((t for t in config['trials'] if t['id'] == gate['short_trial']), None)
+        if (type(gate['threshold']) is not int or not 1 <= gate['threshold'] <= config['data']['history_items']
+                or gate['token'] != 'encoder_prefix' or config['quantizer']['kind'] != 'frozen_full_sids'
+                or short is None or short.get('use_original_paths') is not True
+                or config['generator'].get('separator_token') or config['generator'].get('should_check_prefix')):
+            raise ValueError('invalid original/ALS conditional index protocol')
     return jobs
+
+
+def load_trial_index(trial_id, config, output):
+    from rhpr.gr.full_sid_index import load_generator_index
+    width = config['quantizer']['codebook_size']
+    index = load_generator_index(output / 'indices' / trial_id, width)
+    if config.get('index_gate'):
+        from rhpr.gr.conditional_index import ConditionalSidIndex
+        gate = config['index_gate']
+        short = load_generator_index(output / 'indices' / gate['short_trial'], width)
+        index = ConditionalSidIndex(short, index, gate['threshold'])
+    return index
+
+
+def build_trial_generator(index, config, device, source):
+    from rhpr.gr.grid import build_grid_generator
+    from rhpr.gr.sid_study import state_digest
+    values = index.indices[0].sids if config.get('index_gate') else index.sids
+    model = build_grid_generator(values, config['generator'], config['seed'], device, source)
+    if config.get('index_gate'):
+        from rhpr.gr.conditional_index import add_branch_token
+        expected_base = config['index_gate'].get('expected_base_initial_state_sha256')
+        if expected_base and state_digest(dict(model.named_parameters())) != expected_base:
+            raise ValueError('conditional generator base differs from previous GRID control')
+        add_branch_token(model)
+    return model
 
 
 def verify_file(root, record):
@@ -103,24 +137,31 @@ def training_manifest(users, config):
     for array in train:
         digest.update(str(array.shape).encode());digest.update(array.dtype.str.encode());digest.update(array.tobytes())
     epochs = config["training"]["max_epochs"]
-    return {"sampling": "all_train_prefixes", "examples_per_epoch": len(train[2]),
+    report = {"sampling": "all_train_prefixes", "examples_per_epoch": len(train[2]),
         "seed": config["seed"], "train_cases_sha256": digest.hexdigest(),
         "epoch_order_sha256": {str(e): hashlib.sha256(np.random.default_rng(config["seed"]+e)
             .permutation(len(train[2])).tobytes()).hexdigest() for e in range(1, epochs+1)}}
+    if config.get('index_gate'):
+        threshold = config['index_gate']['threshold']
+        branch = ((train[0] >= 0).sum(1) >= threshold).astype(np.int64)
+        report['index_gate'] = dict(threshold=threshold, short_examples=int((branch == 0).sum()),
+                                    long_examples=int((branch == 1).sum()),
+                                    branch_sha256=hashlib.sha256(branch.tobytes()).hexdigest())
+    return report
 
 
 def run_trial(trial, config, users, output, source, device, expected_initial=None):
     import numpy as np
     import torch
-    from rhpr.gr.grid import build_grid_generator
     from rhpr.gr.rqvae_experiment import _train_rqvae_generator
-    from rhpr.gr.full_sid_index import load_generator_index
     from rhpr.gr.sid_study import state_digest
 
     directory = output / "trials" / trial["id"];directory.mkdir(parents=True, exist_ok=True)
-    index = load_generator_index(output / "indices" / trial["id"], config["quantizer"]["codebook_size"])
+    index = load_trial_index(trial['id'], config, output)
     random.seed(config["seed"]);np.random.seed(config["seed"]);torch.manual_seed(config["seed"])
-    model = build_grid_generator(index.sids, config["generator"], config["seed"], device, source)
+    model = build_trial_generator(index, config, device, source)
+    if config.get('index_gate'):
+        _write(directory / 'conditional-index.json', index.provenance())
     # SID lookup buffers intentionally differ; hash the actual tied neural
     # parameters, not the immutable item-to-code lookup supplied to the model.
     initial = state_digest(dict(model.named_parameters()))
@@ -192,7 +233,7 @@ def run_generator_suite(config, output):
     import torch
     from rhpr.gr.ae_suite import launch_workers
     from rhpr.gr.resources import verify_resources, verify_parent_artifacts, unpack_grid
-    from rhpr.gr.grid import prepare_grid_source, build_grid_generator
+    from rhpr.gr.grid import prepare_grid_source
     from rhpr.gr.sid_study import state_digest
     from rhpr.gr.sid import SidIndex
     import numpy as np
@@ -220,9 +261,8 @@ def run_generator_suite(config, output):
     source = prepare_grid_source(original, scratch / "runtime")
     os.environ.update(HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1", TOKENIZERS_PARALLELISM="false")
     first = config["trials"][0]["id"]
-    from rhpr.gr.full_sid_index import load_generator_index
-    index = load_generator_index(output / "indices" / first, config["quantizer"]["codebook_size"])
-    control = build_grid_generator(index.sids, config["generator"], config["seed"], "cpu", source)
+    index = load_trial_index(first, config, output)
+    control = build_trial_generator(index, config, 'cpu', source)
     initial = state_digest(dict(control.named_parameters()))
     if config.get("expected_initial_state_sha256", initial) != initial:
         raise ValueError("generator neural parameters differ from completed TIGER control")
@@ -232,6 +272,7 @@ def run_generator_suite(config, output):
     (output / "workers").mkdir()
     _write(output / "input-provenance.json", {"manifest": resource_manifest, "counts": counts,
         "parent": config.get("parent", config.get("frozen_indices")), "indices": indices, "telemetry_enabled": False,
+        "index_gate": config.get('index_gate'),
         "training_cases": stream, "generator_seed": config["seed"]})
     if config.get("controls"):
         _write(output / "controls.json", config["controls"])

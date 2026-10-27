@@ -2,6 +2,23 @@
 
 ## Research status
 
+- Latest authorization,2026-10-27:conditional original/ALSindex,20epochs,val
+  5/10/15/20. See`docs/gr-sid-gated-index.md`,config`amazon_beauty_sid_gated_index_2t4`.
+  Exactly2freshfits:original_with_branch(originalbothbranches)andgated_original_als
+  (originalforavailableH<10,exactolditemALSforH>=10). BothsameknownSHORT/LONG
+  learnedencoderprefixtoken,insertedbeforeuserAFTERnativeSIDhierarchyoffsets.
+  4978176params(+256),samecase/order/seed42/optimizer/FP16train/FP32batch32
+  freebeam20. Sourceinputexistingprivatecontextscreenmanifest8878eb9f…,
+  no refit/upload/contextvariants/test/Telegram/retry/thresholdsearch. Gateper
+  currentprefix,not eventualuserlength. Per epoch98608short/32805long;shared
+  conditionedneuralhashb5700937900c8bfd4f0665ca20937da4727a4b2e7c32346835915338eab81b6d.
+  16tests passincludingrealGRIDtrain/gradient/beam/restore,legacyregressionand
+  actualcataloguepreflight. Branch-awaredecode+8predfileswithbranchIDs/lengths,
+  best/lastfullstateshashBOTHmappings. Future replaymustuseconditionalfactory,
+  notoldsingleSIDdecoder. Preflight`/workspace/artifacts/sid-gated-index/preflight.json`.
+  Quota11.24hbeforelaunch,oldscreenCOMPLETE;expected35–45minexecution+queue.
+  Kernel`carasik/rhpr-gated-sid-tiger-screen`,exactlyone2T4submission.
+
 - Completed contextALSscreen analysis,2026-10-27:no pendingGPUjobs. See
   `docs/gr-sid-context-screen-results.md`,artifacts`/workspace/artifacts/sid-context-screen`.
   All4fits20epochs,10280updates,zeroAMPskips,16validationfiles independently
