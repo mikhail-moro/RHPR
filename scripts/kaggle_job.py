@@ -20,7 +20,20 @@ FAILURE_STATES = {"error", "failed", "cancelled", "canceled"}
 
 def run(command: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
     print("+", " ".join(command), flush=True)
-    return subprocess.run(command, check=check, text=True, capture_output=True)
+    try:
+        return subprocess.run(command, check=check, text=True, capture_output=True)
+    except subprocess.CalledProcessError as error:
+        # The CLI's server response used to disappear behind CalledProcessError.
+        # Keep diagnostics useful without copying auth values into job logs.
+        diagnostic = "\n".join(x for x in (error.stdout, error.stderr) if x)
+        for name in ("KAGGLE_API_TOKEN", "KAGGLE_KEY", "TELEGRAM_BOT_TOKEN", "GH_TOKEN", "GITHUB_TOKEN"):
+            value = os.environ.get(name)
+            if value:
+                diagnostic = diagnostic.replace(value, "[redacted]")
+        diagnostic = re.sub(r"(?i)(Bearer\s+)[^\s'\"]+", r"\1[redacted]", diagnostic)
+        diagnostic = re.sub(r"(https?://[^\s?'\"]+)\?[^\s'\"]+", r"\1?[redacted]", diagnostic)
+        print(diagnostic[-4000:], flush=True)
+        raise
 
 
 def parse_kernel_status(output: str) -> str:
