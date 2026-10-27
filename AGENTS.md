@@ -2,6 +2,27 @@
 
 ## Research status
 
+- Completed gatedindex analysis,2026-10-27:no pendingGPUjobs. See
+  `docs/gr-sid-gated-index-results.md`,artifacts`/workspace/artifacts/sid-gated-index/analysis`.
+  Both20epochs/10280updates/zeroAMPskips/4978176params. All8rawpredictionfiles
+  independentlybranch-decoded,allmetrics/invalid/duplicatecounts/user-target-
+  branchmetadata/hashesmatched. ControltaggedoriginalNDCG10 0.03587286,gated
+  0.03603699(+0.46%);user95%deltaCI[-0.001110,+0.001453],targetclusteralso0.
+  Overallrelativeat5/10/15/20:+2.35/+4.32/-2.30/+0.46%. Endpoint<10+0.10%,
+  10+ +2.05%;finer3+4.06%,4+0.86%,5–9-3.96%,10–19+5.92%,20+-5.98%.
+  ALLcohortuser/targetclusterCIsinclude0. Current20+control0.046972,gated
+  0.044165;olduntaggedoriginal/pureALS0.039276/0.044327arehistoricalrefs,
+  notmatchedfeatureablation. Only116longvalidationtargets(74items)changeSID,
+  control7vs gated4top10hits;mostmapassignmentsagree96%. Longchangedinput/
+  targetunion1538hasNDCG0.039221->0.037175;unchanged2009 0.043219->0.046288.
+  Sharedweightsgloballyaffectunchangedpaths,notproofignoredgate/noise. No
+  confirmedqualitygain/equivalence,newthreshold,orindependentseedreplication.
+  Source45d7dab1…,45numerical/reportfiles25.98MBcached/tmp/rhpr-gated-index-completed;
+  authoritativeprivateKaggleretains4best/laststates,filenamesconfirmednotcontents.
+  All8userranks+branch/length/support/pathflagsNPZ,tables/CIs/figure preserved.
+  Reproduce`scripts/analyze_sid_gated_index.py --plot`. No newGPU/inference/test/
+  training/routingchangeorTelegram;waitfornextuserresearchdirection.
+
 - Submitted gatedindex once,2026-10-27:Kaggle
   `carasik/rhpr-gated-sid-tiger-screen`version1RUNNING. GHworkflowdispatch401
   was notaccepted/no workflowrun;usedofficialKaggleCLI directly,not a duplicate.
