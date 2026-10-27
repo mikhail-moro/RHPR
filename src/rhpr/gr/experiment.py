@@ -237,6 +237,13 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                 np.savez_compressed(output / f"validation-epoch-{epoch:03d}.npz",
                     semantic_ids=validation_ids, scores=validation_scores,
                     user_ids=validation[1], target_item_ids=validation[2], **metadata)
+            if config.get('evaluation', {}).get('save_teacher_forced_diagnostics', False):
+                from rhpr.gr.sid_corruption import teacher_forced_diagnostics
+                report, arrays = teacher_forced_diagnostics(model, validation, sid_index,
+                    specification['evaluation_batch_size'], device, evaluation_precision)
+                _write(output / f'teacher-forced-epoch-{epoch:03d}.json', report)
+                np.savez_compressed(output / f'teacher-forced-epoch-{epoch:03d}.npz', **arrays)
+                row['teacher_forced'] = report
             validation_seconds += time.monotonic() - validation_started
             row["validation"] = last_validation
             score = last_validation["ndcg@10"]

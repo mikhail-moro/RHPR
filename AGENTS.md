@@ -2,6 +2,21 @@
 
 ## Research status
 
+- Latest authorization,2026-10-28:random whole-SID corruption0/5/20/50/100%,
+  five freshTIGERfits20epochs,val5/10/15/20,on2T4. See`docs/gr-sid-corruption.md`
+  and`amazon_beauty_sid_corruption_2t4.json`. SameoriginalRQKM,neural/order42,
+  permutation2753,nestedselectedsets;uniformderangementswithinselectedcounts
+  0/605/2420/6050/12101. Completepathsincl suffix. PerdoseSID/ownerhashespinned
+  fromCPUpreflight;all5neuralhashesmatch5f4a24fa…,4977920params,131413cases/epoch.
+  Everycatalogueprefixoccupancyexactlyfixed;TRAINtokenfrequencyNOTcontrolled.
+  Existing3privatedatasets,originalinput+T5semanticgraphmanifest/cataloguechecks,
+  no uploads/refits. T5first-prefixsharing53.22/48.06/33.98/13.68/0.62%,TRAIN
+  firstprefixTV0/.01690/.05815/.10519/.18072. No downstreamresultyet. Save20beams,
+  20teacher-forcedNLL/ranksidecars,10best/laststates,allmaps/owners/frequencies/
+  diagnostics. Teacherpassobservational,fulltrue-prefixheads,notbeamquality.
+  Jobs[0,20,100]and[5,50],expected85–110min+queue. No test,earlystop,extension,
+  extraseeds,retries or Telegram. Launchpending;quota10.23hbeforelaunch.
+
 - Completed identical-index seed control,2026-10-28:no pendingGPUjobs. See
   `docs/gr-sid-seed-oracle-results.md`,artifacts`/workspace/artifacts/sid-seed-oracle/analysis`.
   SameoriginalRQKM,neural42/43,data/order42,both20epochs/2628260examples/

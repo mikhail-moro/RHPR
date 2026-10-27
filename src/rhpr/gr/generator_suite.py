@@ -21,6 +21,9 @@ def assignments(config, gpu_count):
         raise ValueError("frozen SID suite requires the all_train_prefixes control")
     if config["generator"]["codebook_size"] != config["quantizer"]["codebook_size"]:
         raise ValueError("generator and index widths differ")
+    if config.get('sid_corruption'):
+        from rhpr.gr.sid_corruption import validate_corruption
+        validate_corruption(config)
     if any('generator_seed' in t for t in config['trials']):
         if any(type(t.get('generator_seed')) is not int or not 0 <= t['generator_seed'] < 2**32
                for t in config['trials']):
@@ -270,8 +273,12 @@ def run_generator_suite(config, output):
     resource_manifest = verify_resources(resources, config["resources"]["manifest_sha256"])
     _, users, source_ids, counts = load_beauty(resources / "data", config["data"])
     if config["quantizer"]["kind"] == "frozen_full_sids":
-        from rhpr.gr.full_sid_index import prepare_full_sid_indices
-        indices = prepare_full_sid_indices(config, source_ids, output)
+        if config.get('sid_corruption'):
+            from rhpr.gr.sid_corruption import prepare_corrupted_indices
+            indices = prepare_corrupted_indices(config, source_ids, users, output)
+        else:
+            from rhpr.gr.full_sid_index import prepare_full_sid_indices
+            indices = prepare_full_sid_indices(config, source_ids, output)
     else:
         parent = verify_parent_artifacts(config["parent"])
         indices = prepare_indices(config, parent, source_ids, output)
