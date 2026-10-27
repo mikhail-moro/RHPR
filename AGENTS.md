@@ -2,6 +2,14 @@
 
 ## Research status
 
+- Submitted contextALS20screen once,2026-10-27:Kaggle
+  `carasik/rhpr-context-als-tiger-screen`version1QUEUED. GitHubActions40541334398
+  succeeded submit-only,noTelegram. Executablecommit9dcee38f1fe77cff18daf093246c7c81e9dc0751
+  confirmedinactualKagglesource;private/GPU/T4/internetoff/TPUoff/two datasets
+  metadata confirmed. Receipt`/workspace/artifacts/sid-context-screen-submission.json`.
+  Four20epochfits,val5/10/15/20asbelow. No results yet,do notresubmit while
+  queued/running. Nextactiononlywhenuserreportscompletion orasksstatus.
+
 - Latest authorization,2026-10-27:four matched20epoch TIGERfits,validation5/10/
   15/20,one private2T4session. See`docs/gr-sid-context-screen.md` and
   `experiments/amazon_beauty_sid_context_screen_2t4.json`. Fresh originalRQKM,

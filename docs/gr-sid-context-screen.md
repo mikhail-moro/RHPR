@@ -82,3 +82,13 @@ per model plus~49seconds per validation. For two waves of20epochs expect about
 Kernel:`carasik/rhpr-context-als-tiger-screen`. Submit once through the existing
 GitHubActions Kaggle workflow,with Telegram disabled and submit-only mode;do
 not poll training until completion or user requests a status update.
+
+Submitted once:GitHubActions run
+`https://github.com/mikhail-moro/RHPR/actions/runs/40541334398` completed
+successfully in submit-only mode. Executable source commit
+`9dcee38f1fe77cff18daf093246c7c81e9dc0751` is confirmed in Kaggle's returned
+source blob. Kaggle version1metadata confirms private,GPUenabled,T4shape,
+internetdisabled,TPUdisabled and exactly the two required dataset mounts.
+Submission status was QUEUED;no training results are available yet. Read-only
+receipt:`/workspace/artifacts/sid-context-screen-submission.json`. Do not
+resubmit merely because this session waits in the GPUqueue.
