@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-28",
+  "kernel": "carasik/rhpr-generator-age-screen",
+  "version": 1,
+  "submission_confirmed": true,
+  "submission_evidence": "GitHub Actions job log: Kernel version 1 successfully pushed",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/40673921485",
+  "workflow_conclusion": "success",
+  "source_sha": "316c1093a0a76ccf408562c5bce0a8640d72f322",
+  "config": "experiments/amazon_beauty_sid_generator_age_2t4.json",
+  "direct_kaggle_runtime_status": null,
+  "actual_source_package_audit": false,
+  "audit_limitation": "Managed cloud executor unavailable after submission; GitHub connector used to confirm workflow checkout, exact inputs and successful Kaggle push.",
+  "tests": {
+    "repository_run": 905,
+    "repository_skips": 80,
+    "repository_ok": true,
+    "targeted_run": 4,
+    "targeted_ok": true
+  },
+  "new_source_epochs": 5,
+  "downstream_fits": 0,
+  "teacher_epochs": [
+    1,
+    5,
+    20
+  ],
+  "pool_size": 2000,
+  "reserved_static_and_sequential_rows_per_teacher": 2000000,
+  "semantic_lambda": 0,
+  "notify_telegram": false,
+  "quota_gpu_hours_before": 7.97,
+  "expected_minutes": [
+    30,
+    45
+  ]
+}

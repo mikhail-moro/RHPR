@@ -18,7 +18,12 @@
   Source/indices allpinned,noexistingjobresubmission. Tests905OK80skips;4targeted
   passincludingnative5epochsnapshots/staticprobes/3isolatedsearches;nativefirst5
   lossesmatchwithoutsavehook. Sharedprefixdrycheckwith20-onlypool119pairs,
-  1998506reservedrows(actualearlypoolsnotknown). Ready for single submission.
+  1998506reservedrows(actualearlypoolsnotknown). Submitted once as private`carasik/rhpr-generator-age-screen`v1.
+  Actions40673921485success;log confirms Kaggle accepted v1,source
+  316c1093a0a76ccf408562c5bce0a8640d72f322. Do not resubmit.
+  Cloud executor became unavailable after submission. Direct Kaggle runtime
+  status/actual embedded-package audit pending;do not claim RUNNING/sourceaudit.
+  GitHub connector remains usable;bookkeeping saved remotely.
   Do not proceed to downstreamtraining automatically.
 
 - Completed generator-guided SID screen,2026-10-28. No pending GPU work.
