@@ -2,6 +2,27 @@
 
 ## Research status
 
+- Completed ALSfootprint audit,2026-10-28,CPUonly:no newfits/inference/test/GPU.
+  See`docs/gr-sid-als-footprint.md`,artifacts`/workspace/artifacts/sid-als-footprint`.
+  Mainuniform480items:fullTRAINhistusers4441/22363(19.86%);visiblevalhist4306
+  (19.26%),target757(3.39%),either4927(22.03%);trainprefixeither28268/131413
+  (21.51%). FinalLCP0/1/2/3=401/77/2/0:83.54%changefirsttoken.256movesreplayexact.
+  FrozenT5destination-ownercosinemedian.87917vsrandomsame480.85161,catalogue
+  .84860;mediansemanticrank1304.5/12100,33top20/76top100. Cosineisitemvsold
+  ownerofnewpath,notchangedT5vectororcentroid.100untrainedsame480/pathsetrandom
+  controls:rootchangedmean475.49vsALS401;semanticLCP.199945original->.196909ALS
+  vs.192671random. FitALSgraph.045589->.047448vsrandom.044082;selectedbyconstruction,
+  notqualityproof. MovedmedianTRAINtargets5vs6,mean9.43vs10.92;mass3.45%.
+  Popularitybins0/1-4/5-9/10-19/20-49/50+=2/190/180/63/35/10.
+  Other4%variantsverydifferentexposure:priority472itemsvalunion34.68%,context20
+  48231.51%,context548132.33%;random5%60528.55%. Prioritymedianfreq12,mass7.61%.
+  Affectedmain4927qualityfresh20-8.04%,longrun20-.97%,longrun60+5.97%(CIs0).
+  Existingpriority10vsrandomsame472affected7756+8.81%,userCIpositivebuttargetCI0;
+  global+.94%CI0. Exploratorylead,noconfirmedusefulCFgain. Sharedweightsaffect
+  unchangedinput/labelrows,notcausalexposuredecomposition. Artefactssaveall480
+  itemfeatures/distances/paths,pair256steps,22363exposureflags,100randomdiagnostics,
+  PNG/SVG. No trainingauthorized;waitfornextresearchdirection.
+
 - Completed randomSIDcorruption,2026-10-28:no pendingGPUjobs. See
   `docs/gr-sid-corruption-results.md`,artifacts`/workspace/artifacts/sid-corruption/analysis`.
   All5fits20epochs/2628260examples/10280updates/zeroAMPskips/4977920params,
