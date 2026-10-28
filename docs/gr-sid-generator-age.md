@@ -85,16 +85,9 @@ static scoring against independent original-map evaluations, and all three
 searches through isolated native CPU workers.
 
 Config:`experiments/amazon_beauty_sid_generator_age_2t4.json`.
-Submitted once as private [Kaggle v1](https://www.kaggle.com/code/carasik/rhpr-generator-age-screen).
-[Actions40673921485](https://github.com/mikhail-moro/RHPR/actions/runs/40673921485)
-succeeded; its job log confirms `Kernel version 1 successfully pushed` from
-executable commit`316c1093a0a76ccf408562c5bce0a8640d72f322`.
-The cloud executor became unavailable immediately after dispatch, so a direct
-runtime-status/embedded-package audit has not been performed. Submission is
-confirmed, execution status is not yet checked. Do not resubmit the kernel.
-Receipt:`docs/gr-sid-generator-age-submission.json`.
-
-Checks before submission:905 repository tests OK,80 optional skips;four targeted
-tests including native snapshots/all three isolated CPU searches passed. Native
-first5epoch losses match training without snapshot saving. Source diffs against
-remote base verified to contain only the new dispatch and optional save hook.
+Private [Kaggle v1](https://www.kaggle.com/code/carasik/rhpr-generator-age-screen)
+is COMPLETE. See [results](gr-sid-generator-age-results.md).
+Executable`316c1093a0a76ccf408562c5bce0a8640d72f322`;submission Actions40673921485.
+Actual source/config audit is now complete after the cloud outage:all180embedded
+files match,packageSHA256`04448e74e87ff6bc41485d00d229c65fa121d55aacc089d73f42c9152c942508`.
+Local receipts and analysis:`/workspace/artifacts/sid-generator-age/`.

@@ -8,9 +8,9 @@
   "workflow_conclusion": "success",
   "source_sha": "316c1093a0a76ccf408562c5bce0a8640d72f322",
   "config": "experiments/amazon_beauty_sid_generator_age_2t4.json",
-  "direct_kaggle_runtime_status": null,
-  "actual_source_package_audit": false,
-  "audit_limitation": "Managed cloud executor unavailable after submission; GitHub connector used to confirm workflow checkout, exact inputs and successful Kaggle push.",
+  "direct_kaggle_runtime_status": "COMPLETE",
+  "actual_source_package_audit": true,
+  "audit_limitation": null,
   "tests": {
     "repository_run": 905,
     "repository_skips": 80,
@@ -33,5 +33,26 @@
   "expected_minutes": [
     30,
     45
-  ]
+  ],
+  "observed_status": "COMPLETE",
+  "actual_source_files_checked": 180,
+  "package_sha256": "04448e74e87ff6bc41485d00d229c65fa121d55aacc089d73f42c9152c942508",
+  "analysis": "docs/gr-sid-generator-age-results.md",
+  "analysis_artifacts": "/workspace/artifacts/sid-generator-age/analysis",
+  "downloaded_numerical_files": 60,
+  "downloaded_numerical_bytes": 11229807,
+  "checkpoint_contents_verified": true,
+  "actual_shared_proposals": 115,
+  "actual_rows_per_teacher": 1987754,
+  "actual_sequential_accepted": [
+    2,
+    2,
+    0
+  ],
+  "actual_static_accepted": [
+    2,
+    2,
+    0
+  ],
+  "new_training_epochs": 5
 }

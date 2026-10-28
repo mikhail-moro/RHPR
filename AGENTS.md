@@ -2,6 +2,31 @@
 
 ## Research status
 
+- Completed teacher-age screen2026-10-28,no pending GPU work. See
+  `docs/gr-sid-generator-age-results.md`;private`carasik/rhpr-generator-age-screen`
+  v1 COMPLETE,source316c1093a0a76ccf408562c5bce0a8640d72f322.
+  Same115pairs(95LCP0/20LCP1/noLCP2),1987754rows/age inclstatic+greedy.
+  Static andgreedy accepted2/2/0at1/5/20;changeditems4/4/0. Firsttokenchanges
+  2/4/0,secondtokenchanges2/0/0. Gains32.5924/7.47208/0nats,
+  relativeTRAINNLLimprovement.002348%/.000682%/0. Affects639/138TRAINcases,
+  203/45validationhistory-or-targetusers. Samepair10655/11819serumsstaticgain
+  +29.51195/+1.82229/-23.01673at1/5/20;3023/3413nailart+3.0804/-116.174/
+  -167.732;8476/10004DevaCurlgel/shampoo-2.116/+5.650/-17.217.
+  Ageeffectvisiblebutconsistentwitheitheroldcodeanchoringorearlymodelerrors;
+  no downstreambenefitshown,only4changeditemsagain. Do not auto launchfits.
+  Oldtwoaccepted20epochpairsarein2000poolbutNOTshared115prefix:zero20here
+  doesnotcontradictprior2accepted,differentpool/order/budgetaccounting.
+  Only5newtrainingepochs657065cases/2570updates/zeroAMPskips,onevalat5,no test,
+  downstreamfits,semanticpenalty,extraseeds,retries. Body30.24min.
+  All3checkpointfileweights/epochs/updates/hashesindependentlychecked;3mining
+  listsrecomputedfromprobes,pool/budget/order/cachegain/zerooutsideaffectedrows/
+  mapreplay/prefixoccupanciesverified. Runtimefrozenweights/RNG/fullcacheaudits
+  exactzero. Actual180embeddedfiles/config matchsource;privateofflineT4mounts
+  verified,previouscloudoutageauditresolved.PackageSHA04448e74e87ff6bc41485d00d229c65fa121d55aacc089d73f42c9152c942508.
+  60numericalfiles11.23MBplus2earlyweightsin/tmp/rhpr-generator-age-completed;
+  reports/graphs/paireddeltas/sourceauditin/workspace/artifacts/sid-generator-age.
+  Script`scripts/analyze_sid_generator_age.py`reproducesCPUverification.
+
 - Latest authorization2026-10-28:teacher-age1/5/20search-only screen.
   See `docs/gr-sid-generator-age.md`,config`amazon_beauty_sid_generator_age_2t4`.
   Fit original generator exactly5epochs once,save1/5,reuse pinned previous20.
@@ -18,12 +43,7 @@
   Source/indices allpinned,noexistingjobresubmission. Tests905OK80skips;4targeted
   passincludingnative5epochsnapshots/staticprobes/3isolatedsearches;nativefirst5
   lossesmatchwithoutsavehook. Sharedprefixdrycheckwith20-onlypool119pairs,
-  1998506reservedrows(actualearlypoolsnotknown). Submitted once as private`carasik/rhpr-generator-age-screen`v1.
-  Actions40673921485success;log confirms Kaggle accepted v1,source
-  316c1093a0a76ccf408562c5bce0a8640d72f322. Do not resubmit.
-  Cloud executor became unavailable after submission. Direct Kaggle runtime
-  status/actual embedded-package audit pending;do not claim RUNNING/sourceaudit.
-  GitHub connector remains usable;bookkeeping saved remotely.
+  1998506reservedrows(drycheckonly). Submitted v1,now complete;results above.
   Do not proceed to downstreamtraining automatically.
 
 - Completed generator-guided SID screen,2026-10-28. No pending GPU work.
