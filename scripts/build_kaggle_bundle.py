@@ -48,6 +48,8 @@ WORKING = Path("/kaggle/working")
 PACKAGE_ARCHIVE = WORKING / "rhpr-package.zip"
 CONFIG_PATH = WORKING / "experiment.json"
 
+print(json.dumps({{"phase": "kernel_python_started", "git_sha": GIT_SHA,
+                  "experiment": json.loads(EXPERIMENT_CONFIG).get("name")}}), flush=True)
 WORKING.mkdir(parents=True, exist_ok=True)
 PACKAGE_ARCHIVE.write_bytes(base64.b64decode(EMBEDDED_PACKAGE))
 CONFIG_PATH.write_text(EXPERIMENT_CONFIG, encoding="utf-8")

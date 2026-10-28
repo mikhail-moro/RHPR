@@ -13,6 +13,10 @@ import time
 def install_gr_runtime(runtime: dict, working: Path) -> dict:
     from rhpr.offline_runtime import resolve_dataset_directory
 
+    print(json.dumps({"phase": "gr_runtime_prepare_started"}), flush=True)
+    install_timeout = runtime.get("installation_timeout_seconds", 300)
+    if type(install_timeout) is not int or install_timeout < 1:
+        raise ValueError("GR installation timeout must be a positive integer")
     expected_minor = runtime["target_python_minor"]
     if f"{sys.version_info.major}.{sys.version_info.minor}" != expected_minor:
         raise RuntimeError(f"GR dependency wheels require Python {expected_minor}")
@@ -43,19 +47,28 @@ def install_gr_runtime(runtime: dict, working: Path) -> dict:
                "--only-binary=:all:",
                "--find-links", str(links), "--target", str(target),
                "-r", str(source / "requirements-lock.txt")]
+    print(json.dumps({"phase": "gr_runtime_pip_started", "timeout_seconds": install_timeout}), flush=True)
     with (working / "runtime-install.log").open("w") as stream:
-        subprocess.run(command, env=env, stdout=stream, stderr=subprocess.STDOUT, check=True)
+        subprocess.run(command, env=env, stdout=stream, stderr=subprocess.STDOUT, check=True,
+                       timeout=install_timeout)
+    print(json.dumps({"phase": "gr_runtime_pip_complete", "seconds": time.monotonic()-started}), flush=True)
     sys.path.insert(0, str(target))
     os.environ.update(HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1",
                       HF_HOME=str(target.parent / "gr-huggingface"), TOKENIZERS_PARALLELISM="false",
                       USE_TF="0", USE_FLAX="0")
+    print(json.dumps({"phase": "gr_runtime_import_started", "module": "torch"}), flush=True)
     import torch
     if torch.__version__.split("+", 1)[0] != manifest["expected_torch_version"].split("+", 1)[0]:
         raise RuntimeError("platform PyTorch version differs from the registered GR runtime")
+    print(json.dumps({"phase": "gr_runtime_import_started", "module": "transformers"}), flush=True)
     import transformers
+    print(json.dumps({"phase": "gr_runtime_import_started", "module": "sentence_transformers"}), flush=True)
     import sentence_transformers
+    print(json.dumps({"phase": "gr_runtime_import_started", "module": "lightning"}), flush=True)
     import lightning
+    print(json.dumps({"phase": "gr_runtime_import_started", "module": "torchmetrics"}), flush=True)
     import torchmetrics
+    print(json.dumps({"phase": "gr_runtime_import_started", "module": "hydra"}), flush=True)
     import hydra
     report = {"kind": "gr", "installed_offline": True,
               "torch": torch.__version__, "cuda": torch.version.cuda,

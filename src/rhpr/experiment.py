@@ -76,6 +76,16 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == 'gr_generator_age_screen':
+        if output_dir is None:
+            raise ValueError('output_dir is required for gr_generator_age_screen')
+        from rhpr.gr.generator_age import run_age_screen
+        return run_age_screen(config, output_dir)
+    if kind == "gr_frozen_validation_replay":
+        if output_dir is None:
+            raise ValueError("output_dir is required for gr_frozen_validation_replay")
+        from rhpr.gr.validation_replay import run_validation_replay
+        return run_validation_replay(config, output_dir)
     if kind == "gr_ae_warmup_probe":
         if output_dir is None:
             raise ValueError("output_dir is required for gr_ae_warmup_probe")

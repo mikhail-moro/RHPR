@@ -1,0 +1,197 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-sid-validation-replay"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "per-user leave-last-two; all train prefix targets exactly once per epoch; test context includes observed validation target",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "name": "beauty-frozen-sid-validation-user-replay",
+  "kind": "gr_frozen_validation_replay",
+  "training": {
+    "device": "cuda"
+  },
+  "expected_training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "batch_size": 256,
+    "physical_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 20,
+    "min_epochs": 20,
+    "patience": 5,
+    "validation_interval": 10,
+    "evaluation_batch_size": 32,
+    "max_seconds": 7200,
+    "sampling": "all_train_prefixes",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 20
+  },
+  "validation": {
+    "precision": "fp32",
+    "batch_size": 32,
+    "checkpoint_epoch": 20
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-sid-graph-tiger",
+      "carasik/rhpr-rqvae-tiger-beauty"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "parents": {
+    "graph": {
+      "kernel": "carasik/rhpr-sid-graph-tiger",
+      "source_code_sha": "0c1c44cd4698ff3b8d1de4d12cc0b94e053543ce",
+      "files": {
+        "run-manifest.json": {
+          "sha256": "f14f7e562d7a2445869286ae643d43c0a7f44b8cb636c0ec22c45a0f9a1f0b49",
+          "size_bytes": 6890
+        }
+      }
+    },
+    "baseline": {
+      "kernel": "carasik/rhpr-rqvae-tiger-beauty",
+      "source_code_sha": "6e37388a2dcd7f786bc49d47ac381459ef1de323",
+      "files": {
+        "run-manifest.json": {
+          "sha256": "8e3d645f273a09875b2c2df7bac7ce48875b952aa2cb8131b39adad2cc75abb1",
+          "size_bytes": 5788
+        }
+      }
+    }
+  },
+  "trials": [
+    {
+      "id": "rqvae_original",
+      "parent": "baseline",
+      "checkpoint": {
+        "path": "generator-best.pt",
+        "sha256": "0d1cc080f8d77186f76f5f6bf53e390e4eb9c9d1ed61a1537d646e803e6effc2",
+        "size_bytes": 19974729
+      },
+      "sids": {
+        "path": "semantic-ids.npy",
+        "sha256": "e5c9019774dd1576c29aaa37cd266e40d4143f1712bee733783b9ed1e7e238a6",
+        "size_bytes": 387360
+      },
+      "selection": {
+        "path": "training-selection.json",
+        "sha256": "8ed1c9cdf93449b40b09cc480e55b8869287526ba6190ee0750af460dda9de5c",
+        "size_bytes": 1294
+      }
+    },
+    {
+      "id": "rqvae_swapped",
+      "parent": "graph",
+      "checkpoint": {
+        "path": "trials/rqvae_swapped/generator-best.pt",
+        "sha256": "327896486ba641e0f0ca913dc7b40f0e7d507b5de1bfc53251c1708f6ef9b879",
+        "size_bytes": 19975561
+      },
+      "sids": {
+        "path": "indices/rqvae_swapped/semantic-ids.npy",
+        "sha256": "4e92e27eb609630a3b8e6e187b53091378eba21af229a4ca4bd8171e1fd63edc",
+        "size_bytes": 387360
+      },
+      "selection": {
+        "path": "trials/rqvae_swapped/training-selection.json",
+        "sha256": "e46299e7cb243799a9985a43310d838270b171119992ed7c1558d5e2a8d459a4",
+        "size_bytes": 1284
+      }
+    },
+    {
+      "id": "kmeans_original",
+      "parent": "graph",
+      "checkpoint": {
+        "path": "trials/kmeans_original/generator-best.pt",
+        "sha256": "360cfd7a3aab42d8337575a515759d6e5c4da44e0c2fe3c24062f7093d04d972",
+        "size_bytes": 19975561
+      },
+      "sids": {
+        "path": "indices/kmeans_original/semantic-ids.npy",
+        "sha256": "b196711dceedce81a991d995aa5c86ccd35288d5cdfe3f7aedb174de86470dae",
+        "size_bytes": 387360
+      },
+      "selection": {
+        "path": "trials/kmeans_original/training-selection.json",
+        "sha256": "53fe31df7bb94830a4c04bcaba7e973fe22e392ff030db51b8c27f77ad41fb34",
+        "size_bytes": 1291
+      }
+    },
+    {
+      "id": "kmeans_swapped",
+      "parent": "graph",
+      "checkpoint": {
+        "path": "trials/kmeans_swapped/generator-best.pt",
+        "sha256": "5bb1ed5d2a35c0734c0ba13f02b2a54397d963a0bb3d9e360048cd2116659068",
+        "size_bytes": 19975561
+      },
+      "sids": {
+        "path": "indices/kmeans_swapped/semantic-ids.npy",
+        "sha256": "6f575610f4bfd3784fceb6bdd2451a4be856705d6ba52ee30f54f49bfb4e4bec",
+        "size_bytes": 387360
+      },
+      "selection": {
+        "path": "trials/kmeans_swapped/training-selection.json",
+        "sha256": "980c07e6d74d37d420068bde1e5b72622a12ad3dd9e1ee87007e187301f0408c",
+        "size_bytes": 1291
+      }
+    }
+  ]
+}

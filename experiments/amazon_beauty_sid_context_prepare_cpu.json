@@ -1,0 +1,15 @@
+{
+  "name": "beauty-frozen-als-context-sid-probe",
+  "preparation_config": "/workspace/RHPR/experiments/amazon_beauty_sid_als_prepare_cpu.json",
+  "als_input": "/workspace/artifacts/sid-als-screen/input",
+  "output": "/workspace/artifacts/sid-context-signal/cosine-neighbors",
+  "reuse_primary_vectors": "/workspace/artifacts/sid-context-signal/window-20/context-vectors.npy",
+  "neighbor_ranking": "cosine",
+  "primary_window": 20,
+  "windows": [20, 5],
+  "families": ["t5_rqkmeans"],
+  "minimum_event_factor_users": 2,
+  "minimum_context_users": 2,
+  "support_shrinkage": 10.0,
+  "neighbors": 20
+}

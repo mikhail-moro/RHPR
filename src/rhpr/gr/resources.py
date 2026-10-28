@@ -68,17 +68,20 @@ def verify_parent_artifacts(parent: dict, input_root: Path = Path("/kaggle/input
     candidates.extend([input_root / slug, input_root / owner / slug,
                        input_root / "notebooks" / owner / slug,
                        input_root / "kernels" / owner / slug])
-    # New Kaggle mount layouts can append the version or add a namespace.
-    if input_root.exists():
-        candidates.extend(p.parent for p in input_root.rglob("run-manifest.json")
-                          if slug in p.parts)
+    def locations():
+        # Check known mounts before any recursive scan of remote input storage.
+        yield from candidates
+        # New Kaggle mount layouts can append a version or add a namespace.
+        if input_root.exists():
+            yield from (p.parent for p in input_root.rglob("run-manifest.json")
+                        if slug in p.parts)
     files = parent["files"]
     if "run-manifest.json" not in files:
         raise ValueError("parent provenance manifest must be pinned")
     for name in files:
         if not name or Path(name).name != name or "\\" in name:
             raise ValueError("parent artifact names must be safe basenames")
-    for directory in candidates:
+    for directory in locations():
         if not all((directory / name).is_file() for name in files):
             continue
         for name, expected in files.items():

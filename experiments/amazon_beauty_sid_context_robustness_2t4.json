@@ -1,0 +1,631 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-context-robustness"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "per-user leave-last-two; all train prefix targets exactly once per epoch; test context includes observed validation target",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "name": "beauty-context-robustness-ten-retained-models",
+  "kind": "gr_frozen_validation_replay",
+  "training": {
+    "device": "cuda"
+  },
+  "expected_training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "batch_size": 256,
+    "physical_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 20,
+    "min_epochs": 20,
+    "patience": 5,
+    "validation_interval": 10,
+    "evaluation_batch_size": 32,
+    "max_seconds": 7200,
+    "sampling": "all_train_prefixes",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 20
+  },
+  "validation": {
+    "precision": "fp32",
+    "batch_size": 32,
+    "checkpoint_epoch": 20
+  },
+  "context_ablation": {
+    "lengths": [
+      3,
+      5,
+      9,
+      20
+    ],
+    "cohorts": [
+      {
+        "id": "all_users",
+        "minimum_history": 3,
+        "lengths": [
+          3,
+          5,
+          9,
+          20
+        ],
+        "allow_short_histories": true,
+        "primary": true
+      },
+      {
+        "id": "history20plus",
+        "minimum_history": 20,
+        "lengths": [
+          3,
+          5,
+          9,
+          20
+        ],
+        "primary": false
+      },
+      {
+        "id": "history9plus",
+        "minimum_history": 9,
+        "lengths": [
+          3,
+          5,
+          9
+        ],
+        "primary": false
+      },
+      {
+        "id": "history5plus",
+        "minimum_history": 5,
+        "lengths": [
+          3,
+          5
+        ],
+        "primary": false
+      }
+    ],
+    "protocol": "Same full22363-user order and FP32batch32 for all caps. all_users uses min(K,history); matched >=20/9/5 cohorts retained. Frozen models only; 20epoch original-vs-cooc and10epochALS-vs-random are distinct comparisons."
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-sid-graph-tiger",
+      "carasik/rhpr-rqvae-tiger-beauty",
+      "carasik/rhpr-sid-val-replay",
+      "carasik/rhpr-als-swap-tiger-screen"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "parents": {
+    "graph": {
+      "kernel": "carasik/rhpr-sid-graph-tiger",
+      "source_code_sha": "0c1c44cd4698ff3b8d1de4d12cc0b94e053543ce",
+      "files": {
+        "run-manifest.json": {
+          "sha256": "f14f7e562d7a2445869286ae643d43c0a7f44b8cb636c0ec22c45a0f9a1f0b49",
+          "size_bytes": 6890
+        }
+      }
+    },
+    "baseline": {
+      "kernel": "carasik/rhpr-rqvae-tiger-beauty",
+      "source_code_sha": "6e37388a2dcd7f786bc49d47ac381459ef1de323",
+      "files": {
+        "run-manifest.json": {
+          "sha256": "8e3d645f273a09875b2c2df7bac7ce48875b952aa2cb8131b39adad2cc75abb1",
+          "size_bytes": 5788
+        }
+      }
+    },
+    "validation20": {
+      "kernel": "carasik/rhpr-sid-val-replay",
+      "source_code_sha": "c0b8f78f5bcc62ccfa1f3ffc13291b1bd8b2c1a2",
+      "files": {
+        "run-manifest.json": {
+          "sha256": "654b64067e1ee9fbb5668fb5224e87f5fd610656e4353c18421cb07c3bab7d22",
+          "size_bytes": 6867
+        }
+      }
+    },
+    "screen": {
+      "kernel": "carasik/rhpr-als-swap-tiger-screen",
+      "source_code_sha": "56aa9b4560b98d71a12335afddec4011a71c8335",
+      "files": {
+        "run-manifest.json": {
+          "sha256": "346e9e5f716a807da60a31f204e56351efe2b8dac835c4261c32d3a93552698a",
+          "size_bytes": 10401
+        }
+      }
+    }
+  },
+  "trials": [
+    {
+      "id": "cooc20_kmeans_original",
+      "parent": "graph",
+      "checkpoint": {
+        "path": "trials/kmeans_original/generator-best.pt",
+        "sha256": "360cfd7a3aab42d8337575a515759d6e5c4da44e0c2fe3c24062f7093d04d972",
+        "size_bytes": 19975561
+      },
+      "sids": {
+        "path": "indices/kmeans_original/semantic-ids.npy",
+        "sha256": "b196711dceedce81a991d995aa5c86ccd35288d5cdfe3f7aedb174de86470dae",
+        "size_bytes": 387360
+      },
+      "selection": {
+        "path": "trials/kmeans_original/training-selection.json",
+        "sha256": "53fe31df7bb94830a4c04bcaba7e973fe22e392ff030db51b8c27f77ad41fb34",
+        "size_bytes": 1291
+      },
+      "reference_predictions_parent": "validation20",
+      "reference_predictions": {
+        "path": "trials/kmeans_original/validation-predictions.npz",
+        "sha256": "efbdff13eca8015d4bb81c9c226ad7ab8f969d8dc83ecdbdd016d6a22ba5977d",
+        "size_bytes": 3085544
+      }
+    },
+    {
+      "id": "cooc20_kmeans_swapped",
+      "parent": "graph",
+      "checkpoint": {
+        "path": "trials/kmeans_swapped/generator-best.pt",
+        "sha256": "5bb1ed5d2a35c0734c0ba13f02b2a54397d963a0bb3d9e360048cd2116659068",
+        "size_bytes": 19975561
+      },
+      "sids": {
+        "path": "indices/kmeans_swapped/semantic-ids.npy",
+        "sha256": "6f575610f4bfd3784fceb6bdd2451a4be856705d6ba52ee30f54f49bfb4e4bec",
+        "size_bytes": 387360
+      },
+      "selection": {
+        "path": "trials/kmeans_swapped/training-selection.json",
+        "sha256": "980c07e6d74d37d420068bde1e5b72622a12ad3dd9e1ee87007e187301f0408c",
+        "size_bytes": 1291
+      },
+      "reference_predictions_parent": "validation20",
+      "reference_predictions": {
+        "path": "trials/kmeans_swapped/validation-predictions.npz",
+        "sha256": "0eb660da92cc403eb379945e1356469920b291d1d85c0f971d906a40cb267a80",
+        "size_bytes": 3074330
+      }
+    },
+    {
+      "id": "cooc20_rqvae_original",
+      "parent": "baseline",
+      "checkpoint": {
+        "path": "generator-best.pt",
+        "sha256": "0d1cc080f8d77186f76f5f6bf53e390e4eb9c9d1ed61a1537d646e803e6effc2",
+        "size_bytes": 19974729
+      },
+      "sids": {
+        "path": "semantic-ids.npy",
+        "sha256": "e5c9019774dd1576c29aaa37cd266e40d4143f1712bee733783b9ed1e7e238a6",
+        "size_bytes": 387360
+      },
+      "selection": {
+        "path": "training-selection.json",
+        "sha256": "8ed1c9cdf93449b40b09cc480e55b8869287526ba6190ee0750af460dda9de5c",
+        "size_bytes": 1294
+      },
+      "reference_predictions_parent": "validation20",
+      "reference_predictions": {
+        "path": "trials/rqvae_original/validation-predictions.npz",
+        "sha256": "de8206232e598c55083c8c5ef6cafa46481d4ce00bc8be3dc585b1e2db800a52",
+        "size_bytes": 3028515
+      }
+    },
+    {
+      "id": "cooc20_rqvae_swapped",
+      "parent": "graph",
+      "checkpoint": {
+        "path": "trials/rqvae_swapped/generator-best.pt",
+        "sha256": "327896486ba641e0f0ca913dc7b40f0e7d507b5de1bfc53251c1708f6ef9b879",
+        "size_bytes": 19975561
+      },
+      "sids": {
+        "path": "indices/rqvae_swapped/semantic-ids.npy",
+        "sha256": "4e92e27eb609630a3b8e6e187b53091378eba21af229a4ca4bd8171e1fd63edc",
+        "size_bytes": 387360
+      },
+      "selection": {
+        "path": "trials/rqvae_swapped/training-selection.json",
+        "sha256": "e46299e7cb243799a9985a43310d838270b171119992ed7c1558d5e2a8d459a4",
+        "size_bytes": 1284
+      },
+      "reference_predictions_parent": "validation20",
+      "reference_predictions": {
+        "path": "trials/rqvae_swapped/validation-predictions.npz",
+        "sha256": "c4b2020bc09d497fbbec06d0297cda42ce3a98c22a9858103dc8ae6dff7156b1",
+        "size_bytes": 2999627
+      }
+    },
+    {
+      "id": "als10_t5_rqkmeans_uniform",
+      "parent": "screen",
+      "checkpoint_epoch": 10,
+      "expected_training": {
+        "device": "cuda",
+        "cpu_threads": 2,
+        "batch_size": 256,
+        "physical_batch_size": 128,
+        "learning_rate": 0.001,
+        "weight_decay": 0.0001,
+        "amp": true,
+        "grad_clip_norm": 1.0,
+        "max_epochs": 10,
+        "min_epochs": 10,
+        "patience": 5,
+        "validation_interval": 5,
+        "evaluation_batch_size": 32,
+        "max_seconds": 3600,
+        "sampling": "all_train_prefixes",
+        "precision": "fp16",
+        "evaluation_precision": "fp32",
+        "validate_first_epoch": false,
+        "patience_epochs": 10
+      },
+      "checkpoint": {
+        "path": "trials/t5_rqkmeans_uniform/generator-best.pt",
+        "sha256": "a3d9bf4ef7b0089f72f5bb23f9ea1fbb89dba35cf5835e83abf0cfc9a516b63d",
+        "size_bytes": 19977353
+      },
+      "sids": {
+        "path": "indices/t5_rqkmeans_uniform/semantic-ids.npy",
+        "sha256": "e2325ac1ddfee856d00ad3119c73de257b875ca176067193313f761147dcf5c5",
+        "size_bytes": 387360
+      },
+      "selection": {
+        "path": "trials/t5_rqkmeans_uniform/training-selection.json",
+        "sha256": "228779541039b7658f80d9ee66b8791b354571d994e668906b7392bf8f4a850b",
+        "size_bytes": 1285
+      },
+      "reference_predictions": {
+        "path": "trials/t5_rqkmeans_uniform/validation-epoch-010.npz",
+        "sha256": "650870880fff78a5b2b53aa2d96bc71ff689037fd1cf30a55e0b23eb0e3982d0",
+        "size_bytes": 2968145
+      }
+    },
+    {
+      "id": "als10_t5_rqkmeans_random",
+      "parent": "screen",
+      "checkpoint_epoch": 10,
+      "expected_training": {
+        "device": "cuda",
+        "cpu_threads": 2,
+        "batch_size": 256,
+        "physical_batch_size": 128,
+        "learning_rate": 0.001,
+        "weight_decay": 0.0001,
+        "amp": true,
+        "grad_clip_norm": 1.0,
+        "max_epochs": 10,
+        "min_epochs": 10,
+        "patience": 5,
+        "validation_interval": 5,
+        "evaluation_batch_size": 32,
+        "max_seconds": 3600,
+        "sampling": "all_train_prefixes",
+        "precision": "fp16",
+        "evaluation_precision": "fp32",
+        "validate_first_epoch": false,
+        "patience_epochs": 10
+      },
+      "checkpoint": {
+        "path": "trials/t5_rqkmeans_random/generator-best.pt",
+        "sha256": "52f6045ded9d334bdb19336efdf7b716a75483238ca6c0b6f550d806928afd5b",
+        "size_bytes": 19977353
+      },
+      "sids": {
+        "path": "indices/t5_rqkmeans_random/semantic-ids.npy",
+        "sha256": "4b2eae6f61773612927070c31ef97103bf0f10275858f7ece69ff4792418bed7",
+        "size_bytes": 387360
+      },
+      "selection": {
+        "path": "trials/t5_rqkmeans_random/training-selection.json",
+        "sha256": "155082596caa20a6a3810ff7acca6bf5c948b7fb58dc555236b27cad906f2a29",
+        "size_bytes": 1290
+      },
+      "reference_predictions": {
+        "path": "trials/t5_rqkmeans_random/validation-epoch-010.npz",
+        "sha256": "89f3fe20bdedbd714ccf1d1c2ca8911eedc7fec6a9e1b964d23825757ea39938",
+        "size_bytes": 2955940
+      }
+    },
+    {
+      "id": "als10_t5_rqkmeans_priority",
+      "parent": "screen",
+      "checkpoint_epoch": 10,
+      "expected_training": {
+        "device": "cuda",
+        "cpu_threads": 2,
+        "batch_size": 256,
+        "physical_batch_size": 128,
+        "learning_rate": 0.001,
+        "weight_decay": 0.0001,
+        "amp": true,
+        "grad_clip_norm": 1.0,
+        "max_epochs": 10,
+        "min_epochs": 10,
+        "patience": 5,
+        "validation_interval": 5,
+        "evaluation_batch_size": 32,
+        "max_seconds": 3600,
+        "sampling": "all_train_prefixes",
+        "precision": "fp16",
+        "evaluation_precision": "fp32",
+        "validate_first_epoch": false,
+        "patience_epochs": 10
+      },
+      "checkpoint": {
+        "path": "trials/t5_rqkmeans_priority/generator-best.pt",
+        "sha256": "e0044a49d90ee0f8367d7cbf323c62b614829a45b96988f8852d146f20825112",
+        "size_bytes": 19977353
+      },
+      "sids": {
+        "path": "indices/t5_rqkmeans_priority/semantic-ids.npy",
+        "sha256": "9cb32bebe8bccdaa6cf22d48d55f07e682ca8b3c797644f6427075e410f9bd8c",
+        "size_bytes": 387360
+      },
+      "selection": {
+        "path": "trials/t5_rqkmeans_priority/training-selection.json",
+        "sha256": "fb625e25b5f0097f104a897709deef07c968e7f78650c31b7f010154ba577756",
+        "size_bytes": 1290
+      },
+      "reference_predictions": {
+        "path": "trials/t5_rqkmeans_priority/validation-epoch-010.npz",
+        "sha256": "dbbd63b2c564b1f338964f521859c7322a473b60a83e35e47ee2aa9fdca9b621",
+        "size_bytes": 2969853
+      }
+    },
+    {
+      "id": "als10_t5_rqvae_uniform",
+      "parent": "screen",
+      "checkpoint_epoch": 10,
+      "expected_training": {
+        "device": "cuda",
+        "cpu_threads": 2,
+        "batch_size": 256,
+        "physical_batch_size": 128,
+        "learning_rate": 0.001,
+        "weight_decay": 0.0001,
+        "amp": true,
+        "grad_clip_norm": 1.0,
+        "max_epochs": 10,
+        "min_epochs": 10,
+        "patience": 5,
+        "validation_interval": 5,
+        "evaluation_batch_size": 32,
+        "max_seconds": 3600,
+        "sampling": "all_train_prefixes",
+        "precision": "fp16",
+        "evaluation_precision": "fp32",
+        "validate_first_epoch": false,
+        "patience_epochs": 10
+      },
+      "checkpoint": {
+        "path": "trials/t5_rqvae_uniform/generator-best.pt",
+        "sha256": "0a3ffd602eeecd30e6bd7277459889ef5d435360d90d0464418f5c54d59774ca",
+        "size_bytes": 19977353
+      },
+      "sids": {
+        "path": "indices/t5_rqvae_uniform/semantic-ids.npy",
+        "sha256": "1f5b1375a6e8a12319382dcc8f50f92e6499732a325fcf91b088e1bd265f6f8c",
+        "size_bytes": 387360
+      },
+      "selection": {
+        "path": "trials/t5_rqvae_uniform/training-selection.json",
+        "sha256": "555b7637276c02d10018872030be320f8f156a413c117ab75130a7ae1bac8b8e",
+        "size_bytes": 1281
+      },
+      "reference_predictions": {
+        "path": "trials/t5_rqvae_uniform/validation-epoch-010.npz",
+        "sha256": "6405cce32324656883b855fdfbfe3537007f0c16e7b2a73badae0887b69f6d28",
+        "size_bytes": 2890615
+      }
+    },
+    {
+      "id": "als10_t5_rqvae_random",
+      "parent": "screen",
+      "checkpoint_epoch": 10,
+      "expected_training": {
+        "device": "cuda",
+        "cpu_threads": 2,
+        "batch_size": 256,
+        "physical_batch_size": 128,
+        "learning_rate": 0.001,
+        "weight_decay": 0.0001,
+        "amp": true,
+        "grad_clip_norm": 1.0,
+        "max_epochs": 10,
+        "min_epochs": 10,
+        "patience": 5,
+        "validation_interval": 5,
+        "evaluation_batch_size": 32,
+        "max_seconds": 3600,
+        "sampling": "all_train_prefixes",
+        "precision": "fp16",
+        "evaluation_precision": "fp32",
+        "validate_first_epoch": false,
+        "patience_epochs": 10
+      },
+      "checkpoint": {
+        "path": "trials/t5_rqvae_random/generator-best.pt",
+        "sha256": "c18470607d4538a75400f06e4c561ee6b26046707d60e187d67c9070f841385c",
+        "size_bytes": 19977353
+      },
+      "sids": {
+        "path": "indices/t5_rqvae_random/semantic-ids.npy",
+        "sha256": "5b2a38c0b86e379052bbde26fe10b1543c547177c85e7c18ce6fae86d7d0d59b",
+        "size_bytes": 387360
+      },
+      "selection": {
+        "path": "trials/t5_rqvae_random/training-selection.json",
+        "sha256": "2b30b66442191cf916e2b264079cf0617f93ba584b178bd4762fe90b1b1878a4",
+        "size_bytes": 1292
+      },
+      "reference_predictions": {
+        "path": "trials/t5_rqvae_random/validation-epoch-010.npz",
+        "sha256": "e00343869db3b4fad76b283e16720b76726ed1279518d964e6063918f777f9cb",
+        "size_bytes": 2891773
+      }
+    },
+    {
+      "id": "als10_t5_rqvae_priority",
+      "parent": "screen",
+      "checkpoint_epoch": 10,
+      "expected_training": {
+        "device": "cuda",
+        "cpu_threads": 2,
+        "batch_size": 256,
+        "physical_batch_size": 128,
+        "learning_rate": 0.001,
+        "weight_decay": 0.0001,
+        "amp": true,
+        "grad_clip_norm": 1.0,
+        "max_epochs": 10,
+        "min_epochs": 10,
+        "patience": 5,
+        "validation_interval": 5,
+        "evaluation_batch_size": 32,
+        "max_seconds": 3600,
+        "sampling": "all_train_prefixes",
+        "precision": "fp16",
+        "evaluation_precision": "fp32",
+        "validate_first_epoch": false,
+        "patience_epochs": 10
+      },
+      "checkpoint": {
+        "path": "trials/t5_rqvae_priority/generator-best.pt",
+        "sha256": "e2917ebaff4e80386cdfc6cee3c238c0069bd171c5ef3e7178d5c30b11dd12b1",
+        "size_bytes": 19977353
+      },
+      "sids": {
+        "path": "indices/t5_rqvae_priority/semantic-ids.npy",
+        "sha256": "7dae42169be41343f17ca2080bc3f7caff19659d3449bb7f268c059d333b64db",
+        "size_bytes": 387360
+      },
+      "selection": {
+        "path": "trials/t5_rqvae_priority/training-selection.json",
+        "sha256": "fd55ad344cbdd15444b0d643e617eb4f8dac9adeb7b246373dbcd28d4c6eb483",
+        "size_bytes": 1289
+      },
+      "reference_predictions": {
+        "path": "trials/t5_rqvae_priority/validation-epoch-010.npz",
+        "sha256": "1ae03e1a81737c5ab065aa4126a2a2db046ebd1023bb25ea8b601d577dc71dd1",
+        "size_bytes": 2883611
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "cooc20_kmeans",
+      "epoch": 20,
+      "family": "t5_rqkmeans",
+      "baseline": "cooc20_kmeans_original",
+      "candidate": "cooc20_kmeans_swapped",
+      "control_kind": "original_semantic_index"
+    },
+    {
+      "id": "cooc20_rqvae",
+      "epoch": 20,
+      "family": "t5_rqvae",
+      "baseline": "cooc20_rqvae_original",
+      "candidate": "cooc20_rqvae_swapped",
+      "control_kind": "original_semantic_index"
+    },
+    {
+      "id": "als10_t5_rqkmeans_uniform",
+      "epoch": 10,
+      "family": "t5_rqkmeans",
+      "baseline": "als10_t5_rqkmeans_random",
+      "candidate": "als10_t5_rqkmeans_uniform",
+      "control_kind": "random_reassignment_not_original",
+      "note": "Random matches priority itemset/paths;uniform moves a slightly different itemset. Not a matched semantic-original comparator."
+    },
+    {
+      "id": "als10_t5_rqkmeans_priority",
+      "epoch": 10,
+      "family": "t5_rqkmeans",
+      "baseline": "als10_t5_rqkmeans_random",
+      "candidate": "als10_t5_rqkmeans_priority",
+      "control_kind": "random_reassignment_not_original",
+      "note": "Random matches priority itemset/paths;uniform moves a slightly different itemset. Not a matched semantic-original comparator."
+    },
+    {
+      "id": "als10_t5_rqvae_uniform",
+      "epoch": 10,
+      "family": "t5_rqvae",
+      "baseline": "als10_t5_rqvae_random",
+      "candidate": "als10_t5_rqvae_uniform",
+      "control_kind": "random_reassignment_not_original",
+      "note": "Random matches priority itemset/paths;uniform moves a slightly different itemset. Not a matched semantic-original comparator."
+    },
+    {
+      "id": "als10_t5_rqvae_priority",
+      "epoch": 10,
+      "family": "t5_rqvae",
+      "baseline": "als10_t5_rqvae_random",
+      "candidate": "als10_t5_rqvae_priority",
+      "control_kind": "random_reassignment_not_original",
+      "note": "Random matches priority itemset/paths;uniform moves a slightly different itemset. Not a matched semantic-original comparator."
+    }
+  ],
+  "research_notes": [
+    "No original epoch10generator checkpoint remains. Do not substitute an epoch20or60control for it.",
+    "Different indices/signals/training budgets are robustness probes,not independent seeds or one uninterrupted learning trajectory.",
+    "Reuse epoch60context predictions for all-user comparison without rerunning those models."
+  ]
+}

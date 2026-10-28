@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-28",
+  "kernel": "carasik/rhpr-generator-age-screen",
+  "version": 1,
+  "submission_confirmed": true,
+  "submission_evidence": "GitHub Actions job log: Kernel version 1 successfully pushed",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/40673921485",
+  "workflow_conclusion": "success",
+  "source_sha": "316c1093a0a76ccf408562c5bce0a8640d72f322",
+  "config": "experiments/amazon_beauty_sid_generator_age_2t4.json",
+  "direct_kaggle_runtime_status": "COMPLETE",
+  "actual_source_package_audit": true,
+  "audit_limitation": null,
+  "tests": {
+    "repository_run": 905,
+    "repository_skips": 80,
+    "repository_ok": true,
+    "targeted_run": 4,
+    "targeted_ok": true
+  },
+  "new_source_epochs": 5,
+  "downstream_fits": 0,
+  "teacher_epochs": [
+    1,
+    5,
+    20
+  ],
+  "pool_size": 2000,
+  "reserved_static_and_sequential_rows_per_teacher": 2000000,
+  "semantic_lambda": 0,
+  "notify_telegram": false,
+  "quota_gpu_hours_before": 7.97,
+  "expected_minutes": [
+    30,
+    45
+  ],
+  "observed_status": "COMPLETE",
+  "actual_source_files_checked": 180,
+  "package_sha256": "04448e74e87ff6bc41485d00d229c65fa121d55aacc089d73f42c9152c942508",
+  "analysis": "docs/gr-sid-generator-age-results.md",
+  "analysis_artifacts": "/workspace/artifacts/sid-generator-age/analysis",
+  "downloaded_numerical_files": 60,
+  "downloaded_numerical_bytes": 11229807,
+  "checkpoint_contents_verified": true,
+  "actual_shared_proposals": 115,
+  "actual_rows_per_teacher": 1987754,
+  "actual_sequential_accepted": [
+    2,
+    2,
+    0
+  ],
+  "actual_static_accepted": [
+    2,
+    2,
+    0
+  ],
+  "new_training_epochs": 5
+}

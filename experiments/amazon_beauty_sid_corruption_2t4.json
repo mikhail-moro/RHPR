@@ -1,0 +1,217 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-sid-corruption"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "per-user leave-last-two; all train prefix targets exactly once per epoch; test context includes observed validation target",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-sid-context-screen",
+      "carasik/rhpr-sid-als-screen"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "name": "beauty-rqkmeans-random-whole-sid-corruption-20epochs",
+  "kind": "gr_frozen_sid_generator_suite",
+  "representation": {
+    "kind": "frozen_t5_rqkmeans_random_corruption",
+    "trainable": false
+  },
+  "quantizer": {
+    "kind": "frozen_full_sids",
+    "num_hierarchies": 3,
+    "codebook_size": 256
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "batch_size": 256,
+    "physical_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 20,
+    "min_epochs": 20,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 32,
+    "max_seconds": 7200,
+    "sampling": "all_train_prefixes",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 20
+  },
+  "evaluation": {
+    "test_after_selection": false,
+    "item_level": true,
+    "collision_resolution": "preserve byte-pinned complete SID paths including original suffix ownership",
+    "invalid_beams": "retain as miss at original rank",
+    "selection_metric": "validation item NDCG@10",
+    "save_validation_predictions": true,
+    "screening_metric": "Fixed epoch20 NDCG@10 vs fresh0%control;retain5/10/15dynamics and teacher-forced per-level NLL/rank. No oracle model selection.",
+    "save_teacher_forced_diagnostics": true
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "expected_initial_state_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff",
+  "expected_train_cases_sha256": "6f7ba06c70a6a218d4e620ac77ce41142baf762f7e62902c9fc9b6f7b45d847f",
+  "frozen_indices": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-sid-context-screen",
+    "manifest_sha256": "8878eb9f8b3f5f3174a763e501d8387f1c85b298651e6485b6638b9c87782209"
+  },
+  "trials": [
+    {
+      "id": "random_p000",
+      "asset_id": "item_als",
+      "family": "t5_rqkmeans",
+      "role": "original",
+      "semantic_lambda": 0.0,
+      "expected_variant": "original",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths",
+      "use_original_paths": true,
+      "corruption_fraction": 0.0,
+      "expected_sid_sha256": "b196711dceedce81a991d995aa5c86ccd35288d5cdfe3f7aedb174de86470dae",
+      "expected_owner_sha256": "5a1d2d04a47991fda5fd03055524ffcf062dd0d0cd4f0d67c355eca756a42bd1"
+    },
+    {
+      "id": "random_p005",
+      "asset_id": "item_als",
+      "family": "t5_rqkmeans",
+      "role": "random",
+      "semantic_lambda": 0.0,
+      "expected_variant": "random_whole_path_corruption",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths",
+      "use_original_paths": false,
+      "corruption_fraction": 0.05,
+      "expected_sid_sha256": "bd892989f23fa964fca77785f9cd8b318f9d2e8725ff233cb2f0862c3ac9ebaa",
+      "expected_owner_sha256": "bb0cc1366802f600d2a7964d1527f83e116b8bb5cf159e7c8732be35d1d85a4c"
+    },
+    {
+      "id": "random_p020",
+      "asset_id": "item_als",
+      "family": "t5_rqkmeans",
+      "role": "random",
+      "semantic_lambda": 0.0,
+      "expected_variant": "random_whole_path_corruption",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths",
+      "use_original_paths": false,
+      "corruption_fraction": 0.2,
+      "expected_sid_sha256": "d25faccb26ada50a3906973ac797bfe30a5f7f10b7d386fd0bd93a4d0e798cf6",
+      "expected_owner_sha256": "556cce1595db2bb9beab44e1f398b2101dbff5048b5b92a8fbaebd80114cf1e7"
+    },
+    {
+      "id": "random_p050",
+      "asset_id": "item_als",
+      "family": "t5_rqkmeans",
+      "role": "random",
+      "semantic_lambda": 0.0,
+      "expected_variant": "random_whole_path_corruption",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths",
+      "use_original_paths": false,
+      "corruption_fraction": 0.5,
+      "expected_sid_sha256": "5320052ec74fc5880d6176b20188988dce7c8056e4c4cdca22d9e5d5096e4562",
+      "expected_owner_sha256": "81b1714d98e8363b271829369d297292736c03a4e9eb07e9db9ab634bf397954"
+    },
+    {
+      "id": "random_p100",
+      "asset_id": "item_als",
+      "family": "t5_rqkmeans",
+      "role": "random",
+      "semantic_lambda": 0.0,
+      "expected_variant": "random_whole_path_corruption",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths",
+      "use_original_paths": false,
+      "corruption_fraction": 1.0,
+      "expected_sid_sha256": "f354ed64afea668a1d768db153fc5a8278ce6823130c731b8b3f947965687415",
+      "expected_owner_sha256": "1997288ec913890fde512908bf38c7e4101f6ea127dcf57dc43cc68f3abe444c"
+    }
+  ],
+  "reference": {
+    "exact_published_reproduction": false,
+    "new_fits": 5,
+    "training_epochs": 20,
+    "validation_epochs": [
+      5,
+      10,
+      15,
+      20
+    ],
+    "test_evaluations": 0,
+    "index_preparation": "Deterministic random whole-path permutations of exact original RQ-KMeans;no quantizer or graph refit.",
+    "budget_endpoint": "All5fits20epochs;save20validation beams,20teacher-forced sidecars,best/full-last states;no retry or extension."
+  },
+  "research_question": {
+    "hypothesis": "Does increasing random disruption of item-to-SID grouping reduce recommendation quality at fixed catalogue trie topology and neural training budget?",
+    "scope": "One fixed neural/order seed42and one permutation seed2753;five fresh fits with nested moved-item sets on2T4.",
+    "interpretation": "Index topology controlled,TRAINtoken frequencies not controlled. A flat curve is not universal proof of semantic irrelevance;20epoch dynamics may confound optimization vs asymptotic quality."
+  },
+  "sid_corruption": {
+    "seed": 2753,
+    "original_sids_sha256": "b196711dceedce81a991d995aa5c86ccd35288d5cdfe3f7aedb174de86470dae",
+    "semantic_graph": {
+      "path": "/kaggle/input/datasets/carasik/rhpr-sid-als-screen",
+      "manifest_sha256": "31cfb0e4c5dc80a8358dcd12fa99ea905b84d87af3207c92d1d0e004ef09128e",
+      "file_sha256": "623ff79431564b131225ee4ca93f804988dae1f2bd915155066db3b9d1dbdaf0"
+    },
+    "selection": "Nested catalogue-uniform random priority;round(N*fraction)selected;uniform rejection-sampled derangement within selected set;independent RNG SeedSequence([seed,selected_count])per dose.",
+    "preserved": "Every catalogue prefix occupancy and complete path set,including suffix ownership slots.",
+    "not_preserved": "TRAIN-weighted prefix frequencies;record total variation,entropy and mass.",
+    "semantic_diagnostic": "Frozen Sentence-T5 positive cosine top20neighbor graph;no refit or validation selection."
+  }
+}
