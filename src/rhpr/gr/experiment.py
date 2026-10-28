@@ -256,6 +256,9 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
         curves.append(row)
         _write(output / "training-curves.json", curves)
         _event("gr_epoch_complete", **row)
+        if epoch in specification.get('save_epoch_checkpoints', []):
+            torch.save({'model': model.state_dict(), 'epoch': epoch, 'updates': updates,
+                        'config': config}, output / f'generator-epoch-{epoch:03d}.pt')
         # Exact resume state at every completed epoch, separate from selection.
         torch.save({"model": model.state_dict(), "optimizer": optimizer.state_dict(),
                     "scaler": scaler.state_dict(), "epoch": epoch, "updates": updates,

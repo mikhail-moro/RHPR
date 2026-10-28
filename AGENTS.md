@@ -2,6 +2,25 @@
 
 ## Research status
 
+- Latest authorization2026-10-28:teacher-age1/5/20search-only screen.
+  See `docs/gr-sid-generator-age.md`,config`amazon_beauty_sid_generator_age_2t4`.
+  Fit original generator exactly5epochs once,save1/5,reuse pinned previous20.
+  Mine per-age same16384TRAINrows;balanced roundrobin union2000pairs,shuffle2759.
+  Common prefix reserves2xcomplete64-rowbatchcost <=2Mrows/teacher. Eachpair:
+  independent original-map static delta AND actual sequential-search delta.
+  Allages complete sameprefix;1200sec guard fails partial comparisons. Noaccepted
+  cap,semantic penalty,test,downstreamfits,extra seeds,retries/extensions/Telegram.
+  Native four-token FP32likelihood,FP64sum,history+target remap,same thresholds,
+  frozenweights/RNG andfullcacheaudits as previousscreen. Staticbranch doesnot
+  combine moves;greedytrajectories maydiffer andmustnotbe confused withstatic.
+  ExactsameinitialNNhash/seed42/data/order/native5epochtraining;2T4workers
+  searchages1/5on0and20on1. Quota7.97hbeforelaunch,expected30–45min+queue.
+  Source/indices allpinned,noexistingjobresubmission. Tests905OK80skips;4targeted
+  passincludingnative5epochsnapshots/staticprobes/3isolatedsearches;nativefirst5
+  lossesmatchwithoutsavehook. Sharedprefixdrycheckwith20-onlypool119pairs,
+  1998506reservedrows(actualearlypoolsnotknown). Ready for single submission.
+  Do not proceed to downstreamtraining automatically.
+
 - Completed generator-guided SID screen,2026-10-28. No pending GPU work.
   See `docs/gr-sid-generator-guided-results.md`; executable c3459221dfae7163b46de0d9ec28c4003a679735,
   private `carasik/rhpr-generator-guided-sid`v1 COMPLETE. Search214proposals,

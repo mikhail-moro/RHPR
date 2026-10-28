@@ -1,0 +1,233 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-generator-age"
+  },
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "per-user leave-last-two; all train prefix targets exactly once per epoch; test context includes observed validation target",
+    "candidate_universe": "all 12101 static catalogue items; no sampled negatives; no seen-item masking"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-sid-context-screen"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-sid-corruption-screen"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "name": "beauty-generator-age-1-5-20-search-only",
+  "kind": "gr_generator_age_screen",
+  "representation": {
+    "kind": "frozen_t5_rqkmeans_age_search",
+    "trainable": false
+  },
+  "quantizer": {
+    "kind": "frozen_full_sids",
+    "num_hierarchies": 3,
+    "codebook_size": 256
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 2,
+    "batch_size": 256,
+    "physical_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 20,
+    "min_epochs": 20,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 32,
+    "max_seconds": 7200,
+    "sampling": "all_train_prefixes",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 20
+  },
+  "evaluation": {
+    "test_after_selection": false,
+    "item_level": true,
+    "collision_resolution": "preserve byte-pinned complete SID paths including original suffix ownership",
+    "invalid_beams": "retain as miss at original rank",
+    "selection_metric": "validation item NDCG@10",
+    "save_validation_predictions": true,
+    "screening_metric": "Matched static and sequential acceptance by teacher age; no downstream quality claim.",
+    "save_teacher_forced_diagnostics": true
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "expected_initial_state_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff",
+  "expected_train_cases_sha256": "6f7ba06c70a6a218d4e620ac77ce41142baf762f7e62902c9fc9b6f7b45d847f",
+  "frozen_indices": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-sid-context-screen",
+    "manifest_sha256": "8878eb9f8b3f5f3174a763e501d8387f1c85b298651e6485b6638b9c87782209"
+  },
+  "trials": [
+    {
+      "id": "epoch_001",
+      "asset_id": "item_als",
+      "family": "t5_rqkmeans",
+      "role": "original",
+      "semantic_lambda": 0.0,
+      "expected_variant": "original",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths",
+      "use_original_paths": true,
+      "epoch": 1
+    },
+    {
+      "id": "epoch_005",
+      "asset_id": "item_als",
+      "family": "t5_rqkmeans",
+      "role": "original",
+      "semantic_lambda": 0.0,
+      "expected_variant": "original",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths",
+      "use_original_paths": true,
+      "epoch": 5
+    },
+    {
+      "id": "epoch_020",
+      "asset_id": "item_als",
+      "family": "t5_rqkmeans",
+      "role": "original",
+      "semantic_lambda": 0.0,
+      "expected_variant": "original",
+      "quantizer_seed": 42,
+      "freeze_policy": "frozen_full_paths",
+      "use_original_paths": true,
+      "epoch": 20
+    }
+  ],
+  "reference": {
+    "exact_published_reproduction": false,
+    "new_training_epochs": 5,
+    "downstream_fits": 0,
+    "test_evaluations": 0,
+    "budget_endpoint": "Per teacher2Mscored rows reserved for paired static+greedy proposals;common prefix of shuffled balanced2000pair pool. Max1200search seconds fails incomplete comparisons. No extensions or automatic downstream fits."
+  },
+  "research_question": {
+    "hypothesis": "Does frozen teacher age limit beneficial whole-SID reassignment?",
+    "scope": "Five new source epochs once; frozen ages1/5/20; balanced shared pool; identical paired static and greedy proposals; no downstream fits.",
+    "interpretation": "Search diagnostic only; acceptance and TRAIN gain do not establish downstream quality."
+  },
+  "age_screen": {
+    "epochs": [
+      1,
+      5,
+      20
+    ],
+    "new_training_epochs": 5,
+    "pool_size": 2000,
+    "pool_order_seed": 2759,
+    "source_training": {
+      "device": "cuda",
+      "cpu_threads": 2,
+      "batch_size": 256,
+      "physical_batch_size": 128,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "amp": true,
+      "grad_clip_norm": 1.0,
+      "max_epochs": 20,
+      "min_epochs": 20,
+      "patience": 5,
+      "validation_interval": 5,
+      "evaluation_batch_size": 32,
+      "max_seconds": 7200,
+      "sampling": "all_train_prefixes",
+      "precision": "fp16",
+      "evaluation_precision": "fp32",
+      "validate_first_epoch": false,
+      "patience_epochs": 20
+    },
+    "parent": {
+      "kernel": "carasik/rhpr-sid-corruption-screen",
+      "path": "/kaggle/input/notebooks/carasik/rhpr-sid-corruption-screen",
+      "source_code_sha": "1e87396aa65fd8b2dc9259a650e501cec25eec35",
+      "files": {
+        "run-manifest.json": {
+          "sha256": "ae0563f594204e159ee96f2e86d75946d58f3dbd03a2b8692fa6f26118dffa32",
+          "size_bytes": 9262
+        }
+      }
+    },
+    "checkpoint": {
+      "path": "trials/random_p000/generator-best.pt",
+      "sha256": "deadfd084b77f4a68a0f39097a423d187316b94a9b2a4d1ea563639efbf303c9",
+      "size_bytes": 19977481
+    },
+    "sids": {
+      "path": "indices/random_p000/semantic-ids.npy",
+      "sha256": "b196711dceedce81a991d995aa5c86ccd35288d5cdfe3f7aedb174de86470dae",
+      "size_bytes": 387360
+    },
+    "checkpoint_updates": 10280,
+    "search": {
+      "precision": "fp32",
+      "batch_size": 64,
+      "mining_rows": 16384,
+      "seed": 2758,
+      "minimum_target_count": 2,
+      "confidence_log_margin": 0.22314355131420976,
+      "gap_clip": 5.0,
+      "max_proposals": 2000,
+      "max_scored_rows": 2000000,
+      "max_seconds": 1200.0,
+      "min_total_gain": 0.01,
+      "min_gain_per_affected": 1e-05,
+      "identity_tolerance": 1e-05,
+      "semantic_lambda": 0
+    }
+  }
+}
