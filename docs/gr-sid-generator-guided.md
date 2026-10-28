@@ -6,7 +6,8 @@ and optimized indices. Validation5/10/15/20,primary20,no semantic penalty or tes
 Config:`experiments/amazon_beauty_sid_generator_guided_2t4.json`.
 
 Submitted once as private [Kaggle v1](https://www.kaggle.com/code/carasik/rhpr-generator-guided-sid),
-observed RUNNING. [Actions40663408472](https://github.com/mikhail-moro/RHPR/actions/runs/40663408472)
+now COMPLETE; see [results](gr-sid-generator-guided-results.md).
+[Actions40663408472](https://github.com/mikhail-moro/RHPR/actions/runs/40663408472)
 completed successfully. Executable commit`c3459221dfae7163b46de0d9ec28c4003a679735`;
 the actual notebook configuration and all179embedded package files match that
 commit. Package SHA256`d64fd323278a1b422b1bd07ba403b0e10880578a2ad99216d7a3a75731fd19f4`.

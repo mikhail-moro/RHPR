@@ -2,6 +2,31 @@
 
 ## Research status
 
+- Completed generator-guided SID screen,2026-10-28. No pending GPU work.
+  See `docs/gr-sid-generator-guided-results.md`; executable c3459221dfae7163b46de0d9ec28c4003a679735,
+  private `carasik/rhpr-generator-guided-sid`v1 COMPLETE. Search214proposals,
+  2accepted/4changeditems(0.0331%),1990375scoredrows;stopped rowbudget,535.6sec.
+  All209LCP0/1proposals rejected with negative gain;both accepted share first2
+  tokens and only change third. Pairs328/2126brushes,4943/5058Proactivsizevariants.
+  Frozen TRAIN NLL7.452504137->7.451465099(-0.01394%),gain136.543167nats,
+  exactzero full-cache/identity drift,weights/RNG unchanged. Affects873TRAIN
+  cases,193valusers(157history/36target). Both freshfits sameinit/seed42,
+  20epochs/2628260cases/10280updates/zeroAMPskips/4977920params/no test.
+  Original/guidedNDCG10at5=.0256211/.0268026(+4.61%),10=.0294257/.0297161
+  (+.99%),15=.0341011/.0334771(-1.83%),20=.0364335/.0353168(-3.07%).
+  Endpoint delta=-.0011167,paireduser95%CI[-.0023401,+.0000804],targetcluster
+  [-.0029946,+.0007088],2000resamplesseed2760,conditional fittedweights/no seedCI.
+  ValteacherNLL8.792829->8.787134slightlyimproves despite retrievaldrop.
+  98.3%netdropamongunchangedvisibleinputs/targets:sharedtraining,notcausalproof.
+  No benefit established,also no stable harm;tiny withinbranch intervention
+  does not reject generator-guided upper-tree learning. Frozen-teacher anchoring
+  is a plausible limitation,not proven cause;do not auto extend search or launch.
+  68numericalfiles32.10MBin/tmp/rhpr-generator-guided-completed;checkpointsstay
+  privateKaggle. Analysis/plots/peruserranks/search/sourceauditsin
+  /workspace/artifacts/sid-generator-guided;8beams+8TFarrays independentlychecked,
+  replay/owners/prefixoccupancies/cache/trainstreamverified. Body41.0min.
+  Script `scripts/analyze_sid_generator_guided.py` reproduces CPUanalysis.
+
 - Latest authorization,2026-10-28:one frozen-generator SIDsearch then twofresh
   original/updated20epoch fits,val5/10/15/20,on2T4. See
   `docs/gr-sid-generator-guided.md`,config`amazon_beauty_sid_generator_guided_2t4`.
@@ -20,12 +45,12 @@
   Saveall8beams,best/laststates,TFsidecars,searchtrace,candidates,TRAINcache/maps.
   RealcheckpointCPUpreflightidentity/loss/frozenstate/RNGpass;901testsOK79skips,
   fourtargetedOKincludingrealparentsearch+2freshworkers+zerochangebranch.
-  Submitted once:private`carasik/rhpr-generator-guided-sid`v1,RUNNING.
+  Submitted once:private`carasik/rhpr-generator-guided-sid`v1,now COMPLETE.
   Actions40663408472success,executablec3459221dfae7163b46de0d9ec28c4003a679735.
   Actualsource/config/all179packagefilesverified;packageSHA256
   d64fd323278a1b422b1bd07ba403b0e10880578a2ad99216d7a3a75731fd19f4.
   Receipts/preflight:`/workspace/artifacts/sid-generator-guided`.
-  Do not submit another version or poll continuously;wait for user completion.
+  Do not submit another version or poll continuously;completed analysis above.
   Quota8.66hbeforelaunch. Expected45–65min+queue. Researchquestion
   isindextransfer,notJTMreproductionorteacherNLLguaranteeingNDCG.
 
