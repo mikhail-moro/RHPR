@@ -24,6 +24,9 @@ def assignments(config, gpu_count):
     if config.get('sid_corruption'):
         from rhpr.gr.sid_corruption import validate_corruption
         validate_corruption(config)
+    if config.get('generator_guided'):
+        from rhpr.gr.generator_guided import validate_guided
+        validate_guided(config)
     if any('generator_seed' in t for t in config['trials']):
         if any(type(t.get('generator_seed')) is not int or not 0 <= t['generator_seed'] < 2**32
                for t in config['trials']):
@@ -273,7 +276,10 @@ def run_generator_suite(config, output):
     resource_manifest = verify_resources(resources, config["resources"]["manifest_sha256"])
     _, users, source_ids, counts = load_beauty(resources / "data", config["data"])
     if config["quantizer"]["kind"] == "frozen_full_sids":
-        if config.get('sid_corruption'):
+        if config.get('generator_guided'):
+            from rhpr.gr.generator_guided import prepare_originals
+            indices = prepare_originals(config, source_ids, output)
+        elif config.get('sid_corruption'):
             from rhpr.gr.sid_corruption import prepare_corrupted_indices
             indices = prepare_corrupted_indices(config, source_ids, users, output)
         else:
@@ -295,6 +301,15 @@ def run_generator_suite(config, output):
     original = unpack_grid(resources / "grid-source.bin", scratch / "original")
     source = prepare_grid_source(original, scratch / "runtime")
     os.environ.update(HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1", TOKENIZERS_PARALLELISM="false")
+    guided_report = None
+    if config.get('generator_guided'):
+        from rhpr.gr.generator_guided import optimize_generator_index
+        indices, guided_report = optimize_generator_index(config, users, output, source, indices)
+        if not guided_report['accepted']:
+            _write(output/'suite-results.json',dict(results={},failures=[],training_skipped='no accepted tree changes'))
+            return dict(runs=0,training_skipped_no_swaps=True,test_evaluations=0,
+                        guided_proposals=guided_report['proposals'],guided_accepted=0,
+                        guided_source_nll=guided_report['initial_mean_train_nll'])
     first_trial = config['trials'][0]
     first = first_trial['id']
     index = load_trial_index(first, config, output)
@@ -337,6 +352,10 @@ def run_generator_suite(config, output):
         "quantizer_retrained": config["quantizer"]["kind"] == "ae_residual_kmeans",
         "autoencoder_retrained": False, "telemetry_enabled": False, "catalogue_items": len(source_ids),
         "elapsed_seconds": time.monotonic()-started}
+    if guided_report is not None:
+        metrics.update(guided_proposals=guided_report['proposals'],guided_accepted=guided_report['accepted'],
+            guided_changed_items=guided_report['changed_items'],guided_initial_train_nll=guided_report['initial_mean_train_nll'],
+            guided_final_train_nll=guided_report['final_mean_train_nll'],guided_search_seconds=guided_report['search_seconds'])
     for name, result in summary["results"].items():
         if initial_by_trial:
             metrics[name + '_generator_seed'] = result['generator_seed']

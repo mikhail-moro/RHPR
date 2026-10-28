@@ -2,6 +2,27 @@
 
 ## Research status
 
+- Latest authorization,2026-10-28:one frozen-generator SIDsearch then twofresh
+  original/updated20epoch fits,val5/10/15/20,on2T4. See
+  `docs/gr-sid-generator-guided.md`,config`amazon_beauty_sid_generator_guided_2t4`.
+  Sourcecorruptionkernelrandom_p000best20weightsSHAdeadfd084b77f4a68a0f39097a423d187316b94a9b2a4d1ea563639efbf303c9,
+  19977481bytes,epoch20/10280updates;parentmanifest/source/table/resultpinned.
+  Exactfour-tokenFP32teacherforcinglikelihood,microTRAINsum,historyANDtarget
+  remapped. Fixed64-rowbatchgroupscache,alltarget/historyaffectedrows,no beam
+  scoreorvalid-childrenormalizationinacceptance. Positivegain>.01natsand1e-5
+  peraffectedrow;fullTRAINcacheaudit<=1e-5perrow/.02sum,weights/RNGfixed.
+  Proposalmining:16384TRAINrowsseed2758,freegreedy1path,validwrongitems,
+  teacher-forcedlogmargin>=log1.25,min2TRAINtargets/item,clippedgappriority.
+  Fixedlist,max2000proposals/256accepted/2Mscoredrows/1200searchseconds,stopfirst
+  cap,noneforcing/no retries. Zeroacceptsskipbothfreshfits. No semanticpenalty,
+  sourceencoder/quantizerrefit,test,extraseeds,extensionsorTelegram. Fresh2fits
+  exactprevious4+4/d128FP16protocol,sharedinitialhash5f4a24fa…,seed/order42.
+  Saveall8beams,best/laststates,TFsidecars,searchtrace,candidates,TRAINcache/maps.
+  RealcheckpointCPUpreflightidentity/loss/frozenstate/RNGpass;901testsOK79skips,
+  fourtargetedOKincludingrealparentsearch+2freshworkers+zerochangebranch.
+  Quota8.66hbeforelaunch. Expected45–65min+queue;launchpending. Researchquestion
+  isindextransfer,notJTMreproductionorteacherNLLguaranteeingNDCG.
+
 - Completed ALSfootprint audit,2026-10-28,CPUonly:no newfits/inference/test/GPU.
   See`docs/gr-sid-als-footprint.md`,artifacts`/workspace/artifacts/sid-als-footprint`.
   Mainuniform480items:fullTRAINhistusers4441/22363(19.86%);visiblevalhist4306
