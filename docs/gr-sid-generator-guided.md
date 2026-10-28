@@ -5,6 +5,15 @@ original RQ-KMeans20epoch generator,then two fresh20epoch fits on2T4:original
 and optimized indices. Validation5/10/15/20,primary20,no semantic penalty or test.
 Config:`experiments/amazon_beauty_sid_generator_guided_2t4.json`.
 
+Submitted once as private [Kaggle v1](https://www.kaggle.com/code/carasik/rhpr-generator-guided-sid),
+observed RUNNING. [Actions40663408472](https://github.com/mikhail-moro/RHPR/actions/runs/40663408472)
+completed successfully. Executable commit`c3459221dfae7163b46de0d9ec28c4003a679735`;
+the actual notebook configuration and all179embedded package files match that
+commit. Package SHA256`d64fd323278a1b422b1bd07ba403b0e10880578a2ad99216d7a3a75731fd19f4`.
+Private/offline/T4 settings,two dataset mounts and frozen-source kernel mount
+were verified. No second submission or automatic continuation. Local preflight,
+submission receipt and source audit are in`/workspace/artifacts/sid-generator-guided`.
+
 This is a JTM-inspired pairwise whole-path search,not a reproduction of JTM's
 segmented assignment algorithm. The scientific question is whether a tree
 optimized for one frozen generator transfers to a newly initialized generator.

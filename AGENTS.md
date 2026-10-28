@@ -20,7 +20,13 @@
   Saveall8beams,best/laststates,TFsidecars,searchtrace,candidates,TRAINcache/maps.
   RealcheckpointCPUpreflightidentity/loss/frozenstate/RNGpass;901testsOK79skips,
   fourtargetedOKincludingrealparentsearch+2freshworkers+zerochangebranch.
-  Quota8.66hbeforelaunch. Expected45–65min+queue;launchpending. Researchquestion
+  Submitted once:private`carasik/rhpr-generator-guided-sid`v1,RUNNING.
+  Actions40663408472success,executablec3459221dfae7163b46de0d9ec28c4003a679735.
+  Actualsource/config/all179packagefilesverified;packageSHA256
+  d64fd323278a1b422b1bd07ba403b0e10880578a2ad99216d7a3a75731fd19f4.
+  Receipts/preflight:`/workspace/artifacts/sid-generator-guided`.
+  Do not submit another version or poll continuously;wait for user completion.
+  Quota8.66hbeforelaunch. Expected45–65min+queue. Researchquestion
   isindextransfer,notJTMreproductionorteacherNLLguaranteeingNDCG.
 
 - Completed ALSfootprint audit,2026-10-28,CPUonly:no newfits/inference/test/GPU.
