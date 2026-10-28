@@ -2,6 +2,27 @@
 
 ## Research status
 
+- Completed randomSIDcorruption,2026-10-28:no pendingGPUjobs. See
+  `docs/gr-sid-corruption-results.md`,artifacts`/workspace/artifacts/sid-corruption/analysis`.
+  All5fits20epochs/2628260examples/10280updates/zeroAMPskips/4977920params,
+  sameinit/data/order42,permutation2753,no test. NDCG10at0/5/20/50/100%=
+  .03644569/.03362916/.02924565/.02174110/.01513320;relative-7.73/-19.76/
+  -40.35/-58.48%. Doseorderingall4checks,notindependentreplicates. Allpaireduser
+  andtargetcluster95%CIsnegative,conditionalfixedweights/unadjusted,notseedvariance.
+  TeacherNLL8.77067->9.43382;first-tokenNLL4.46815->5.17095,top111.61->1.78%.
+  LaterlevelsnetNLLimproveundergiventrueprefixes;notmerelybeampruning,beamwidth
+  effectstillpossible. Invalidbeams333->0of447260. Catalogueoccupanciesall4depths
+  exactlyfixed;TRAINprefixfreqNOTfixed,firstTV.18072,entropy7.44586->7.47854bits.
+  T5first-prefixneighbors53.22->0.62%. Originalorganizationhelpsat20epochbudget,
+  notpuresemanticcausalityorasymptoticproof. Allfitsstillgrow;100%15->20epochs
+  .012471->.015133. ALSswapbenefitnotestablishedbythisrandomizationresult.
+  All20beamsand20teacherarraysindependentlychecked;source/config/stream/neural/
+  map/ownerhashes,nestedderangements,semantic/frequencydiagnosticsverified.
+  Raw135numerical/reportfiles70.17MBin/tmp/rhpr-sid-corruption-completed;
+  authoritativeKaggleretains10statefilenames,contentsnotdownloaded/verified.
+  Body93.2min. Source1e87396a…. ScriptsreproduceCPUanalysis,PNG/SVG+all20ranks
+  retained. No newtraining/inference/test/Telegram;waitfornextresearchdirection.
+
 - Submitted randomSIDcorruption once,2026-10-28:private
   `carasik/rhpr-sid-corruption-screen`version1RUNNING. GitHubActions40595947524
   succeededsubmit-only,noTelegram. Executable1e87396aa65fd8b2dc9259a650e501cec25eec35.
