@@ -1,0 +1,400 @@
+{
+  "audit_date": "2026-10-29",
+  "summary": {
+    "dataset": {
+      "catalogue_items": 3883,
+      "rated_items": 3706,
+      "users": 6040,
+      "events": 1000209,
+      "rating_counts": {
+        "1": 56174,
+        "2": 107557,
+        "3": 261197,
+        "4": 348971,
+        "5": 226310
+      },
+      "history_length": {
+        "n": 6040,
+        "min": 20.0,
+        "median": 96.0,
+        "p90": 400.0,
+        "max": 2314.0
+      },
+      "item_frequency": {
+        "n": 3706,
+        "min": 1.0,
+        "median": 123.5,
+        "p90": 729.5,
+        "max": 3428.0
+      },
+      "min_timestamp": "2000-04-25T23:05:32Z",
+      "max_timestamp": "2003-02-28T17:49:50Z",
+      "events_in_same_user_same_second_group": 774028,
+      "fraction_events_in_timestamp_ties": 0.7738662619512522,
+      "adjacent_timestamp_tie_fraction": 0.5321489605891956,
+      "distinct_timestamp_groups_per_user": {
+        "n": 6040,
+        "min": 2.0,
+        "median": 43.0,
+        "p90": 193.0,
+        "max": 893.0
+      },
+      "users_with_fewer_than3_timestamp_groups": 1,
+      "users_last_two_ratings_same_second": 2544
+    },
+    "coverage": {
+      "catalogue": {
+        "items": 3883,
+        "links": 3860,
+        "metadata": 3818,
+        "field_counts": {
+          "overview": 3800,
+          "keywords": 3336,
+          "cast": 3758,
+          "director": 3793,
+          "poster_path": 3800,
+          "genres": 3730,
+          "runtime": 3773,
+          "language": 3818
+        },
+        "complete_rich_text": 3314,
+        "title_year_exact_or_plusminus1": 3604,
+        "field_count_distributions": {
+          "overview_words": {
+            "n": 3818,
+            "min": 0.0,
+            "median": 52.0,
+            "p90": 90.0,
+            "max": 179.0
+          },
+          "keyword_count": {
+            "n": 3818,
+            "min": 0.0,
+            "median": 5.0,
+            "p90": 15.0,
+            "max": 81.0
+          },
+          "cast_count": {
+            "n": 3818,
+            "min": 0.0,
+            "median": 14.0,
+            "p90": 31.0,
+            "max": 312.0
+          },
+          "director_count": {
+            "n": 3818,
+            "min": 0.0,
+            "median": 1.0,
+            "p90": 1.0,
+            "max": 12.0
+          }
+        }
+      },
+      "rated_movies": {
+        "items": 3706,
+        "links": 3685,
+        "metadata": 3658,
+        "field_counts": {
+          "overview": 3648,
+          "keywords": 3256,
+          "cast": 3617,
+          "director": 3644,
+          "poster_path": 3649,
+          "genres": 3600,
+          "runtime": 3632,
+          "language": 3658
+        },
+        "complete_rich_text": 3237,
+        "title_year_exact_or_plusminus1": 3473,
+        "field_count_distributions": {
+          "overview_words": {
+            "n": 3658,
+            "min": 0.0,
+            "median": 52.0,
+            "p90": 89.0,
+            "max": 174.0
+          },
+          "keyword_count": {
+            "n": 3658,
+            "min": 0.0,
+            "median": 5.0,
+            "p90": 16.0,
+            "max": 81.0
+          },
+          "cast_count": {
+            "n": 3658,
+            "min": 0.0,
+            "median": 14.0,
+            "p90": 32.0,
+            "max": 312.0
+          },
+          "director_count": {
+            "n": 3658,
+            "min": 0.0,
+            "median": 1.0,
+            "p90": 1.0,
+            "max": 12.0
+          }
+        }
+      }
+    },
+    "event_coverage": {
+      "overview": 0.9970186231077705,
+      "keywords": 0.9798392136043567,
+      "cast": 0.9961588028102126,
+      "director": 0.9970446176749059,
+      "poster_path": 0.9970686126599541
+    },
+    "malformed_metadata_rows": 3,
+    "duplicate_metadata_ids": 29,
+    "duplicate_selected_aux_rows": {
+      "keywords": 2,
+      "credits": 2
+    },
+    "join_issue_counts": {
+      "title_or_year_review": 214,
+      "conflicting_imdb_tmdb_ids": 10
+    },
+    "important": "Coverage uses existing MLmovieId->IMDb/TMDB links and agreement between both external IDs; title/year disagreements remain flagged for review. No fuzzy title joins, no interaction filtering, no feature imputation, no training."
+  },
+  "sources": [
+    {
+      "file": "credits.csv.zip",
+      "bytes": 45180389,
+      "sha256": "06ce019f24f362f96fc29cd3b9c491ef2828a270f91ee144d2d6839999603a8b"
+    },
+    {
+      "file": "keywords.csv.zip",
+      "bytes": 1455932,
+      "sha256": "f01696fcf95c6932c4a659f0d3c98ed2573525709b084908d7a769b9daef06d6"
+    },
+    {
+      "file": "links.csv",
+      "bytes": 989107,
+      "sha256": "bd8562d4b10d04d080e16caaf8027cd07e47b5da6920128d39e31cd1dd8ffc5e"
+    },
+    {
+      "file": "ml-1m.zip",
+      "bytes": 5917549,
+      "sha256": "a6898adb50b9ca05aa231689da44c217cb524e7ebd39d264c56e2832f2c54e20"
+    },
+    {
+      "file": "ml-latest-small.zip",
+      "bytes": 978202,
+      "sha256": "696d65a3dfceac7c45750ad32df2c259311949efec81f0f144fdfb91ebc9e436"
+    },
+    {
+      "file": "movies_metadata.csv.zip",
+      "bytes": 12796073,
+      "sha256": "4f6086e64fed4e9a465eb3926ef7a071a94e569c8af297f5d2854cc759baea8c"
+    }
+  ],
+  "poster_probe": [
+    {
+      "movie_id": 3074,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 2867,
+      "http_status": 200,
+      "image_ok": true
+    },
+    {
+      "movie_id": 784,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 3853,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 3341,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 3035,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 482,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 334,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 2622,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 2091,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 1770,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 322,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 1860,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 3404,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 353,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 2934,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 3130,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 1799,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 2786,
+      "http_status": 404,
+      "image_ok": false
+    },
+    {
+      "movie_id": 2136,
+      "http_status": 404,
+      "image_ok": false
+    }
+  ],
+  "multimodal_source_inventory": {
+    "zenodo_record": 15403972,
+    "title": "See the Movie, Hear the Song, Read the Book: Extending MovieLens-1M, Last.fm 2K, and DBBook with multimodal Data",
+    "files": [
+      {
+        "name": "lfm2k_mm_json.zip",
+        "bytes": 623560841,
+        "checksum": "md5:7e5ba969073f5886743d301450083c0b"
+      },
+      {
+        "name": "dbbook_mm_dict.zip",
+        "bytes": 138414610,
+        "checksum": "md5:e970227c668b2bf9a6c1d5f065248a70"
+      },
+      {
+        "name": "dbbook_interaction_data.zip",
+        "bytes": 679636,
+        "checksum": "md5:a9e1dc853964300df1ba253f62680551"
+      },
+      {
+        "name": "dbbook_mmrec_npy.zip",
+        "bytes": 77626569,
+        "checksum": "md5:15d420a99420b32e084ec3aa29a9b74d"
+      },
+      {
+        "name": "dbbook_full_extended_dbbook_img_links.tsv",
+        "bytes": 1779515,
+        "checksum": "md5:ffce5e348b3327ed7caa6a09c74abf34"
+      },
+      {
+        "name": "lfm2k_mm_dict.zip",
+        "bytes": 251087691,
+        "checksum": "md5:29196014b0420f8afbcc44dc355fd8d3"
+      },
+      {
+        "name": "dbbook_mm_json.zip",
+        "bytes": 347538427,
+        "checksum": "md5:124334de88be80fbd5590f27786b1cea"
+      },
+      {
+        "name": "lfm2k_interaction_data.zip",
+        "bytes": 2663498,
+        "checksum": "md5:7899c4733c88b5ac11b2d738a665950c"
+      },
+      {
+        "name": "dbbook_text.tsv",
+        "bytes": 40094218,
+        "checksum": "md5:c6fc3c8622372a46272b76360bdba125"
+      },
+      {
+        "name": "lfm2k_mmrec_npy.zip",
+        "bytes": 39286100,
+        "checksum": "md5:2b6f4f2a27fe861c809e4220cfc48063"
+      },
+      {
+        "name": "lfm2k_text.tsv",
+        "bytes": 1205188,
+        "checksum": "md5:925d9aa7c360f9dc7828eb78fead54ca"
+      },
+      {
+        "name": "lfm2k_covers_extended_mapping.tsv",
+        "bytes": 1424245,
+        "checksum": "md5:b16dcb54cb9df0e11922c2dbdd087e51"
+      },
+      {
+        "name": "ml1m_mm_json.zip",
+        "bytes": 263954483,
+        "checksum": "md5:8f184920d99edd58d1f2063450f4c0c6"
+      },
+      {
+        "name": "readme.md",
+        "bytes": 8375,
+        "checksum": "md5:a7ae9fd6cc6d3af5f5644291c14d9213"
+      },
+      {
+        "name": "ml1m_mm_dict.zip",
+        "bytes": 104750109,
+        "checksum": "md5:671d09b0ceb58a2f349eadd5d1769754"
+      },
+      {
+        "name": "ml1m_full_extended_mapping.tsv",
+        "bytes": 695506,
+        "checksum": "md5:d176119fe9f2f6b5da13f5ca843521fa"
+      },
+      {
+        "name": "ml1m_text.tsv",
+        "bytes": 24319609,
+        "checksum": "md5:a98afbff73f503ce705613ed7e6efe9c"
+      },
+      {
+        "name": "ml1m_interaction_data.zip",
+        "bytes": 6009966,
+        "checksum": "md5:be6241f4818b603f893dc54bc39c35ed"
+      },
+      {
+        "name": "lfm2k_song_extended_mapping.tsv",
+        "bytes": 1131753,
+        "checksum": "md5:bbf63a385643abb99590c7e4a6ca3ca8"
+      },
+      {
+        "name": "ml1m_mmrec_npy.zip",
+        "bytes": 91097291,
+        "checksum": "md5:2b20f0c01425eefc23f46cb634f97f24"
+      }
+    ]
+  }
+}

@@ -2,6 +2,33 @@
 
 ## Research status
 
+- New direction2026-10-29:rich movie semantics forGR vscontent-aware dense.
+  Branch`codex/movielens-rich-semantics`frombd4ba5752d79ef480bf572fdeefbdc129e4dea08.
+  See`docs/gr-movielens-rich-semantics.md`,script`audit_movielens_semantics.py`.
+  CPU/publicdata audit only,noGPUtraining/embeddinggeneration/Kagglesubmission.
+  ML1M6040users/1000209ratings/3883catalogue/3706ratedmovies. TMDBsnapshot
+  confirmedIDs metadata3658rated;overview3648,keywords3256,cast3617,director3644,
+  posterPATH3649(all/3706). Complete4richtextfields3237. Median5keywords,14cast,
+  52overviewwords;not100IMDbtags.10conflictingIMDb/TMDBjoinswithheld,214title/year
+  reviewflags,3badmetadatarows,29dupIDs. No fuzzyjoins orinteractionfiltering.
+  Posterprobe20fixedseedonly1image/19HTTP404;needcachedmultimodalfeatures orfresh
+  images,notoldURLs. Zenodo15403972claims3667plots/3197posters;ML1M-onlyNPY91MB,
+  plots24MB,mapping0.7MB,APIinventoryretrieved,contentsnotyetverified. IMDbpublic
+  TSVschemaNOplots/keywords/posters. Rawdata/tmp/rhpr-movie-audit,aggregates/
+  gzipcatalogueaudit/sourcehashes/workspace/artifacts/movielens-semantics.
+  Importantprior:LIGER2411.18814sameiteminformationdensebeatsimplementedGRincl
+  cold;MMGRec2404.16555alreadymultimodalGR(notourcontrolledtask). Donotclaim
+  literatureempty orGRcoldautomaticallybetter;originalTIGERcoldusesprefixexpansion
+  andepsiloncap,currentexactSIDadapterdoesnotimplementit.
+  Proposed5fits:SASRecIDcontrol,SASReccontentbasic/rich,TIGERbasic/rich;shared
+  encoder/features,comparewithin-familyrich-basic;densecontentbothinput/output.
+  Imageslaterafteralignmentaudit. Coldrequiresseparateprotocol,rare!=cold.
+  MLratingtimeordercaveat:77.3866%eventsintieduser/secondgroups,53.2149%adjacent
+  ties,last2samesec2544users. Holdtimestampgroupstogether;notwatchingorder.
+  Oneuseronly2timegroups;3-waygroupsplitneedsdecision. Taskclarificationpending:
+  personalizednext-itemvsactualitem2item(userworkmotivateslatter,modelsformer).
+  Do not launchtraining before sharedprotocol/caseadapter is concrete.
+
 - Completed teacher-age screen2026-10-28,no pending GPU work. See
   `docs/gr-sid-generator-age-results.md`;private`carasik/rhpr-generator-age-screen`
   v1 COMPLETE,source316c1093a0a76ccf408562c5bce0a8640d72f322.
