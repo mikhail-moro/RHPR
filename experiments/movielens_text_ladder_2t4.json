@@ -1,0 +1,148 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-ml1m-text"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 1,
+    "batch_size": 256,
+    "physical_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 20,
+    "min_epochs": 20,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 32,
+    "max_seconds": 43200,
+    "sampling": "strict_timestamp_prefixes",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 20
+  },
+  "quantizer": {
+    "kind": "grid_rqvae",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "max_steps": 3000,
+    "batch_size": 2048,
+    "init_buffer_size": 2875,
+    "initialization_steps": 1000,
+    "distance_backend": "torch_cdist"
+  },
+  "name": "ml1m-text-ladder-rqvae-tiger-20epochs",
+  "kind": "gr_movie_text_ladder",
+  "data": {
+    "version": "ML1M-TMDB-Zenodo2875",
+    "items": 2875,
+    "users": 6039,
+    "history_items": 20,
+    "split": "timestamp_group_leave_two",
+    "train_events": 906679,
+    "train_examples": 892574
+  },
+  "movie_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-ml1m-text-ladder-input",
+    "manifest_sha256": "53178c2446d359d00aa864675042cb82fdb98ced421b04a5d86b59046e3bc204"
+  },
+  "representation": {
+    "kind": "sentence_transformer",
+    "model": "sentence-transformers/sentence-t5-base",
+    "revision": "fc5d4628481afbbaaacd7af6bb07cf9d3865f781",
+    "max_length": 2048,
+    "batch_size": 8
+  },
+  "fields": [
+    "title_with_year",
+    "genres",
+    "explicit_year",
+    "runtime",
+    "tmdb_keywords",
+    "cast",
+    "directors"
+  ],
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "trials": [
+    {
+      "id": "stage_01",
+      "stage": 1
+    },
+    {
+      "id": "stage_02",
+      "stage": 2
+    },
+    {
+      "id": "stage_03",
+      "stage": 3
+    },
+    {
+      "id": "stage_04",
+      "stage": 4
+    },
+    {
+      "id": "stage_05",
+      "stage": 5
+    },
+    {
+      "id": "stage_06",
+      "stage": 6
+    },
+    {
+      "id": "stage_07",
+      "stage": 7
+    }
+  ],
+  "evaluation": {
+    "test_after_selection": true,
+    "save_validation_predictions": true,
+    "selection_metric": "validation item NDCG@10"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml1m-text-ladder-input"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "expected_initial_state_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff"
+}

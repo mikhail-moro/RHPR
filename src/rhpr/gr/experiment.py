@@ -148,14 +148,16 @@ def _evaluate(model, examples, sid_index, batch_size: int, device: str, precisio
     return values, predictions, np.concatenate(probabilities)
 
 
-def _train_generator(model, users, sid_index, config: dict, output: Path, device: str):
+def _train_generator(model, users, sid_index, config: dict, output: Path, device: str,
+                     *, example_builder=None):
     import numpy as np
     import torch
 
     specification = config["training"]
     seed = config["seed"]
-    train = build_examples(users, config["data"]["history_items"], "train")
-    validation = build_examples(users, config["data"]["history_items"], "validation")
+    example_builder = example_builder or build_examples
+    train = example_builder(users, config["data"]["history_items"], "train")
+    validation = example_builder(users, config["data"]["history_items"], "validation")
     optimizer = torch.optim.Adam(model.parameters(), lr=specification["learning_rate"],
                                  weight_decay=specification["weight_decay"])
     precision = specification.get("precision", "fp16" if specification.get("amp", False) and device.startswith("cuda") else "fp32")

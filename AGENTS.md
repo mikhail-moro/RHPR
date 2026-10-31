@@ -2,6 +2,32 @@
 
 ## Research status
 
+- Active authorized MovieLens text ladder,2026-10-31. See
+  `docs/gr-movielens-text-ladder.md`,config`movielens_text_ladder_2t4.json`.
+  Seven cumulative fields:original title INCLUDING year,genres,explicit Year,
+  runtime,TMDBkeywords,all cast,all directors. Stage3 repeats year information,
+  per user correction;no overview/user tags/reviews/poster inputs. Frozen pinned
+  Sentence-T5,max2048allvariants;actual max1587,no truncation. RQ-VAE3x256,
+  3000steps,FP32,initbuffer2875(full smaller catalogue);previous TIGER4+4/d128,
+  4977920params,FP16,20epochs,val5/10/15/20,one selected-checkpoint test.
+  User approved distinct timestamp-group val/test:one SHA-selected target/group,
+  embargo other group ratings11004,exclude user5258(two groups,15events).
+  Common2875movies/6039users/906679train events/892574strict-past targets per
+  epoch. Simultaneous TRAIN targets share earlier history;no same-time peeking.
+  All ratings1..5,history20,fullcatalogue/freebeam20/no seenmask as prior control.
+  Private input`carasik/rhpr-ml1m-text-ladder-input`created andready;manifest
+  53178c2446d359d00aa864675042cb82fdb98ced421b04a5d86b59046e3bc204.
+  Case train/val/test hashes and source identities verified;native initialNNhash
+  5f4a24fa…matches previous TIGER. Native real-encoder/RQ/tiny20epoch smoke passed.
+  New builder is optional trainer argument;historical defaults remain intact.
+  Run target`carasik/rhpr-ml1m-text-ladder`,2T4 independent4/3fit workers.
+  Quota30GPUh,estimated~19GPUh/~10–11hwall before launch. Publication/dispatch
+  being finalized;912fulltests passed(12skips),plus2native movie-suite tests.
+  Input statusREADY;newkernel searchNotFound. Do not submit duplicates.
+  No automatic tuning,retries,extra
+  seeds,earlier experiments,TPU or Telegram. Preserve paused TPU edits.
+
+
 - New direction2026-10-29:rich movie semantics forGR vscontent-aware dense.
   Branch`codex/movielens-rich-semantics`frombd4ba5752d79ef480bf572fdeefbdc129e4dea08.
   See`docs/gr-movielens-rich-semantics.md`,script`audit_movielens_semantics.py`.
