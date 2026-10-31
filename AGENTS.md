@@ -20,10 +20,16 @@
   Case train/val/test hashes and source identities verified;native initialNNhash
   5f4a24fa…matches previous TIGER. Native real-encoder/RQ/tiny20epoch smoke passed.
   New builder is optional trainer argument;historical defaults remain intact.
-  Run target`carasik/rhpr-ml1m-text-ladder`,2T4 independent4/3fit workers.
+  Submitted once:private`carasik/rhpr-ml1m-text-ladder`v1RUNNING,2T4
+  independent4/3fit workers. Executablec4d31fb32146376fb65f4e043787d2ecbb62c609.
+  Actions41230771384successsubmit-only;PR41attached. Actual182embeddedfiles and
+  config matchcommittedsource;packageSHA6f7e96b2ee38787d4961fb29139bb7a57c8612598ce80165d13cc77f8c2626f4.
+  Receipts/sourceaudit/split/config/tests saved in/workspace/artifacts/movielens-text-ladder.
   Quota30GPUh,estimated~19GPUh/~10–11hwall before launch. Publication/dispatch
-  being finalized;912fulltests passed(12skips),plus2native movie-suite tests.
-  Input statusREADY;newkernel searchNotFound. Do not submit duplicates.
+  complete;912fulltests passed(12skips),plus2native movie-suite tests.
+  Initial PR CI missingSciPy/safetensors from historicalSIDtests;addsid-analysis CIextra,
+  no change to already submitted Kaggle executable and no resubmission.
+  Prelaunch input statusREADY;kernel searchNotFound. Do not submit duplicates.
   No automatic tuning,retries,extra
   seeds,earlier experiments,TPU or Telegram. Preserve paused TPU edits.
 

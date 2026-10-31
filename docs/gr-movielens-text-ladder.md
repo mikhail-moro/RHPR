@@ -3,7 +3,7 @@
 User request, 31 October 2026. Seven cumulative feature configurations on the
 same previously accepted 2,875-movie subset (TMDB rich4 + cached Zenodo ViT).
 This document records completed preparation and the proposed training contract.
-**Temporal group split approved. Input dataset uploaded privately; training dispatch is being prepared.**
+**Submitted once: private Kaggle v1 is RUNNING; results are not available yet.**
 
 ## Completed preparation
 
@@ -116,3 +116,29 @@ The temporal adapter is `rhpr.gr.movie_data`; the two-worker runner is
 All seven catalogues and the temporal schedule are in the private input dataset
 `carasik/rhpr-ml1m-text-ladder-input`. No poster vectors are consumed in this
 text-only ladder; their coverage determines the common future multimodal subset.
+
+
+## Submission receipt
+
+- [Private Kaggle](https://www.kaggle.com/code/carasik/rhpr-ml1m-text-ladder),version1,
+  observed RUNNING. Submitted31October2026at21:43Moscowtime.
+- [Actions41230771384](https://github.com/mikhail-moro/RHPR/actions/runs/41230771384)
+  succeeded,submit-only,noTelegram. Executablecommit
+  `c4d31fb32146376fb65f4e043787d2ecbb62c609`.
+- Actual uploaded config and all182embeddedpackagefiles match the committed
+  Git blob hashes. Private/GPU/T4/offline/two declared datasets confirmed.
+  PackageSHA256`6f7e96b2ee38787d4961fb29139bb7a57c8612598ce80165d13cc77f8c2626f4`.
+- All912repositorytests passed(12skipped),plus2targeted movie-suite tests
+  including real encoder/RQ/tiny20epochtraining. Longest final text1587tokens
+  verified through actual tokenization and CPUforward without truncation.
+- Receipts,actual source audit,config,split report,initialization/case hashes
+  and test evidence:`/workspace/artifacts/movielens-text-ladder`.
+
+Do not resubmit,extend,retune,add seeds or continuously poll. Wait for user
+completion/status message;collect this existing run's outputs when requested.
+
+
+CI note:the first PR validation job exposed missing analysis/checkpoint dependencies in
+its existing install command (SciPy and safetensors imports from historical tests). Add
+`sid-analysis` and safetensors to the CI install list. This does not change the submitted Kaggle
+runtime or executable;do not resubmit GPU training for the CI fix.
