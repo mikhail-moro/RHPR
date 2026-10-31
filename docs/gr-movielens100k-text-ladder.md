@@ -99,3 +99,17 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. HF_HOME=/tmp/rhpr-hf-cache \
 
 Не возобновлять старый ML-1M, не добавлять автоматическое tuning/seed-повторы
 или Telegram. Результаты нового запуска пока не получены.
+
+
+## Запуск
+
+Приватный [Kaggle kernel](https://www.kaggle.com/code/carasik/rhpr-ml100k-text-ladder),
+версия1, статусRUNNING. [Actions41235282704](https://github.com/mikhail-moro/RHPR/actions/runs/41235282704)
+успешно отправил единственный запуск. Исполняемый коммит:
+`6537df769c7755a601c7e91672039701c519685d`.
+Фактический конфиг и все182файла пакета сверены с Git blob hashes;
+packageSHA256`680290105a27db0e88b7e22e82faa006092794f26f9d1940a4725e354fdf8b61`.
+Подтверждены private/GPU/T4/internet-off и только два нужных input datasets.
+917локальных тестов прошли(81skip),ещё три targeted native/config теста прошли.
+Новых результатов качества пока нет. Не перезапускать остановленный ML-1M,
+не дублировать этот запуск; дождаться сообщения пользователя о завершении.

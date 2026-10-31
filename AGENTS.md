@@ -21,7 +21,12 @@
   Newkernel target`carasik/rhpr-ml100k-text-ladder`,not the stopped ML1Mslug.
   About1.5–2hwall estimate,vsold600sec/892574targetsper epoch;quota29.27hleft.
   Tests917passed(81skips),plus3targeted native/config tests. InputREADY.
-  Submissionpreparation in progress;do not duplicate. NoTelegram,TPU,tuning,
+  Submittedonce:private`carasik/rhpr-ml100k-text-ladder`v1RUNNING,
+  executable6537df769c7755a601c7e91672039701c519685d,Actions41235282704success
+  submit-only. Actualconfig+all182embeddedfiles matchcommit,packageSHA
+  680290105a27db0e88b7e22e82faa006092794f26f9d1940a4725e354fdf8b61.
+  Receipts:/workspace/artifacts/movielens100k-text-ladder. Do not resubmit
+  or continuouslypoll;waitforusercompletion/status andcollectexistingrun. NoTelegram,TPU,tuning,
   retries,extra seeds,oroldexperiment revival. Keep stopped1Moutputs intact.
 
 
