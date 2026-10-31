@@ -11,6 +11,18 @@ ROOT=Path(__file__).resolve().parents[1]
 
 
 class MovieSuiteContract(unittest.TestCase):
+    def test_100k_switch_changes_data_not_training_recipe(self):
+        from rhpr.gr.movie_suite import validate
+        old=json.loads((ROOT/'experiments/movielens_text_ladder_2t4.json').read_text())
+        new=json.loads((ROOT/'experiments/movielens100k_text_ladder_2t4.json').read_text())
+        validate(new)
+        for key in ['training','generator','representation','fields','execution','trials']:
+            self.assertEqual(old[key],new[key])
+        self.assertEqual(new['data']['items'],1273)
+        self.assertEqual(new['data']['users'],943)
+        self.assertEqual(new['data']['train_examples'],85470)
+        self.assertEqual(new['quantizer']['init_buffer_size'],1273)
+
     def test_fixed_epochs_shared_encoder_and_approved_subset(self):
         from rhpr.gr.movie_suite import validate
         c=json.loads((ROOT/'experiments/movielens_text_ladder_2t4.json').read_text())

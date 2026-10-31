@@ -2,6 +2,29 @@
 
 ## Research status
 
+- Active direction switched to MovieLens100K by user,2026-10-31. ML1M run was
+  stopped by user;serverCANCEL_ACKNOWLEDGED,do not resume/relaunch it.
+  Newconfig`movielens100k_text_ladder_2t4.json`,same7fields/year-in-title,
+  Sentence-T5max2048,RQ-VAE3x256/3000steps/initbuffer1273,previousTIGER4+4/d128,
+  20epochs,val5/10/15/20,sameGPU2T4/seed42/history20/strict-past/group-holdouts.
+  OfficialML100K100000ratings/943users/1682rawIDs. IDs differ fromML1M.
+  Exact title/year aliases and explicit IMDb IDs bridge to previous verified
+  metadata;1667matched/13unmatched/2ambiguousrawIDs. No fuzzy/raw-IDjoin.
+  CommonTMDBrich4+ViTcoverage1288rawIDs,91767events;15same-film aliases merged
+  to1273movies,298duplicateuser-filmratings removed(latesttime,sourceIDtie).
+  Final91469ratings,943users,noexcludedusers,2042heldoutgroup embargo events,
+  87541train events,85470strict-past train targets/epoch. Dataset preparation
+  `scripts/prepare_movielens100k_text_ladder.py`;samecase/modelinit preflight
+  passes,NNhash5f4a24fa…unchanged. All7models fresh;noML1Mweights reused.
+  Privateinput`carasik/rhpr-ml100k-text-ladder-input`,manifest
+  52fa57696f77bc0d137b1d042684afb83e4d17c068fe78c9c5502d573cf84028.
+  Newkernel target`carasik/rhpr-ml100k-text-ladder`,not the stopped ML1Mslug.
+  About1.5–2hwall estimate,vsold600sec/892574targetsper epoch;quota29.27hleft.
+  Tests917passed(81skips),plus3targeted native/config tests. InputREADY.
+  Submissionpreparation in progress;do not duplicate. NoTelegram,TPU,tuning,
+  retries,extra seeds,oroldexperiment revival. Keep stopped1Moutputs intact.
+
+
 - Active authorized MovieLens text ladder,2026-10-31. See
   `docs/gr-movielens-text-ladder.md`,config`movielens_text_ladder_2t4.json`.
   Seven cumulative fields:original title INCLUDING year,genres,explicit Year,
@@ -20,7 +43,7 @@
   Case train/val/test hashes and source identities verified;native initialNNhash
   5f4a24fa…matches previous TIGER. Native real-encoder/RQ/tiny20epoch smoke passed.
   New builder is optional trainer argument;historical defaults remain intact.
-  Submitted once:private`carasik/rhpr-ml1m-text-ladder`v1RUNNING,2T4
+  Historical stopped run:private`carasik/rhpr-ml1m-text-ladder`v1CANCEL_ACKNOWLEDGED,2T4
   independent4/3fit workers. Executablec4d31fb32146376fb65f4e043787d2ecbb62c609.
   Actions41230771384successsubmit-only;PR41attached. Actual182embeddedfiles and
   config matchcommittedsource;packageSHA6f7e96b2ee38787d4961fb29139bb7a57c8612598ce80165d13cc77f8c2626f4.

@@ -3,7 +3,7 @@
 User request, 31 October 2026. Seven cumulative feature configurations on the
 same previously accepted 2,875-movie subset (TMDB rich4 + cached Zenodo ViT).
 This document records completed preparation and the proposed training contract.
-**Submitted once: private Kaggle v1 is RUNNING; results are not available yet.**
+**Stopped by user. Superseded by the MovieLens-100K ladder; do not restart this ML-1M run.**
 
 ## Completed preparation
 

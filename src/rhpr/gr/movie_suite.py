@@ -142,7 +142,9 @@ def run_movie_suite(config, output):
     rows = json.loads((data_root / 'catalog-stage-01.json').read_text()); source_ids = [r['item_id'] for r in rows]
     users = load_temporal_users(data_root / 'sequences.json', source_ids)
     split = json.loads((data_root / 'split-report.json').read_text())
-    if len(source_ids) != 2875 or len(users) != 6039:
+    if (len(source_ids) != config['data']['items'] or len(users) != config['data']['users']
+            or split['items'] != len(source_ids) or split['users'] != len(users)
+            or split['train_examples'] != config['data']['train_examples']):
         raise ValueError('movie input counts changed')
     for name in ('train', 'validation', 'test'):
         examples = temporal_examples(users, config['data']['history_items'], name)
