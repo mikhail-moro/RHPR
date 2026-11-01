@@ -3,6 +3,28 @@
 ## Research status
 
 
+- MultimodalMPNetv2 COMPLETE,2026-11-01;12/12fits20epochs,no failures,
+  sourceaddd3c326dbc55ddf18d2dad2c832bf43000a8e0,117.50minbody. Collected
+  rawreports/sharedfeatures;60predictionfiles+3plaincontrols independently
+  rescored,same943cases/split,1709400examples/6680updates/zeroAMPskips each.
+  Generatorinitialhashpinned;RQinitialparams matchacrossstages withinseed;
+  fixedfeatures+normalizationidentical;base text exactlyoldstage5T5vectors.
+  Mean testNDCG10±SD:plainRQsame text.04143±.00335;headedtext.03388±.00264;
+  +poster.03982±.00163;+MPNetdescription.03760±.00599;+people.03773±.00171.
+  Posterincrement+17.5%positive3/3;plot-5.6%positive1/3;people+0.3%positive1/3.
+  Headedtext-18.2%vsplain3/3negative;allmodalities-8.9%vsplain3/3negative.
+  Valmeans4stages.05704/.05602/.05598/.05412;not a stableval/testgain.
+  NewRQsemantictriples:headed1025–1088,poster888–953,plot825–889,
+  people652–756;plain1271–1273. Firstbookheaded14–15/full10–14vsplain98–140.
+  All1273fullSIDs remainunique via suffix. Diversitystillgrows500–3000;
+  textMSE~.81–.84vsconstant1,worse~.87–.88withallheads. Do notdeclarecausal
+  bookoccupancy rule or modalitiesuseless:weakheadedcontrol/trainingconfounds.
+  Plotprep1272descriptions/1285chunks/max657tokens/no truncation,21.3sec.
+  See docs/gr-movielens100k-multimodal-results.md and localartifacts/
+  movielens100k-multimodal/mpnet-replacement/analysis (reports/plots/ZIP/ranks).
+  No pending GPUwork,noautoextensions,tuning,extraseeds,TPUorTelegram.
+
+
 - MPNet replacement submitted ONCE,v2RUNNING,2026-11-01. Sameprivatekernel
   carasik/rhpr-ml100k-multimodal,oldv1CANCEL_ACKNOWLEDGED. Newexecutable
   addd3c326dbc55ddf18d2dad2c832bf43000a8e0,Actions41313214797successsubmit-only.
