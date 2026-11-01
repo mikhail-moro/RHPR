@@ -2,6 +2,25 @@
 
 ## Research status
 
+- Text AE warm-up COMPLETE,collected2026-11-01. Privatecarasik/rhpr-ml100k-text-ae-warmup
+  v1/source444ba8238b2e244b498c4bb23ada89c769723b63;body20.25min. One seed42,
+  text-only,sameheadedarchitecture/frozenvectors/normalization/initialRQ+generator,
+  same943users/targets/split;all15predictionfiles(3models×5) independentlyrescored.
+  All20epochs/1709400examples/6680updates/zeroAMPskips. AE4500steps/69.64sec,
+  spectralplateau;nativeRQ3000Adagrad91.49sec;TIGERmean50.73sec/epoch vs50.95direct.
+  SelectedvalNDCG10 direct.05402 -> AE.06102(+13.0%),plain.06900. Selectedtest
+  .03438 -> .04210(+22.5%),plain.04341(-3.0%vsplain). Recall10.06999 -> .09014.
+  Bestepoch15. Firstbook15 ->252codes;semantictriples1025 ->1273(no collisions),
+  finalused[252,238,231],textMSE.83511 ->.72496. AEbooksuntouched/neural+BNtransfer,
+  freshRQoptimizer andinitiallatents(all1273,maxdiff0) verified. ExtraAEcompute/
+  initialization/stagemodesconfounded;not proofparametercountoroccupancycausedgain.
+  One seed,conditionalpaireduser95%CI delta[-.00235,.01794]crosses0.
+  See docs/gr-movielens100k-text-ae-warmup-results.md;localartifacts/
+  movielens100k-text-ae-warmup/analysis(report/CSV/plots/numerical-evidence.zip).
+  LargeweightsstayprivateKaggle. No pendingGPUwork,do notresubmit/extend/tune,
+  addseeds,TPUorTelegramwithoutnewscope;preservepriorresultsandpausedTPUedits.
+
+
 - Text AE warm-up submitted ONCE; KaggleRUNNING,2026-11-01. Private
   carasik/rhpr-ml100k-text-ae-warmup,source444ba8238b2e244b498c4bb23ada89c769723b63,
   Actions41328218657successsubmit-only;exactconfig/all187embeddedfiles verified,
