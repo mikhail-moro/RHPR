@@ -91,6 +91,8 @@ def _model_batch(contexts, users, targets, sids, device):
 
 def _loss(model, batch):
     import torch
+    if hasattr(model, 'rhpr_loss'):
+        return model.rhpr_loss(batch)
     output = model(**batch)[:, :-1]
     return sum(torch.nn.functional.cross_entropy(head(output[:, level]),
                                                 batch["future_ids"][:, level])
@@ -119,6 +121,8 @@ def _autocast(precision: str, device: str):
 
 
 def _evaluate(model, examples, sid_index, batch_size: int, device: str, precision: str = "fp32"):
+    if hasattr(model, 'rhpr_evaluate'):
+        return model.rhpr_evaluate(examples, sid_index, batch_size, device, precision)
     import numpy as np
     import torch
     from rhpr.gr.sid import evaluate_ranked_sids
@@ -224,9 +228,10 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                     raise FloatingPointError("repeated GR AMP gradient overflows")
         train_seconds = time.monotonic() - epoch_started
         training_seconds += train_seconds
+        loss_key = specification.get('loss_log_key', 'train_loss_sum_over_codes')
         row = {"epoch": epoch, "updates": updates, "amp_skipped_updates": skipped_updates,
                "train_examples": len(targets),
-               "train_loss_sum_over_codes": total_loss / len(targets), "train_seconds": train_seconds}
+               loss_key: total_loss / len(targets), "train_seconds": train_seconds}
         if ((epoch == 1 and specification.get("validate_first_epoch", True))
                 or epoch % specification["validation_interval"] == 0
                 or epoch == specification["max_epochs"]):
@@ -236,8 +241,9 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                                              precision=evaluation_precision)
             if config.get("evaluation", {}).get("save_validation_predictions", False):
                 metadata = sid_index.prediction_metadata(validation[0]) if hasattr(sid_index, 'prediction_metadata') else {}
+                prediction_name = getattr(sid_index, 'prediction_array_name', 'semantic_ids')
                 np.savez_compressed(output / f"validation-epoch-{epoch:03d}.npz",
-                    semantic_ids=validation_ids, scores=validation_scores,
+                    **{prediction_name: validation_ids}, scores=validation_scores,
                     user_ids=validation[1], target_item_ids=validation[2], **metadata)
             if config.get('evaluation', {}).get('save_teacher_forced_diagnostics', False):
                 from rhpr.gr.sid_corruption import teacher_forced_diagnostics

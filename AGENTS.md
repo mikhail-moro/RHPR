@@ -2,6 +2,28 @@
 
 ## Research status
 
+- User authorized names-in-text multimodal TIGER + item-ID SASRec controls,
+  2026-11-01. Config movielens100k_names_sasrec_controls_2t4.json;see doc.
+  Six freshfits42/101/202×2predictors,balanced2T4. TIGERtextincludescast/directors
+  viaexactpriorstage07T5vectors(max1587/no truncation),poster+MPNetplot unchanged;
+  graphpeople inactive. Mount oldprivatetextladder+multimodaloutputs,hash+order
+  verified,no newencoding/upload. SameAEup-to5000/nativeRQ3000/TIGER20epochs.
+  SASRec existingmodel7layers/d256/heads4/FFN768/dropout.1,IDonly,tieditemmatrix,
+  fullcatalogCE/noPADlogit/no samplednegatives. Same20itemstrictpastcases,
+  85470targets/epoch,20epochs,batch256/128,Adam.001,FP16train/FP32eval,
+  val5/10/15/20,one selectedtest. Preserve oldmodels andruntimepolicy.
+  Realbackwardcapacity(nonembeddingactive) TIGER4590464/SASRec4609536(+.415%);
+  total4977920/4940800. Gatewithin1%. ProfileB1forward20validitems inclheads:
+  .42737G/.18737G supportedFLOPs;PARAMETERcapacitymatched,NOTequalFLOPs/time.
+  Save B1/B32 servinglatency(10warm/50samples),samefullhistorytraincases;
+  commontrainerhooksforfullcatalogSASRec,IDpredictionfilesdistinctfromSIDfiles.
+  Groupinitializationbypredictor+seed,notacrossdifferentarchitectures.
+  Tests932OK85skips;3targeted/nativeOKinclboth20epochcontrols,capacity,masks,
+  causalityandnamesreplacement. Real1273film replacementarrays verified.
+  Newprivatekernel target carasik/rhpr-ml100k-names-sasrec-controls,
+  ~40–60min+setup/queue. No extraHPO/seeds/retries/TPU/Telegram.
+
+
 - MultimodalAE ladder COMPLETE,collected2026-11-01. Private
   carasik/rhpr-ml100k-multimodal-ae v1;sourceba160aac3155831e06286b6e6924eb720b82dfc2,
   all12fits/20epochs/6680updates/1709400cases/zeroAMPskips;body121.16min.

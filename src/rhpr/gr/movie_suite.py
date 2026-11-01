@@ -16,6 +16,9 @@ from rhpr.gr.movie_data import load_temporal_users, temporal_examples, case_dige
 
 
 def validate(config):
+    if config.get('kind') == 'gr_movie_controls':
+        from rhpr.gr.movie_controls import validate_controls
+        return validate_controls(config)
     if (config['data']['split'] != 'timestamp_group_leave_two'
             or config['representation']['max_length'] != 2048
             or config['training']['max_epochs'] != 20
@@ -162,6 +165,9 @@ def run_worker(plan_path, slot):
         status['current_trial'] = trial['id']; _write(status_path, status)
         try:
             fit = run_trial
+            if config.get('kind') == 'gr_movie_controls':
+                from rhpr.gr.movie_controls import run_control_trial
+                fit = run_control_trial
             if config.get('kind') in {'gr_movie_multimodal', 'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder'}:
                 from rhpr.gr.movie_multimodal import run_multimodal_trial
                 fit = run_multimodal_trial
@@ -193,7 +199,7 @@ def run_movie_suite(config, output):
     data_root = resolve_dataset_directory(config['movie_input']['path'])
     verify_resources(data_root, config['movie_input']['manifest_sha256'])
     modality_root = None
-    if config.get('kind') in {'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder'}:
+    if config.get('kind') in {'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder', 'gr_movie_controls'}:
         from rhpr.gr.movie_multimodal import frozen_control_input
         modality_root = frozen_control_input(config['modality_input'])
     elif config.get('kind') == 'gr_movie_multimodal':
@@ -225,7 +231,7 @@ def run_movie_suite(config, output):
         if observed != expected:
             raise ValueError(f'generator initialization differs for pipeline seed {seed}')
         expected_by_seed[str(seed)] = observed
-    if config.get('kind') in {'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder'}:
+    if config.get('kind') in {'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder', 'gr_movie_controls'}:
         if file_sha256(modality_root / 'features.npz') != config['modality_input']['features_sha256']:
             raise ValueError('frozen modality vectors differ from completed direct-training control')
         if json.loads((modality_root / 'source-ids.json').read_text()) != source_ids:
@@ -234,6 +240,10 @@ def run_movie_suite(config, output):
         from rhpr.gr.movie_modal_features import prepare_shared_modalities
         modality_root = prepare_shared_modalities(config, modality_root, resources,
             output / 'shared-modalities', 'cuda:0' if config['training']['device'] == 'cuda' else 'cpu')
+    if config.get('kind') == 'gr_movie_controls':
+        from rhpr.gr.movie_controls import prepare_names_modalities, capacity_preflight
+        modality_root = prepare_names_modalities(config, modality_root, source_ids, output / 'shared-modalities')
+        capacity_preflight(config, source, users, output)
     (output / 'workers').mkdir(exist_ok=True)
     _write(output / 'split-report.json', split)
     _write(output / 'input-provenance.json', {'source_ids': source_ids, 'split': split,
