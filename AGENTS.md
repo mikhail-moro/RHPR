@@ -2,6 +2,17 @@
 
 ## Research status
 
+- Text AE warm-up submitted ONCE; KaggleRUNNING,2026-11-01. Private
+  carasik/rhpr-ml100k-text-ae-warmup,source444ba8238b2e244b498c4bb23ada89c769723b63,
+  Actions41328218657successsubmit-only;exactconfig/all187embeddedfiles verified,
+  packageSHAd1876d87ec0ccea73ff3c7a6b2414f25c63be0b70024a9184e56af519eecea4a.
+  One text-only seed42 AE->RQ->20epochTIGER;reuse oldprivate notebook outputs.
+  Receipt docs/gr-movielens100k-text-ae-warmup-submission.json;local
+  artifacts/movielens100k-text-ae-warmup/source-audit.json. No results yet.
+  Waitforusercompletion;collectexistingrun. Do notduplicate/pollcontinuously,
+  autoextend,tune,addseeds,TPUorTelegram. Preserve oldresults/pausedTPUedits.
+
+
 - User authorized one text-only seed42 AE warm-up experiment,2026-11-01.
   Config movielens100k_text_ae_warmup.json; see corresponding doc. Same frozen
   features/head architecture/initial quantizer state as completed multimodal v2
