@@ -2,6 +2,20 @@
 
 ## Research status
 
+- Fulltrainingpilot submittedONCE,v1RUNNING,2026-11-02MSK. Private
+  carasik/rhpr-ml100k-full-training-seed42;4continuations/seed42/2T4,
+  nopeople/graph/namesTIGER+SASRec. Resumeepoch20/6680updates,frozenindices.
+  Executablece0efd6d6816a24d5710d5baeda706abc3d8e8cb;Actions41363415397success;
+  exactconfig/all191embeddedfiles matchcommit,packageSHA
+  f961db92e96598f5b7433b7a2a5284a8e52133e5f26e7d348634a4e9ee80bd29.
+  Receipt docs/gr-movielens100k-full-training-submission.json;localartifacts/
+  movielens100k-full-training-seed42/source-audit.json. Min30/cap100,ES20,
+  valeachnewepoch,LRhalveafter5badchecksfrom21,teacherforcedvalCEperlevel.
+  Source64files/321MBverified in/tmp/movie-continuation-input. Noresults yet.
+  Waitforusercompletion/status;collectexistingrun,do notresubmit/extend/tune,
+  changeindices/retrainAE-RQ/addseeds/TPU/Telegram. Preserveoldoutputs/pausedTPU.
+
+
 - User authorized seed42full-training pilot,2026-11-02MSK. Config
   movielens100k_full_training_seed42_2t4.json;doc gr-movielens100k-full-training.md.
   Fourcontinuations:nopeople/graph/namesTIGER+SASRec fromepoch20/6680updates;
