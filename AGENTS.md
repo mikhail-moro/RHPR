@@ -3,6 +3,18 @@
 ## Research status
 
 
+- MPNet replacement submitted ONCE,v2RUNNING,2026-11-01. Sameprivatekernel
+  carasik/rhpr-ml100k-multimodal,oldv1CANCEL_ACKNOWLEDGED. Newexecutable
+  addd3c326dbc55ddf18d2dad2c832bf43000a8e0,Actions41313214797successsubmit-only.
+  Actualconfig+all186embeddedfiles matchcommit,packageSHA
+  c18600490f3f8b805312a891e4061eeabfee3672ac93e154a6fa25b0a0bfc596.
+  Onlyplotencoderchanges toMPNet description-only;headedtextcontrol remains
+  priorSentenceT5vectors. Frozeninputv2manifest75a4eb4e…verified. Receipt:
+  docs/gr-movielens100k-multimodal-mpnet-submission.json. Localartifacts
+  artifacts/movielens100k-multimodal/mpnet-replacement. Waitforusercompletion,
+  collectexistingv2;noresubmission/continuouspoll/tuning/extraseeds/TPU/Telegram.
+
+
 - User corrected plot channel,2026-11-01: use MPNET on DESCRIPTION ONLY.
   CachedZenodoall-mpnetvectors mixdescription+genres+tags+reviews perauthors'
   script;notused. Sourcecounts1273genres/1253tags/776reviews. Base text STILL
