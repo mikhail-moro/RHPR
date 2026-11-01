@@ -3,6 +3,24 @@
 ## Research status
 
 
+- User corrected plot channel,2026-11-01: use MPNET on DESCRIPTION ONLY.
+  CachedZenodoall-mpnetvectors mixdescription+genres+tags+reviews perauthors'
+  script;notused. Sourcecounts1273genres/1253tags/776reviews. Base text STILL
+  exactstage5SentenceT5;onlyplotencoderchanges. Pinnedall-mpnet-base-v2
+  e8c3b32edf5434bc2275fc9bab85f82640a19130,max384,chunk/tokenweightedpool+L2,
+  no truncation,1272plots/1masked. Real7000token/20chunkMPNet smokeOK;
+  native4testsOK,full924OK82skips. Same12fits42/101/202×4stages/20epochs.
+  Originalmultimodalv1(source7986c0c)CANCEL_ACKNOWLEDGED,nonecompleted,
+  firsttwofitslastloggedepoch6. Preserveoldreceipts;do notresumev1.
+  Cancellationoriginnotdetermined;serverstatusverified,no successfulcancel
+  APIcallbyagent. Replacement permitted by user's explicit encoder choice.
+  Privateinputcarasik/rhpr-ml100k-modal-input v2 READY,MPNetassetsincluded,
+  manifest75a4eb4e37ac6909d6c2f68ffe1582bfdc5bde385a6c975adc491ae0c231c0fd.
+  See corrected multimodal doc+cancelled-v1.json. Local replacement artifacts
+  artifacts/movielens100k-multimodal/mpnet-replacement. One replacement session,
+  noextraseeds/tuning/Telegram/TPU. Waitforcompletion aftersubmission.
+
+
 - Multimodal ML100K session submitted ONCE,v1RUNNING,2026-11-01.
   Privatecarasik/rhpr-ml100k-multimodal,12fits/3seeds×4cumulative channels,
   2T4/offline/noTelegram. Executable7986c0cf1db85610f0878fbe32116a9b311e0b34;

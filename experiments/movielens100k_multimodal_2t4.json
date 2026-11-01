@@ -64,7 +64,7 @@
     "head_hidden": 256,
     "diagnostics_interval_steps": 500
   },
-  "name": "ml100k-multimodal-plumlike-3seeds-20epochs",
+  "name": "ml100k-multimodal-plumlike-mpnet-plots-3seeds-20epochs",
   "kind": "gr_movie_multimodal",
   "data": {
     "version": "ML100K-TMDB-Zenodo-exact-bridge",
@@ -246,6 +246,12 @@
   "compare_initialization_by_seed": true,
   "modality_input": {
     "path": "/kaggle/input/datasets/carasik/rhpr-ml100k-modal-input",
-    "manifest_sha256": "5894994424f21c54784e416136d77758b5462d370e2a40016633e08eae141bb4"
+    "manifest_sha256": "75a4eb4e37ac6909d6c2f68ffe1582bfdc5bde385a6c975adc491ae0c231c0fd"
+  },
+  "plot_encoder": {
+    "model": "sentence-transformers/all-mpnet-base-v2",
+    "revision": "e8c3b32edf5434bc2275fc9bab85f82640a19130",
+    "path": "plot-encoder",
+    "max_length": 384
   }
 }

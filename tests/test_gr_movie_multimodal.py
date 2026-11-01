@@ -24,9 +24,13 @@ class MovieMultimodalTest(unittest.TestCase):
         self.assertEqual([len(j['trials']) for j in assignments(c,2)],[6,6])
         self.assertEqual(c['fields'][-1],'tmdb_keywords');self.assertEqual(len(c['trials']),12)
         self.assertEqual(c['replicate_seeds'],[42,101,202])
+        self.assertEqual(c['plot_encoder']['model'],'sentence-transformers/all-mpnet-base-v2')
+        self.assertEqual(c['plot_encoder']['max_length'],384)
         for key in ['training','generator','data','movie_input']:
             old=json.loads((ROOT/'experiments/movielens100k_text_ladder_2t4.json').read_text());self.assertEqual(c[key],old[key])
         bad=copy.deepcopy(c);bad['trials'][-1]['modalities']=['text','plot']
+        with self.assertRaises(ValueError):validate(bad)
+        bad=copy.deepcopy(c);bad['plot_encoder']['model']='sentence-transformers/sentence-t5-base'
         with self.assertRaises(ValueError):validate(bad)
 
     def test_walk_corpus_is_reproducible_and_respects_shared_film_edges(self):

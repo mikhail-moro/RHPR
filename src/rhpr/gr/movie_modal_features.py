@@ -12,9 +12,12 @@ def prepare_shared_modalities(config, source, resources, output, device):
     source=Path(source);output=Path(output);output.mkdir(parents=True,exist_ok=True)
     before=time.monotonic()
     texts=json.loads((source/'plot-texts.json').read_text())
-    model=SentenceTransformer(str(Path(resources)/'sentence-t5-base'),device=device,local_files_only=True)
-    model.eval();model.max_seq_length=2048
-    tokenizer=model.tokenizer;capacity=2048-tokenizer.num_special_tokens_to_add(pair=False)
+    specification=config.get('plot_encoder')
+    model_path=(source/specification['path'] if specification else Path(resources)/'sentence-t5-base')
+    limit=specification['max_length'] if specification else 2048
+    model=SentenceTransformer(str(model_path),device=device,local_files_only=True)
+    model.eval();model.max_seq_length=limit
+    tokenizer=model.tokenizer;capacity=limit-tokenizer.num_special_tokens_to_add(pair=False)
     chunks=[];lengths=[]
     for owner,txt in enumerate(texts):
         tokens=tokenizer.encode(txt,add_special_tokens=False,verbose=False) if txt else []
@@ -28,7 +31,7 @@ def prepare_shared_modalities(config, source, resources, output, device):
             rows=chunks[start:start+config['representation']['batch_size']]
             batch=tokenizer.pad({'input_ids':[r[1] for r in rows]},padding=True,return_tensors='pt')
             batch={k:v.to(device) for k,v in batch.items()}
-            if batch['input_ids'].shape[1]>2048:raise ValueError('plot chunk exceeds token budget')
+            if batch['input_ids'].shape[1]>limit:raise ValueError('plot chunk exceeds token budget')
             embeddings=model(batch)['sentence_embedding'].float().cpu().numpy()
             for (owner,_,tokens),embedding in zip(rows,embeddings):
                 values[owner]+=tokens*embedding;weight[owner]+=tokens
@@ -43,7 +46,7 @@ def prepare_shared_modalities(config, source, resources, output, device):
     np.savez_compressed(output/'features.npz',**arrays)
     shutil.copy2(source/'source-ids.json',output/'source-ids.json')
     provenance=json.loads((source/'provenance.json').read_text())
-    provenance['plot_encoder']={'model':config['representation'],'pooling':'token-count-weighted mean of nonoverlapping2048-token chunks, then L2','truncated_items':0,
+    provenance['plot_encoder']={'model':specification or config['representation'],'pooling':f'token-count-weighted mean of nonoverlapping{limit}-token chunks, then L2','truncated_items':0,
         'items':len(texts),'observed':int(observed.sum()),'chunks':len(chunks),'max_document_tokens':max(lengths,default=0),
         'seconds':time.monotonic()-before,'features_sha256':file_sha256(output/'features.npz')}
     _write(output/'provenance.json',provenance)

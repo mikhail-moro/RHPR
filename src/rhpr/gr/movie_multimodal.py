@@ -16,6 +16,8 @@ def validate_modalities(config):
             or q['codebook_size']!=256 or q['max_steps']!=3000
             or q['head_dim']!=128 or q['head_hidden']!=256
             or config['replicate_seeds']!=[42,101,202]
+            or config.get('plot_encoder',{}).get('model')!='sentence-transformers/all-mpnet-base-v2'
+            or config['plot_encoder']['max_length']!=384
             or any(t['modalities']!=list(MODALITIES[:t['stage']]) for t in config['trials'])):
         raise ValueError('multimodal ladder differs from declared matched protocol')
 

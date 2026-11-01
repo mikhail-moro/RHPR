@@ -13,8 +13,8 @@ strict timestamp-group split, embargo, case digests and latest20context items.
   ML1M IDs through the verified ML100K bridge. All1273films observed. Do not use
   the2980-row MMRec NPY arrays: their row positions are not original film IDs.
 - Plot768D: raw `description` from Zenodo `ml1m_text.tsv` (actually CSV), using
-  pinned Sentence-T5. Other columns (genres/tags/reviews) are ignored. Encode
-  nonoverlapping chunks of at most2048tokens, weighted by content token count,
+  pinned all-mpnet-base-v2. Other columns (genres/tags/reviews) are ignored. Encode
+  nonoverlapping chunks of at most384tokens, weighted by content token count,
   then L2-normalize the pooled vector. No silent truncation. Compute once on
   GPU0before independent fit workers. There are1272observed plots; keep the one
   missing film, zero its input and mask its reconstruction loss.
@@ -77,6 +77,27 @@ Native tests cover equal baseline reconstruction scales, missing masks,
 identical initial head weights across active-channel subsets, exact invariance
 to inactive inputs, gradients to active heads only, real native RQ-VAE fitting,
 checkpoint/code export and a twenty-epoch tiny temporal TIGER with test output.
-Real pinned-encoder chunking smoke passed: an8400-token document was encoded
+Real pinned-MPNET chunking smoke passed: a7000-token document was encoded
 without truncation, pooled outputs have unit norm, and a missing plot stays
 zero/masked.
+
+
+## Plot-encoder correction,2026-11-01
+
+The original v1 used Sentence-T5 for plots and is CANCEL_ACKNOWLEDGED.
+Its two first fits reached about epoch6; none completed. Preserve its receipts
+and partial evidence, and do not resume it. User explicitly selected MPNET on
+plot description only for the replacement.
+
+Cached Zenodo MPNET vectors follow the authors' concatenation of description,
+genres,tags,reviews. In our catalogue,1273have genres,1253tags,and776reviews.
+These combined vectors are not used as a pure-plot channel. Source script:
+https://github.com/swapUniba/multimodal_ml1m_dbbook_lfm2k/blob/main/2_learn_mm_feat/movielens_1m/embedder_text.py
+
+The new plot encoder is sentence-transformers/all-mpnet-base-v2,revision
+`e8c3b32edf5434bc2275fc9bab85f82640a19130`. Use its normal384-token limit,
+nonoverlapping content-token chunks,token-weighted mean then L2 normalization.
+No plot truncation. Model assets are frozen in the private input dataset v2;
+its manifest is75a4eb4e37ac6909d6c2f68ffe1582bfdc5bde385a6c975adc491ae0c231c0fd.
+The base text channel remains the exact previous Sentence-T5 stage5 vectors.
+All other data,heads,quantizer,generator,budgets,seeds,and masks stay unchanged.
