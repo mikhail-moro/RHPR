@@ -30,10 +30,15 @@ def validate(config):
             or len(set(seeds)) != len(seeds) or config['seed'] not in seeds):
         raise ValueError('movie ladder requires distinct nonnegative pipeline seeds')
     pairs = [(trial.get('seed', config['seed']), trial['stage']) for trial in config['trials']]
-    expected = {(seed, stage) for seed in seeds for stage in range(1, 8)}
+    multimodal = config.get('kind') == 'gr_movie_multimodal'
+    stages = range(1, 5) if multimodal else range(1, 8)
+    expected = {(seed, stage) for seed in seeds for stage in stages}
     if (any(type(seed) is not int or type(stage) is not int for seed, stage in pairs)
             or len(pairs) != len(expected) or set(pairs) != expected):
-        raise ValueError('each pipeline seed must have exactly the seven text stages')
+        raise ValueError('each pipeline seed must have exactly the declared stages')
+    if multimodal:
+        from rhpr.gr.movie_multimodal import validate_modalities
+        validate_modalities(config)
     if 'replicate_seeds' in config:
         if config.get('compare_initialization_by_seed') is not True:
             raise ValueError('replicated movie ladders must compare initialization within each seed')
@@ -137,7 +142,11 @@ def run_worker(plan_path, slot):
                seed=trial.get('seed', config['seed']), worker=slot)
         status['current_trial'] = trial['id']; _write(status_path, status)
         try:
-            result = run_trial(trial, config, plan, users, plan['source'], device)
+            fit = run_trial
+            if config.get('kind') == 'gr_movie_multimodal':
+                from rhpr.gr.movie_multimodal import run_multimodal_trial
+                fit = run_multimodal_trial
+            result = fit(trial, config, plan, users, plan['source'], device)
             status['results'][trial['id']] = result
             _event('movie_suite_trial_complete', trial=trial['id'], test=result['test'])
         except Exception as e:
@@ -164,6 +173,10 @@ def run_movie_suite(config, output):
     verify_resources(resources, config['resources']['manifest_sha256'])
     data_root = resolve_dataset_directory(config['movie_input']['path'])
     verify_resources(data_root, config['movie_input']['manifest_sha256'])
+    modality_root = None
+    if config.get('kind') == 'gr_movie_multimodal':
+        modality_root = resolve_dataset_directory(config['modality_input']['path'])
+        verify_resources(modality_root, config['modality_input']['manifest_sha256'])
     rows = json.loads((data_root / 'catalog-stage-01.json').read_text()); source_ids = [r['item_id'] for r in rows]
     users = load_temporal_users(data_root / 'sequences.json', source_ids)
     split = json.loads((data_root / 'split-report.json').read_text())
@@ -190,6 +203,10 @@ def run_movie_suite(config, output):
         if observed != expected:
             raise ValueError(f'generator initialization differs for pipeline seed {seed}')
         expected_by_seed[str(seed)] = observed
+    if modality_root is not None:
+        from rhpr.gr.movie_modal_features import prepare_shared_modalities
+        modality_root = prepare_shared_modalities(config, modality_root, resources,
+            output / 'shared-modalities', 'cuda:0' if config['training']['device'] == 'cuda' else 'cpu')
     (output / 'workers').mkdir(exist_ok=True)
     _write(output / 'split-report.json', split)
     _write(output / 'input-provenance.json', {'source_ids': source_ids, 'split': split,
@@ -199,6 +216,8 @@ def run_movie_suite(config, output):
         'source': str(source), 'original': str(original), 'source_ids': source_ids,
         'initial_state_sha256': expected_by_seed[str(config['seed'])],
         'initial_state_sha256_by_seed': expected_by_seed, 'assignments': jobs}
+    if modality_root is not None:
+        plan['modality_root'] = str(modality_root)
     path = output / 'workers' / 'plan.json'; _write(path, plan)
     summary = launch_workers(path, worker_module='rhpr.gr.movie_suite', event_prefix='movie_suite')
     metrics = {'experiment': config['name'], 'seed': config['seed'], 'trials': len(summary['results']),

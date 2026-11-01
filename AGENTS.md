@@ -3,6 +3,27 @@
 ## Research status
 
 
+- User authorized cumulative multimodal movie experiment,2026-11-01:
+  text(nopeople) -> +poster -> +plot -> +people,PLUM-like permodality MLP
+  encoder/decoder heads and SUM reconstruction MSE. Config
+  movielens100k_multimodal_2t4.json;see docs/gr-movielens100k-multimodal.md.
+  Twelve fresh fits42/101/202×4stages,20epochs,val5/10/15/20,previousTIGER4+4
+  andsame1273films/943users/split/cases/history20. Textonlyheaded controlfresh.
+  SharedRQVAE3x256/3000steps/latent64,all4heads instantiated uniformly;inactive
+  blocks zero/loss omitted. Fixed catalogue centering/scalarRMS per channel,
+  observed-item dimension-meanMSE summed,noUW. Log perhead/Q losses+occupancy.
+  Frozen text=exactpriorstage5T5(noactor/director names);posterViTCLS1273;
+  plot=rawdescriptionONLY->pinnedT5,full2048-tokenchunks/tokenweightedpool,
+  1272observed/1masked,no cataloguefilter. Frozenpeople=shared64DDeepWalk
+  over16692TMDBpersonIDs,same1273films,normalizedfilmwalks,cast/director
+  separate means->128D. Gensim4.4/seed42/oneCPUworker,not userinteractions.
+  Privateinput carasik/rhpr-ml100k-modal-input READY,manifest
+  5894994424f21c54784e416136d77758b5462d370e2a40016633e08eae141bb4.
+  Newprivatekernel target carasik/rhpr-ml100k-multimodal,2T4,~2–2.5h+queue.
+  Tests924OK82skips,native4OKinclRQ+20epoch tinyTIGER;realT5chunk smokeOK.
+  NoextraGPUjobs/tuning/retries/Telegram/TPU. Preserve old evidence/pausedTPU.
+
+
 - ML100K extra seeds collected,2026-11-01. All14fits completed20epochs;
   rawKaggleERROR is ONLY final aggregation comparing initial NNhash globally
   across101/202. No rootmetrics/summary/runmanifest were emitted. Preserve raw
