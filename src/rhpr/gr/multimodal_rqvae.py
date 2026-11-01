@@ -44,7 +44,12 @@ def fit_multimodal_rqvae(values, masks, spec, seed, device, source, recipe, outp
         modality_schema=schema, active_modalities=active)
     from rhpr.gr.sid_study import state_digest
     initial = state_digest(dict(model.named_parameters()))
-    if spec.get('expected_initial_state_sha256',initial)!=initial:
+    expected=spec.get('expected_initial_state_sha256',initial)
+    if 'expected_initial_state_sha256_by_seed' in spec:
+        if str(seed) not in spec['expected_initial_state_sha256_by_seed']:
+            raise ValueError('quantizer initialization not pinned for the trial seed')
+        expected=spec['expected_initial_state_sha256_by_seed'][str(seed)]
+    if expected!=initial:
         raise ValueError('initial quantizer weights differ from the declared direct-training control')
     from src.data.loading.components.interfaces import ItemData
     tensors = {k: torch.from_numpy(v) for k, v in arrays.items()}

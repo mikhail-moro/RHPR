@@ -31,7 +31,7 @@ def validate(config):
         raise ValueError('movie ladder requires distinct nonnegative pipeline seeds')
     pairs = [(trial.get('seed', config['seed']), trial['stage']) for trial in config['trials']]
     warm = config.get('kind') == 'gr_movie_multimodal_ae'
-    multimodal = config.get('kind') in {'gr_movie_multimodal', 'gr_movie_multimodal_ae'}
+    multimodal = config.get('kind') in {'gr_movie_multimodal', 'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder'}
     stages = [1] if warm else range(1, 5) if multimodal else range(1, 8)
     expected = {(seed, stage) for seed in seeds for stage in stages}
     if (any(type(seed) is not int or type(stage) is not int for seed, stage in pairs)
@@ -162,7 +162,7 @@ def run_worker(plan_path, slot):
         status['current_trial'] = trial['id']; _write(status_path, status)
         try:
             fit = run_trial
-            if config.get('kind') in {'gr_movie_multimodal', 'gr_movie_multimodal_ae'}:
+            if config.get('kind') in {'gr_movie_multimodal', 'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder'}:
                 from rhpr.gr.movie_multimodal import run_multimodal_trial
                 fit = run_multimodal_trial
             result = fit(trial, config, plan, users, plan['source'], device)
@@ -193,7 +193,7 @@ def run_movie_suite(config, output):
     data_root = resolve_dataset_directory(config['movie_input']['path'])
     verify_resources(data_root, config['movie_input']['manifest_sha256'])
     modality_root = None
-    if config.get('kind') == 'gr_movie_multimodal_ae':
+    if config.get('kind') in {'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder'}:
         from rhpr.gr.movie_multimodal import frozen_control_input
         modality_root = frozen_control_input(config['modality_input'])
     elif config.get('kind') == 'gr_movie_multimodal':
@@ -225,7 +225,7 @@ def run_movie_suite(config, output):
         if observed != expected:
             raise ValueError(f'generator initialization differs for pipeline seed {seed}')
         expected_by_seed[str(seed)] = observed
-    if config.get('kind') == 'gr_movie_multimodal_ae':
+    if config.get('kind') in {'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder'}:
         if file_sha256(modality_root / 'features.npz') != config['modality_input']['features_sha256']:
             raise ValueError('frozen modality vectors differ from completed direct-training control')
         if json.loads((modality_root / 'source-ids.json').read_text()) != source_ids:

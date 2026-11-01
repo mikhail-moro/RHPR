@@ -2,6 +2,21 @@
 
 ## Research status
 
+- User authorized full multimodal ladder with two-stage quantizers,2026-11-01.
+  Config movielens100k_multimodal_ae_2t4.json; see corresponding doc. Twelvefresh
+  fits42/101/202×4cumulative(text/poster/MPNetdescription/DeepWalkpeople),2T4,
+  sixfits/worker. Seed42text repeated inuniformsuite;priorpilot keptintact.
+  Exactoldfrozenvectors/masks/order/split/cases/generator+quantizerinitialweights;
+  hashverifiedoldprivatenotebookoutputmounted,noembeddingrecompute/upload.
+  SameAErecipe as pilot:cap5000/probe500/min2000/patience4spectralplateau,
+  full neural+BNtransfer/nativeKMeans/freshAdagradRQ3000;TIGER20epochs,
+  val5/10/15/20,one selectedtest. Per-seed initialQhashes explicitly pinned.
+  Tests929OK84skips,native9OKinclall12tiny stagedquantizers,3realinitialQhashes,
+  missingplotmask,transfer/freshoptimizer/latents andtiny20epochTIGER.
+  Newprivatekernel target carasik/rhpr-ml100k-multimodal-ae,~2–2.5h+setup/queue.
+  No retries/tuning/extraseeds/TPU/Telegram;oldnotebooks/pausedTPU preserved.
+
+
 - Text AE warm-up COMPLETE,collected2026-11-01. Privatecarasik/rhpr-ml100k-text-ae-warmup
   v1/source444ba8238b2e244b498c4bb23ada89c769723b63;body20.25min. One seed42,
   text-only,sameheadedarchitecture/frozenvectors/normalization/initialRQ+generator,

@@ -30,6 +30,7 @@ def frozen_control_input(spec):
 def validate_modalities(config):
     q=config['quantizer']
     warm=config.get('kind')=='gr_movie_multimodal_ae'
+    staged=warm or config.get('kind')=='gr_movie_multimodal_ae_ladder'
     if (config['fields']!=['title_with_year','genres','explicit_year','runtime','tmdb_keywords']
             or q['kind']!='grid_multimodal_rqvae' or q['num_hierarchies']!=3
             or q['codebook_size']!=256 or q['max_steps']!=3000
@@ -39,15 +40,22 @@ def validate_modalities(config):
             or config['plot_encoder']['max_length']!=384
             or any(t['modalities']!=list(MODALITIES[:t['stage']]) for t in config['trials'])):
         raise ValueError('multimodal ladder differs from declared matched protocol')
-    if warm:
+    if staged:
         expected={'max_steps':5000,'probe_interval':500,'stopping':
             {'kind':'water_filling_plateau','min_steps':2000,'patience_probes':4}}
         if (config['seed']!=42 or q.get('ae_warmup')!=expected
-                or len(config['trials'])!=1 or config['trials'][0]['seed']!=42
-                or config['trials'][0]['modalities']!=['text']
-                or len(q.get('expected_initial_state_sha256',''))!=64
                 or config['modality_input'].get('features_sha256')!='eeccc0bf7e11f0e2d97acce14ce4973b96d0b4816c6e35ffef679681802dabda'):
+            raise ValueError('staged ladder differs from the matched AE recipe/frozen inputs')
+        if warm and (len(config['trials'])!=1 or config['trials'][0]['seed']!=42
+                or config['trials'][0]['modalities']!=['text']
+                or len(q.get('expected_initial_state_sha256',''))!=64):
             raise ValueError('AE experiment must be the single matched seed42 text control')
+        if not warm:
+            hashes=q.get('expected_initial_state_sha256_by_seed',{})
+            if (set(hashes)!={'42','101','202'}
+                    or any(not isinstance(h,str) or len(h)!=64 or any(c not in '0123456789abcdef' for c in h) for h in hashes.values())
+                    or 'expected_initial_state_sha256' in q):
+                raise ValueError('staged ladder requires a pinned quantizer initialization for each seed')
     elif q.get('ae_warmup'):
         raise ValueError('AE warm-up needs its explicit experiment kind')
 
