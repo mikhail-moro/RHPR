@@ -2,6 +2,35 @@
 
 ## Research status
 
+- Names/SASRec controls COMPLETE,collected2026-11-02MSK. Private
+  carasik/rhpr-ml100k-names-sasrec-controls v1;source8c9200133eee6473776836e3b5344e02446c05a6;
+  6fits/20epochs/1709400cases/6680updates/zeroAMPskips,body48.29min.
+  Independentlyrescored90savedfiles(30new+60matchedreferences),same943users,
+  targets/split,seedpinnedinitialweights. Realcapacity4.609536M SASRec vs4.590464M
+  TIGER(+.415%);FLOPs .18737G/.42737G,NOTequalcompute.
+  Mean testNDCG10: nopeoplemultimodalTIGER.04292;graphpeople.04326;
+  namesintext.03772±.00357;SASRecID.05261±.00261. Recall10respectively
+  .09084/.08766/.08059/.11099. Namesvsnopeople-12.1%(negative3/3),vsgraph-12.8%
+  (negative2/3). SASRecvsgraph+21.6%(positive3/3),vsnopeople+22.6%(3/3),
+  vsnames+39.5%(3/3),vsplaintextRQ.04143+27.0%(3/3). Meanselectedval
+  SASRec.06463/names.05928;bestSASepochs42:10,101:5,202:10. Untunedbaseline;
+  no universalGRvsdenseclaim. Allconditionalpaired-userintervalsforSASgains
+  positive,butexclude seed/runtimeuncertainty andmultiplicity.
+  EpochsecondsSAS21.45/TIGER50.75. FP32residentinferenceB1meansofseedmedians
+  SAS8.32/TIGER43.51ms;B32 SAS8.86/TIGER69.16ms(perwholebatch). Same32real20item
+  cases,warm10/sample50;SASexhaustive1273itemtop20 vsTIGERbeam20. Tinycatalogue
+  makesdensescoringcheap;notaproduction-sizeefficiencyconclusion.
+  Namesvectorsbitwiseequaloldstage07T5,poster/plot/masks unchanged,graphinactive;
+  all3AEtransfer/freshoptimizer/initiallatent auditsverified. UniqueSIDtriples
+  1272–1273/firstcodes240–254,sooccupancydoesnotguaranteeNDCG.
+  Report docs/gr-movielens100k-names-sasrec-controls-results.md;artifacts/
+  movielens100k-names-sasrec-controls/analysis hasCSV/plots/ranks/verification.
+  Rawoutputs /tmp/movie-controls-completed;17MBbundle
+  /tmp/movielens100k-names-sasrec-controls-numerical-evidence.zip;
+  largecheckpointsstayprivateKaggle. No pendingGPUwork;noautotuning/extensions,
+  extraseeds/TPU/Telegram;preserveoldoutputsandpausedTPUedits.
+
+
 - Names/SASRec controls submitted ONCE,v1RUNNING,2026-11-01. Private
   carasik/rhpr-ml100k-names-sasrec-controls,6freshfits/3seeds/2T4.
   Executable8c9200133eee6473776836e3b5344e02446c05a6;Actions41350345747success,
