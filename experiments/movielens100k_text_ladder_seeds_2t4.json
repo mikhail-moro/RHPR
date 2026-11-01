@@ -194,5 +194,6 @@
   "expected_initial_state_sha256_by_seed": {
     "101": "3579338214a2f9d276f655150e0769ac74085188cb68ec0da24ee15cda8ffce9",
     "202": "eceff6a83a00e4e757c528381dfa1686db548869660faf77e2f99fb7affc172c"
-  }
+  },
+  "compare_initialization_by_seed": true
 }

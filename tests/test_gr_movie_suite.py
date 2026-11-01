@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import Mock, patch
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -26,13 +27,43 @@ class MovieSuiteContract(unittest.TestCase):
         for job,seed in zip(jobs,new['replicate_seeds']):
             self.assertEqual([t['stage'] for t in job['trials']],list(range(1,8)))
             self.assertEqual({t['seed'] for t in job['trials']},{seed})
-        for mutation in ['missing_trial','duplicate_pair','missing_seed_hash','wrong_default_hash']:
+        for mutation in ['missing_trial','duplicate_pair','missing_seed_hash','wrong_default_hash','global_initialization_group']:
             bad=copy.deepcopy(new)
             if mutation=='missing_trial':bad['trials'].pop()
             elif mutation=='duplicate_pair':bad['trials'][-1]['stage']=6
             elif mutation=='missing_seed_hash':bad['expected_initial_state_sha256_by_seed'].pop('202')
-            else:bad['expected_initial_state_sha256']='0'*64
+            elif mutation=='wrong_default_hash':bad['expected_initial_state_sha256']='0'*64
+            else:bad.pop('compare_initialization_by_seed')
             with self.subTest(mutation=mutation),self.assertRaises(ValueError):validate(bad)
+
+    def test_completed_worker_results_compare_weights_within_seeds(self):
+        from rhpr.gr.ae_suite import launch_workers
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'workers').mkdir()
+            config=json.loads((ROOT/'experiments/movielens100k_text_ladder_seeds_2t4.json').read_text())
+            config['training']['device']='cpu';config['execution']['worker_devices']=['cpu','cpu']
+            from rhpr.gr.ae_suite import assignments
+            jobs=assignments(config,0)
+            for job in jobs:
+                results={t['id']:{'seed':t['seed'],'initial_state_sha256':
+                    config['expected_initial_state_sha256_by_seed'][str(t['seed'])]} for t in job['trials']}
+                (root/'workers'/f"worker-{job['slot']}.json").write_text(json.dumps({'results':results,'failures':[]}))
+            plan=root/'plan.json'
+            def collect():
+                plan.write_text(json.dumps({'config':config,'output':str(root),'assignments':jobs}))
+                process=Mock(returncode=0);process.poll.return_value=0
+                with patch('rhpr.gr.ae_suite.subprocess.Popen',return_value=process):
+                    return launch_workers(plan,worker_module='rhpr.gr.movie_suite',event_prefix='movie_suite')
+            self.assertEqual(len(collect()['results']),14)
+            # Reproduce the false cross-seed failure of the submitted run.
+            config['compare_initialization_by_seed']=False
+            with self.assertRaises(RuntimeError):collect()
+            config['compare_initialization_by_seed']=True
+            # A real mismatch between stages of the same seed must still fail.
+            path=root/'workers/worker-0.json';status=json.loads(path.read_text())
+            status['results']['seed101_stage_02']['initial_state_sha256']='0'*64
+            path.write_text(json.dumps(status))
+            with self.assertRaises(RuntimeError):collect()
 
     def test_100k_switch_changes_data_not_training_recipe(self):
         from rhpr.gr.movie_suite import validate

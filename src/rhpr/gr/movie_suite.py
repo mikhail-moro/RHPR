@@ -35,6 +35,8 @@ def validate(config):
             or len(pairs) != len(expected) or set(pairs) != expected):
         raise ValueError('each pipeline seed must have exactly the seven text stages')
     if 'replicate_seeds' in config:
+        if config.get('compare_initialization_by_seed') is not True:
+            raise ValueError('replicated movie ladders must compare initialization within each seed')
         hashes = config.get('expected_initial_state_sha256_by_seed', {})
         if (set(hashes) != {str(seed) for seed in seeds}
                 or any(not isinstance(value, str) or len(value) != 64

@@ -3,6 +3,26 @@
 ## Research status
 
 
+- ML100K extra seeds collected,2026-11-01. All14fits completed20epochs;
+  rawKaggleERROR is ONLY final aggregation comparing initial NNhash globally
+  across101/202. No rootmetrics/summary/runmanifest were emitted. Preserve raw
+  failed-run evidence;explicit local recovered-metrics.json is verified,not a
+  rewritten successful run. No GPUretry needed/authorized. Config now sets
+  compare_initialization_by_seed=true;validator requires it and regression test
+  accepts different seeds/rejects withinseed mismatches. Tests920OK81skips.
+  Across42/101/202,mean testNDCG10 title.04522±.00173,genres.04149±.00512,
+  year.04093±.00616,runtime.04585±.00528,keywords.04143±.00335,
+  cast.03839±.00215,directors.04003±.00216. Fulltextloses title3/3(-11.5%).
+  Addingcast loses2/3(mean-7.3%);addingdirectors helps2/3(mean+4.3%);
+  combinedpeople versuskeywords-3.4%,mixedsigns. Fulltextmeanval.05989>
+  title.05613,oppositetestordering. No causalrare-nameencoding failure proven.
+  All105savedpredictions rescored;943cases same;everyfit1709400examples/
+  6680updates/zeroAMPskips. FrozenT5embeddings bitwiseequal across seeds/stage.
+  See docs/gr-movielens100k-seeds-results.md;local evidence/plots/ranks/ZIP in
+  artifacts/movielens100k-text-ladder-seeds/analysis. No newGPUruns;graphpeople
+  embeddings discussed/audited only,not trained or dispatched.
+
+
 - Extra ML100K seed session submitted v1 and RUNNING,2026-11-01.
   Private`carasik/rhpr-ml100k-text-ladder-seeds`,14fits/101+202,no repeat42.
   Executable60612f5968131745c23b88b8443bca028a93fdf9,successfulActions41293053201;
