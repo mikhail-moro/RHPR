@@ -2,6 +2,20 @@
 
 ## Research status
 
+
+- User authorized TWO EXTRA pipeline seeds per ML100K text stage,2026-11-01.
+  Config`movielens100k_text_ladder_seeds_2t4.json`;see
+  `docs/gr-movielens100k-seeds.md`. Fourteen fresh fits101/202×7stages,
+  one new private`carasik/rhpr-ml100k-text-ladder-seeds`2T4session,seven fits/card.
+  Same fixed data/split/case digests/history20/seed-matched20epochs/val5/10/15/20,
+  frozenSentenceT5/max2048,RQ-VAE3x256/3000,TIGER4+4/d128/FP16,selectedtest.
+  Pipeline seed varies RQ,NN/dropout,epochorder together;withinseed allstages
+  matched. Do not rerun42 or tune;no extra seeds/retries/Telegram/TPU.
+  Original100KrunCOMPLETE:all7×20epochs,zeroAMPskips,35predictionfiles rescored.
+  Title testNDCG10.0471667;keywords bestval.0690003/test.0434149;
+  fulltexttest.0394417. One realization,no established richtext benefit/harm.
+  Local reports/evidence:`artifacts/movielens100k-text-ladder/analysis`.
+  This authorization supersedes the old no-extra-seeds note for this job only.
 - Active direction switched to MovieLens100K by user,2026-10-31. ML1M run was
   stopped by user;serverCANCEL_ACKNOWLEDGED,do not resume/relaunch it.
   Newconfig`movielens100k_text_ladder_2t4.json`,same7fields/year-in-title,

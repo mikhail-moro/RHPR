@@ -1,0 +1,198 @@
+{
+  "seed": 101,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-ml100k-text-seeds"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 1,
+    "batch_size": 256,
+    "physical_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 20,
+    "min_epochs": 20,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 32,
+    "max_seconds": 43200,
+    "sampling": "strict_timestamp_prefixes",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 20
+  },
+  "quantizer": {
+    "kind": "grid_rqvae",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "max_steps": 3000,
+    "batch_size": 2048,
+    "init_buffer_size": 1273,
+    "initialization_steps": 1000,
+    "distance_backend": "torch_cdist"
+  },
+  "name": "ml100k-text-ladder-two-extra-pipeline-seeds-20epochs",
+  "kind": "gr_movie_text_ladder",
+  "data": {
+    "version": "ML100K-TMDB-Zenodo-exact-bridge",
+    "items": 1273,
+    "users": 943,
+    "history_items": 20,
+    "split": "timestamp_group_leave_two",
+    "train_events": 87541,
+    "train_examples": 85470
+  },
+  "movie_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-ml100k-text-ladder-input",
+    "manifest_sha256": "52fa57696f77bc0d137b1d042684afb83e4d17c068fe78c9c5502d573cf84028"
+  },
+  "representation": {
+    "kind": "sentence_transformer",
+    "model": "sentence-transformers/sentence-t5-base",
+    "revision": "fc5d4628481afbbaaacd7af6bb07cf9d3865f781",
+    "max_length": 2048,
+    "batch_size": 8
+  },
+  "fields": [
+    "title_with_year",
+    "genres",
+    "explicit_year",
+    "runtime",
+    "tmdb_keywords",
+    "cast",
+    "directors"
+  ],
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "trials": [
+    {
+      "id": "seed101_stage_01",
+      "stage": 1,
+      "seed": 101
+    },
+    {
+      "id": "seed202_stage_01",
+      "stage": 1,
+      "seed": 202
+    },
+    {
+      "id": "seed101_stage_02",
+      "stage": 2,
+      "seed": 101
+    },
+    {
+      "id": "seed202_stage_02",
+      "stage": 2,
+      "seed": 202
+    },
+    {
+      "id": "seed101_stage_03",
+      "stage": 3,
+      "seed": 101
+    },
+    {
+      "id": "seed202_stage_03",
+      "stage": 3,
+      "seed": 202
+    },
+    {
+      "id": "seed101_stage_04",
+      "stage": 4,
+      "seed": 101
+    },
+    {
+      "id": "seed202_stage_04",
+      "stage": 4,
+      "seed": 202
+    },
+    {
+      "id": "seed101_stage_05",
+      "stage": 5,
+      "seed": 101
+    },
+    {
+      "id": "seed202_stage_05",
+      "stage": 5,
+      "seed": 202
+    },
+    {
+      "id": "seed101_stage_06",
+      "stage": 6,
+      "seed": 101
+    },
+    {
+      "id": "seed202_stage_06",
+      "stage": 6,
+      "seed": 202
+    },
+    {
+      "id": "seed101_stage_07",
+      "stage": 7,
+      "seed": 101
+    },
+    {
+      "id": "seed202_stage_07",
+      "stage": 7,
+      "seed": 202
+    }
+  ],
+  "evaluation": {
+    "test_after_selection": true,
+    "save_validation_predictions": true,
+    "selection_metric": "validation item NDCG@10"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml100k-text-ladder-input"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "expected_initial_state_sha256": "3579338214a2f9d276f655150e0769ac74085188cb68ec0da24ee15cda8ffce9",
+  "replicate_seeds": [
+    101,
+    202
+  ],
+  "expected_initial_state_sha256_by_seed": {
+    "101": "3579338214a2f9d276f655150e0769ac74085188cb68ec0da24ee15cda8ffce9",
+    "202": "eceff6a83a00e4e757c528381dfa1686db548869660faf77e2f99fb7affc172c"
+  }
+}

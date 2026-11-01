@@ -22,9 +22,26 @@ def validate(config):
             or config['training']['min_epochs'] != 20
             or config['training']['validation_interval'] != 5
             or config['training']['validate_first_epoch']
-            or config['quantizer']['init_buffer_size'] > config['data']['items']
-            or [t['stage'] for t in config['trials']] != list(range(1, 8))):
+            or config['quantizer']['init_buffer_size'] > config['data']['items']):
         raise ValueError('movie ladder differs from approved fixed-budget protocol')
+    seeds = config.get('replicate_seeds', [config['seed']])
+    if (not isinstance(seeds, list) or not seeds
+            or any(type(seed) is not int or seed < 0 for seed in seeds)
+            or len(set(seeds)) != len(seeds) or config['seed'] not in seeds):
+        raise ValueError('movie ladder requires distinct nonnegative pipeline seeds')
+    pairs = [(trial.get('seed', config['seed']), trial['stage']) for trial in config['trials']]
+    expected = {(seed, stage) for seed in seeds for stage in range(1, 8)}
+    if (any(type(seed) is not int or type(stage) is not int for seed, stage in pairs)
+            or len(pairs) != len(expected) or set(pairs) != expected):
+        raise ValueError('each pipeline seed must have exactly the seven text stages')
+    if 'replicate_seeds' in config:
+        hashes = config.get('expected_initial_state_sha256_by_seed', {})
+        if (set(hashes) != {str(seed) for seed in seeds}
+                or any(not isinstance(value, str) or len(value) != 64
+                       or any(c not in '0123456789abcdef' for c in value)
+                       for value in hashes.values())
+                or hashes[str(config['seed'])] != config['expected_initial_state_sha256']):
+            raise ValueError('each pipeline seed needs its pinned generator initialization')
 
 
 def run_trial(trial, config, plan, users, source, device):
@@ -36,7 +53,10 @@ def run_trial(trial, config, plan, users, source, device):
     from rhpr.gr.sid_study import state_digest
     from rhpr.gr.experiment import _train_generator, _evaluate
 
-    stage = trial['stage']; seed = config['seed']
+    stage = trial['stage']; seed = trial.get('seed', config['seed'])
+    # The trainer also consumes config.seed for the epoch permutations and saved
+    # checkpoints. Override the whole trial config, not only torch.manual_seed.
+    config = {**config, 'seed': seed}
     root = Path(plan['output']) / 'trials' / trial['id']; root.mkdir(parents=True, exist_ok=True)
     random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
     path = Path(plan['data_root']) / f'catalog-stage-{stage:02d}.json'
@@ -74,7 +94,9 @@ def run_trial(trial, config, plan, users, source, device):
     random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
     model = build_grid_generator(index.sids, config['generator'], seed, device, source)
     initial = state_digest(dict(model.named_parameters()))
-    if initial != plan['initial_state_sha256']:
+    expected = (plan['initial_state_sha256_by_seed'][str(seed)]
+                if 'initial_state_sha256_by_seed' in plan else plan['initial_state_sha256'])
+    if initial != expected:
         raise ValueError('generator initialization differs between feature configurations')
     _write(root / 'generator.json', {'parameters': sum(p.numel() for p in model.parameters()),
         'initial_state_sha256': initial, 'config': config['generator']})
@@ -109,7 +131,8 @@ def run_worker(plan_path, slot):
     status_path = Path(plan['output']) / 'workers' / f'worker-{slot}.json'
     _write(status_path, status)
     for trial in assignment['trials']:
-        _event('movie_suite_trial_start', trial=trial['id'], stage=trial['stage'], worker=slot)
+        _event('movie_suite_trial_start', trial=trial['id'], stage=trial['stage'],
+               seed=trial.get('seed', config['seed']), worker=slot)
         status['current_trial'] = trial['id']; _write(status_path, status)
         try:
             result = run_trial(trial, config, plan, users, plan['source'], device)
@@ -156,21 +179,29 @@ def run_movie_suite(config, output):
     torch.set_num_threads(config['execution']['cpu_threads_per_worker'])
     dummy = np.zeros((len(source_ids), 4), dtype=np.int64)
     dummy[:, 0] = np.arange(len(source_ids)) // 256; dummy[:, 1] = np.arange(len(source_ids)) % 256
-    model = build_grid_generator(dummy, config['generator'], config['seed'], 'cpu', source)
-    expected = state_digest(dict(model.named_parameters())); del model; gc.collect()
-    if expected != config['expected_initial_state_sha256']:
-        raise ValueError('generator no longer matches the pinned previous TIGER initialization')
+    expected_by_seed = {}
+    for seed in config.get('replicate_seeds', [config['seed']]):
+        model = build_grid_generator(dummy, config['generator'], seed, 'cpu', source)
+        observed = state_digest(dict(model.named_parameters())); del model; gc.collect()
+        expected = config.get('expected_initial_state_sha256_by_seed', {}).get(
+            str(seed), config['expected_initial_state_sha256'])
+        if observed != expected:
+            raise ValueError(f'generator initialization differs for pipeline seed {seed}')
+        expected_by_seed[str(seed)] = observed
     (output / 'workers').mkdir(exist_ok=True)
     _write(output / 'split-report.json', split)
     _write(output / 'input-provenance.json', {'source_ids': source_ids, 'split': split,
-        'case_order': 'shared strict-past target cases; seed42+epoch permutation', 'config': config})
+        'case_order': 'shared strict-past target cases; pipeline-seed+epoch permutation, matched across stages within each seed',
+        'config': config})
     plan = {'config': config, 'output': str(output), 'resources': str(resources), 'data_root': str(data_root),
         'source': str(source), 'original': str(original), 'source_ids': source_ids,
-        'initial_state_sha256': expected, 'assignments': jobs}
+        'initial_state_sha256': expected_by_seed[str(config['seed'])],
+        'initial_state_sha256_by_seed': expected_by_seed, 'assignments': jobs}
     path = output / 'workers' / 'plan.json'; _write(path, plan)
     summary = launch_workers(path, worker_module='rhpr.gr.movie_suite', event_prefix='movie_suite')
     metrics = {'experiment': config['name'], 'seed': config['seed'], 'trials': len(summary['results']),
-               'items': len(source_ids), 'users': len(users), 'epochs_per_trial': 20}
+               'items': len(source_ids), 'users': len(users), 'epochs_per_trial': 20,
+               'pipeline_seed_count': len(expected_by_seed)}
     for name, result in summary['results'].items():
         metrics.update({f'{name}_test_{k.replace("@", "")}': v for k, v in result['test'].items()})
     return metrics
