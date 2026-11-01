@@ -2,6 +2,20 @@
 
 ## Research status
 
+- Names/SASRec controls submitted ONCE,v1RUNNING,2026-11-01. Private
+  carasik/rhpr-ml100k-names-sasrec-controls,6freshfits/3seeds/2T4.
+  Executable8c9200133eee6473776836e3b5344e02446c05a6;Actions41350345747success,
+  exactconfig/all189embeddedfiles verified;packageSHA
+  b4063d809c548c84d2df8e08fc0ae56d469c520d9b960e11a948f8d721d6e9bb.
+  Receipt docs/gr-movielens100k-names-sasrec-controls-submission.json;
+  localartifacts/movielens100k-names-sasrec-controls contains sourceaudit and
+  capacitypreflight. NamesembeddedinT5text,poster/plotretained,graphinactive;
+  SASRecIDonly4.609536MactiveweightsvsTIGER4.590464M(+.415%),NOTequalFLOPs.
+  20epochs,val5/10/15/20,fullcataloguecasesmatched. No results collected yet.
+  Waitforusercompletion/status,collectexistingrun;do notresubmit/extend/tune,
+  addseeds/TPU/Telegram. Preserveoldoutputs andpausedTPUedits.
+
+
 - User authorized names-in-text multimodal TIGER + item-ID SASRec controls,
   2026-11-01. Config movielens100k_names_sasrec_controls_2t4.json;see doc.
   Six freshfits42/101/202×2predictors,balanced2T4. TIGERtextincludescast/directors
