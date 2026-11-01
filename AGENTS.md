@@ -3,6 +3,20 @@
 ## Research status
 
 
+- Extra ML100K seed session submitted v1 and RUNNING,2026-11-01.
+  Private`carasik/rhpr-ml100k-text-ladder-seeds`,14fits/101+202,no repeat42.
+  Executable60612f5968131745c23b88b8443bca028a93fdf9,successfulActions41293053201;
+  all182embeddedfiles+config independently matchcommit,packageSHA
+  d9f16d46a386fe1eb5703ee5da3dda9de22660542f2de2070b6d51704ac6e3f5.
+  FirstActions41292795661failed import before submission(missing six in
+  KaggleCLI2.2.5);workflow now installs six and smoke-checksCLI. OnlyONE
+  actual Kaggle version/run created;no GPUretry. Tests919OK81skips,native4OK.
+  Receipt`docs/gr-movielens100k-seeds-submission.json`;localevidence
+  `artifacts/movielens100k-text-ladder-seeds`. Do not resubmit or continuously
+  poll;waitforusercompletion/status andcollect thisexistingrun. NoTelegram,
+  TPU,tuning,extra seeds,automatictraining retries,orolder-studyrevival.
+
+
 - User authorized TWO EXTRA pipeline seeds per ML100K text stage,2026-11-01.
   Config`movielens100k_text_ladder_seeds_2t4.json`;see
   `docs/gr-movielens100k-seeds.md`. Fourteen fresh fits101/202×7stages,

@@ -1,0 +1,62 @@
+{
+  "commit": "60612f5968131745c23b88b8443bca028a93fdf9",
+  "exact_config": true,
+  "embedded_source_files": 182,
+  "package_sha256": "d9f16d46a386fe1eb5703ee5da3dda9de22660542f2de2070b6d51704ac6e3f5",
+  "metadata": {
+    "id": "carasik/rhpr-ml100k-text-ladder-seeds",
+    "id_no": 142084201,
+    "title": "Rhpr Ml100K Text Ladder Seeds",
+    "code_file": "rhpr-ml100k-text-ladder-seeds.py",
+    "language": "python",
+    "kernel_type": "script",
+    "is_private": true,
+    "enable_gpu": true,
+    "enable_tpu": false,
+    "enable_internet": false,
+    "keywords": [],
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml100k-text-ladder-input"
+    ],
+    "kernel_sources": [],
+    "competition_sources": [],
+    "model_sources": [],
+    "docker_image": "",
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/41293053201",
+  "all_embedded_files_match_commit": true,
+  "kernel_version": 1,
+  "observed_status": "RUNNING",
+  "quality_complete": false,
+  "pipeline_seeds": [
+    101,
+    202
+  ],
+  "trials": 14,
+  "epochs_per_trial": 20,
+  "validation_epochs": [
+    5,
+    10,
+    15,
+    20
+  ],
+  "baseline_seed42": {
+    "kernel": "carasik/rhpr-ml100k-text-ladder",
+    "source_code_sha": "6537df769c7755a601c7e91672039701c519685d",
+    "status": "COMPLETE",
+    "rerun": false
+  },
+  "tests": {
+    "repository": 919,
+    "skipped": 81,
+    "native_targeted": 4
+  },
+  "failed_pre_submission_attempt": {
+    "workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/41292795661",
+    "reason": "Kaggle CLI2.2.5 missing six on clean Actions runner; failed during import, before submission",
+    "gpu_training_started": false
+  },
+  "successful_workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/41293053201"
+}
