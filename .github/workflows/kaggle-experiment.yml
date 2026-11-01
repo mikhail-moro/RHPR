@@ -81,7 +81,9 @@ jobs:
           esac
 
       - name: Install Kaggle CLI
-        run: python3 -m pip install kaggle
+        run: |
+          python3 -m pip install kaggle six
+          kaggle --version
 
       - name: Show Kaggle quota
         continue-on-error: true
