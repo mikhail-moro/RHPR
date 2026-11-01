@@ -3,6 +3,17 @@
 ## Research status
 
 
+- Multimodal ML100K session submitted ONCE,v1RUNNING,2026-11-01.
+  Privatecarasik/rhpr-ml100k-multimodal,12fits/3seeds×4cumulative channels,
+  2T4/offline/noTelegram. Executable7986c0cf1db85610f0878fbe32116a9b311e0b34;
+  Actions41310913553successsubmit-only. Actualconfig+all186embeddedfiles match
+  committedsource,packageSHA0c26fcaacbd14942dcccc60ced38e1804d6b6e081d7f1eda2bee11ed7ca53980.
+  Receipt docs/gr-movielens100k-multimodal-submission.json,localartifacts/
+  movielens100k-multimodal. No outputs/quality results collected yet.
+  Do not resubmit or continuouslypoll;waitforusercompletion/status,collect
+  existingrun. No automatictraining retries/tuning/extraseeds/TPU/Telegram.
+
+
 - User authorized cumulative multimodal movie experiment,2026-11-01:
   text(nopeople) -> +poster -> +plot -> +people,PLUM-like permodality MLP
   encoder/decoder heads and SUM reconstruction MSE. Config
