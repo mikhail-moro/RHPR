@@ -2,6 +2,21 @@
 
 ## Research status
 
+- User authorized seed42full-training pilot,2026-11-02MSK. Config
+  movielens100k_full_training_seed42_2t4.json;doc gr-movielens100k-full-training.md.
+  Fourcontinuations:nopeople/graph/namesTIGER+SASRec fromepoch20/6680updates;
+  frozenindices/encoders/RQ,sourceartifactsSHA-pinned(64files,321MB verified).
+  Resume lastmodel/Adam/scaler/CPU-CUDA-Python-NumPyRNG/priorbest/history,
+  neverweights-onlyfallback. Minimum30,totalcap100;valeverynewepoch;LR.5after
+  5failedchecks,start21,min1e-5,absthreshold1e-4;ES20epochs sincebestrawNDCG10.
+  Preservehistorical5/10/15/20validation,lognewCEperSIDlevel+LR;onefinaltest.
+  Newcheckpointskeep scheduler/casehashes. Tests937OK86skips,targeted/native8OK,
+  including bitwiseCPUresume/dropout/Adam/RNG/scheduler andnativeGRID4headCE.
+  Newprivatekernel target carasik/rhpr-ml100k-full-training-seed42,2T4,
+  ~2–2.5h+setup/queue worstcase,ESmaystopsooner. No extra seeds/HPO/retries,
+  indexchanges/AE-RQretraining/TPU/Telegram. Preserveoldoutputs/pausedTPUedits.
+
+
 - Names/SASRec controls COMPLETE,collected2026-11-02MSK. Private
   carasik/rhpr-ml100k-names-sasrec-controls v1;source8c9200133eee6473776836e3b5344e02446c05a6;
   6fits/20epochs/1709400cases/6680updates/zeroAMPskips,body48.29min.

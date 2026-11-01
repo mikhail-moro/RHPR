@@ -153,7 +153,7 @@ def _evaluate(model, examples, sid_index, batch_size: int, device: str, precisio
 
 
 def _train_generator(model, users, sid_index, config: dict, output: Path, device: str,
-                     *, example_builder=None):
+                     *, example_builder=None, resume_from=None):
     import numpy as np
     import torch
 
@@ -187,7 +187,30 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
     mean_epoch_seconds = 0.0
     last_validation = None
     training_seconds, validation_seconds = 0.0, 0.0
-    for epoch in range(1, specification["max_epochs"] + 1):
+    completed_epoch=0;previous_wall_seconds=0.;resume_state=None
+    if resume_from is not None:
+        from rhpr.gr.generator_resume import restore_training
+        restored=restore_training(model,optimizer,scaler,sid_index,config,train,validation,resume_from,output,device)
+        completed_epoch=restored['epoch'];updates=restored['updates'];skipped_updates=restored['skipped']
+        curves=restored['curves'];best_epoch=restored['best_epoch'];best_metric=restored['best_metric'];stale=restored['stale']
+        training_seconds=restored['training_seconds'];validation_seconds=restored['validation_seconds']
+        previous_wall_seconds=restored['previous_wall_seconds'];resume_state=restored['state']
+    from rhpr.gr.generator_resume import build_scheduler
+    scheduler_spec=specification.get('scheduler')
+    scheduler=build_scheduler(optimizer,scheduler_spec,
+        state=resume_state.get('scheduler') if resume_state else None,best_metric=best_metric,epoch=completed_epoch)
+    initial_updates=updates;initial_training_seconds=training_seconds
+    case_hashes={}
+    if scheduler is not None or resume_from is not None:
+        from rhpr.gr.generator_resume import array_digest
+        case_hashes={'train_case_sha256':array_digest(train),'validation_case_sha256':array_digest(validation)}
+    if resume_state is not None:
+        from rhpr.gr.generator_resume import restore_rng
+        restore_rng(resume_state,device)
+        verification=json.loads((output/'resume-verification.json').read_text());verification['rng_restored_and_verified']=True
+        _write(output/'resume-verification.json',verification)
+        _event('gr_training_resumed',epoch=completed_epoch,updates=updates,best_epoch=best_epoch)
+    for epoch in range(completed_epoch+1, specification["max_epochs"] + 1):
         # Budget exits only at an epoch boundary, preserving an interpretable
         # full pass. Save selected and last checkpoints for later continuation.
         if epoch > 1 and time.monotonic() - started + mean_epoch_seconds > specification["max_seconds"]:
@@ -195,6 +218,7 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
             break
         order = np.random.default_rng(seed + epoch).permutation(len(targets))
         model.train()
+        epoch_lr=float(optimizer.param_groups[0]['lr'])
         epoch_started, total_loss = time.monotonic(), 0.0
         for begin in range(0, len(order), batch_size):
             chosen = order[begin:begin + batch_size]
@@ -254,13 +278,26 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                 row['teacher_forced'] = report
             validation_seconds += time.monotonic() - validation_started
             row["validation"] = last_validation
+            if config.get('evaluation',{}).get('save_validation_losses'):
+                from rhpr.gr.generator_resume import validation_losses
+                before_loss=time.monotonic()
+                row['validation_loss']=validation_losses(model,validation,sid_index,
+                    specification['evaluation_batch_size'],device,evaluation_precision)
+                validation_seconds+=time.monotonic()-before_loss
             score = last_validation["ndcg@10"]
+            previous_best_metric=best_metric
             if score > best_metric:
                 best_metric, best_epoch, stale = score, epoch, 0
                 torch.save({"model": model.state_dict(), "epoch": epoch, "updates": updates,
                             "config": config, "validation": last_validation}, best_path)
             else:
                 stale += 1
+            if scheduler is not None and epoch>=scheduler_spec['start_epoch']:
+                if scheduler.last_epoch<epoch-1:
+                    scheduler.best=previous_best_metric;scheduler.last_epoch=epoch-1
+                scheduler.step(score)
+        if scheduler is not None or resume_from is not None:
+            row.update(learning_rate=epoch_lr,next_learning_rate=float(optimizer.param_groups[0]['lr']))
         curves.append(row)
         _write(output / "training-curves.json", curves)
         _event("gr_epoch_complete", **row)
@@ -268,6 +305,9 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
             torch.save({'model': model.state_dict(), 'epoch': epoch, 'updates': updates,
                         'config': config}, output / f'generator-epoch-{epoch:03d}.pt')
         # Exact resume state at every completed epoch, separate from selection.
+        continuation_state={} if scheduler is None and resume_from is None else {
+            'scheduler':scheduler.state_dict() if scheduler else None,
+            'optimizer_training_seconds':training_seconds,'validation_seconds':validation_seconds,**case_hashes}
         torch.save({"model": model.state_dict(), "optimizer": optimizer.state_dict(),
                     "scaler": scaler.state_dict(), "epoch": epoch, "updates": updates,
                     "torch_rng": torch.get_rng_state(),
@@ -275,7 +315,7 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                     "python_rng": random.getstate(), "numpy_rng": np.random.get_state(),
                     "sid_matrix_sha256": hashlib.sha256(sid_index.sids.tobytes()).hexdigest(),
                     "config": config, "best_epoch": best_epoch, "best_metric": best_metric,
-                    "stale_validation_checks": stale, "amp_skipped_updates": skipped_updates},
+                    "stale_validation_checks": stale, "amp_skipped_updates": skipped_updates,**continuation_state},
                    output / "generator-last.pt")
         mean_epoch_seconds = time.monotonic() - epoch_started
         # An explicit epoch-based patience remains interpretable when changing
@@ -295,13 +335,17 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
     values = {"training_epochs": len(curves), "optimizer_updates": updates,
               "amp_skipped_updates": skipped_updates,
               "training_precision": precision, "evaluation_precision": evaluation_precision,
-              "best_epoch": best_epoch, "training_seconds": time.monotonic() - started,
+              "best_epoch": best_epoch, "training_seconds": previous_wall_seconds+time.monotonic() - started,
               "optimizer_training_seconds": training_seconds,
               "validation_seconds": validation_seconds,
               "validation_checks": sum("validation" in row for row in curves),
               "stopping_reason": stop_reason,
               "validation_ndcg10": best_metric,
               "training_examples_per_epoch": len(targets)}
+    if resume_from is not None:
+        values.update(resumed_from_epoch=completed_epoch,continuation_epochs=len(curves)-completed_epoch,
+            continuation_optimizer_updates=updates-initial_updates,
+            continuation_optimizer_training_seconds=training_seconds-initial_training_seconds)
     _write(output / "training-selection.json", {**values, "criterion": "validation_item_ndcg@10",
                                                 "selected_validation": checkpoint["validation"]})
     return values

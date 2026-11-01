@@ -76,6 +76,10 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == 'gr_movie_continuation':
+        if output_dir is None:raise ValueError('movie continuation requires an output directory')
+        from rhpr.gr.movie_continuation import run_continuation
+        return run_continuation(config, output_dir)
     if kind in {'gr_movie_text_ladder', 'gr_movie_multimodal', 'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder', 'gr_movie_controls'}:
         if output_dir is None:
             raise ValueError('movie suite requires an output directory')
