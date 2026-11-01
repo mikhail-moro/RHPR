@@ -44,9 +44,19 @@ def fit_multimodal_rqvae(values, masks, spec, seed, device, source, recipe, outp
         modality_schema=schema, active_modalities=active)
     from rhpr.gr.sid_study import state_digest
     initial = state_digest(dict(model.named_parameters()))
+    if spec.get('expected_initial_state_sha256',initial)!=initial:
+        raise ValueError('initial quantizer weights differ from the declared direct-training control')
     from src.data.loading.components.interfaces import ItemData
     tensors = {k: torch.from_numpy(v) for k, v in arrays.items()}
     tensors.update({k + '_observed': torch.as_tensor(v, dtype=torch.bool) for k, v in masks.items()})
+    warmup=None
+    if spec.get('ae_warmup'):
+        from rhpr.gr.multimodal_warmup import warmup_autoencoder
+        tensors['_item_indices']=torch.arange(len(next(iter(arrays.values()))))
+        devices=[torch.device(device).index or 0] if device.startswith('cuda') else []
+        # Keep native initializer randomness independent of AE duration/probes.
+        with torch.random.fork_rng(devices=devices):
+            warmup=warmup_autoencoder(model,tensors,spec,seed,device,output/'ae-warmup',normalization)
     def collate(indices):
         return ItemData(transformed_features={k: v[indices] for k, v in tensors.items()})
     n = len(next(iter(arrays.values())))
@@ -74,6 +84,19 @@ def fit_multimodal_rqvae(values, masks, spec, seed, device, source, recipe, outp
             for m,mode in modes.items():m.training=mode
     class Progress(Callback):
         def __init__(self):self.last_loss=None;self.rows=[];self.last_step=-1;self.probe_seconds=0.
+        def on_train_start(self,trainer,module):
+            if warmup is None:return
+            from rhpr.gr.multimodal_warmup import neural_state
+            if state_digest(neural_state(module))!=warmup['neural_state_sha256']:
+                raise RuntimeError('AE parameters or buffers changed before RQ training')
+            optimizer=trainer.optimizers[0]
+            if not isinstance(optimizer,torch.optim.Adagrad):
+                raise RuntimeError('native RQ optimizer must remain Adagrad')
+            for state in optimizer.state.values():
+                if float(state['step'])!=0 or torch.count_nonzero(state['sum']):
+                    raise RuntimeError('RQ must start with fresh optimizer accumulators')
+            warmup['fresh_rq_optimizer_verified']=True
+            warmup['neural_transfer_verified']=True
         def on_train_batch_end(self, trainer, module, outputs, batch, batch_idx):
             loss=outputs['loss'] if isinstance(outputs,dict) else outputs
             if loss is None or not torch.isfinite(loss).all():raise FloatingPointError('nonfinite multimodal RQ loss')
@@ -99,7 +122,7 @@ def fit_multimodal_rqvae(values, masks, spec, seed, device, source, recipe, outp
         raise RuntimeError('multimodal RQ did not complete initialized fixed-budget training')
     torch.save({'model':model.state_dict(),'optimizer':trainer.optimizers[0].state_dict(),
         'seed':seed,'spec':spec,'active_modalities':active,'schema':schema,'normalization':normalization,
-        'resolved_model':resolved,'steps':trainer.global_step},output/'quantizer.pt')
+        'resolved_model':resolved,'steps':trainer.global_step,'warmup':warmup},output/'quantizer.pt')
     codes,losses=export();stats=semantic_statistics(codes,spec['codebook_size'])
     books=np.stack([layer.centroids.detach().cpu().numpy() for layer in model.quantization_layer_list])
     np.savez_compressed(output/'codebooks-final.npz',codebooks=books,
@@ -107,6 +130,9 @@ def fit_multimodal_rqvae(values, masks, spec, seed, device, source, recipe, outp
     np.save(output/'semantic-codes.npy',codes,allow_pickle=False);_write(output/'semantic-code-diagnostics.json',stats)
     report={'kind':'grid_multimodal_rqvae','seed':seed,'steps':trainer.global_step,'config':spec,
         'quantizer_initial_state_sha256':initial,
+        'warmup':warmup,'initialization_latent_audit':model.initial_latent_audit,
+        'reconstruction_batches':model.reconstruction_updates,
+        'batches_without_reconstruction':model.initialization_batches,
         'active_modalities':active,'modality_dimensions':schema,'head_reconstruction_mse':losses,
         'precision':'fp32','quantization_loss_weight':model.quantization_loss_weight,
         'reconstruction_loss_weight':model.reconstruction_loss_weight,

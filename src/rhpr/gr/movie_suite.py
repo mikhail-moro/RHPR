@@ -30,8 +30,9 @@ def validate(config):
             or len(set(seeds)) != len(seeds) or config['seed'] not in seeds):
         raise ValueError('movie ladder requires distinct nonnegative pipeline seeds')
     pairs = [(trial.get('seed', config['seed']), trial['stage']) for trial in config['trials']]
-    multimodal = config.get('kind') == 'gr_movie_multimodal'
-    stages = range(1, 5) if multimodal else range(1, 8)
+    warm = config.get('kind') == 'gr_movie_multimodal_ae'
+    multimodal = config.get('kind') in {'gr_movie_multimodal', 'gr_movie_multimodal_ae'}
+    stages = [1] if warm else range(1, 5) if multimodal else range(1, 8)
     expected = {(seed, stage) for seed in seeds for stage in stages}
     if (any(type(seed) is not int or type(stage) is not int for seed, stage in pairs)
             or len(pairs) != len(expected) or set(pairs) != expected):
@@ -49,6 +50,24 @@ def validate(config):
                        for value in hashes.values())
                 or hashes[str(config['seed'])] != config['expected_initial_state_sha256']):
             raise ValueError('each pipeline seed needs its pinned generator initialization')
+
+
+def movie_assignments(config, available_gpus):
+    from rhpr.gr.ae_suite import assignments
+    if config.get('kind') != 'gr_movie_multimodal_ae':
+        return assignments(config, available_gpus)
+    validate(config)
+    devices = config['execution']['worker_devices']
+    if config['training']['device'] == 'cuda':
+        if devices != ['cuda:0'] or available_gpus < 1:
+            raise RuntimeError('single AE experiment needs its assigned CUDA GPU; no hardware fallback')
+    elif config['training']['device'] != 'cpu' or devices != ['cpu']:
+        raise ValueError('CPU verification needs one explicit CPU worker')
+    if config['execution']['cpu_threads_per_worker'] != 1:
+        raise ValueError('single AE experiment requires one CPU thread')
+    if len(config['trials']) != 1 or config['trials'][0]['id'] != 'seed42_text_ae':
+        raise ValueError('single AE experiment requires one fixed safe trial ID')
+    return [{'slot': 0, 'device': devices[0], 'trials': config['trials']}]
 
 
 def run_trial(trial, config, plan, users, source, device):
@@ -143,7 +162,7 @@ def run_worker(plan_path, slot):
         status['current_trial'] = trial['id']; _write(status_path, status)
         try:
             fit = run_trial
-            if config.get('kind') == 'gr_movie_multimodal':
+            if config.get('kind') in {'gr_movie_multimodal', 'gr_movie_multimodal_ae'}:
                 from rhpr.gr.movie_multimodal import run_multimodal_trial
                 fit = run_multimodal_trial
             result = fit(trial, config, plan, users, plan['source'], device)
@@ -161,20 +180,23 @@ def run_worker(plan_path, slot):
 
 def run_movie_suite(config, output):
     import torch
-    from rhpr.gr.ae_suite import assignments, launch_workers
+    from rhpr.gr.ae_suite import launch_workers
     from rhpr.gr.resources import verify_resources, unpack_grid
     from rhpr.gr.grid import prepare_grid_source, build_grid_generator
     from rhpr.gr.sid_study import state_digest
     from rhpr.offline_runtime import resolve_dataset_directory
 
     validate(config); output = Path(output).resolve(); output.mkdir(parents=True, exist_ok=True)
-    jobs = assignments(config, torch.cuda.device_count())
+    jobs = movie_assignments(config, torch.cuda.device_count())
     resources = resolve_dataset_directory(config['resources']['path'])
     verify_resources(resources, config['resources']['manifest_sha256'])
     data_root = resolve_dataset_directory(config['movie_input']['path'])
     verify_resources(data_root, config['movie_input']['manifest_sha256'])
     modality_root = None
-    if config.get('kind') == 'gr_movie_multimodal':
+    if config.get('kind') == 'gr_movie_multimodal_ae':
+        from rhpr.gr.movie_multimodal import frozen_control_input
+        modality_root = frozen_control_input(config['modality_input'])
+    elif config.get('kind') == 'gr_movie_multimodal':
         modality_root = resolve_dataset_directory(config['modality_input']['path'])
         verify_resources(modality_root, config['modality_input']['manifest_sha256'])
     rows = json.loads((data_root / 'catalog-stage-01.json').read_text()); source_ids = [r['item_id'] for r in rows]
@@ -203,7 +225,12 @@ def run_movie_suite(config, output):
         if observed != expected:
             raise ValueError(f'generator initialization differs for pipeline seed {seed}')
         expected_by_seed[str(seed)] = observed
-    if modality_root is not None:
+    if config.get('kind') == 'gr_movie_multimodal_ae':
+        if file_sha256(modality_root / 'features.npz') != config['modality_input']['features_sha256']:
+            raise ValueError('frozen modality vectors differ from completed direct-training control')
+        if json.loads((modality_root / 'source-ids.json').read_text()) != source_ids:
+            raise ValueError('frozen modality catalogue order differs')
+    elif modality_root is not None:
         from rhpr.gr.movie_modal_features import prepare_shared_modalities
         modality_root = prepare_shared_modalities(config, modality_root, resources,
             output / 'shared-modalities', 'cuda:0' if config['training']['device'] == 'cuda' else 'cpu')

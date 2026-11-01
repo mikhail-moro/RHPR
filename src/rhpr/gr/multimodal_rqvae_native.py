@@ -18,6 +18,20 @@ class MultimodalResidualQuantization(ResidualQuantization):
             for name, dim in modality_schema.items()})
         self.head_dim = head_dim
         self.last_head_losses = {}
+        self.warmup_transferred = False
+        self.reconstruction_updates = 0
+        self.initialization_batches = 0
+        self.initial_latent_audit = None
+
+    def on_train_batch_start(self, batch, batch_idx):
+        if self.warmup_transferred:
+            from rhpr.gr.multimodal_warmup import NEURAL_MODULES
+            for name in NEURAL_MODULES:
+                getattr(self,name).train(self.training and self.reconstruction_updates>0)
+
+    def on_train_batch_end(self, outputs, batch, batch_idx):
+        if self.last_head_losses:self.reconstruction_updates+=1
+        else:self.initialization_batches+=1
 
     def encode_modalities(self, fields):
         first = fields[next(iter(self.modality_schema))]
@@ -46,6 +60,11 @@ class MultimodalResidualQuantization(ResidualQuantization):
     def model_step(self, model_input):
         fields = {k: v.to(self.device) for k, v in model_input.transformed_features.items()}
         encoded = self.encode_modalities(fields)
+        if self.warmup_transferred and self.initial_latent_audit is None:
+            anchor=self.ae_anchor_latents[fields['_item_indices'].long()]
+            drift=float((encoded.detach()-anchor).abs().max())
+            if drift>1e-5:raise RuntimeError('warm-up latents changed before native book initialization')
+            self.initial_latent_audit={'max_absolute_difference':drift,'items':len(encoded)}
         codes, residuals, quantized, qloss = self(encoded)
         self.last_head_losses = {}
         reconstruction = qloss.new_zeros(())

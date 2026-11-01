@@ -76,7 +76,7 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
-    if kind in {'gr_movie_text_ladder', 'gr_movie_multimodal'}:
+    if kind in {'gr_movie_text_ladder', 'gr_movie_multimodal', 'gr_movie_multimodal_ae'}:
         if output_dir is None:
             raise ValueError('movie suite requires an output directory')
         from rhpr.gr.movie_suite import run_movie_suite

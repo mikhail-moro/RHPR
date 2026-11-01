@@ -2,6 +2,23 @@
 
 ## Research status
 
+- User authorized one text-only seed42 AE warm-up experiment,2026-11-01.
+  Config movielens100k_text_ae_warmup.json; see corresponding doc. Same frozen
+  features/head architecture/initial quantizer state as completed multimodal v2
+  headed-text control; only text active. Continuous AE up to5000 updates,
+  prior spectral plateau(min2000/probe500/patience4), untouched codebooks.
+  Retain neural weights+BN; native residual KMeans on eval latents, then fresh
+  Adagrad/native RQ3000 steps, joint training. TIGER20epochs,val5/10/15/20,
+  one selected test, exact prior cases/split/seed42 generator initialization.
+  One cuda:0 worker/trial; no extra fit on second allocated T4. Reuse completed
+  private notebook output through kernel_sources with parent manifest/source,
+  vector/order hashes; no feature upload/new Dataset. New private kernel target
+  carasik/rhpr-ml100k-text-ae-warmup. Tests927OK83skips; native7OK including
+  untouched-books proof, exact initial hash, neural/BN transfer, fresh optimizer,
+  initial latent equality, and tiny20epoch TIGER. Extra AE compute is a confound;
+  one seed cannot establish stable gain. No retries/tuning/extraseeds/TPU/Telegram.
+
+
 
 - MultimodalMPNetv2 COMPLETE,2026-11-01;12/12fits20epochs,no failures,
   sourceaddd3c326dbc55ddf18d2dad2c832bf43000a8e0,117.50minbody. Collected

@@ -9,17 +9,47 @@ from rhpr.gr.data import file_sha256
 MODALITIES=('text','poster','plot','people')
 
 
+def frozen_control_input(spec):
+    """Reuse verified outputs already held by Kaggle; no feature upload."""
+    for candidate in (spec['path'], spec['legacy_path']):
+        parent=Path(candidate)
+        if not parent.is_dir():continue
+        manifest=parent/'run-manifest.json'
+        if file_sha256(manifest)!=spec['parent_manifest_sha256']:
+            raise ValueError('parent notebook manifest changed')
+        if json.loads(manifest.read_text())['git_sha']!=spec['parent_git_sha']:
+            raise ValueError('parent notebook executable changed')
+        data=parent/'shared-modalities'
+        for name,key in [('features.npz','features_sha256'),('source-ids.json','source_ids_sha256')]:
+            if file_sha256(data/name)!=spec[key]:
+                raise ValueError('parent notebook frozen features/order changed')
+        return data
+    raise FileNotFoundError('declared completed notebook output is not mounted')
+
+
 def validate_modalities(config):
     q=config['quantizer']
+    warm=config.get('kind')=='gr_movie_multimodal_ae'
     if (config['fields']!=['title_with_year','genres','explicit_year','runtime','tmdb_keywords']
             or q['kind']!='grid_multimodal_rqvae' or q['num_hierarchies']!=3
             or q['codebook_size']!=256 or q['max_steps']!=3000
             or q['head_dim']!=128 or q['head_hidden']!=256
-            or config['replicate_seeds']!=[42,101,202]
+            or config['replicate_seeds']!=([42] if warm else [42,101,202])
             or config.get('plot_encoder',{}).get('model')!='sentence-transformers/all-mpnet-base-v2'
             or config['plot_encoder']['max_length']!=384
             or any(t['modalities']!=list(MODALITIES[:t['stage']]) for t in config['trials'])):
         raise ValueError('multimodal ladder differs from declared matched protocol')
+    if warm:
+        expected={'max_steps':5000,'probe_interval':500,'stopping':
+            {'kind':'water_filling_plateau','min_steps':2000,'patience_probes':4}}
+        if (config['seed']!=42 or q.get('ae_warmup')!=expected
+                or len(config['trials'])!=1 or config['trials'][0]['seed']!=42
+                or config['trials'][0]['modalities']!=['text']
+                or len(q.get('expected_initial_state_sha256',''))!=64
+                or config['modality_input'].get('features_sha256')!='eeccc0bf7e11f0e2d97acce14ce4973b96d0b4816c6e35ffef679681802dabda'):
+            raise ValueError('AE experiment must be the single matched seed42 text control')
+    elif q.get('ae_warmup'):
+        raise ValueError('AE warm-up needs its explicit experiment kind')
 
 
 def run_multimodal_trial(trial, config, plan, users, source, device):
