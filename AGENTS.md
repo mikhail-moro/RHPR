@@ -2,6 +2,33 @@
 
 ## Research status
 
+- MultimodalAE ladder COMPLETE,collected2026-11-01. Private
+  carasik/rhpr-ml100k-multimodal-ae v1;sourceba160aac3155831e06286b6e6924eb720b82dfc2,
+  all12fits/20epochs/6680updates/1709400cases/zeroAMPskips;body121.16min.
+  Independentlyrescored140predictionfiles(60new+60direct+15plain+5pilot),same943
+  users/targets/split/normalization/frozenvectors/initialRQ+generatorweights.
+  Direct->AE mean testNDCG10: text.03388->.04016(+18.5%,3/3positive),
+  poster.03982->.04127(+3.6%,2/3),description.03760->.04292(+14.1%,2/3),
+  people.03773->.04326(+14.7%,2/3). AEall vstext+7.7%(2/3),vsplain.04143+4.4%(2/3),
+  no stablemodalitysuperiority;conditionalCIs exclude seed/runtimevariation,
+  most cross0. AEvalmeans.05684/.06171/.05925/.05676(bestposter),oppositetesttrend.
+  FullmeanRecall10.08766 equalsplain;description.09084 highest. Firstbook228–256,
+  semantictriples1270–1273;allfullSIDsstillidentify1273. AE3500–5000/56–105sec,
+  all spectralplateau;RQ92–115sec;TIGERmean49.87–50.71sec/epoch.
+  IMPORTANTrepeattext42:AEneuralstate/latents/RQcurves/books/SIDs bitwiseidentical
+  topilot,andgeneratorinitialweights/config same,buttraininglossdiffersbyepoch1;
+  selectedepoch15->20,test.04210->.03762. Divergencelocalized togeneratortraining,
+  exactnumerical/runtimecauseunknown;seeddoesnotensurebitwisedeterminism.
+  Do not substitute betterpilotortreatitas4thseed. All12transfer/freshoptimizer/
+  initiallatent audits pass. ExtraAEcompute/init/stagemodesconfounded.
+  See docs/gr-movielens100k-multimodal-ae-results.md;artifacts/
+  movielens100k-multimodal-ae/analysis hasreports/CSV/plots/ranks/replayscript.
+  Rawdownloadsin/tmp/ml100k-modal-ae-completed;14MBnumericalbundlein
+  /tmp/movielens100k-multimodal-ae-numerical-evidence.zip (workspace4MBfree).
+  LargeweightsremainprivateKaggle. No pendingGPUwork;noautoextensions/tuning,
+  extraseeds/TPU/Telegram;preservepriorresultsandpausedTPUedits.
+
+
 - MultimodalAE ladder submitted ONCE,v1RUNNING,2026-11-01. Private
   carasik/rhpr-ml100k-multimodal-ae;12freshfits/42,101,202×4stages;2T4.
   Executableba160aac3155831e06286b6e6924eb720b82dfc2;Actions41331992852success,
