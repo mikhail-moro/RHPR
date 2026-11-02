@@ -2,6 +2,26 @@
 
 ## Research status
 
+- Actor-only graph screen COMPLETE,collected2026-11-03MSK. Private
+  carasik/rhpr-ml100k-actor-screen v1,10fits/2seeds/2T4,157.86min,nofailures,
+  exactly30epochs/6valchecks/constantLR/zeroAMP. Mean val/testNDCG10:
+  none .05695/.04223;oldsharedcast1 .06021/.03957;newactor1 .06047/.04308;
+  newactor.3 .06117/.04247;newactor.1 .06325/.04535. Weight.1 winsval2/2,
+  testvsnone+7.4%(2/2;+13.7/+1.4%),conditionaluserCI[-.00450,+.01083]
+  crosses0;notastablebenefit/optimalityclaim. .1vsnew1testpositive1/2 only.
+  Selectedepochs .1 30/25;fixed30 is a screen,notconvergence. RawotherheadMSE
+  improves1->.1 onbothseeds,peopleworsens;notaprovenNDCGmechanism. Actor1
+  highseedspreadalsowithoutdirector edges;priorSDnotcausalproof.
+  All70predfilesrescored,260filesdownloaded;exactcases/hashes/normalization/
+  actorprovenance/pins/AE-RQtransfer/weights/schedule verified. Oneinvalidtest
+  actor.3seed42,others0;duplicates0. Report
+  docs/gr-movielens100k-actor-screen-results.md; artifacts/
+  movielens100k-actor-screen/analysis links fullCSV/plots/replay/ranks in/tmp;
+  numericalZIP in/tmp;largeweightsprivateKaggle. No pendingGPUwork; do not
+  automaticallyextend/tune/addseeds/weights/retrainGraph/TPU/Telegram.
+  Tests947OK89skips. Preserveallpriorcontrols/pausedTPUedits. Primarycandidate waschosenonval,
+  testdescriptive,alreadyexaminedholdout; noDeepWalkoveridentityclaim.
+
 - Actor-only graph screen submitted ONCE,v1QUEUED,2026-11-02. Private
   carasik/rhpr-ml100k-actor-screen;10fits/2seeds/2T4,5arms×42/101.
   Workflow41481526966 success submit-only;executable
