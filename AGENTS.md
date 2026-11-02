@@ -2,6 +2,22 @@
 
 ## Research status
 
+- Actor-only graph screen submitted ONCE,v1QUEUED,2026-11-02. Private
+  carasik/rhpr-ml100k-actor-screen;10fits/2seeds/2T4,5arms×42/101.
+  Workflow41481526966 success submit-only;executable
+  5858df9f4682a15fdc740d3717469c8d4c6e22c5. Exactconfig/all194embedded
+  sourcefiles verified;packageSHA
+  be2b6eb81133a895d200f9cc363d9eb48e1058fabaf362e553b86c66d07f72eb.
+  Newprivate actorDeepWalkdatasetREADY;15998nodes, same1273items, exactnode
+  set/filmmeanpooling/hash/order verified. Otherfrozenmodalitiesbitwiseequal.
+  Tests947OK89skips;3nativeactor/3legacyrolechecks passed. Receipt
+  docs/gr-movielens100k-actor-screen-submission.json; artifacts/
+  movielens100k-actor-screen haspreflight/graphprovenance/submissionaudit.
+  Fixed30epochs,val5,constantLR,bestval; weights1/.3/.1 inAE+RQ, newactorgraph
+  plusnopeople/oldsharedcast controls. Noresults;waitforusercompletion,
+  collectexistingrun. No resubmission/extensions/tuning/newseeds/TPU/Telegram.
+  SDKstatusdefaultQUEUED=0 is omitted byMCP whenqueued. Preservepriorstudies.
+
 - User authorized actor-only graph/loss screening,2026-11-02. Config
   movielens100k_actor_screen_2t4.json; doc gr-movielens100k-actor-screen.md.
   Two pipeline seeds42/101 ×5arms: nopeople,old sharedgraph cast(weight1),
