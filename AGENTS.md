@@ -2,6 +2,22 @@
 
 ## Research status
 
+- Full actor comparison submitted ONCE,v1RUNNING,2026-11-03MSK. Private
+  carasik/rhpr-ml100k-actor-full-training;6freshfits/3seeds/2T4.
+  Workflow41535407288 successsubmit-only;executable
+  70a0c16d65fab69df3d64742fee527975e12df70. Exactconfig/all195embedded
+  sourcefilesverified;packageSHA
+  d22ad4da3631a43efeb72f9b7d53701861b8230e05b5e5d7e7c4792c3c235595.
+  Tests949OK90skips;newfullsuite2checks andlegacyactorsuite3checks native
+  GRIDpassed;all6real-schema constructorpins(including202) verified.
+  Frozenactorgraphhash/orderverified. Receipt
+  docs/gr-movielens100k-actor-full-submission.json; artifacts/
+  movielens100k-actor-full haspreflight/submissionaudit/quota. Samefullpolicy:
+  fresh20prefix,val5 thenverifiedresume,last/Adam/scaler/allRNG,min30/max100/
+  ES20/valeachnew/ReduceLRfrom21. .1frozeninAE+RQ,nonecontrol,seed42/101/202.
+  Noresults;waitforusercompletion,collectexistingrun. Do notresubmit/extend/
+  tune/newseeds/changegraph/TPU/Telegram. Preserveallprioroutputs/pausedTPU.
+
 - User authorized full actor comparison2026-11-03. Config
   movielens100k_actor_full_2t4.json;doc gr-movielens100k-actor-full.md.
   SIXfresh fits: none vsnewactorweight.1 ×42/101/202. Coefficient selected

@@ -1,0 +1,63 @@
+{
+  "kernel_id": "carasik/rhpr-ml100k-actor-full-training",
+  "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-ml100k-actor-full-training",
+  "version": 1,
+  "status": "RUNNING",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41535407288",
+  "workflow_result": "success;submit_only=true",
+  "executable_git_sha": "70a0c16d65fab69df3d64742fee527975e12df70",
+  "package_sha256": "d22ad4da3631a43efeb72f9b7d53701861b8230e05b5e5d7e7c4792c3c235595",
+  "embedded_source_files_verified": 195,
+  "exact_config": true,
+  "private": true,
+  "internet": false,
+  "accelerator": "NvidiaTeslaT4",
+  "workers": [
+    "cuda:0",
+    "cuda:1"
+  ],
+  "seeds": [
+    42,
+    101,
+    202
+  ],
+  "trials": 6,
+  "candidates": [
+    "no_people",
+    "actor_graph_weight0.1"
+  ],
+  "all_fresh": true,
+  "reason_for_fresh": "Screen used constant LR through30; full protocol adapts LR from21. One common full training history for all six pipelines.",
+  "max_epochs": 100,
+  "min_epochs": 30,
+  "early_stopping_patience_epochs": 20,
+  "prefix_epochs": 20,
+  "prefix_validation_epochs": [
+    5,
+    10,
+    15,
+    20
+  ],
+  "continuation_validation_interval": 1,
+  "continuation": "verified last weights/Adam/scaler/allRNG from20",
+  "scheduler": "ReduceLRfrom21,factor0.5,patience5,minLR1e-5,threshold1e-4",
+  "ae_steps": 3500,
+  "rq_steps": 3000,
+  "actor_graph_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-ml100k-actor-deepwalk",
+    "people_sha256": "93fadcb9eda245b4c34562d237555b0851037b46d84f793ea05d4a1965a8758f",
+    "source_ids_sha256": "9c4a806b3ed1aa818e9fcdbfd92fd20d6adbbe05c522c4086a8d463f17e0f136",
+    "provenance_sha256": "65b13bdfe86a7ea8f15020c79187eb868efd17e22f96de920e13e1334a32fbee"
+  },
+  "graph_seed": 42,
+  "graph_reconstruction_weight": 0.1,
+  "weight_applied_to": [
+    "AE",
+    "RQ"
+  ],
+  "test": "one final selected test per pipeline; none at phase boundary",
+  "tests": "949OK90skips;full suite2 checks and legacy actor suite3 checks with native GRID passed; all six real-size initialization pins verified",
+  "notify_telegram": false,
+  "no_results_yet": true,
+  "no_resubmission": true
+}
