@@ -2,6 +2,21 @@
 
 ## Research status
 
+- Graph loss weighting pilot submitted ONCE, v1 RUNNING, 2026-11-02 MSK.
+  Private carasik/rhpr-ml100k-graph-loss-weight; two fresh seed42 pipelines,
+  people-reconstruction weights1/.1 in AE+RQ, all other weights1. Two T4s.
+  Executable35b75d22360eada2053f59177acd18f928fbd867; Actions41427695618
+  success submit-only. Exactconfig/all192embedded source files verified,
+  packageSHA e9f19fc5da5d2ea2940af7128a7fdda181ff9e8e3b7327bef463334098002502.
+  Receipt docs/gr-movielens100k-graph-loss-weight-submission.json;
+  artifacts/movielens100k-graph-loss-weight has preflight and submission audits.
+  Both fixed3500AE/nativeRQ3000, same frozenfeatures and native initial pins;
+  TIGER prefix20val5 then verified resume, min30/cap100/ES20, unchanged LRpolicy.
+  Single finaltest; raw perheadMSE+weighted totals logged. Tests941OK87skips,
+  2new native+9legacy native checks passed. No results yet; wait for user,
+  collect existing run. Do not resubmit/extend/tune/addweights/seeds/TPU/Telegram.
+  Preserve all previous notebooks/results and paused TPU edits.
+
 - User authorized graph reconstruction weighting pilot, 2026-11-02 MSK.
   One private2T4 session, two fresh seed42 pipelines, people-loss coefficient1
   versus0.1; other3reconstruction weights1. Apply in both continuous AE and RQ;
