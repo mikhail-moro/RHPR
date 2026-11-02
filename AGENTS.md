@@ -2,6 +2,30 @@
 
 ## Research status
 
+- Full-training replication COMPLETE, collected 2026-11-02 MSK. Extra seeds101/202
+  private carasik/rhpr-ml100k-full-training-extra-seeds v1: all8fits successful,
+  body109.43min. Combined with retained42 pilot:12fits, all early-stopped,
+  none capped. Mean testNDCG10±sampleSD: nopeople .04672±.00631;
+  graph .04260±.00380; names .04469±.00046; SASRec .05214±.00343.
+  SASRec beats each TIGER on3/3; nopeople mean-10.4% vsSAS. Relative change
+  from selected20epoch baselines: nopeople+8.9%(2/3),graph-1.5%(1/3),
+  names+18.5%(3/3),SAS-.9%(two unchanged). Graph vsnopeople -23.3/-1.1/+1.1%
+  across42/101/202: negative mean driven by42, no stable graph advantage.
+  Graph selectedVAL beats nopeople3/3 despite opposite mean TEST ordering;
+  943target holdouts and3pipeline seeds limit conclusions. Seed42near-tie
+  withSAS not replicated. Best TIGERepochs25–41; stop45–61; SASbest10/5/25,
+  stop30/30/45. Four new TIGER selections follow LR drop; do not generalize
+  seed42's pre-drop peak. TrainCE falls/valCE rises afterselectedpoint.
+  Independentlyrescored396prediction files, matching cases/indices/prefix
+  hashes/resumeAdam-scaler-RNG and replayed all LR/ES decisions. AMPskips:
+  nopeople101=1/nopeople202=3, others0; counts verified, no fallback.
+  Report docs/gr-movielens100k-full-training-extra-seeds-results.md and
+  three-seed-metrics.csv; artifacts/movielens100k-full-training-extra-seeds/
+  analysis has metrics/curves/verification/replay. Full50.8MBnumericalZIP in/tmp,
+  largeweights remain private Kaggle. Tests939OK86skips. No pendingGPUwork,
+  do not autoextend/tune/addseeds/retrain indices/TPU/Telegram; preserve prior
+  studies, seed42 outputs and paused TPU edits.
+
 - Extra-seed full-training replication submitted ONCE, v1 RUNNING, 2026-11-02.
   Private carasik/rhpr-ml100k-full-training-extra-seeds; eight continuations,
   seeds101/202, 2T4. Executable8e1819a6137aaae30e43a4115cb6a4c2aae1b819;
