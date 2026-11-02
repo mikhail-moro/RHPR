@@ -6,7 +6,7 @@ from rhpr.gr.experiment import _write, _event
 from rhpr.gr.data import file_sha256
 
 
-def normalize_modalities(values, observed):
+def normalize_modalities(values, observed, columns=None):
     result, statistics = {}, {}
     count = None
     for name, raw in values.items():
@@ -16,6 +16,17 @@ def normalize_modalities(values, observed):
                 or not np.isfinite(x).all() or (count is not None and len(x) != count)):
             raise ValueError('invalid modality values or observation mask')
         count = len(x)
+        if columns and name in columns:
+            selected = columns[name]
+            if (not selected or len(set(selected)) != len(selected)
+                    or any(type(c) is not int or c < 0 or c >= x.shape[1] for c in selected)):
+                raise ValueError('invalid normalization columns')
+            reduced, stats = normalize_modalities({name:x[:, selected]}, {name:mask})
+            y = np.zeros_like(x); y[:, selected] = reduced[name]
+            result[name] = y
+            statistics[name] = dict(stats[name], selected_columns=list(selected),
+                original_dimension=x.shape[1], inactive_input_zero=True)
+            continue
         mean = x[mask].mean(0, dtype=np.float64)
         scale = float(np.sqrt(np.square(x[mask].astype(np.float64) - mean).mean()))
         if not np.isfinite(scale) or scale < 1e-8:
@@ -36,7 +47,7 @@ def fit_multimodal_rqvae(values, masks, spec, seed, device, source, recipe, outp
     from rhpr.gr.rqvae import build_rqvae
     from rhpr.gr.codebook_diagnostics import semantic_statistics
     output = Path(output); output.mkdir(parents=True, exist_ok=True)
-    arrays, normalization = normalize_modalities(values, masks)
+    arrays, normalization = normalize_modalities(values, masks, spec.get("reconstruction_columns"))
     _write(output / 'modality-normalization.json', normalization)
     torch.manual_seed(seed)
     schema = {k: v.shape[1] for k, v in arrays.items()}

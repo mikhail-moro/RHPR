@@ -2,6 +2,22 @@
 
 ## Research status
 
+- User authorized people-role ablation on2026-11-02: nine fresh fits,
+  seeds42/101/202 × nopeople/cast-only/directors-only. Config
+  movielens100k_people_roles_2t4.json; doc gr-movielens100k-people-roles.md.
+  Frozen old DeepWalk128D shared-table vectors; selected64 role coordinates
+  independently catalogue-normalized and zero-padded to original128D schema;
+  loss only on selected64, all active modality weights1. Control omitspeople.
+  Same otherfeatures/split/cases/nativepins. AE3500fixed/RQ3000 and full
+  TIGER policy: prefix20val5, verifiedresume, min30/cap100/ES20/valeachnew,
+  unchangedReduceLRfrom21; one finaltest. 2T4,private
+  carasik/rhpr-ml100k-people-roles. No HPO/retries/extraseeds/TPU/Telegram.
+  Prior subgroup audit: same-director fullval .05090->.07763(n54),
+  test .07088->.09863(n57), but earlyval opposite and conditionalCIs cross0.
+  Sharedcast no advantage; groups exploratory. This tests role readout, not
+  typed graph training or a proven DeepWalk advantage over identity.
+  Preserve all previous outputs, controls and paused TPU edits.
+
 - Graph loss weighting pilot COMPLETE, collected 2026-11-02 MSK. Private
   carasik/rhpr-ml100k-graph-loss-weight v1, two seed42 fits, body46.97min,
   no failures, both early-stopped. Weight1 vs0.1: valNDCG10 .06786/.06601;
@@ -149,7 +165,6 @@
   Waitforusercompletion/status;collectexistingrun,do notresubmit/extend/tune,
   changeindices/retrainAE-RQ/addseeds/TPU/Telegram. Preserveoldoutputs/pausedTPU.
 
-
 - User authorized seed42full-training pilot,2026-11-02MSK. Config
   movielens100k_full_training_seed42_2t4.json;doc gr-movielens100k-full-training.md.
   Fourcontinuations:nopeople/graph/namesTIGER+SASRec fromepoch20/6680updates;
@@ -163,7 +178,6 @@
   Newprivatekernel target carasik/rhpr-ml100k-full-training-seed42,2T4,
   ~2–2.5h+setup/queue worstcase,ESmaystopsooner. No extra seeds/HPO/retries,
   indexchanges/AE-RQretraining/TPU/Telegram. Preserveoldoutputs/pausedTPUedits.
-
 
 - Names/SASRec controls COMPLETE,collected2026-11-02MSK. Private
   carasik/rhpr-ml100k-names-sasrec-controls v1;source8c9200133eee6473776836e3b5344e02446c05a6;
@@ -193,7 +207,6 @@
   largecheckpointsstayprivateKaggle. No pendingGPUwork;noautotuning/extensions,
   extraseeds/TPU/Telegram;preserveoldoutputsandpausedTPUedits.
 
-
 - Names/SASRec controls submitted ONCE,v1RUNNING,2026-11-01. Private
   carasik/rhpr-ml100k-names-sasrec-controls,6freshfits/3seeds/2T4.
   Executable8c9200133eee6473776836e3b5344e02446c05a6;Actions41350345747success,
@@ -206,7 +219,6 @@
   20epochs,val5/10/15/20,fullcataloguecasesmatched. No results collected yet.
   Waitforusercompletion/status,collectexistingrun;do notresubmit/extend/tune,
   addseeds/TPU/Telegram. Preserveoldoutputs andpausedTPUedits.
-
 
 - User authorized names-in-text multimodal TIGER + item-ID SASRec controls,
   2026-11-01. Config movielens100k_names_sasrec_controls_2t4.json;see doc.
@@ -228,7 +240,6 @@
   causalityandnamesreplacement. Real1273film replacementarrays verified.
   Newprivatekernel target carasik/rhpr-ml100k-names-sasrec-controls,
   ~40–60min+setup/queue. No extraHPO/seeds/retries/TPU/Telegram.
-
 
 - MultimodalAE ladder COMPLETE,collected2026-11-01. Private
   carasik/rhpr-ml100k-multimodal-ae v1;sourceba160aac3155831e06286b6e6924eb720b82dfc2,
@@ -256,7 +267,6 @@
   LargeweightsremainprivateKaggle. No pendingGPUwork;noautoextensions/tuning,
   extraseeds/TPU/Telegram;preservepriorresultsandpausedTPUedits.
 
-
 - MultimodalAE ladder submitted ONCE,v1RUNNING,2026-11-01. Private
   carasik/rhpr-ml100k-multimodal-ae;12freshfits/42,101,202×4stages;2T4.
   Executableba160aac3155831e06286b6e6924eb720b82dfc2;Actions41331992852success,
@@ -266,7 +276,6 @@
   movielens100k-multimodal-ae/source-audit.json. No qualityresults yet.
   Waitforusercompletion/status,collectexistingrun;do notresubmit/extend/tune,
   addseeds,TPUorTelegram. Keepdirectladder/pilotoutputs/pausedTPUedits intact.
-
 
 - User authorized full multimodal ladder with two-stage quantizers,2026-11-01.
   Config movielens100k_multimodal_ae_2t4.json; see corresponding doc. Twelvefresh
@@ -281,7 +290,6 @@
   missingplotmask,transfer/freshoptimizer/latents andtiny20epochTIGER.
   Newprivatekernel target carasik/rhpr-ml100k-multimodal-ae,~2–2.5h+setup/queue.
   No retries/tuning/extraseeds/TPU/Telegram;oldnotebooks/pausedTPU preserved.
-
 
 - Text AE warm-up COMPLETE,collected2026-11-01. Privatecarasik/rhpr-ml100k-text-ae-warmup
   v1/source444ba8238b2e244b498c4bb23ada89c769723b63;body20.25min. One seed42,
@@ -301,33 +309,21 @@
   LargeweightsstayprivateKaggle. No pendingGPUwork,do notresubmit/extend/tune,
   addseeds,TPUorTelegramwithoutnewscope;preservepriorresultsandpausedTPUedits.
 
+- Text AE warm-up submitted ONCE, KaggleRUNNING,2026-11-01. Private
+  carasik/rhpr-ml100k-text-ae-warmup v1;source444ba8238b2e244b498c4bb23ada89c769723b63,
+  Actions41328218657successsubmit-only;exactconfig/all187embeddedfiles verified.
+  One text-only seed42 AE->RQ->20epochTIGER,oldprivate notebook outputs reused.
+  Receipt docs/gr-movielens100k-text-ae-warmup-submission.json;local audit in
+  artifacts/movielens100k-text-ae-warmup. No quality results yet. Waitforuser,
+  collectexistingrun;do notresubmit/extend/tune/addseeds/TPU/Telegram.
 
-- Text AE warm-up submitted ONCE; KaggleRUNNING,2026-11-01. Private
-  carasik/rhpr-ml100k-text-ae-warmup,source444ba8238b2e244b498c4bb23ada89c769723b63,
-  Actions41328218657successsubmit-only;exactconfig/all187embeddedfiles verified,
-  packageSHAd1876d87ec0ccea73ff3c7a6b2414f25c63be0b70024a9184e56af519eecea4a.
-  One text-only seed42 AE->RQ->20epochTIGER;reuse oldprivate notebook outputs.
-  Receipt docs/gr-movielens100k-text-ae-warmup-submission.json;local
-  artifacts/movielens100k-text-ae-warmup/source-audit.json. No results yet.
-  Waitforusercompletion;collectexistingrun. Do notduplicate/pollcontinuously,
-  autoextend,tune,addseeds,TPUorTelegram. Preserve oldresults/pausedTPUedits.
-
-
-- User authorized one text-only seed42 AE warm-up experiment,2026-11-01.
-  Config movielens100k_text_ae_warmup.json; see corresponding doc. Same frozen
-  features/head architecture/initial quantizer state as completed multimodal v2
-  headed-text control; only text active. Continuous AE up to5000 updates,
-  prior spectral plateau(min2000/probe500/patience4), untouched codebooks.
-  Retain neural weights+BN; native residual KMeans on eval latents, then fresh
-  Adagrad/native RQ3000 steps, joint training. TIGER20epochs,val5/10/15/20,
-  one selected test, exact prior cases/split/seed42 generator initialization.
-  One cuda:0 worker/trial; no extra fit on second allocated T4. Reuse completed
-  private notebook output through kernel_sources with parent manifest/source,
-  vector/order hashes; no feature upload/new Dataset. New private kernel target
-  carasik/rhpr-ml100k-text-ae-warmup. Tests927OK83skips; native7OK including
-  untouched-books proof, exact initial hash, neural/BN transfer, fresh optimizer,
-  initial latent equality, and tiny20epoch TIGER. Extra AE compute is a confound;
-  one seed cannot establish stable gain. No retries/tuning/extraseeds/TPU/Telegram.
+- Text-only seed42 continuous-AE experiment authorized and implemented,2026-11-01.
+  Config movielens100k_text_ae_warmup.json; native continuous AE->RQ-VAE->TIGER.
+  One cuda:0 worker/trial, frozen prior notebook output (hash verified), no new
+  feature upload. See docs/gr-movielens100k-text-ae-warmup.md. Source
+  444ba8238b2e244b498c4bb23ada89c769723b63; Actions41328218657 dispatched once.
+  Do not duplicate; pending submission/status receipt. No retries/tuning/extra
+  seeds/TPU/Telegram. Tests927OK83skips plus native7OK. Preserve paused TPU edits.
 
 
 
@@ -353,6 +349,7 @@
   No pending GPUwork,noautoextensions,tuning,extraseeds,TPUorTelegram.
 
 
+
 - MPNet replacement submitted ONCE,v2RUNNING,2026-11-01. Sameprivatekernel
   carasik/rhpr-ml100k-multimodal,oldv1CANCEL_ACKNOWLEDGED. Newexecutable
   addd3c326dbc55ddf18d2dad2c832bf43000a8e0,Actions41313214797successsubmit-only.
@@ -363,6 +360,7 @@
   docs/gr-movielens100k-multimodal-mpnet-submission.json. Localartifacts
   artifacts/movielens100k-multimodal/mpnet-replacement. Waitforusercompletion,
   collectexistingv2;noresubmission/continuouspoll/tuning/extraseeds/TPU/Telegram.
+
 
 
 - User corrected plot channel,2026-11-01: use MPNET on DESCRIPTION ONLY.
@@ -383,6 +381,7 @@
   noextraseeds/tuning/Telegram/TPU. Waitforcompletion aftersubmission.
 
 
+
 - Multimodal ML100K session submitted ONCE,v1RUNNING,2026-11-01.
   Privatecarasik/rhpr-ml100k-multimodal,12fits/3seeds×4cumulative channels,
   2T4/offline/noTelegram. Executable7986c0cf1db85610f0878fbe32116a9b311e0b34;
@@ -392,6 +391,7 @@
   movielens100k-multimodal. No outputs/quality results collected yet.
   Do not resubmit or continuouslypoll;waitforusercompletion/status,collect
   existingrun. No automatictraining retries/tuning/extraseeds/TPU/Telegram.
+
 
 
 - User authorized cumulative multimodal movie experiment,2026-11-01:
@@ -415,6 +415,7 @@
   NoextraGPUjobs/tuning/retries/Telegram/TPU. Preserve old evidence/pausedTPU.
 
 
+
 - ML100K extra seeds collected,2026-11-01. All14fits completed20epochs;
   rawKaggleERROR is ONLY final aggregation comparing initial NNhash globally
   across101/202. No rootmetrics/summary/runmanifest were emitted. Preserve raw
@@ -435,6 +436,7 @@
   embeddings discussed/audited only,not trained or dispatched.
 
 
+
 - Extra ML100K seed session submitted v1 and RUNNING,2026-11-01.
   Private`carasik/rhpr-ml100k-text-ladder-seeds`,14fits/101+202,no repeat42.
   Executable60612f5968131745c23b88b8443bca028a93fdf9,successfulActions41293053201;
@@ -447,6 +449,7 @@
   `artifacts/movielens100k-text-ladder-seeds`. Do not resubmit or continuously
   poll;waitforusercompletion/status andcollect thisexistingrun. NoTelegram,
   TPU,tuning,extra seeds,automatictraining retries,orolder-studyrevival.
+
 
 
 - User authorized TWO EXTRA pipeline seeds per ML100K text stage,2026-11-01.
@@ -462,6 +465,7 @@
   fulltexttest.0394417. One realization,no established richtext benefit/harm.
   Local reports/evidence:`artifacts/movielens100k-text-ladder/analysis`.
   This authorization supersedes the old no-extra-seeds note for this job only.
+
 - Active direction switched to MovieLens100K by user,2026-10-31. ML1M run was
   stopped by user;serverCANCEL_ACKNOWLEDGED,do not resume/relaunch it.
   Newconfig`movielens100k_text_ladder_2t4.json`,same7fields/year-in-title,

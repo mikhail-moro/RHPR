@@ -69,7 +69,12 @@ def run_multimodal_trial(trial, config, plan, users, source, device):
     from rhpr.gr.sid_study import state_digest
     from rhpr.gr.experiment import _train_generator,_evaluate
     seed=trial['seed'];config=copy.deepcopy(config);config['seed']=seed
-    graph_loss=config.get('kind')=='gr_movie_graph_loss'
+    roles=config.get('kind')=='gr_movie_people_roles'
+    graph_loss=config.get('kind') in {'gr_movie_graph_loss','gr_movie_people_roles'}
+    if roles:
+        from rhpr.gr.movie_people_roles import role_columns
+        columns=role_columns(trial['people_role'])
+        if columns is not None:config['quantizer']['reconstruction_columns']={'people':columns}
     if graph_loss:
         config['quantizer']['reconstruction_weights']=trial['reconstruction_weights']
         _event('movie_graph_loss_start',trial=trial['id'],reconstruction_weights=trial['reconstruction_weights'],ae_fixed_steps=config['quantizer']['ae_warmup']['max_steps'])
@@ -107,6 +112,7 @@ def run_multimodal_trial(trial, config, plan, users, source, device):
     result={'trial':trial['id'],'stage':trial['stage'],'seed':seed,'initial_state_sha256':initial,
         'active_modalities':trial['modalities'],'quantizer_steps':report['steps'],'selection':selection,'test':metrics}
     if graph_loss:
+        if roles:result['people_role']=trial['people_role']
         result.update(reconstruction_weights=report['reconstruction_weights'],ae_steps=report['warmup']['steps'],
             budget_censored=selection['stopping_reason']=='epoch_limit')
     _write(root/'trial-result.json',result);del model;gc.collect()

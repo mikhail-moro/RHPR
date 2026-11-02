@@ -7,7 +7,7 @@ from src.modules.clustering.residual_quantization import ResidualQuantization
 
 
 class MultimodalResidualQuantization(ResidualQuantization):
-    def __init__(self, modality_schema, active_modalities, head_dim=128, head_hidden=256, reconstruction_weights=None, **kwargs):
+    def __init__(self, modality_schema, active_modalities, head_dim=128, head_hidden=256, reconstruction_weights=None, reconstruction_columns=None, **kwargs):
         super().__init__(**kwargs)
         self.modality_schema = dict(modality_schema)
         self.active_modalities = tuple(active_modalities)
@@ -18,6 +18,11 @@ class MultimodalResidualQuantization(ResidualQuantization):
         self.reconstruction_weights = {name:float(weights.get(name,1.)) for name in modality_schema}
         if not any(self.reconstruction_weights[name]>0 for name in self.active_modalities):
             raise ValueError('at least one active reconstruction weight must be positive')
+        self.reconstruction_columns = dict(reconstruction_columns or {})
+        for name, columns in self.reconstruction_columns.items():
+            if (name not in modality_schema or not columns or len(set(columns)) != len(columns)
+                    or any(type(c) is not int or c < 0 or c >= modality_schema[name] for c in columns)):
+                raise ValueError("invalid reconstruction columns")
         self.encoder_heads = nn.ModuleDict({name: nn.Sequential(
             nn.Linear(dim, head_hidden), nn.ReLU(), nn.Linear(head_hidden, head_dim))
             for name, dim in modality_schema.items()})
@@ -61,7 +66,11 @@ class MultimodalResidualQuantization(ResidualQuantization):
         for name in self.active_modalities:
             valid = fields[name + '_observed'].bool()
             prediction = self.decoder_heads[name](shared)
-            losses[name] = ((prediction[valid] - fields[name][valid]).square().mean()
+            target = fields[name]
+            if name in self.reconstruction_columns:
+                columns = self.reconstruction_columns[name]
+                prediction, target = prediction[:, columns], target[:, columns]
+            losses[name] = ((prediction[valid] - target[valid]).square().mean()
                             if valid.any() else prediction.sum() * 0.)
         # Preserve the historical operation order for the equal-weight control.
         total = (sum(losses.values()) if all(self.reconstruction_weights[k]==1 for k in losses)
