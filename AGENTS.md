@@ -2,6 +2,24 @@
 
 ## Research status
 
+- People-role ablation COMPLETE,collected2026-11-02MSK. Private
+  carasik/rhpr-ml100k-people-roles v1;9fits/3seeds/2T4,227.51min,allES,
+  nonecapped/nofailures. Mean testNDCG10 nopeople .04703±.00269,
+  cast .04525±.00234(-3.8%),directors .04182±.00570(-11.1%); each wins1/3.
+  Conditional paired-userCIs cross0; no stablebenefit/harm established.
+  Valcast .06845 vscontrol .06411,positive3/3. Same-director groupval(n54)
+  control .05860/director .08275,buttest(n57) .09735/.08705; subgroup
+  observation doesnottransfer. Fixed3500AE: historicalseed42samecodes/AE,
+  differentgenerator;101/202oldAE4000/5000yielddifferentindices,usefreshcontrol.
+  All291predfilesrescored,494files/2pagesdownloaded;roleloss/normalization,
+  pins,AE/RQtransfer/resume andLR/ES verified. AMPskips1eachcast42/cast101/
+  director101;invalidtest12none202/1director202,duplicates0. Tests944OK88skips.
+  Report docs/gr-movielens100k-people-roles-results.md; compactartifacts/
+  movielens100k-people-roles/analysis; fullreplay/CSV/plots/ranks /tmp/movie-roles-analysis,
+  numericalZIP in/tmp; largeweightsremainKaggle. No pendingGPUwork. No
+  autoextensions/tuning/newseeds/retrainingDeepWalk/TPU/Telegram. Preserve
+  priorstudies/controls andpausedTPUedits.
+
 - People-role ablation submitted ONCE,v1RUNNING,2026-11-02. Private
   carasik/rhpr-ml100k-people-roles;9freshfits/3seeds/2T4. Workflow41441646043
   success submit-only; executable682a23dabed6803d3340607f6ecd7924483ce3ba.
