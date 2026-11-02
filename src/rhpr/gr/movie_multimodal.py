@@ -70,8 +70,9 @@ def run_multimodal_trial(trial, config, plan, users, source, device):
     from rhpr.gr.experiment import _train_generator,_evaluate
     seed=trial['seed'];config=copy.deepcopy(config);config['seed']=seed
     actor_screen=config.get('kind')=='gr_movie_actor_screen'
-    roles=config.get('kind') in {'gr_movie_people_roles','gr_movie_actor_screen'}
-    graph_loss=config.get('kind') in {'gr_movie_graph_loss','gr_movie_people_roles','gr_movie_actor_screen'}
+    actor_full=config.get('kind')=='gr_movie_actor_full'
+    roles=config.get('kind') in {'gr_movie_people_roles','gr_movie_actor_screen','gr_movie_actor_full'}
+    graph_loss=config.get('kind') in {'gr_movie_graph_loss','gr_movie_people_roles','gr_movie_actor_screen','gr_movie_actor_full'}
     if roles:
         from rhpr.gr.movie_people_roles import role_columns
         columns=role_columns(trial['people_role'])
@@ -86,7 +87,7 @@ def run_multimodal_trial(trial, config, plan, users, source, device):
     if ids!=plan['source_ids']:raise ValueError('modality catalogue order differs from temporal cases')
     with np.load(data/'features.npz',allow_pickle=False) as z:
         arrays={k:z[k] for k in MODALITIES};masks={k:z[k+'_observed'] for k in MODALITIES}
-    if actor_screen and trial['people_source']=='actor_graph':
+    if (actor_screen or actor_full) and trial['people_source']=='actor_graph':
         from rhpr.gr.movie_actor_screen import actor_features
         arrays['people'],actor_provenance=actor_features(config['actor_graph_input'],ids)
         _write(root/'actor-input-provenance.json',dict(input=config['actor_graph_input'],provenance=actor_provenance))
@@ -121,7 +122,7 @@ def run_multimodal_trial(trial, config, plan, users, source, device):
         'active_modalities':trial['modalities'],'quantizer_steps':report['steps'],'selection':selection,'test':metrics}
     if graph_loss:
         if roles:result['people_role']=trial['people_role']
-        if actor_screen:result.update(candidate=trial['candidate'],people_source=trial['people_source'],fixed_epoch_screen=True)
+        if actor_screen or actor_full:result.update(candidate=trial['candidate'],people_source=trial['people_source'],fixed_epoch_screen=actor_screen)
         result.update(reconstruction_weights=report['reconstruction_weights'],ae_steps=report['warmup']['steps'],
             budget_censored=(not actor_screen and selection['stopping_reason']=='epoch_limit'))
     _write(root/'trial-result.json',result);del model;gc.collect()

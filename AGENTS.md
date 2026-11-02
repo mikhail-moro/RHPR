@@ -2,6 +2,21 @@
 
 ## Research status
 
+- User authorized full actor comparison2026-11-03. Config
+  movielens100k_actor_full_2t4.json;doc gr-movielens100k-actor-full.md.
+  SIXfresh fits: none vsnewactorweight.1 ×42/101/202. Coefficient selected
+  on priorval, frozen. Samefeatures/graph15998nodes seed42, schemas/pins,
+  cast-only64Dloss/normalization, AE3500fixed/RQ3000, .1inbothstages.
+  Fullpriorprotocol: fresh20prefix,val5,verifiedlast/Adam/scaler/allRNG
+  resume at20; thenvaleachnew,min30/max100/ES20, ReduceLRfrom21factor.5
+  after5badchecks/floor1e-5/threshold1e-4. One finaltest,noneat20boundary.
+  Screen30lastcheckpoints existbutconstantLRthrough30incompatiblewithprior
+  fullschedulefrom21;all6fresh forcommonprotocol. SameTIGER4+4/d128/FP16.
+  2T4/3trialseach,pairs42/101sameworker,202splitforbalance. Private target
+  carasik/rhpr-ml100k-actor-full-training. NoHPO/extensions/retries/extraseeds/
+  graphchanges/TPU/Telegram. Preserveallpriorcontrols/pausedTPUedits. Old
+  holdout alreadyexamined;notindependentconfirmation orDeepWalk-vsidentity.
+
 - Actor-only graph screen COMPLETE,collected2026-11-03MSK. Private
   carasik/rhpr-ml100k-actor-screen v1,10fits/2seeds/2T4,157.86min,nofailures,
   exactly30epochs/6valchecks/constantLR/zeroAMP. Mean val/testNDCG10:
