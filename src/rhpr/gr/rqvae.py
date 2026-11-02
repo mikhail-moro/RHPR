@@ -51,6 +51,8 @@ def build_rqvae(source_root, recipe_path, dimension, spec, *, feature_schema=Non
         recipe.model.active_modalities = active_modalities
         recipe.model.head_dim = spec['head_dim']
         recipe.model.head_hidden = spec['head_hidden']
+        if 'reconstruction_weights' in spec:
+            recipe.model.reconstruction_weights = spec['reconstruction_weights']
         recipe.model.reconstruction_loss_function = None
     if spec.get("distance_backend", "upstream") == "torch_cdist":
         # All references in this recipe use the same squared L2 metric,

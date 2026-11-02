@@ -110,6 +110,7 @@ def fit_multimodal_rqvae(values, masks, spec, seed, device, source, recipe, outp
                 before=time.monotonic();self.last_step=step
                 codes,losses=export();stats=semantic_statistics(codes,spec['codebook_size'])
                 row={'step':step,'training_total':self.last_loss,'reconstruction_mse_by_head':losses,
+                    'weighted_reconstruction_mse':sum(model.reconstruction_weights[k]*v for k,v in losses.items()),
                     'training_quantization_loss':module.last_quantization_loss,
                     'training_reconstruction_loss':module.last_reconstruction_loss,
                     'semantic_unique_ids':stats['semantic_unique_ids'],'max_collision_group':stats['max_collision_group'],
@@ -139,9 +140,10 @@ def fit_multimodal_rqvae(values, masks, spec, seed, device, source, recipe, outp
         'reconstruction_batches':model.reconstruction_updates,
         'batches_without_reconstruction':model.initialization_batches,
         'active_modalities':active,'modality_dimensions':schema,'head_reconstruction_mse':losses,
+        'reconstruction_weights':model.reconstruction_weights,
         'precision':'fp32','quantization_loss_weight':model.quantization_loss_weight,
         'reconstruction_loss_weight':model.reconstruction_loss_weight,
-        'reconstruction_loss':'sum of observed-item, dimension-mean MSEs; fixed catalogue normalization; no UW',
+        'reconstruction_loss':'weighted sum of observed-item, dimension-mean MSEs; fixed catalogue normalization; no UW',
         'semantic_code_statistics':stats,'parameters':sum(p.numel() for p in model.parameters()),
         'fit_seconds':time.monotonic()-started,'diagnostic_seconds':progress.probe_seconds,
         'checkpoint_sha256':file_sha256(output/'quantizer.pt'),'resolved_model':resolved}

@@ -2,6 +2,28 @@
 
 ## Research status
 
+- User authorized graph reconstruction weighting pilot, 2026-11-02 MSK.
+  One private2T4 session, two fresh seed42 pipelines, people-loss coefficient1
+  versus0.1; other3reconstruction weights1. Apply in both continuous AE and RQ;
+  no input scaling, changed graph/features/split or quantization auxiliary.
+  Config movielens100k_graph_loss_weight_2t4.json; doc
+  gr-movielens100k-graph-loss-weight.md. Both fixed3500AE updates (old42actual
+  length), nativeRQ3000, same neural initialization/hash-pinned frozen inputs.
+  Fresh control avoids adaptive warm-up duration confound; one-seed pilot only.
+  TIGER full policy: first20epochs val5/10/15/20, verified last/Adam/scaler/RNG
+  resume in-place at20, then val each epoch, min30/cap100/ES20 and same LR
+  schedule from21. No test at boundary, one selected test. Preserve raw and
+  weighted head losses, codes/books, CE, curves, prefix/resume provenance.
+  Tests941OK87skips; new native2 and legacy multimodal9 all passed; exact
+  decoder graph gradient0.1 scaling/text unchanged, all native init pins match.
+  Private target carasik/rhpr-ml100k-graph-loss-weight; ~45–75min+setup/queue
+  if similar stopping, near-cap ~1.5–2h. One trial per GPU. No weight sweep,
+  extra seeds/retries/extensions/TPU/Telegram; preserve all prior studies and
+  paused TPU edits. CPU diagnostic evidence from preceding turn is local at
+  artifacts/movielens100k-people-graph-audit/followup-2026-11-02: case hashes
+  reconstructed exactly; graph-neighbor firstSID agreement1.86->3.92%, text
+  5.31->4.54%; text/poster recon worsens3/3. Observational, not causal proof.
+
 - Full-training replication COMPLETE, collected 2026-11-02 MSK. Extra seeds101/202
   private carasik/rhpr-ml100k-full-training-extra-seeds v1: all8fits successful,
   body109.43min. Combined with retained42 pilot:12fits, all early-stopped,

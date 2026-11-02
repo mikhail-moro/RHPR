@@ -26,7 +26,9 @@ def warmup_autoencoder(model, tensors, spec, seed, device, output, normalization
     if any(book.is_initialized for book in model.quantization_layer_list):raise ValueError('AE warm-up requires untouched codebooks')
     n=len(tensors[next(iter(model.modality_schema))]);rng=torch.Generator().manual_seed(seed)
     loader=DataLoader(range(n),batch_size=spec['batch_size'],shuffle=True,generator=rng,num_workers=0)
-    monitor=SpectralPlateau(warm['stopping'],warm['max_steps']);rows=[];updates=0;exposures=0;stopped=False;started=time.monotonic()
+    fixed=warm['stopping']=={'kind':'fixed_steps'}
+    monitor=None if fixed else SpectralPlateau(warm['stopping'],warm['max_steps'])
+    rows=[];updates=0;exposures=0;stopped=False;started=time.monotonic()
     def evaluate(step):
         modes={m:m.training for m in model.modules()};zs=[];sums={k:0. for k in model.active_modalities};counts={k:0 for k in model.active_modalities}
         try:
@@ -40,8 +42,9 @@ def warmup_autoencoder(model, tensors, spec, seed, device, output, normalization
                     for name,loss in losses.items():
                         count=int(fields[name+'_observed'].sum());sums[name]+=float(loss)*count;counts[name]+=count
             latents=np.concatenate(zs);spectrum=latent_spectrum(latents,spec['codebook_size'],spec['num_hierarchies'])
-            stop=monitor.observe(step,spectrum)
+            stop=monitor.observe(step,spectrum) if monitor is not None else False
             row={'step':step,'head_mse':{k:sums[k]/counts[k] for k in sums},'latent_spectrum':spectrum,'spectral_plateau':stop}
+            row['weighted_reconstruction_mse']=sum(model.reconstruction_weights[k]*v for k,v in row['head_mse'].items())
             rows.append(row);_write(output/'learning-curves.json',rows)
             _event('multimodal_ae_probe',step=step,head_mse=row['head_mse'],active_modes=spectrum['aggregate_nominal_rate']['active_modes'],spectral_plateau=stop)
             return stop,latents
@@ -70,7 +73,7 @@ def warmup_autoencoder(model, tensors, spec, seed, device, output, normalization
         for m,mode in modes.items():m.training=mode
     books_after=state_digest({f'{i}.{k}':v for i,book in enumerate(model.quantization_layer_list) for k,v in book.state_dict().items()})
     if books_before!=books_after or any(book.is_initialized for book in model.quantization_layer_list):raise RuntimeError('continuous AE changed codebooks')
-    stop={'reason':'spectral_plateau' if stopped else 'max_steps','actual_steps':updates,'max_steps':warm['max_steps'],'criterion':warm['stopping']}
+    stop={'reason':'fixed_steps' if fixed else 'spectral_plateau' if stopped else 'max_steps','actual_steps':updates,'max_steps':warm['max_steps'],'criterion':warm['stopping']}
     state=neural_state(model);after=state_digest(state)
     torch.save({'model':state,'optimizer':optimizer.state_dict(),'seed':seed,'steps':updates,'spec':spec,
         'normalization':normalization,'quantization_enabled':False,'stopping':stop,
@@ -78,6 +81,7 @@ def warmup_autoencoder(model, tensors, spec, seed, device, output, normalization
         'rng_cuda':torch.cuda.get_rng_state_all() if device.startswith('cuda') else []},output/'autoencoder.pt')
     np.save(output/'latent-embeddings.npy',latents,allow_pickle=False)
     report={'seed':seed,'steps':updates,'item_exposures':exposures,'stopping':stop,'quantization_enabled':False,
+        'reconstruction_weights':model.reconstruction_weights,
         'initial_neural_state_sha256':initial,'neural_state_sha256':after,'codebooks_unchanged':True,
         'final_head_mse':rows[-1]['head_mse'],'seconds':time.monotonic()-started,
         'checkpoint_sha256':file_sha256(output/'autoencoder.pt'),

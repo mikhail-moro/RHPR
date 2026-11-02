@@ -16,6 +16,9 @@ from rhpr.gr.movie_data import load_temporal_users, temporal_examples, case_dige
 
 
 def validate(config):
+    if config.get('kind') == 'gr_movie_graph_loss':
+        from rhpr.gr.movie_graph_loss import validate as validate_graph_loss
+        return validate_graph_loss(config)
     if config.get('kind') == 'gr_movie_controls':
         from rhpr.gr.movie_controls import validate_controls
         return validate_controls(config)
@@ -168,7 +171,7 @@ def run_worker(plan_path, slot):
             if config.get('kind') == 'gr_movie_controls':
                 from rhpr.gr.movie_controls import run_control_trial
                 fit = run_control_trial
-            if config.get('kind') in {'gr_movie_multimodal', 'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder'}:
+            if config.get('kind') in {'gr_movie_multimodal', 'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder', 'gr_movie_graph_loss'}:
                 from rhpr.gr.movie_multimodal import run_multimodal_trial
                 fit = run_multimodal_trial
             result = fit(trial, config, plan, users, plan['source'], device)
@@ -199,7 +202,7 @@ def run_movie_suite(config, output):
     data_root = resolve_dataset_directory(config['movie_input']['path'])
     verify_resources(data_root, config['movie_input']['manifest_sha256'])
     modality_root = None
-    if config.get('kind') in {'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder', 'gr_movie_controls'}:
+    if config.get('kind') in {'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder', 'gr_movie_controls', 'gr_movie_graph_loss'}:
         from rhpr.gr.movie_multimodal import frozen_control_input
         modality_root = frozen_control_input(config['modality_input'])
     elif config.get('kind') == 'gr_movie_multimodal':
@@ -231,7 +234,7 @@ def run_movie_suite(config, output):
         if observed != expected:
             raise ValueError(f'generator initialization differs for pipeline seed {seed}')
         expected_by_seed[str(seed)] = observed
-    if config.get('kind') in {'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder', 'gr_movie_controls'}:
+    if config.get('kind') in {'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder', 'gr_movie_controls', 'gr_movie_graph_loss'}:
         if file_sha256(modality_root / 'features.npz') != config['modality_input']['features_sha256']:
             raise ValueError('frozen modality vectors differ from completed direct-training control')
         if json.loads((modality_root / 'source-ids.json').read_text()) != source_ids:
@@ -260,8 +263,13 @@ def run_movie_suite(config, output):
     metrics = {'experiment': config['name'], 'seed': config['seed'], 'trials': len(summary['results']),
                'items': len(source_ids), 'users': len(users), 'epochs_per_trial': 20,
                'pipeline_seed_count': len(expected_by_seed)}
+    if config.get('kind')=='gr_movie_graph_loss':
+        metrics.pop('epochs_per_trial');metrics['max_epochs']=config['training']['max_epochs']
     for name, result in summary['results'].items():
         metrics.update({f'{name}_test_{k.replace("@", "")}': v for k, v in result['test'].items()})
+        if config.get('kind')=='gr_movie_graph_loss':
+            metrics.update({name+'_epochs':result['selection']['training_epochs'],name+'_best_epoch':result['selection']['best_epoch'],
+                name+'_graph_reconstruction_weight':result['reconstruction_weights']['people'],name+'_budget_censored':result['budget_censored']})
     return metrics
 
 

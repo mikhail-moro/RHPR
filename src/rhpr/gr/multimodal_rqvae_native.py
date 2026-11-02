@@ -1,4 +1,5 @@
 """Per-modality MLP heads around the pinned GRID residual quantizer."""
+import math
 import torch
 from torch import nn
 from lightning.pytorch.trainer.states import TrainerFn
@@ -6,10 +7,17 @@ from src.modules.clustering.residual_quantization import ResidualQuantization
 
 
 class MultimodalResidualQuantization(ResidualQuantization):
-    def __init__(self, modality_schema, active_modalities, head_dim=128, head_hidden=256, **kwargs):
+    def __init__(self, modality_schema, active_modalities, head_dim=128, head_hidden=256, reconstruction_weights=None, **kwargs):
         super().__init__(**kwargs)
         self.modality_schema = dict(modality_schema)
         self.active_modalities = tuple(active_modalities)
+        weights = dict(reconstruction_weights or {})
+        if (set(weights)-set(modality_schema) or any(isinstance(v,bool) or not isinstance(v,(int,float))
+                or not math.isfinite(v) or v<0 for v in weights.values())):
+            raise ValueError('modality reconstruction weights must be finite nonnegative known-channel values')
+        self.reconstruction_weights = {name:float(weights.get(name,1.)) for name in modality_schema}
+        if not any(self.reconstruction_weights[name]>0 for name in self.active_modalities):
+            raise ValueError('at least one active reconstruction weight must be positive')
         self.encoder_heads = nn.ModuleDict({name: nn.Sequential(
             nn.Linear(dim, head_hidden), nn.ReLU(), nn.Linear(head_hidden, head_dim))
             for name, dim in modality_schema.items()})
@@ -55,7 +63,10 @@ class MultimodalResidualQuantization(ResidualQuantization):
             prediction = self.decoder_heads[name](shared)
             losses[name] = ((prediction[valid] - fields[name][valid]).square().mean()
                             if valid.any() else prediction.sum() * 0.)
-        return sum(losses.values()), losses
+        # Preserve the historical operation order for the equal-weight control.
+        total = (sum(losses.values()) if all(self.reconstruction_weights[k]==1 for k in losses)
+                 else sum(self.reconstruction_weights[k]*v for k,v in losses.items()))
+        return total, losses
 
     def model_step(self, model_input):
         fields = {k: v.to(self.device) for k, v in model_input.transformed_features.items()}

@@ -1,8 +1,9 @@
 """Movie metadata/poster/plot/people ladder with a shared residual bottleneck."""
 import gc,json,random,time
+import copy
 from pathlib import Path
 import numpy as np
-from rhpr.gr.experiment import _write
+from rhpr.gr.experiment import _write,_event
 from rhpr.gr.movie_data import temporal_examples
 from rhpr.gr.data import file_sha256
 
@@ -67,7 +68,12 @@ def run_multimodal_trial(trial, config, plan, users, source, device):
     from rhpr.gr.sid import SidIndex
     from rhpr.gr.sid_study import state_digest
     from rhpr.gr.experiment import _train_generator,_evaluate
-    seed=trial['seed'];config={**config,'seed':seed};root=Path(plan['output'])/'trials'/trial['id'];root.mkdir(parents=True,exist_ok=True)
+    seed=trial['seed'];config=copy.deepcopy(config);config['seed']=seed
+    graph_loss=config.get('kind')=='gr_movie_graph_loss'
+    if graph_loss:
+        config['quantizer']['reconstruction_weights']=trial['reconstruction_weights']
+        _event('movie_graph_loss_start',trial=trial['id'],reconstruction_weights=trial['reconstruction_weights'],ae_fixed_steps=config['quantizer']['ae_warmup']['max_steps'])
+    root=Path(plan['output'])/'trials'/trial['id'];root.mkdir(parents=True,exist_ok=True)
     random.seed(seed);np.random.seed(seed);torch.manual_seed(seed)
     data=Path(plan['modality_root'])
     ids=json.loads((data/'source-ids.json').read_text())
@@ -89,12 +95,19 @@ def run_multimodal_trial(trial, config, plan, users, source, device):
     initial=state_digest(dict(model.named_parameters()))
     if initial!=plan['initial_state_sha256_by_seed'][str(seed)]:raise ValueError('generator initial weights differ within seed')
     _write(root/'generator.json',{'parameters':sum(p.numel() for p in model.parameters()),'initial_state_sha256':initial,'config':config['generator']})
-    selection=_train_generator(model,users,index,config,root,device,example_builder=temporal_examples)
-    if selection['training_epochs']!=20 or selection['validation_checks']!=4:raise RuntimeError('incomplete20epoch multimodal fit')
+    if graph_loss:
+        from rhpr.gr.movie_graph_loss import train_generator
+        selection=train_generator(model,users,index,config,root,device)
+    else:
+        selection=_train_generator(model,users,index,config,root,device,example_builder=temporal_examples)
+        if selection['training_epochs']!=20 or selection['validation_checks']!=4:raise RuntimeError('incomplete20epoch multimodal fit')
     examples=temporal_examples(users,config['data']['history_items'],'test')
     metrics,predictions,scores=_evaluate(model,examples,index,config['training']['evaluation_batch_size'],device,precision='fp32')
     np.savez_compressed(root/'test-predictions.npz',semantic_ids=predictions,scores=scores,user_ids=examples[1],target_item_ids=examples[2])
     result={'trial':trial['id'],'stage':trial['stage'],'seed':seed,'initial_state_sha256':initial,
         'active_modalities':trial['modalities'],'quantizer_steps':report['steps'],'selection':selection,'test':metrics}
+    if graph_loss:
+        result.update(reconstruction_weights=report['reconstruction_weights'],ae_steps=report['warmup']['steps'],
+            budget_censored=selection['stopping_reason']=='epoch_limit')
     _write(root/'trial-result.json',result);del model;gc.collect()
     return result
