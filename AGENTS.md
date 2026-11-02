@@ -2,6 +2,22 @@
 
 ## Research status
 
+- User authorized full-training replication on existing seeds101/202, 2026-11-02.
+  Eight frozen-index continuations: nopeople/graph/names TIGER + SASRec per seed.
+  Config movielens100k_full_training_extra_seeds_2t4.json; doc
+  gr-movielens100k-full-training-extra-seeds.md. Resume original epoch20/6680
+  checkpoints with Adam/scaler/RNG/prior best/history; no encoder/AE/RQ/index
+  retraining. Same seed42 pilot policy: min30/cap100, val every new epoch,
+  ES20, LR halve after5 bad checks from21, floor1e-5/threshold1e-4.
+  Same data/cases/architectures/batches/precision; 2T4, 3TIGER+1SAS per worker.
+  Source120files/642053025bytes verified; per-trial seed/lineage and constructor
+  initialization checked. Compare init within predictor+seed, not across seeds.
+  Private target carasik/rhpr-ml100k-full-training-extra-seeds, one new session,
+  ~1.5–2h plus setup/queue if similar stopping; later bests may take longer.
+  Combine with fixed seed42 results for three-seed report, not test-selected
+  epochs/seeds. No HPO/retries/additional seeds/TPU/Telegram; preserve old runs
+  and paused TPU changes. Submission receipt will record exact commit/status.
+
 - Full-training pilot COMPLETE, collected 2026-11-02 MSK. Private
   carasik/rhpr-ml100k-full-training-seed42 v1; executable ce0efd6d6816a24d5710d5baeda706abc3d8e8cb.
   Four frozen-index continuations, seed42 only, body48.23min, all early-stopped.

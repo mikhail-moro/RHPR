@@ -5,6 +5,51 @@ CONFIG=ROOT/'experiments/movielens100k_full_training_seed42_2t4.json'
 
 
 class MovieContinuationTest(unittest.TestCase):
+    def test_extra_seeds_retain_all_four_variants_and_reject_lineage_mismatches(self):
+        from rhpr.gr.movie_continuation import validate
+        from rhpr.gr.ae_suite import assignments
+        c=json.loads((ROOT/'experiments/movielens100k_full_training_extra_seeds_2t4.json').read_text());validate(c)
+        jobs=assignments(c,2)
+        self.assertEqual([[t['predictor'] for t in j['trials']].count('tiger') for j in jobs],[3,3])
+        self.assertEqual({t['seed'] for t in c['trials']},{101,202})
+        for mutation in ['seed','source_trial','predictor','parent','missing_variant','initialization']:
+            bad=copy.deepcopy(c)
+            if mutation=='seed':bad['trials'][0]['seed']=202
+            elif mutation=='source_trial':bad['trials'][0]['source_trial']='seed42_stage_03'
+            elif mutation=='predictor':bad['trials'][0]['predictor']='sasrec'
+            elif mutation=='parent':bad['trials'][0]['parent']='controls'
+            elif mutation=='missing_variant':bad['trials'].pop()
+            else:bad['compare_initialization_by_seed']=False
+            with self.subTest(mutation=mutation),self.assertRaises(ValueError):validate(bad)
+
+    def test_run_trial_uses_checkpoint_seed_for_both_predictors_and_initialization_groups(self):
+        import numpy as np,torch
+        from unittest.mock import patch
+        from rhpr.gr.movie_continuation import run_trial
+        from rhpr.gr.sid import SidIndex
+        from rhpr.gr.sid_study import state_digest
+        base=json.loads(CONFIG.read_text())
+        for seed,predictor in [(101,'tiger'),(202,'sasrec')]:
+            with self.subTest(seed=seed,predictor=predictor),tempfile.TemporaryDirectory(dir='/tmp') as tmp:
+                root=Path(tmp);source=root/'parent';source.mkdir();c=copy.deepcopy(base);c['seed']=seed;c['quantizer']={'codebook_size':256}
+                model=torch.nn.Linear(2,2);initial=state_digest(dict(model.named_parameters()))
+                (source/'generator.json').write_text(json.dumps(dict(initial_state_sha256=initial)))
+                torch.save(dict(epoch=20,updates=6680,config=c),source/'generator-last.pt')
+                codes=np.array([[0,0,0],[1,0,0]])
+                np.save(source/'semantic-codes.npy',codes);np.save(source/'semantic-ids.npy',SidIndex(codes,width=256).sids)
+                trial=dict(id=f'{predictor}_seed{seed}',seed=seed,predictor=predictor,parent='ae',source_trial='source',files={})
+                plan=dict(directories={trial['id']:str(source)},output=str(root/'out'),source='grid')
+                selection=dict(training_epochs=30,stopping_reason='early_stopping')
+                example=(None,np.array([1]),np.array([0]))
+                with patch('rhpr.gr.grid.build_grid_generator',return_value=model) as tiger,patch('rhpr.gr.movie_sasrec.build_movie_sasrec',return_value=model) as sasrec,patch('rhpr.gr.experiment._train_generator',return_value=selection) as train,patch('rhpr.gr.movie_data.temporal_examples',return_value=example),patch('rhpr.gr.experiment._evaluate',return_value=({'ndcg@10':0.1},np.zeros((1,1),dtype=int),np.zeros((1,1)))):
+                    result=run_trial(trial,c,plan,[],'cpu')
+                    builder=tiger if predictor=='tiger' else sasrec
+                    self.assertEqual(builder.call_args.args[2 if predictor=='tiger' else 1],seed)
+                    self.assertEqual(train.call_args.args[3]['seed'],seed)
+                    self.assertEqual(result['seed'],seed)
+                    self.assertEqual(result['initialization_group'],f'{predictor}_seed{seed}')
+                    self.assertEqual(train.call_args.kwargs['resume_from'],source)
+
     def test_four_frozen_seed42_continuations_and_bounded_policy(self):
         from rhpr.gr.movie_continuation import validate
         from rhpr.gr.ae_suite import assignments

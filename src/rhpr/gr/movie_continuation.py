@@ -1,4 +1,4 @@
-"""Continue four verified seed42 predictors with their frozen historical indices."""
+"""Continue verified predictors with their frozen historical indices."""
 import argparse,copy,gc,json,os,shutil,traceback
 from pathlib import Path
 import numpy as np
@@ -7,15 +7,26 @@ from rhpr.gr.experiment import _write,_event
 
 
 def validate(config):
-    if (config['seed']!=42 or len(config['trials'])!=4 or config['training']['max_epochs']!=100
+    seeds=config.get('continuation_seeds',[config['seed']])
+    expected={f'{name}_seed{seed}' for seed in seeds for name in ['tiger_no_people','tiger_graph','tiger_names','sasrec']}
+    if (seeds not in [[42],[101,202]] or config['seed']!=seeds[0]
+            or len(config['trials'])!=4*len(seeds) or config['training']['max_epochs']!=100
             or config['training']['min_epochs']!=30 or config['training']['validation_interval']!=1
             or config['training']['patience_epochs']!=20
             or config['training']['scheduler']!={'kind':'reduce_on_plateau','factor':.5,'patience_epochs':5,'min_lr':1e-5,'threshold':1e-4,'start_epoch':21}
             or config['data']['history_items']!=20 or not config['evaluation']['save_validation_losses']
-            or {t['id'] for t in config['trials']}!={'tiger_no_people_seed42','tiger_graph_seed42','tiger_names_seed42','sasrec_seed42'}
-            or any(t['seed']!=42 for t in config['trials']) or config['compare_initialization_by_shape'] is not True):
-        raise ValueError('continuation differs from approved four-model seed42 pilot')
+            or {t['id'] for t in config['trials']}!=expected
+            or config.get('compare_initialization_by_seed') is not True
+            or config['compare_initialization_by_shape'] is not True):
+        raise ValueError('continuation differs from approved four-model seed42 pilot or seeds101/202 replication')
     for trial in config['trials']:
+        seed=trial['seed'];sas=trial['id']==f'sasrec_seed{seed}'
+        source=(f'sasrec_id_seed{seed}' if sas else f'tiger_names_seed{seed}' if trial['id']==f'tiger_names_seed{seed}'
+                else f'seed{seed}_stage_03' if trial['id']==f'tiger_no_people_seed{seed}' else f'seed{seed}_stage_04')
+        if (seed not in seeds or trial['id'] not in {f'{name}_seed{seed}' for name in ['tiger_no_people','tiger_graph','tiger_names','sasrec']}
+                or trial['predictor']!=('sasrec' if sas else 'tiger') or trial['source_trial']!=source
+                or trial['parent']!=('controls' if sas or trial['id']==f'tiger_names_seed{seed}' else 'ae')):
+            raise ValueError('continuation trial seed, predictor or parent lineage differs')
         required={'generator-last.pt','generator-best.pt','training-curves.json','training-selection.json','generator.json'}
         if trial['predictor']=='tiger':required.update({'semantic-codes.npy','semantic-ids.npy','sid-catalogue.json'})
         if not required<=trial['files'].keys() or any(len(h)!=64 or any(c not in '0123456789abcdef' for c in h) for h in trial['files'].values()):
@@ -53,8 +64,9 @@ def run_trial(trial,config,plan,users,device):
     from rhpr.gr.experiment import _train_generator,_evaluate
     source=Path(plan['directories'][trial['id']]);root=Path(plan['output'])/'trials'/trial['id'];root.mkdir(parents=True,exist_ok=True)
     checkpoint=torch.load(source/'generator-last.pt',map_location='cpu',weights_only=False)
-    if checkpoint['epoch']!=20 or checkpoint['updates']!=6680 or checkpoint['config']['seed']!=42:
-        raise ValueError('pilot must continue an intact20epoch seed42 fit')
+    seed=trial['seed']
+    if checkpoint['epoch']!=20 or checkpoint['updates']!=6680 or checkpoint['config']['seed']!=seed:
+        raise ValueError('continuation must resume an intact20epoch fit with the declared seed')
     c=copy.deepcopy(checkpoint['config']);c['training'].update(config['training']);c['evaluation'].update(config['evaluation'])
     if c['data']!=config['data'] or c['generator']!=config['generator']:raise ValueError('source predictor/data differs')
     for name in ['generator.json','quantizer.json','representation.json','sid-diagnostics.json','sid-catalogue.json','semantic-codes.npy','semantic-ids.npy']:
@@ -62,9 +74,9 @@ def run_trial(trial,config,plan,users,device):
     if trial['predictor']=='tiger':
         index=SidIndex(np.load(source/'semantic-codes.npy'),width=c['quantizer']['codebook_size'])
         np.testing.assert_array_equal(index.sids,np.load(source/'semantic-ids.npy'))
-        model=build_grid_generator(index.sids,c['generator'],42,device,plan['source'])
+        model=build_grid_generator(index.sids,c['generator'],seed,device,plan['source'])
     else:
-        index=ItemIDIndex(c['data']['items']);model=build_movie_sasrec(c,42,device)
+        index=ItemIDIndex(c['data']['items']);model=build_movie_sasrec(c,seed,device)
     initial=state_digest(dict(model.named_parameters()));original=json.loads((source/'generator.json').read_text())
     if original['initial_state_sha256']!=initial:raise ValueError('predictor constructor differs from saved architecture')
     del checkpoint;gc.collect()
@@ -74,8 +86,8 @@ def run_trial(trial,config,plan,users,device):
     examples=temporal_examples(users,c['data']['history_items'],'test')
     metrics,predictions,scores=_evaluate(model,examples,index,c['training']['evaluation_batch_size'],device,'fp32')
     np.savez_compressed(root/'test-predictions.npz',**{getattr(index,'prediction_array_name','semantic_ids'):predictions},scores=scores,user_ids=examples[1],target_item_ids=examples[2])
-    result=dict(trial=trial['id'],seed=42,predictor=trial['predictor'],initial_state_sha256=initial,
-        initialization_group=trial['predictor']+'_seed42',selection=selection,test=metrics,
+    result=dict(trial=trial['id'],seed=seed,predictor=trial['predictor'],initial_state_sha256=initial,
+        initialization_group=trial['predictor']+f'_seed{seed}',selection=selection,test=metrics,
         index_frozen=True,budget_censored=selection['training_epochs']==100 and selection['stopping_reason']=='epoch_limit')
     _write(root/'trial-result.json',result)
     return result
@@ -128,7 +140,7 @@ def run_continuation(config,output):
     plan=dict(config=config,output=str(output),source=str(source),data_root=str(data),source_ids=ids,directories=directories,assignments=jobs)
     path=output/'workers/plan.json';_write(path,plan)
     result=launch_workers(path,worker_module='rhpr.gr.movie_continuation',event_prefix='movie_continuation')
-    metrics=dict(experiment=config['name'],seed=42,trials=len(result['results']),items=len(ids),users=len(users),resume_epoch=20,max_epochs=100)
+    metrics=dict(experiment=config['name'],seed=config['seed'],seeds=len(config.get('continuation_seeds',[config['seed']])),trials=len(result['results']),items=len(ids),users=len(users),resume_epoch=20,max_epochs=100)
     for name,r in result['results'].items():
         metrics.update({name+'_test_'+k.replace('@',''):v for k,v in r['test'].items()})
         for key in ['training_epochs','best_epoch','continuation_epochs','optimizer_updates']:metrics[name+'_'+key]=r['selection'][key]

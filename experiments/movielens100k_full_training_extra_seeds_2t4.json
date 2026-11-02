@@ -1,0 +1,320 @@
+{
+  "seed": 101,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-ml100k-continuation-extra-seeds"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 1,
+    "batch_size": 256,
+    "physical_batch_size": 128,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 100,
+    "min_epochs": 30,
+    "patience": 5,
+    "validation_interval": 1,
+    "evaluation_batch_size": 32,
+    "max_seconds": 7200,
+    "sampling": "strict_timestamp_prefixes",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 20,
+    "scheduler": {
+      "kind": "reduce_on_plateau",
+      "factor": 0.5,
+      "patience_epochs": 5,
+      "min_lr": 1e-05,
+      "threshold": 0.0001,
+      "start_epoch": 21
+    }
+  },
+  "data": {
+    "version": "ML100K-TMDB-Zenodo-exact-bridge",
+    "items": 1273,
+    "users": 943,
+    "history_items": 20,
+    "split": "timestamp_group_leave_two",
+    "train_events": 87541,
+    "train_examples": 85470
+  },
+  "movie_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-ml100k-text-ladder-input",
+    "manifest_sha256": "52fa57696f77bc0d137b1d042684afb83e4d17c068fe78c9c5502d573cf84028"
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml100k-text-ladder-input"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-ml100k-multimodal-ae",
+      "carasik/rhpr-ml100k-names-sasrec-controls"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "evaluation": {
+    "test_after_selection": true,
+    "save_validation_predictions": true,
+    "selection_metric": "validation item NDCG@10",
+    "save_validation_losses": true
+  },
+  "sasrec": {
+    "d_model": 256,
+    "n_heads": 4,
+    "n_layers": 7,
+    "ffn_multiplier": 3,
+    "dropout": 0.1
+  },
+  "kind": "gr_movie_continuation",
+  "name": "ml100k-frozen-index-generator-continuation-seeds101-202",
+  "compare_initialization_by_shape": true,
+  "compare_initialization_by_seed": true,
+  "parents": {
+    "ae": {
+      "path": "/kaggle/input/notebooks/carasik/rhpr-ml100k-multimodal-ae",
+      "legacy_path": "/kaggle/input/rhpr-ml100k-multimodal-ae",
+      "manifest_sha256": "0d493f263899475acc9b51c5030b878d8ff6220b9eb6389efd4895202a790fc3",
+      "git_sha": "ba160aac3155831e06286b6e6924eb720b82dfc2"
+    },
+    "controls": {
+      "path": "/kaggle/input/notebooks/carasik/rhpr-ml100k-names-sasrec-controls",
+      "legacy_path": "/kaggle/input/rhpr-ml100k-names-sasrec-controls",
+      "manifest_sha256": "c9704f70b24bfd396f1cf5fdfb653f31bb4f4ad28d9efc98b1cba95694af64c9",
+      "git_sha": "8c9200133eee6473776836e3b5344e02446c05a6"
+    }
+  },
+  "trials": [
+    {
+      "id": "tiger_no_people_seed101",
+      "parent": "ae",
+      "source_trial": "seed101_stage_03",
+      "predictor": "tiger",
+      "seed": 101,
+      "files": {
+        "generator-last.pt": "91a4a4e8a5b441a96d30f75ebf8e8ca351dd870a9cb1df9a8cfacf910827faa5",
+        "validation-epoch-020.npz": "92bed539b7819341e117dfadb21be83bc7fdcfe9220d410b3f4ac1eb6813ee80",
+        "validation-epoch-015.npz": "13e2dc6d26e74312b9581ad04c91d7dda1e52283492645343c2d2a8ebd95b76c",
+        "trial-result.json": "92d121940fc961ee7ed63fd6ee1976aff21f96ba0e2f1c28951cdfe6e24766ec",
+        "validation-epoch-010.npz": "19efbf5ddccc6e056b083bd03c0d92c917a4b4375fee4dfd0ee5938dff5e08e3",
+        "validation-epoch-005.npz": "0558f0c5a3edb5b6c4bc8f475f7c8a602ff5b643cbbb34972c3e233fc678eb2c",
+        "generator-best.pt": "85682972fbfd7fd679ef3c891bf80cd7735451f43a118002d5090f9b00c2bae2",
+        "training-selection.json": "6242196571d3ebb4cad50280119bcc6d085367086c6d52c8ba973048e560a56d",
+        "sid-diagnostics.json": "bf6060868731ee1b5983309a50fb142410f5f1fff2b6f27e1974668437f572a0",
+        "training-curves.json": "a1a57a8afbf1db88d8a4855314c2f192784be7cf6157b13d84e9e471de21fa9c",
+        "semantic-ids.npy": "4822fcfd53978326ef33f0a93309d4dfb2a7e2bb92aa29b96dc01aa3c14c2c36",
+        "semantic-codes.npy": "fc41803122c4e8012085f574f5d75909a2479a013aa7bf278e46480f865bd3d6",
+        "sid-catalogue.json": "56deec2fe849a58e08c5d92a87d05a34035f21344e3506474192b5d2bbffbe54",
+        "representation.json": "3b035201a13473b50c2fcf0cb7b0a48c6b5ea15a301f36fff3b9544d31cc51a9",
+        "quantizer.json": "699e0a71b7b299794caadcfcd9a422c0d2a6d432fe8b5dd726a3744e6f53cae7",
+        "generator.json": "62358086e91096738a5cbd19623619fcbd7ea38edf8a5e358649939d42234bd5"
+      }
+    },
+    {
+      "id": "tiger_graph_seed101",
+      "parent": "ae",
+      "source_trial": "seed101_stage_04",
+      "predictor": "tiger",
+      "seed": 101,
+      "files": {
+        "generator-last.pt": "8de050bdf84e560d0bf15c4e57a70eba4c7fa18f98ae822b35f35a91d5666649",
+        "validation-epoch-010.npz": "8f943ee60f548a05db496e7c578ac126bc8de73a614843242ac5ea89bf548176",
+        "validation-epoch-020.npz": "c851928b4799a7a9a769f41d70cfc35cd0ff842b5c2f67707b34eabaac0b8ceb",
+        "validation-epoch-015.npz": "6ed9b794f4da540330fd6c3df3f89844a357b9134308052509f257e13f0f8c4c",
+        "validation-epoch-005.npz": "59b4bf3b5448ef11e32e0a35a44eb05b18afeddf8a87a75b878ecb23c0aac360",
+        "trial-result.json": "607d7e4c9743fc602c32ad89a367fc0722e3b12b8ec5686d685345649bf5dcba",
+        "training-selection.json": "c7400e60a7fa69441bf621c3afe0d3cea914849efe21bea2cd01397238ac3dc5",
+        "training-curves.json": "fbaae091b3d28d0871ce71ad44464b366a44f287fb05831d66e307c27837d43a",
+        "sid-diagnostics.json": "7454b1fccb77db4530cfc228f990eeb4b3a6633184a20a4bc09f960b81477a96",
+        "sid-catalogue.json": "56deec2fe849a58e08c5d92a87d05a34035f21344e3506474192b5d2bbffbe54",
+        "generator-best.pt": "8bdb345cfc6585e719ed00a6e89c29e11d4c17cce3a94e5246de2dc86cc46deb",
+        "semantic-ids.npy": "d341ea804aeb5b62a83635bca5ab1a4dc5b802cc9a224f95d13b93f1aaaec018",
+        "semantic-codes.npy": "b154ccb393198d2f853f42fe52e4c2dc2efa52382789061e9b3a7a2c73b00adb",
+        "representation.json": "2bbfc3732682952df6922898e8d17f91e2c0d529aa414eb583af5a5b26e4847e",
+        "quantizer.json": "aa0f42971842eab8c7ca1e386fc9fa461d4cefc79f8e19e226bde21427d87133",
+        "generator.json": "62358086e91096738a5cbd19623619fcbd7ea38edf8a5e358649939d42234bd5"
+      }
+    },
+    {
+      "id": "tiger_names_seed101",
+      "parent": "controls",
+      "source_trial": "tiger_names_seed101",
+      "predictor": "tiger",
+      "seed": 101,
+      "files": {
+        "generator-last.pt": "43d722c7cca0011c4e553b0315a94ed8ae09fef930ed350580d0a5333be13e79",
+        "validation-epoch-020.npz": "888c8e821edf7c2fddcbcfffc3e45db72142165f101441c795b6bc5a4628e668",
+        "validation-epoch-015.npz": "66748fc77b5f88708987b259bef95729381711431343cf806f278090d75e9672",
+        "validation-epoch-005.npz": "9b5b4fb2b8f8aeb2ef1d9c25e001a78c5de59865377df49e5664a679e3f420d4",
+        "validation-epoch-010.npz": "b5e86d0659096684e34b13fa4720dbc1eeef7df9fd9e8af2e4bf62818128225a",
+        "trial-result.json": "ec95cceb2427c597a75e5c7135d6d86377499d75fcf397d6f20e97b16b124e83",
+        "training-selection.json": "4c73ac1ce368acb0c05404d86f274b25653a3944fb4d429da74f80512bf6d522",
+        "training-curves.json": "4409198696e47c032cf49c2390d5a904018b0e41c559101ea8fa725c727834af",
+        "sid-diagnostics.json": "31280957a2cfd02d5e4720dc3ef103beb499b87674bf97deacddd6628e22bfc9",
+        "sid-catalogue.json": "56deec2fe849a58e08c5d92a87d05a34035f21344e3506474192b5d2bbffbe54",
+        "generator-best.pt": "de27be1dcce6f038afb3185ddfe4f13a45b89d567e3c7e048711af14811df1c8",
+        "semantic-ids.npy": "32a29817a09ec79417445acc6c5678fa25bc462f7710d54013974cef27edc737",
+        "semantic-codes.npy": "95eac68a13434ecb0ebc1feca06a3b6f1d0a1ab8e85f39b4fd872e4a97452f8a",
+        "representation.json": "a2dbbf8fb3cd94c1f93ee42cbf5166efc6e1de26c5b77996feed69c1eb3337be",
+        "quantizer.json": "9e45b991ac5bf86dc784e1761ae40373fc948b8df0d6fc629ecb176efd007db1",
+        "generator.json": "62358086e91096738a5cbd19623619fcbd7ea38edf8a5e358649939d42234bd5"
+      }
+    },
+    {
+      "id": "sasrec_seed101",
+      "parent": "controls",
+      "source_trial": "sasrec_id_seed101",
+      "predictor": "sasrec",
+      "seed": 101,
+      "files": {
+        "generator-last.pt": "24df0a37bfb8e45575d5ea8b33777b788a719f8b0b726b836f799b576b687f6a",
+        "validation-epoch-020.npz": "42b9b5209036218debed7cff0c73fc84280e5acc356ee587fcbb5675f5e74afb",
+        "generator-best.pt": "3edfe71eebde398af11bbafa1a65d7b24415acbe1307d94ba95a410e6a59f447",
+        "validation-epoch-015.npz": "44193694df34fd5841177461d7f45f7a2d2e5cac354c83ed20296e8956d11fb2",
+        "validation-epoch-010.npz": "2aa10b22275724b54b32df5d2873e18f2266502d77141047b811fc844890f0c8",
+        "validation-epoch-005.npz": "b5edbe3250060a4cbd5305a2f5bed1cef43d50b00d348e5ec51d5d3ffd11a3d6",
+        "trial-result.json": "ba5b9ab0fa0d2a8f86432252f1e717a3ae8b90e57fb8c399ce38fcd20613c4b4",
+        "training-selection.json": "2280bd291f205666a6414c8f14aebe40cb3dffb6ee88182f808aa2a9ceb7b77f",
+        "training-curves.json": "bb461cdb4e5fc6871735ab65539f4b8dec70b16d5f65dd21fccb93ce6c562d7d",
+        "generator.json": "f6244175f0913fcc2fc10ffd438b7b36b960472ef351b1e1e052afec7db11347"
+      }
+    },
+    {
+      "id": "tiger_graph_seed202",
+      "parent": "ae",
+      "source_trial": "seed202_stage_04",
+      "predictor": "tiger",
+      "seed": 202,
+      "files": {
+        "generator-last.pt": "1b7143c528a2fc158dd972dfa79476b5597c485249ac83f96f2ca00f7de5cd1d",
+        "validation-epoch-010.npz": "219a4c871c4bb20a989dd5dea6c727c087d21984a5c6c462c1ed4c05f49bb21c",
+        "validation-epoch-020.npz": "064a793cd7ed268b4a018d64e8516941d8a14609b0fe2c1d25d7ef7c68395cb1",
+        "validation-epoch-015.npz": "6e29319bf5c6841c449b6eeffab8adc77cb75015ee7aab3f2bbd921ef91fb77b",
+        "validation-epoch-005.npz": "e1ed78d44fd9574f288f6efe42039ec1738567c36f485640d37a29400cc3e4de",
+        "trial-result.json": "d9ae2b7c22092adad6c49bdba4323be4a30e74c21061f6dace4087fca6935140",
+        "training-selection.json": "b8103d2a9cff8898ab63d6278279ecee290d980e10c9e34063f00574811b4159",
+        "training-curves.json": "747af8778e6ab0694ceb35de406bed2b4e210cfb9b16da99077e5c1ad07b3935",
+        "sid-diagnostics.json": "aacb569d3914f2437a9f2bf69ed5bd38a60743ae275f72d30f8b9809c7ecf94d",
+        "sid-catalogue.json": "56deec2fe849a58e08c5d92a87d05a34035f21344e3506474192b5d2bbffbe54",
+        "generator-best.pt": "1a0cb1e18ce6a434486bf627d9ed63739f29479ad0e5ad5091d893348dfef50c",
+        "semantic-ids.npy": "86e968080f096de71ddc0c4eb728fad5b53f0c393fc45365ed53ccf4f5c0c202",
+        "semantic-codes.npy": "81653576cc03dd26465cef93f0d3a87f97b224aff1f21e36588715a6d7c84c9d",
+        "representation.json": "2bbfc3732682952df6922898e8d17f91e2c0d529aa414eb583af5a5b26e4847e",
+        "quantizer.json": "8d67d2585119a2560839a44ada227cb731ca38438e1d93c1ae3e9634044a3205",
+        "generator.json": "5476dc307a7a9b97f08104dad201d70a1eef4cb7b3b84b2824e11586caccb459"
+      }
+    },
+    {
+      "id": "tiger_no_people_seed202",
+      "parent": "ae",
+      "source_trial": "seed202_stage_03",
+      "predictor": "tiger",
+      "seed": 202,
+      "files": {
+        "generator-last.pt": "f10b416d998c3c6bb912fb94ea17b470f46e9ff2d9eb048bc8744c59115d8ad3",
+        "validation-epoch-020.npz": "11e0e4f63c447c916d5a5a7e9bf27112deb1d08af7181e45f5083d325d987e08",
+        "validation-epoch-015.npz": "3501bf66d54178affddfb36c5b0971ed9555853e185d2bc88dbd9b8f8928e5ee",
+        "trial-result.json": "a23f8d2ecabcda07a275fc5500c7b481c05e35bd06ae035ee244f084319dcb40",
+        "validation-epoch-010.npz": "15b3bedb71638f73cef9dd33384a9b8a1fc080ef30629ea4604d920a1c47eee4",
+        "validation-epoch-005.npz": "7af846473e9e8845138b04841e59272227623bbeae38ec3a98423c7d3119f2a3",
+        "generator-best.pt": "a0ab019cec5ca8b61eb59a21d2ab6b0c64d3119ae44ca619f60cbcd321f58a1a",
+        "training-selection.json": "b452efc1d26893994b1d5f30e49f23e41a9955597ff6582cffe2907968c82421",
+        "sid-diagnostics.json": "c48d6b6580af3d1a65c418f29be2bbb1e6110fa47585be89001121e2a3768af7",
+        "training-curves.json": "8c100c7da243ba055cfc68de5ee1926e9ff0a01e17a588a084018b3cd9745f56",
+        "semantic-ids.npy": "593e3782a3150f40fffa438ce6a431c695751355fd093e4f814fafc76402a412",
+        "semantic-codes.npy": "2eeae5cd2425ce03e6b570f85d4f0415ea4a3fb9781649c3b6c59d3a8718c159",
+        "sid-catalogue.json": "56deec2fe849a58e08c5d92a87d05a34035f21344e3506474192b5d2bbffbe54",
+        "representation.json": "3b035201a13473b50c2fcf0cb7b0a48c6b5ea15a301f36fff3b9544d31cc51a9",
+        "quantizer.json": "3bd69b7162d07c1da00f4287903115cb186b67b9d6a7d32d992bc0190be37827",
+        "generator.json": "5476dc307a7a9b97f08104dad201d70a1eef4cb7b3b84b2824e11586caccb459"
+      }
+    },
+    {
+      "id": "sasrec_seed202",
+      "parent": "controls",
+      "source_trial": "sasrec_id_seed202",
+      "predictor": "sasrec",
+      "seed": 202,
+      "files": {
+        "generator-last.pt": "43026501e6e4c873dca65f0c0d8728e433b651d5b42013dd4466bfddc0a42ec5",
+        "validation-epoch-020.npz": "2c86cdf4a06b78b18a4f036233e1a7f73d4b2878230f0f32bc199d85d976d6c4",
+        "generator-best.pt": "d96621f001fd01f134abbfca25d6df0569737c291fd603688a3c161313ef53ad",
+        "validation-epoch-015.npz": "a8486424cd6c6a3848de57f8d5eb39b9cd4463a8593e905cea9ace7d385836c4",
+        "validation-epoch-010.npz": "4114c41732c9c7a7306ca127a89ad94d27f72737545ce778361aa4b3fb24c260",
+        "validation-epoch-005.npz": "8757906ae527b1af1ec2c5f3415d94fd305bdda29d62cc6d81f0f2271360be9d",
+        "trial-result.json": "5d08227840ae55f23f8afd7c08b10eee569d66f9fe76c763c6c1c6b66442f89c",
+        "training-selection.json": "51291560cc9df374b864a94213161fa40924e93cfbec5cf90cfeb224b7a62134",
+        "training-curves.json": "7e8fa7c9f3cdae432f12ceea1af92500456670c20d5ec4e38cfc5352f008f50a",
+        "generator.json": "715ceba144a84c0420a499d6d26c67950f811bc23bc23a7c1b8119bbe85dfd74"
+      }
+    },
+    {
+      "id": "tiger_names_seed202",
+      "parent": "controls",
+      "source_trial": "tiger_names_seed202",
+      "predictor": "tiger",
+      "seed": 202,
+      "files": {
+        "generator-last.pt": "5618d1a355a9f470a45815147432d72bdec5afafbc9d234b4b4abbbd1080e9b7",
+        "validation-epoch-020.npz": "c8c2c5dbcd6afcbf7d6a7aad29c78f593c0185912c96e386716437c144c04e14",
+        "validation-epoch-015.npz": "7017556b04521051af05b9c59f954544937989a801fa62fe30a70e85a92beaed",
+        "validation-epoch-005.npz": "8b8a965c7ad422eab13b7b383892a626af1ecb19c9ecd755275d1ce7a424d1fe",
+        "validation-epoch-010.npz": "67139beda7b9ec62b93c94a23c5a0da19a3ae4372d466873b80cd92e09761964",
+        "trial-result.json": "cd0d04e4ce34cd1306fea1f66213e9db5a4bc7f847864f437423e284d0d11fc1",
+        "training-selection.json": "6371d1a5227ae161916db552cb2847c680c89076a35fe5d85d2a8e04e9775bf0",
+        "training-curves.json": "894ed7c8e0a1304437673ca01e9513995a49261eb7406f51eb8565853aba0b43",
+        "sid-diagnostics.json": "c35d687833e883df3471c6ec32d378a80e6b2398ea0211c1bcbe42473abefd29",
+        "sid-catalogue.json": "56deec2fe849a58e08c5d92a87d05a34035f21344e3506474192b5d2bbffbe54",
+        "generator-best.pt": "bef497680b7e3fd21b23aa042e819511f1082b7ae80821205741fa3e140cb27f",
+        "semantic-ids.npy": "a096f185023e09518ccb16da5d93100c971fc468032227c889e3359a23932e54",
+        "semantic-codes.npy": "01751cd6b3b184116f373e9ab879b2dd47cf2d7e767c3ac1a0033c527dd8fcda",
+        "representation.json": "a2dbbf8fb3cd94c1f93ee42cbf5166efc6e1de26c5b77996feed69c1eb3337be",
+        "quantizer.json": "27f45eefa31364846c7b02d6a6f5182df9243dd4e8e2de166d0d4a022329cee8",
+        "generator.json": "5476dc307a7a9b97f08104dad201d70a1eef4cb7b3b84b2824e11586caccb459"
+      }
+    }
+  ],
+  "continuation_seeds": [
+    101,
+    202
+  ]
+}
