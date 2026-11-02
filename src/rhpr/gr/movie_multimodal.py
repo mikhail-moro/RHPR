@@ -69,8 +69,9 @@ def run_multimodal_trial(trial, config, plan, users, source, device):
     from rhpr.gr.sid_study import state_digest
     from rhpr.gr.experiment import _train_generator,_evaluate
     seed=trial['seed'];config=copy.deepcopy(config);config['seed']=seed
-    roles=config.get('kind')=='gr_movie_people_roles'
-    graph_loss=config.get('kind') in {'gr_movie_graph_loss','gr_movie_people_roles'}
+    actor_screen=config.get('kind')=='gr_movie_actor_screen'
+    roles=config.get('kind') in {'gr_movie_people_roles','gr_movie_actor_screen'}
+    graph_loss=config.get('kind') in {'gr_movie_graph_loss','gr_movie_people_roles','gr_movie_actor_screen'}
     if roles:
         from rhpr.gr.movie_people_roles import role_columns
         columns=role_columns(trial['people_role'])
@@ -85,6 +86,10 @@ def run_multimodal_trial(trial, config, plan, users, source, device):
     if ids!=plan['source_ids']:raise ValueError('modality catalogue order differs from temporal cases')
     with np.load(data/'features.npz',allow_pickle=False) as z:
         arrays={k:z[k] for k in MODALITIES};masks={k:z[k+'_observed'] for k in MODALITIES}
+    if actor_screen and trial['people_source']=='actor_graph':
+        from rhpr.gr.movie_actor_screen import actor_features
+        arrays['people'],actor_provenance=actor_features(config['actor_graph_input'],ids)
+        _write(root/'actor-input-provenance.json',dict(input=config['actor_graph_input'],provenance=actor_provenance))
     if any(len(v)!=len(ids) for v in arrays.values()):raise ValueError('wrong modality catalogue size')
     _write(root/'representation.json',{'active_modalities':trial['modalities'],'frozen_sources':True,
         'source_features_sha256':file_sha256(data/'features.npz'),'provenance':json.loads((data/'provenance.json').read_text())})
@@ -100,7 +105,10 @@ def run_multimodal_trial(trial, config, plan, users, source, device):
     initial=state_digest(dict(model.named_parameters()))
     if initial!=plan['initial_state_sha256_by_seed'][str(seed)]:raise ValueError('generator initial weights differ within seed')
     _write(root/'generator.json',{'parameters':sum(p.numel() for p in model.parameters()),'initial_state_sha256':initial,'config':config['generator']})
-    if graph_loss:
+    if actor_screen:
+        from rhpr.gr.movie_actor_screen import train_generator
+        selection=train_generator(model,users,index,config,root,device)
+    elif graph_loss:
         from rhpr.gr.movie_graph_loss import train_generator
         selection=train_generator(model,users,index,config,root,device)
     else:
@@ -113,7 +121,8 @@ def run_multimodal_trial(trial, config, plan, users, source, device):
         'active_modalities':trial['modalities'],'quantizer_steps':report['steps'],'selection':selection,'test':metrics}
     if graph_loss:
         if roles:result['people_role']=trial['people_role']
+        if actor_screen:result.update(candidate=trial['candidate'],people_source=trial['people_source'],fixed_epoch_screen=True)
         result.update(reconstruction_weights=report['reconstruction_weights'],ae_steps=report['warmup']['steps'],
-            budget_censored=selection['stopping_reason']=='epoch_limit')
+            budget_censored=(not actor_screen and selection['stopping_reason']=='epoch_limit'))
     _write(root/'trial-result.json',result);del model;gc.collect()
     return result

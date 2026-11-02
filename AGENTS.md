@@ -2,6 +2,22 @@
 
 ## Research status
 
+- User authorized actor-only graph/loss screening,2026-11-02. Config
+  movielens100k_actor_screen_2t4.json; doc gr-movielens100k-actor-screen.md.
+  Two pipeline seeds42/101 ×5arms: nopeople,old sharedgraph cast(weight1),
+  new actor-only graph weights1/.3/.1. FIXED30epochs,val5/10/15/20/25/30,
+  constantLR/no scheduler, bestval selection, one test; primary tuning uses
+  meanval only. AE3500fixed/RQ3000, coefficientinbothstages, otherweights1;
+  selectedcast64Dnormalized/zero-padded/loss only64, same nativepins/schema.
+  NewDeepWalk oncastONLY:15998people/same1273movies, samegensim4.4 SGNS/walk
+  settings/seed42. CPU graphprepared once, savednewprivate dataset
+  carasik/rhpr-ml100k-actor-deepwalk, hashes/sourceorderverified. No interactions.
+  Tenfits/2T4, sameGPU perseed all5arms; private kernel target
+  carasik/rhpr-ml100k-actor-screen. No retries/extensions/newseeds/weights/TPU/
+  Telegram. Old fulltrainingcontrol notmatched to30epoch screen. Preserve all
+  prioroutputs/controls andpausedTPUedits. DirectorSD3seeds is not causal
+  proof of instability. No graph-identity advantage claimed.
+
 - People-role ablation COMPLETE,collected2026-11-02MSK. Private
   carasik/rhpr-ml100k-people-roles v1;9fits/3seeds/2T4,227.51min,allES,
   nonecapped/nofailures. Mean testNDCG10 nopeople .04703±.00269,

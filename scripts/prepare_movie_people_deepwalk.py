@@ -25,11 +25,12 @@ class PeopleWalks:
                 yield path
 
 
-def prepare(catalogue,output):
+def prepare(catalogue,output,role="all"):
+    if role not in {"all","cast"}:raise ValueError("unknown graph role")
     from gensim.models import Word2Vec
     if os.environ.get('PYTHONHASHSEED')!='42':raise ValueError('run with PYTHONHASHSEED=42 for reproducible SGNS initialization')
     rows=json.loads(gzip.decompress(catalogue.read_bytes()))
-    movies=[sorted({x['person_id'] for x in r['cast']+r['directors']}) for r in rows]
+    movies=[sorted({x['person_id'] for x in (r['cast']+r['directors'] if role=='all' else r['cast'])}) for r in rows]
     if any(not people for people in movies):raise ValueError('film without people')
     walks=PeopleWalks(movies);before=time.monotonic()
     model=Word2Vec(sentences=walks,vector_size=64,window=5,min_count=1,sg=1,negative=5,
@@ -38,18 +39,19 @@ def prepare(catalogue,output):
     pooled=[]
     for row in rows:
         pooled.append(np.concatenate([np.stack([model.wv[str(p['person_id'])] for p in row[field]]).mean(0)
+            if role=='all' or field=='cast' else np.zeros(64,dtype=np.float32)
             for field in ['cast','directors']]))
     np.save(output/'people.npy',np.asarray(pooled,dtype=np.float32),allow_pickle=False)
     np.savez_compressed(output/'people-vectors.npz',person_ids=np.array(walks.people),vectors=np.stack([model.wv[str(p)] for p in walks.people]))
     (output/'source-ids.json').write_text(json.dumps([r['item_id'] for r in rows])+'\n')
     report={'method':'weighted DeepWalk, SGNS via gensim4.4.0','walk_transition':'uniform incident film, then uniform other participant; W_ij=sum1/(n_film-1)',
         'people':len(walks.people),'movies':len(rows),'person_dimension':64,'item_dimension':128,
-        'role_pooling':'separate cast/director means, one shared person table','seed':42,'walks_per_node':10,
+        'graph_role':role,'role_pooling':('separate cast/director means, one shared person table' if role=='all' else 'cast-only graph; cast mean64D, zero director padding64D'),'seed':42,'walks_per_node':10,
         'walk_length':40,'window':5,'negative':5,'sgns_epochs':3,'workers':1,'sample':0,
         'no_interactions_used':True,'catalogue_scope':'same1273films','seconds':time.monotonic()-before}
     (output/'people-provenance.json').write_text(json.dumps(report,indent=2)+'\n')
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--catalogue',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
-    a=p.parse_args();prepare(a.catalogue,a.output)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--catalogue',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--role',choices=['all','cast'],default='all')
+    a=p.parse_args();prepare(a.catalogue,a.output,a.role)
