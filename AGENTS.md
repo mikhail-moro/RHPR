@@ -2,6 +2,19 @@
 
 ## Research status
 
+- People-role ablation submitted ONCE,v1RUNNING,2026-11-02. Private
+  carasik/rhpr-ml100k-people-roles;9freshfits/3seeds/2T4. Workflow41441646043
+  success submit-only; executable682a23dabed6803d3340607f6ecd7924483ce3ba.
+  Exactconfig/all193embeddedsourcefiles verified;packageSHA
+  8e130ae812b890ccc7a8adc16b60d60956c5ff8c51ae0cafe63401458172b6ba.
+  Receipt docs/gr-movielens100k-people-roles-submission.json; artifacts/
+  movielens100k-people-roles haspreflight/submissionaudit/quota.
+  Tests944OK88skips,3native rolechecks(incltinyAE/RQ/fullresume) and2legacy
+  graph-losschecks passed. Sameinitialneuralpins3seeds and real1273film role
+  isolation verified. Noresults yet;waitforuser,collectexistingrun. Do not
+  resubmit/extend/tune/addseeds/retrainDeepWalk/TPU/Telegram. Preserve all
+  oldoutputs/controls andpausedTPUedits.
+
 - User authorized people-role ablation on2026-11-02: nine fresh fits,
   seeds42/101/202 × nopeople/cast-only/directors-only. Config
   movielens100k_people_roles_2t4.json; doc gr-movielens100k-people-roles.md.
