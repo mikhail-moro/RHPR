@@ -2,6 +2,20 @@
 
 ## Research status
 
+- Extra-seed full-training replication submitted ONCE, v1 RUNNING, 2026-11-02.
+  Private carasik/rhpr-ml100k-full-training-extra-seeds; eight continuations,
+  seeds101/202, 2T4. Executable8e1819a6137aaae30e43a4115cb6a4c2aae1b819;
+  Actions41406980487 success submit-only; exact config and all191 embedded
+  source files verified, package SHA256
+  bf97caa8609ff46e0e76099c87c65f5fa743384b1f783852b40c7764a961ae30.
+  Receipt docs/gr-movielens100k-full-training-extra-seeds-submission.json;
+  artifacts/movielens100k-full-training-extra-seeds has source/initialization/
+  submission audits. All939 tests OK86skips;4 targeted/native passed.
+  Frozen original epoch20/6680 checkpoints, min30/cap100/ES20, val each new
+  epoch and unchanged pilot scheduler. No results yet. Wait for user completion;
+  collect existing run, do not resubmit/extend/tune/addseeds/retrainindices/
+  TPU/Telegram. Preserve seed42 output, all parent studies and paused TPU edits.
+
 - User authorized full-training replication on existing seeds101/202, 2026-11-02.
   Eight frozen-index continuations: nopeople/graph/names TIGER + SASRec per seed.
   Config movielens100k_full_training_extra_seeds_2t4.json; doc
