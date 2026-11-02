@@ -2,6 +2,25 @@
 
 ## Research status
 
+- Full-training pilot COMPLETE, collected 2026-11-02 MSK. Private
+  carasik/rhpr-ml100k-full-training-seed42 v1; executable ce0efd6d6816a24d5710d5baeda706abc3d8e8cb.
+  Four frozen-index continuations, seed42 only, body48.23min, all early-stopped.
+  Test NDCG10 old-selected -> new-selected: nopeople .03940 -> .05315 (+34.9%);
+  graph .03605 -> .04075 (+13.0%); names .03891 -> .04520 (+16.2%);
+  SASRec .05411 unchanged. All TIGER best27/stop47; SAS best10/stop30.
+  TIGER peak27 PRECEDES first LR drop after32; longer training and denser
+  validation changed together. Later train CE falls while val CE rises.
+  Nopeople remains best TIGER on this seed, 1.8% below SAS; NOT a multi-seed
+  equivalence claim or evidence graphs are generally harmful. Val/test rank
+  differently. Independently rescored115 prediction files, same943cases;
+  frozen indices/source prefix hashes/resume Adam-scaler-RNG verified;
+  scheduler/ES replayed, zeroAMPskips. Report
+  docs/gr-movielens100k-full-training-results.md; local artifacts/
+  movielens100k-full-training-seed42/analysis has curves/CSV/ranks/replay.
+  Numerical evidence ZIP in/tmp; large weights remain private Kaggle.
+  No pendingGPUwork. Do not autoextend/tune/addseeds/retrain indices/TPU/Telegram;
+  preserve prior results and paused TPU edits.
+
 - Fulltrainingpilot submittedONCE,v1RUNNING,2026-11-02MSK. Private
   carasik/rhpr-ml100k-full-training-seed42;4continuations/seed42/2T4,
   nopeople/graph/namesTIGER+SASRec. Resumeepoch20/6680updates,frozenindices.
