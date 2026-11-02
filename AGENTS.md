@@ -2,6 +2,30 @@
 
 ## Research status
 
+- Graph loss weighting pilot COMPLETE, collected 2026-11-02 MSK. Private
+  carasik/rhpr-ml100k-graph-loss-weight v1, two seed42 fits, body46.97min,
+  no failures, both early-stopped. Weight1 vs0.1: valNDCG10 .06786/.06601;
+  testNDCG10 .04554/.04202 (-7.7%); Recall10 .09226/.08590. Best27/20,
+  stop47/40. Conditional paired-user delta95%CI[-.01534,+.00757],63better/
+  64worse/816same; excludes training variance. One paired seed, no stable
+  benefit/harm established. Both AE3500fixed/RQ3000, identical initial pins,
+  zeroAMPskips. Text/poster/plot raw MSE all improve with weight0.1; graph MSE
+  worsens .79349->.88231. Text-neighbor firstSID4.10->4.74%, graph3.86->1.75%.
+  Representation balance changes but no downstream gain. Both1273unique tuples.
+  IMPORTANTfresh weight1 control exactly reproduces old graph42 AE neural
+  state/codes/fullSID/reconstruction and generator initial neural hash, but
+  generator train loss differs already epoch1 (9.2839231 vs9.2836568); test
+  .04075historical -> .04554fresh. Numerical/runtimecauseunidentified. Use
+  fresh pairedcontrol, not historical substitution; generator repeat variation
+  exceeds treatment gap. Independentlyrescored57prediction files, same943cases,
+  verified losses/features/AEtransfer/index/prefix/resume, replayed LR/ES.
+  TestinvalidSID0control/1weak among18860slots; no duplicates. Tests941OK87skips.
+  Report docs/gr-movielens100k-graph-loss-weight-results.md; artifacts/
+  movielens100k-graph-loss-weight/analysis hasplots/CSV/ranks/replay. Full20.1MB
+  evidenceZIP in/tmp; largeweights stay private Kaggle. No pendingGPUwork;
+  do not autoextend/tune/addweights/seeds/TPU/Telegram. Preserve oldstudies,
+  controls and paused TPU edits.
+
 - Graph loss weighting pilot submitted ONCE, v1 RUNNING, 2026-11-02 MSK.
   Private carasik/rhpr-ml100k-graph-loss-weight; two fresh seed42 pipelines,
   people-reconstruction weights1/.1 in AE+RQ, all other weights1. Two T4s.
