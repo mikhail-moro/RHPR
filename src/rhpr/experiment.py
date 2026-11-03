@@ -76,6 +76,10 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == 'gr_movie_context_training':
+        if output_dir is None:raise ValueError('context training requires output directory')
+        from rhpr.gr.movie_context_training import run_context_training
+        return run_context_training(config, output_dir)
     if kind == 'gr_movie_seen_serving':
         if output_dir is None:raise ValueError('serving evaluation requires output directory')
         from rhpr.gr.movie_seen_serving import run_serving

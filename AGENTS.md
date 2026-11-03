@@ -2,6 +2,22 @@
 
 ## Research status
 
+- User authorized context training2026-11-03: NOFlashAttention, windows30and40;
+  clarified seed42ONLY and30epochs. Four fresh TIGERgenerators: none/actor.1
+  x30/40. Frozen original seed42SIDs, no AE/RQ fitting or predictor warmstart.
+  Config experiments/movielens100k_context30_40_30epochs.json; module
+  rhpr.gr.movie_context_training; doc gr-movielens100k-context30-40.md.
+  SameFP16AMP/eager, effective256/physical128, unmasked beam20/FP32eval.
+  Prefix20val5then21-30valeach withverifiedoptimizer/scaler/RNGresume;
+  plateauLRfrom21; bestvalcheckpoint;30epoch cap isNOTconvergence evidence.
+  Four realCPUconstructor/backward checks matchoriginal5f4a24fa… initializer.
+  Original85470targets/943heldoutusers andlast20suffix allverifiedunchanged.
+  CompareL20validationwithinfirst30;historicalL20testhaslongertrainingbudget.
+  Private NEWkernel carasik/rhpr-ml100k-context30-40;2T4;quota7.86hbefore.
+  Expected~1.5-2helapsed. Noextras/seeds/extensions/precision/hardwarefallback.
+
+
+
 - Unseen serving COMPLETE2026-11-03,private carasik/rhpr-ml100k-unseen-serving v1,
   source8f0b782b387a5f464bdd514fa6ae5d10f735b764/workflow41649512819.
   6original fixed best checkpoints,0trainingupdates,2T4,runner76.44s.
