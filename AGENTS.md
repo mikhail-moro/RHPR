@@ -2,6 +2,18 @@
 
 ## Research status
 
+- Context30/40 SUBMITTED ONCE,v1RUNNING,2026-11-03MSK. Private
+  carasik/rhpr-ml100k-context30-40; workflow41662734850success submit-only.
+  Executablebfecf91e658d24415255b480102c9f94e09fcc59;197embeddedsourcefiles
+  andexactconfigverified;2T4/private/nointernet. Runtime ready;workers started
+  none_L30_seed42 andactor_w01_L30_seed42. Fourfits total, thenL40;seed42,
+  max30epochs, noFA/no seenmask, oldfrozenSIDs/freshpredictors. Tests955OK91skip,
+  native3OK,realinitializers/backwards4OK. Receiptdoc gr-movielens100k-context30-
+  40-submission.json and artifacts/movielens100k-context30-40. Noresults yet.
+  Do not resubmit/extend/tune/addseeds;collect thisexistingrun oncompletion.
+
+
+
 - User authorized context training2026-11-03: NOFlashAttention, windows30and40;
   clarified seed42ONLY and30epochs. Four fresh TIGERgenerators: none/actor.1
   x30/40. Frozen original seed42SIDs, no AE/RQ fitting or predictor warmstart.
