@@ -2,6 +2,20 @@
 
 ## Research status
 
+- Context40replication SUBMITTED ONCE,v1RUNNING,2026-11-03MSK. Private
+  carasik/rhpr-ml100k-context40-replication;workflow41682670062successsubmit-only.
+  Executablee3308db026871ccec6590ba502b6cce8d65ebd0c;197sources/exactconfig
+  verified;onlyscopevalidatorchangedvs42. Fourfreshfits L40none/actor.1 x101/202,
+  30epochs,originalperseedfrozenSIDs,FP16/eager/unmaskedbeam20FP32eval/2T4.
+  Runtime ready;workersstartednone_L40_seed101 andactor_w01_L40_seed101;
+  then202. Tests956OK91skips;4realconstructor/backward checksOK.
+  Receipt docs/gr-movielens100k-context40-replication-submission.json and
+  artifacts/movielens100k-context40-replication. Seed42completeunchanged.
+  Noresultsyet;collectexistingrun aftercompletion. Noresubmit/extensions/HPO/
+  morewindows/seeds/precision/hardwarefallback/Telegram.
+
+
+
 - User authorized two more seeds2026-11-03 after context40signal. Prepare ONLY
   L40 control/actor.1 x101/202,4fresh predictors,30epochs,sameprotocolas42.
   Config experiments/movielens100k_context40_seeds101_202.json; doc

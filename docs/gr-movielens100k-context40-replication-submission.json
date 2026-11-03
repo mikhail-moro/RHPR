@@ -1,0 +1,63 @@
+{
+  "kernel_id": "carasik/rhpr-ml100k-context40-replication",
+  "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-ml100k-context40-replication",
+  "version": 1,
+  "status": "RUNNING",
+  "observed_at": "2026-11-03T20:19:53.570444+03:00",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41682670062",
+  "workflow_result": "success; submit_only=true",
+  "executable_git_sha": "e3308db026871ccec6590ba502b6cce8d65ebd0c",
+  "package_sha256": "24fb7abbca7ba66ad939f53ea292554a297fcca97792cd3bf5b160391f271960",
+  "source_files_verified": 197,
+  "changed_source_vs_seed42": [
+    "rhpr/gr/movie_context_training.py"
+  ],
+  "exact_config": true,
+  "private": true,
+  "internet": false,
+  "accelerator": "NvidiaTeslaT4",
+  "workers": [
+    "cuda:0",
+    "cuda:1"
+  ],
+  "context_items": 40,
+  "seeds": [
+    101,
+    202
+  ],
+  "candidates": [
+    "none",
+    "actor_w01"
+  ],
+  "trials": 4,
+  "epochs": 30,
+  "frozen_original_indices_per_seed": true,
+  "generators_fresh": true,
+  "quantizer_retrained": false,
+  "training_precision": "fp16 AMP/GradScaler",
+  "evaluation_precision": "fp32",
+  "known_item_filter": false,
+  "beam_width": 20,
+  "attention": "original T5 eager",
+  "quota_gpu_hours_before": 6.42,
+  "estimated_elapsed_hours": [
+    1.5,
+    2
+  ],
+  "tests": "956OK91skips;4real initializers/forward/backward checks OK",
+  "live_log_verified": {
+    "runtime_ready": true,
+    "trials": 4,
+    "windows": [
+      40
+    ],
+    "seeds": [
+      101,
+      202
+    ],
+    "worker0_started": "none_L40_seed101",
+    "worker1_started": "actor_w01_L40_seed101"
+  },
+  "results_available": false,
+  "no_resubmission": true
+}
