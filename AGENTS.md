@@ -2,6 +2,24 @@
 
 ## Research status
 
+- Unseen serving COMPLETE2026-11-03,private carasik/rhpr-ml100k-unseen-serving v1,
+  source8f0b782b387a5f464bdd514fa6ae5d10f735b764/workflow41649512819.
+  6original fixed best checkpoints,0trainingupdates,2T4,runner76.44s.
+  Known-past mask+beam100/refill256: test control.076682/graph.082005(+6.94%),
+  val.108692/.103901(-4.41%). Test2/3wins;conditionalCI[-.00258,+.01324]cross0.
+  All12x943outputs10uniquevalidunseen;13casesneeded256,0exactfallback.
+  Parent32-user20beam anchors exact;allweightsunchanged;metricsrescored1e-12.
+  Original unmasked results unchanged;new servingpolicy,old checkpoints/no
+  reselection. No reliable overall graphgain established. No pendingGPUwork.
+  Actorgraph reconstructed15998nodes/475238edges. Frequency/promotion rho~.02,
+  partial aftermoviepop/cast~.03;strong repeatededges~.03test/~0val. Context
+  normalizedaffinity promotion partialPearson-.019to+.031acrosssplits/seeds.
+  No strong actorhub/PopBias explanation. No externalcelebrity data.
+  Report docs/gr-movielens100k-seen-serving-results.md;summary JSON/replay
+  scripts/analyze_actor_graph_bias.py committed. Preserve originalprotocol.
+
+
+
 - User authorized unseen-item serving inference2026-11-03 for all6frozen actor
   full/control checkpoints and graph popularity/edge-strength analysis.
   Config experiments/movielens100k_actor_seen_serving.json; module
