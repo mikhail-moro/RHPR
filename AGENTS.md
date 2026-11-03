@@ -2,6 +2,27 @@
 
 ## Research status
 
+- Full actor comparison COMPLETE,collected2026-11-03MSK. Private
+  carasik/rhpr-ml100k-actor-full-training v1,6freshfits/3seeds/2T4,159.34min,
+  nofailures/allES/nonecapped. Mean testNDCG10 control .04811±.00271,
+  actor.1 .04722±.00500(-1.9%);seed42+1.4%,101-15.2%,202+9.1%(2/3wins).
+  Valcontrol .07077/graph .06521(-7.9%,graphloses3/3). Shared-user conditional
+  testCI[-.00714,+.00539] crosses0;no robustgain,equivalence orstableharm.
+  Prior+7.4%screen notreplicated;freshAE/RQindicesalsochanged despite same
+  initialAE/generatorweights/config/features/normalization. L1ARIvsoldscreen
+  .235–.310;notjustlabelpermutation. Exactnumerical/runtimecauseunknown;
+  generatorCEdiff alreadyepoch1. Cannotattributeflipsolelytolongtraining.
+  Best/stop control42:26/46,101:31/51,202:34/54;graph31/51,48/68,29/49.
+  All229predfilesrescored,372filesdownloaded;casehashes/actorinputs/norm/pins/
+  AE-RQtransfer/prefixresume/LR/ES verified. AMPskipsgraph42=1,101=3,
+  control202=1;testinvalidcontrol42=2,202=1,duplicates0. Tests949OK90skips.
+  Report docs/gr-movielens100k-actor-full-results.md; artifacts/
+  movielens100k-actor-full/analysis linksCSV/plots/replay/ranks in/tmp;
+  numericalZIP in/tmp;largeweightsprivateKaggle. No pendingGPUwork and no
+  automaticnewruns/extensions/retries/seeds/tuning/graphchanges/TPU/Telegram.
+  Preserveallpriorstudies/controls/pausedTPUedits. Publicationpositivegraph
+  claimnotestablished;previouslyexaminedholdout andtraininguncertaintyremain.
+
 - Full actor comparison submitted ONCE,v1RUNNING,2026-11-03MSK. Private
   carasik/rhpr-ml100k-actor-full-training;6freshfits/3seeds/2T4.
   Workflow41535407288 successsubmit-only;executable
