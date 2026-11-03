@@ -1,0 +1,299 @@
+{
+  "filter_aggregates": [
+    {
+      "split": "validation",
+      "mode": "original",
+      "candidate": "none",
+      "ndcg10": 0.0707741556155559,
+      "recall10": 0.1438670908448215,
+      "fewer10": 0,
+      "by_seed": [
+        0.06655852054886754,
+        0.07312906161719318,
+        0.07263488468060697
+      ]
+    },
+    {
+      "split": "validation",
+      "mode": "original",
+      "candidate": "actor_w01",
+      "ndcg10": 0.0652103758233404,
+      "recall10": 0.14103923647932134,
+      "fewer10": 0,
+      "by_seed": [
+        0.0645785955030711,
+        0.06217684849604287,
+        0.0688756834709072
+      ]
+    },
+    {
+      "split": "validation",
+      "mode": "remove_visible20",
+      "candidate": "none",
+      "ndcg10": 0.09111636093446296,
+      "recall10": 0.1746200070696359,
+      "fewer10": 39,
+      "by_seed": [
+        0.0853108868122755,
+        0.09614113557297543,
+        0.09189706041813794
+      ]
+    },
+    {
+      "split": "validation",
+      "mode": "remove_visible20",
+      "candidate": "actor_w01",
+      "ndcg10": 0.08808654083107466,
+      "recall10": 0.17956875220926125,
+      "fewer10": 50,
+      "by_seed": [
+        0.08701233782477868,
+        0.08401040863554747,
+        0.09323687603289779
+      ]
+    },
+    {
+      "split": "validation",
+      "mode": "remove_all_known_past",
+      "candidate": "none",
+      "ndcg10": 0.10438675746868449,
+      "recall10": 0.19441498762813714,
+      "fewer10": 640,
+      "by_seed": [
+        0.09644039818700402,
+        0.1097192199245602,
+        0.10700065429448924
+      ]
+    },
+    {
+      "split": "validation",
+      "mode": "remove_all_known_past",
+      "candidate": "actor_w01",
+      "ndcg10": 0.10038613291901492,
+      "recall10": 0.19476846942382467,
+      "fewer10": 662,
+      "by_seed": [
+        0.10223807429620058,
+        0.09474949041327983,
+        0.10417083404756435
+      ]
+    },
+    {
+      "split": "test",
+      "mode": "original",
+      "candidate": "none",
+      "ndcg10": 0.04811195087669074,
+      "recall10": 0.10392364793213149,
+      "fewer10": 0,
+      "by_seed": [
+        0.04529847261500736,
+        0.05070897694640573,
+        0.04832840306865915
+      ]
+    },
+    {
+      "split": "test",
+      "mode": "original",
+      "candidate": "actor_w01",
+      "ndcg10": 0.04721545244978565,
+      "recall10": 0.10144927536231885,
+      "fewer10": 0,
+      "by_seed": [
+        0.045934902569186385,
+        0.04297999096625973,
+        0.052731463813910855
+      ]
+    },
+    {
+      "split": "test",
+      "mode": "remove_visible20",
+      "candidate": "none",
+      "ndcg10": 0.06296691508362251,
+      "recall10": 0.12831389183457054,
+      "fewer10": 33,
+      "by_seed": [
+        0.05997082907372378,
+        0.06572141101433472,
+        0.063208505162809
+      ]
+    },
+    {
+      "split": "test",
+      "mode": "remove_visible20",
+      "candidate": "actor_w01",
+      "ndcg10": 0.06607138688772322,
+      "recall10": 0.1375044185224461,
+      "fewer10": 42,
+      "by_seed": [
+        0.06576374858570026,
+        0.06043676385687905,
+        0.07201364822059036
+      ]
+    },
+    {
+      "split": "test",
+      "mode": "remove_all_known_past",
+      "candidate": "none",
+      "ndcg10": 0.07158422515363955,
+      "recall10": 0.13679745493107107,
+      "fewer10": 657,
+      "by_seed": [
+        0.06846546519621777,
+        0.07454521757548313,
+        0.07174199268921774
+      ]
+    },
+    {
+      "split": "test",
+      "mode": "remove_all_known_past",
+      "candidate": "actor_w01",
+      "ndcg10": 0.07703662437558542,
+      "recall10": 0.15129020855425945,
+      "fewer10": 673,
+      "by_seed": [
+        0.0767879480782924,
+        0.06942225750886669,
+        0.08489966753959718
+      ]
+    }
+  ],
+  "uncertainty": {
+    "scope": "Shared-user bootstrap, 20000 replicates, fixed three fitted pairs; no training variance or multiple-testing correction.",
+    "rows": [
+      {
+        "split": "validation",
+        "mode": "original",
+        "graph_minus_baseline": -0.005563779792215507,
+        "conditional_user_bootstrap95": [
+          -0.01281981648833638,
+          0.001776801949312479
+        ],
+        "originally_harmed_user_seed_cases": 310,
+        "harmed_cases_nonnegative_after_filter": 0,
+        "harmed_cases_strictly_positive_after_filter": 0
+      },
+      {
+        "split": "validation",
+        "mode": "remove_visible20",
+        "graph_minus_baseline": -0.0030298201033883043,
+        "conditional_user_bootstrap95": [
+          -0.011271239272732818,
+          0.005241618149708372
+        ],
+        "originally_harmed_user_seed_cases": 310,
+        "harmed_cases_nonnegative_after_filter": 16,
+        "harmed_cases_strictly_positive_after_filter": 4
+      },
+      {
+        "split": "validation",
+        "mode": "remove_all_known_past",
+        "graph_minus_baseline": -0.004000624549669565,
+        "conditional_user_bootstrap95": [
+          -0.013030102000399306,
+          0.005111635710444199
+        ],
+        "originally_harmed_user_seed_cases": 310,
+        "harmed_cases_nonnegative_after_filter": 20,
+        "harmed_cases_strictly_positive_after_filter": 4
+      },
+      {
+        "split": "test",
+        "mode": "original",
+        "graph_minus_baseline": -0.0008964984269050892,
+        "conditional_user_bootstrap95": [
+          -0.007047703510523945,
+          0.005310298604662373
+        ],
+        "originally_harmed_user_seed_cases": 216,
+        "harmed_cases_nonnegative_after_filter": 0,
+        "harmed_cases_strictly_positive_after_filter": 0
+      },
+      {
+        "split": "test",
+        "mode": "remove_visible20",
+        "graph_minus_baseline": 0.0031044718041007132,
+        "conditional_user_bootstrap95": [
+          -0.003942612663725451,
+          0.010154968514656647
+        ],
+        "originally_harmed_user_seed_cases": 216,
+        "harmed_cases_nonnegative_after_filter": 7,
+        "harmed_cases_strictly_positive_after_filter": 0
+      },
+      {
+        "split": "test",
+        "mode": "remove_all_known_past",
+        "graph_minus_baseline": 0.0054523992219458715,
+        "conditional_user_bootstrap95": [
+          -0.002136844479667577,
+          0.013288593830635785
+        ],
+        "originally_harmed_user_seed_cases": 216,
+        "harmed_cases_nonnegative_after_filter": 13,
+        "harmed_cases_strictly_positive_after_filter": 0
+      }
+    ]
+  },
+  "verification": {
+    "selected_prediction_sources": [
+      {
+        "path": "/tmp/movie-actor-full-completed/trials/none_seed42/validation-epoch-026.npz",
+        "sha256": "e06162cd1b9c0dd1a2b7a5e3a75c23ec499225f66be5f9a43b876b37ca43ea87"
+      },
+      {
+        "path": "/tmp/movie-actor-full-completed/trials/actor_w01_seed42/validation-epoch-031.npz",
+        "sha256": "b5180420a3cff3e0b0a072b014a25d22538ed44759cd8c16cf3cf69705b2215b"
+      },
+      {
+        "path": "/tmp/movie-actor-full-completed/trials/none_seed101/validation-epoch-031.npz",
+        "sha256": "916b89a53e4bf2e48762acdbe6a019d09fcd145525b64e0ad9d44af2d872c16f"
+      },
+      {
+        "path": "/tmp/movie-actor-full-completed/trials/actor_w01_seed101/validation-epoch-048.npz",
+        "sha256": "6d80db1e50384d83e587a0c4c431a95843973fa8a3271d35fba89d002fabd29a"
+      },
+      {
+        "path": "/tmp/movie-actor-full-completed/trials/none_seed202/validation-epoch-034.npz",
+        "sha256": "c1779c531d595b02101f20de99422602b96b7836d981671e11b498d1a0054eaf"
+      },
+      {
+        "path": "/tmp/movie-actor-full-completed/trials/actor_w01_seed202/validation-epoch-029.npz",
+        "sha256": "7b57f9ccd723597854c12ca6760db386cd2eee6bdc45ad5fa5c45a1519e98ac4"
+      },
+      {
+        "path": "/tmp/movie-actor-full-completed/trials/none_seed42/test-predictions.npz",
+        "sha256": "4bb77c0d9be4ed73b896f03a7ac2847d26c3cff66afa940a688d486d35e38394"
+      },
+      {
+        "path": "/tmp/movie-actor-full-completed/trials/actor_w01_seed42/test-predictions.npz",
+        "sha256": "1c5ea6cbd5b4b471af864d89154d041c7e43664a6829494711b8154626e08e24"
+      },
+      {
+        "path": "/tmp/movie-actor-full-completed/trials/none_seed101/test-predictions.npz",
+        "sha256": "1f0c4eff1cb59a9c2588478bfac5efcefd0366862f5e770ee3383b51bbc9f803"
+      },
+      {
+        "path": "/tmp/movie-actor-full-completed/trials/actor_w01_seed101/test-predictions.npz",
+        "sha256": "c310dea9dde652b8b1c97da6e4357dbee6eafdb4339e085501846434d518593b"
+      },
+      {
+        "path": "/tmp/movie-actor-full-completed/trials/none_seed202/test-predictions.npz",
+        "sha256": "388dc7de8e5ded45f0fc74ad4640833047f2dc2dccb5a341e988a1a70da5dce1"
+      },
+      {
+        "path": "/tmp/movie-actor-full-completed/trials/actor_w01_seed202/test-predictions.npz",
+        "sha256": "c0555a304c1fa354b005cad0fb8475a95342aa9beeaadcdfdf36afffbaa06938"
+      }
+    ],
+    "exact_case_hashes": {
+      "test": "ca21089d95d7aa96ff6ca9c11acf8cd9e0c3df15a0959613262a34fafa23b933",
+      "train": "abd59fae52fe92e66f4a2864a8372862f39707d50a683cf87947ee1b97e54a4d",
+      "validation": "883061e7a2d51d06df3e2fab3e76d12520c98de2dba5d52f00a3f925ec4c4826"
+    },
+    "ratings_archive_sha256": "50d2a982c66986937beb9ffb3aa76efe955bf3d5c6b761f4e3a7cd717c6a3229",
+    "target_not_in_known_past_verified": true,
+    "scope": "Read-only, exploratory. Original metrics unchanged. Filtering only reranks retained20candidates, preserves invalid slots, and cannot recover missing candidates. Known-past masks omit embargoed events. Same-timestamp sibling and rating diagnoses use heldout labels and are not serving features. Profiles conditional on harm/benefit are descriptive, not causal."
+  },
+  "tests": "949 OK,90 skipped;104.516seconds;no model changes",
+  "evidence_zip_sha256": "d649c2b1b2126e6a87db96f3ab0b02f9e6ba38249ab99d91ac4a7dd9cddb3042"
+}

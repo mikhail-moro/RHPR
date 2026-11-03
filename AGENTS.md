@@ -2,6 +2,20 @@
 
 ## Research status
 
+- Actor harm audit COMPLETE2026-11-03, CPU cached predictions only; no GPU.
+  docs/gr-movielens100k-actor-harm.md, artifacts/movielens100k-actor-full/harm.
+  Official unmasked metrics unchanged. Test known-seen top10 occupancy control
+  41.35%/graph42.83%; retained-beam20 all-known-past filtering testNDCG
+  .071584/.077037, val .104387/.100386; not new decoder/official scores.
+  Only13/216 original harmed test user-seed cases become ties, none strict wins;
+  repeats do not explain all graph harm. Filtered test CI crosses0,seed101loses.
+  Actor-overlap promoted unseen wrong candidates test67.5vs63.4%, but val61.5vs
+  61.6%; no validated harmful-edge gate. Popularity/hub mechanism unsupported.
+  Known-past excludes embargoed timestamp siblings; targets verified not seen.
+  Preserve original protocol; any future mask/refill evaluation separate.
+
+
+
 - Actor subgroup audit COMPLETE2026-11-03,CPUonly/noinference/training.
   Full3seed andscreen2seed cachedpredictions;20selectedfilesrescored,
   exact943cases/hashes/IDsverified.104group rows/32contrasts retained.
