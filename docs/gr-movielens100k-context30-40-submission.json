@@ -2,7 +2,7 @@
   "kernel_id": "carasik/rhpr-ml100k-context30-40",
   "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-ml100k-context30-40",
   "version": 1,
-  "status": "RUNNING",
+  "status": "COMPLETE",
   "observed_at": "2026-11-03T18:22:43.917001+03:00",
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41662734850",
   "workflow_result": "success;submit_only=true",
@@ -67,6 +67,8 @@
     1.5,
     2
   ],
-  "results_available": false,
-  "no_resubmission": true
+  "results_available": true,
+  "no_resubmission": true,
+  "runner_duration_minutes": 86.07884833333333,
+  "result_report": "docs/gr-movielens100k-context30-40-results.md"
 }

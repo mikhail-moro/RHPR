@@ -2,6 +2,27 @@
 
 ## Research status
 
+- Context30/40 COMPLETE,collected2026-11-03MSK,private carasik/rhpr-ml100k-
+  context30-40 v1,sourcebfecf91e658d24415255b480102c9f94e09fcc59,86.08min.
+  Fourfreshseed42predictors,frozenoriginalSID,30epochs/10020updates/14valchecks,
+  0AMPskips/failures/invalidtest/duplicatetest. NoGPUworkpending.
+  Matched<=30epochval control20/30/40=.06656/.06544/.07024;
+  graph=.06345/.06461/.06599. Graph losesall3valwindows.
+  TestL30control.04790/graph.04361;L40.04564/.05887(+29%graph),butONEseed,
+  valsignopposite,no robustgainclaim. HistoricalL20graph test.04593isepoch31,
+  NOT30budgetmatched(graphvalbest<=30is24);controltest.04530epoch26matches.
+  Selectedepochs control30=27,graph30=27,control40=27,graph40=30(cap).
+  TestrepeatsL30control43.34%/graph42.32%;L40 38.82/40.25%. Fixedvalepoch30
+  directionalsofalls;repetitionnotremoved. MeanepochL30 66.7-69.4s,L40 92.9-
+  97.8s;peakfit+valallocated1.33/1.84GiB,physical128unchanged.
+  64distinctpredictionfilesrescored1e-12;allSID/hash/case/init/resumeproofsOK.
+  Tests955OK91skips. Report docs/gr-movielens100k-context30-40-results.md/json,
+  artifacts/movielens100k-context30-40/analysis. Noextensions/newruns/seeds.
+  Do not inferhistorycausality:trainingchangesallusers;fixedleftpad+prepend
+  usertoken changesuser-item relative distances whenmaxwindowchanges.
+
+
+
 - Context30/40 SUBMITTED ONCE,v1RUNNING,2026-11-03MSK. Private
   carasik/rhpr-ml100k-context30-40; workflow41662734850success submit-only.
   Executablebfecf91e658d24415255b480102c9f94e09fcc59;197embeddedsourcefiles
