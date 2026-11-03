@@ -2,6 +2,18 @@
 
 ## Research status
 
+- User authorized two more seeds2026-11-03 after context40signal. Prepare ONLY
+  L40 control/actor.1 x101/202,4fresh predictors,30epochs,sameprotocolas42.
+  Config experiments/movielens100k_context40_seeds101_202.json; doc
+  gr-movielens100k-context40-replication.md. Original SIDperpipeline seed frozen;
+  predictor initialization matches original101/202;noAE/RQorgraphretraining.
+  Unmaskedbeam20/FP32eval,FP16AMP/eager,effective256/physical128. Prefix20val5,
+  then21-30valeach/verifiedresume/oldplateauLR. NoHPO/newwindows/extensions.
+  NEWprivate kernel carasik/rhpr-ml100k-context40-replication,2T4,quota6.42h.
+  Expected~1.5-2h;seed42source results immutable. Notgenerator-only variance.
+
+
+
 - Context30/40 COMPLETE,collected2026-11-03MSK,private carasik/rhpr-ml100k-
   context30-40 v1,sourcebfecf91e658d24415255b480102c9f94e09fcc59,86.08min.
   Fourfreshseed42predictors,frozenoriginalSID,30epochs/10020updates/14valchecks,

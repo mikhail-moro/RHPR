@@ -21,6 +21,16 @@ class MovieContextTrainingTest(unittest.TestCase):
             else:b['training']['physical_batch_size']=64
             with self.assertRaises(ValueError):validate(b)
 
+    def test_two_new_seeds_replicate_only40items_with_identical_training_policy(self):
+        pilot=json.loads(CONFIG.read_text())
+        c=json.loads((ROOT/'experiments/movielens100k_context40_seeds101_202.json').read_text());validate(c)
+        self.assertEqual(c['replicate_seeds'],[101,202]);self.assertEqual(c['context_windows'],[40])
+        self.assertEqual(c['training'],pilot['training']);self.assertEqual(c['generator'],pilot['generator'])
+        self.assertEqual({(r['candidate'],r['seed'])for r in c['trials']},{(c,s)for c in ['none','actor_w01']for s in [101,202]})
+        self.assertTrue(all(r['history_items']==40 for r in c['trials']))
+        bad=copy.deepcopy(c);bad['context_windows']=[30,40]
+        with self.assertRaises(ValueError):validate(bad)
+
     def test_longer_windows_preserve_each_target_user_and_recent_suffix(self):
         u=TemporalUser(7,tuple(range(45)),tuple(range(45)),45,45,46,46)
         hashes={s:case_digest(temporal_examples([u],20,s))for s in ['train','validation','test']}

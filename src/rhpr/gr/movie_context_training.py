@@ -7,7 +7,8 @@ from rhpr.gr.experiment import _event,_write
 
 def validate(config):
     seeds=config['replicate_seeds'];windows=config['context_windows'];trials=config['trials']
-    if seeds!=[42]or windows!=[30,40]:raise ValueError('context pilot requires30/40items and fixed seed42')
+    if (tuple(seeds),tuple(windows))not in {((42,),(30,40)),((101,202),(40,))}or config['seed']!=seeds[0]:
+        raise ValueError('context design must be the seed42pilot or frozen40item101/202replication')
     expected={(c,h,s)for c in ['none','actor_w01']for h in windows for s in seeds}
     if (len(trials)!=len(expected)or {(t['candidate'],t['history_items'],t['seed'])for t in trials}!=expected
             or len({t['id']for t in trials})!=len(trials)):
