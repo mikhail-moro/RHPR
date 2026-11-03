@@ -2,6 +2,27 @@
 
 ## Research status
 
+- Actor subgroup audit COMPLETE2026-11-03,CPUonly/noinference/training.
+  Full3seed andscreen2seed cachedpredictions;20selectedfilesrescored,
+  exact943cases/hashes/IDsverified.104group rows/32contrasts retained.
+  No group positiveonall3fullseeds onBOTHval/test. Director-overlap test
+  n57 .08034->.09906(+23.3%,3/3but42neartie,25->33hitsacross171fits),
+  valn54 .06204->.05596(-9.8%);oldscreen testmean+37.6%but1/2seeds only.
+  Gainnotonesingletarget, butall3signbreaksremovingBatman&Robin;CIs cross0.
+  Rare<=20trainingpositions testn84 .001709->.003897 isonly1->3hits across
+  252fittedcases;screenvalopposite,nocoldstartclaim. Past>=100val+12%(3/3),
+  test-2.7%;actualinputstilllast20. Graph-coherenthistory screenpositiveboth
+  splits/2seeds,fulltestnegative3/3;no transferablerule. Directactoroverlap,
+  repetition/support/castsize notstable. Secondaryfixedmedianbaselinebeamgap
+  probe:graphlowconfidence test+6.5%,val-12.3%;anotherbaselineseedtest+10.3%,
+  notgraph-specific. Hypotheticalgatevalnegative3/3;notselected/deployed.
+  Only6testusersbetterall3and6worseall3,72bothsigns;examples/influence saved.
+  AllconditionalCIs unadjusted/excludetrainingvariance;holdoutsalreadyused.
+  Report docs/gr-movielens100k-actor-subgroups.md; artifacts/
+  movielens100k-actor-full/subgroups links /tmp/actor-full-subgroups withall
+  CSV/ranks/features/replays/plots. EvidenceZIP in/tmp. Tests949OK90skips.
+  No newGPUwork/gates;preservepriorstudies/controls/pausedTPUedits.
+
 - Full actor comparison COMPLETE,collected2026-11-03MSK. Private
   carasik/rhpr-ml100k-actor-full-training v1,6freshfits/3seeds/2T4,159.34min,
   nofailures/allES/nonecapped. Mean testNDCG10 control .04811±.00271,
