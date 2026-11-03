@@ -2,6 +2,19 @@
 
 ## Research status
 
+- User authorized unseen-item serving inference2026-11-03 for all6frozen actor
+  full/control checkpoints and graph popularity/edge-strength analysis.
+  Config experiments/movielens100k_actor_seen_serving.json; module
+  rhpr.gr.movie_seen_serving; doc gr-movielens100k-seen-serving.md.
+  No retraining/reselection. Beam100unmasked plus known-past eligible top10,
+  refill256onlyshortusers, exact full-catalogue fallback onlyremaining shortages;
+  preserve raw AR scoring, require no repeats, verify parent hashes and beam20
+  replay anchor. Private NEWkernel rhpr-ml100k-unseen-serving; parent immutable.
+  Tests952OK90skips; native raw-score/exact fallback check passed.
+  Current /tmp caches from prior turns were wiped; rawsource remains onKaggle.
+
+
+
 - Actor harm audit COMPLETE2026-11-03, CPU cached predictions only; no GPU.
   docs/gr-movielens100k-actor-harm.md, artifacts/movielens100k-actor-full/harm.
   Official unmasked metrics unchanged. Test known-seen top10 occupancy control

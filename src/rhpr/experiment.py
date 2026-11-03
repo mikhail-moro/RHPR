@@ -76,6 +76,10 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == 'gr_movie_seen_serving':
+        if output_dir is None:raise ValueError('serving evaluation requires output directory')
+        from rhpr.gr.movie_seen_serving import run_serving
+        return run_serving(config, output_dir)
     if kind == 'gr_movie_continuation':
         if output_dir is None:raise ValueError('movie continuation requires an output directory')
         from rhpr.gr.movie_continuation import run_continuation

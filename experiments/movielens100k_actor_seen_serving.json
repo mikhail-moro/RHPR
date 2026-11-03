@@ -1,0 +1,158 @@
+{
+  "name": "MovieLens100K frozen actor/control unseen-item serving",
+  "kind": "gr_movie_seen_serving",
+  "seed": 42,
+  "resources": {
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "scratch_path": "/kaggle/temp/rhpr-ml100k-actor-full"
+  },
+  "runtime": {
+    "kind": "gr",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels"
+  },
+  "training": {
+    "device": "cuda"
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "evaluation": {
+    "batch_size": 16,
+    "precision": "fp32",
+    "beam_width": 100,
+    "refill_width": 256,
+    "cutoff": 10
+  },
+  "parent": {
+    "kernel": "carasik/rhpr-ml100k-actor-full-training",
+    "source_code_sha": "70a0c16d65fab69df3d64742fee527975e12df70",
+    "files": {
+      "run-manifest.json": {
+        "size_bytes": 8787,
+        "sha256": "d817f8097e938d95775dcf8a4bfc9259111f5c59b9ef93ad0f60eb447eb33f23"
+      },
+      "split-report.json": {
+        "size_bytes": 1664,
+        "sha256": "a410c4a602f8c169d314c240dbfe8f5267e61e44adeca37908045df0ee3ed1a2"
+      }
+    }
+  },
+  "movie_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-ml100k-text-ladder-input",
+    "sequences_sha256": "2039dc954f02f95c91d039bbec5c1a9f42d35713272de950dd0aafbb4893a499"
+  },
+  "trials": [
+    {
+      "id": "none_seed42",
+      "seed": 42,
+      "candidate": "none",
+      "best_epoch": 26,
+      "files": {
+        "generator-best.pt": "00f396f41891c65f79f5644dc8ad52ac50fa5a88059fd41d622cef4420c5a003",
+        "semantic-codes.npy": "9862cdbdacdc90bbf36f293a1a8f86d6d88af2822c72b42990cdf99a628769ef",
+        "semantic-ids.npy": "618844d6b55b73d07e1cc1ee8f04b13a082ad32540e51247b38bbb9e9ba29739",
+        "sid-catalogue.json": "56deec2fe849a58e08c5d92a87d05a34035f21344e3506474192b5d2bbffbe54",
+        "trial-result.json": "b4aee52c78c62211491bd6bb32bd2ff639fdaf2978892d593899435fc1081083",
+        "test-predictions.npz": "4bb77c0d9be4ed73b896f03a7ac2847d26c3cff66afa940a688d486d35e38394",
+        "validation-epoch-026.npz": "e06162cd1b9c0dd1a2b7a5e3a75c23ec499225f66be5f9a43b876b37ca43ea87"
+      }
+    },
+    {
+      "id": "actor_w01_seed42",
+      "seed": 42,
+      "candidate": "actor_w01",
+      "best_epoch": 31,
+      "files": {
+        "generator-best.pt": "11dd90ad8da2a56e7fc8d03e9bbe1c37ef44d2ebaba3e040fb62d20d21bd85d4",
+        "semantic-codes.npy": "9739d845045e3d2edf8f9109198d67c870e148464faa73e0ed5d173e917dc122",
+        "semantic-ids.npy": "5b00a85ce4d16b19960ed7371e352c9135503e8050a93a42c32172f0894eb0b9",
+        "sid-catalogue.json": "56deec2fe849a58e08c5d92a87d05a34035f21344e3506474192b5d2bbffbe54",
+        "trial-result.json": "6312cbbefd11e16591799575ba28fe4d34484b964adf6c32a71d34add4d3619d",
+        "test-predictions.npz": "1c5ea6cbd5b4b471af864d89154d041c7e43664a6829494711b8154626e08e24",
+        "validation-epoch-031.npz": "b5180420a3cff3e0b0a072b014a25d22538ed44759cd8c16cf3cf69705b2215b"
+      }
+    },
+    {
+      "id": "none_seed101",
+      "seed": 101,
+      "candidate": "none",
+      "best_epoch": 31,
+      "files": {
+        "generator-best.pt": "7c586b4379d35eb822cc1e84759853a92bfb62a502a34b81465eeadb6ae48f90",
+        "semantic-codes.npy": "98b6cc2895638fb732444b265e90b745867018682a62bcdb872ac014b98546cf",
+        "semantic-ids.npy": "18f6d2264d67d77603cd64b10f42b61bd3e7184a9b236cc8b378efa333041cce",
+        "sid-catalogue.json": "56deec2fe849a58e08c5d92a87d05a34035f21344e3506474192b5d2bbffbe54",
+        "trial-result.json": "10d6f099841c8869421a2f43c6e30b8dac6a864fd69dfc184ed30100811a02be",
+        "test-predictions.npz": "1f0c4eff1cb59a9c2588478bfac5efcefd0366862f5e770ee3383b51bbc9f803",
+        "validation-epoch-031.npz": "916b89a53e4bf2e48762acdbe6a019d09fcd145525b64e0ad9d44af2d872c16f"
+      }
+    },
+    {
+      "id": "actor_w01_seed101",
+      "seed": 101,
+      "candidate": "actor_w01",
+      "best_epoch": 48,
+      "files": {
+        "generator-best.pt": "da0985a43bcc3a5d88b7ca0c8d95f69529778522fc9f63b0788b45a2a0ccd3b0",
+        "semantic-codes.npy": "4b7424075f6baeaad49206d59671ca0a343c4ef5fe712bc517be68525df6fbf5",
+        "semantic-ids.npy": "d24f708884dc0e4f525fa7619a2c430c38c7ec0e5d9dbd4d1ca81ad63dbeec6d",
+        "sid-catalogue.json": "56deec2fe849a58e08c5d92a87d05a34035f21344e3506474192b5d2bbffbe54",
+        "trial-result.json": "d748bc11f69197967784cc40b35dfaf9295fdae6cf41b0025c54df287f7ce30d",
+        "test-predictions.npz": "c310dea9dde652b8b1c97da6e4357dbee6eafdb4339e085501846434d518593b",
+        "validation-epoch-048.npz": "6d80db1e50384d83e587a0c4c431a95843973fa8a3271d35fba89d002fabd29a"
+      }
+    },
+    {
+      "id": "none_seed202",
+      "seed": 202,
+      "candidate": "none",
+      "best_epoch": 34,
+      "files": {
+        "generator-best.pt": "1324114a42fa5147a08c7ebba1e0b85e375983663c21a385311ddba88199c358",
+        "semantic-codes.npy": "04b3a149383150a39eabb4cfb5dc2e8e770e80c578454cadac8c81bbaba9cf44",
+        "semantic-ids.npy": "edaef1a67136bd41ffd4b4813f09b126a2effef9ce3dc2306c1d450cbd2bd8d8",
+        "sid-catalogue.json": "56deec2fe849a58e08c5d92a87d05a34035f21344e3506474192b5d2bbffbe54",
+        "trial-result.json": "a1b21b915a3066c7a09c8ab892718b9eb5a1dcea703f6b5085980bb759e7aba3",
+        "test-predictions.npz": "388dc7de8e5ded45f0fc74ad4640833047f2dc2dccb5a341e988a1a70da5dce1",
+        "validation-epoch-034.npz": "c1779c531d595b02101f20de99422602b96b7836d981671e11b498d1a0054eaf"
+      }
+    },
+    {
+      "id": "actor_w01_seed202",
+      "seed": 202,
+      "candidate": "actor_w01",
+      "best_epoch": 29,
+      "files": {
+        "generator-best.pt": "3627a5490a8ea24b31aa697b6690e8025272b0672362f63a1d645aa4c78af5a8",
+        "semantic-codes.npy": "6014ea31ae67a406bd5c1fce6d88fb696f131d9813c880357eab434bbbd147ac",
+        "semantic-ids.npy": "10db79c8bea7f61be678321fc32ed8971c9f12675dd7aacddbb10b50cdbc1e5a",
+        "sid-catalogue.json": "56deec2fe849a58e08c5d92a87d05a34035f21344e3506474192b5d2bbffbe54",
+        "trial-result.json": "3f7edd72bb0352eb731289b58bbe70fe0f9ecf6caa1526b18fa49c51480138e2",
+        "test-predictions.npz": "c0555a304c1fa354b005cad0fb8475a95342aa9beeaadcdfdf36afffbaa06938",
+        "validation-epoch-029.npz": "7b57f9ccd723597854c12ca6760db386cd2eee6bdc45ad5fa5c45a1519e98ac4"
+      }
+    }
+  ],
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml100k-text-ladder-input"
+    ],
+    "kernel_sources": [
+      "carasik/rhpr-ml100k-actor-full-training"
+    ],
+    "competition_sources": [],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  }
+}
