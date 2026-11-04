@@ -2,6 +2,27 @@
 
 ## Research status
 
+- Context40replication COMPLETE,collected2026-11-04MSK. Private carasik/rhpr-
+  ml100k-context40-replication v1,e3308db026871ccec6590ba502b6cce8d65ebd0c,
+  4newfits101/202/102.45min;reuse2L40seed42fits,notretrained. All6models
+  30epochs/10020updates/14valchecks/0AMPskips/0invalidtest/0duplicates.
+  L40test control/graph:42 .04564/.05887(+29%),101 .04862/.04759(-2.1%),
+  202 .04656/.04812(+3.3%). Mean.04694/.05153(+9.8%)drivenby42;
+  new101/202only+0.56%. Valmeancontrol.06789/graph.06596(-2.8%),graphwins1/3.
+  ConditionaltestCI[-.00217,+.01133]andvalCIcross0;notseeduncertainty.
+  Matched<=30epochval graph20->40positive3/3:+4.0/+8.5/+5.3%,mean+5.8%,
+  CI[-.00380,+.01112]cross0;controlmean-1.34%. Descriptiveleadonly.
+  L40testknownslotscontrol40.23%/graph40.28%;repetitionstill~40%.
+  Newepochs96-100s;peakfitallocated1.84GiB,physical128unchanged. Fixedval
+  epochs20/25/30graphmeanalsoworse. Selectedepochs101control25/graph28,
+  202control26/graph28. Prior42graph30cap. No convergence/generalgraphclaim.
+  102predictionfilesrescored1e-12;allcase/index/init/resumeproofsOK.
+  Tests956OK91skips. Report docs/gr-movielens100k-context40-three-seed-results
+  .md/.json;artifacts/movielens100k-context40-replication/analysis.
+  NoGPUworkpending. Noextra inference/training/tuning/extensions/seeds/Telegram.
+
+
+
 - Context40replication SUBMITTED ONCE,v1RUNNING,2026-11-03MSK. Private
   carasik/rhpr-ml100k-context40-replication;workflow41682670062successsubmit-only.
   Executablee3308db026871ccec6590ba502b6cce8d65ebd0c;197sources/exactconfig

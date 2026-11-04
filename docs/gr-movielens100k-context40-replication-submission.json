@@ -2,8 +2,8 @@
   "kernel_id": "carasik/rhpr-ml100k-context40-replication",
   "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-ml100k-context40-replication",
   "version": 1,
-  "status": "RUNNING",
-  "observed_at": "2026-11-03T20:19:53.570444+03:00",
+  "status": "COMPLETE",
+  "observed_at": "2026-11-04T12:06:48.982489+03:00",
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41682670062",
   "workflow_result": "success; submit_only=true",
   "executable_git_sha": "e3308db026871ccec6590ba502b6cce8d65ebd0c",
@@ -58,6 +58,9 @@
     "worker0_started": "none_L40_seed101",
     "worker1_started": "actor_w01_L40_seed101"
   },
-  "results_available": false,
-  "no_resubmission": true
+  "results_available": true,
+  "no_resubmission": true,
+  "submitted_observation_at": "2026-11-03T20:19:53.570444+03:00",
+  "runner_duration_minutes": 102.44778901666668,
+  "result_report": "docs/gr-movielens100k-context40-three-seed-results.md"
 }
