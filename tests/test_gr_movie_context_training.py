@@ -32,15 +32,29 @@ class MovieContextTrainingTest(unittest.TestCase):
         with self.assertRaises(ValueError):validate(bad)
 
     def test_longer_windows_preserve_each_target_user_and_recent_suffix(self):
-        u=TemporalUser(7,tuple(range(45)),tuple(range(45)),45,45,46,46)
+        u=TemporalUser(7,tuple(range(65)),tuple(range(65)),65,65,66,66)
         hashes={s:case_digest(temporal_examples([u],20,s))for s in ['train','validation','test']}
-        for h in [30,40]:
+        for h in [30,40,50]:
             r=verify_schedules([u],h,hashes)
-            self.assertEqual(r['train']['examples'],44)
+            self.assertEqual(r['train']['examples'],64)
             self.assertTrue(all(x['targets_and_users_unchanged']and x['last20_suffix_unchanged']for x in r.values()))
-            ex=temporal_examples([u],h,'test');np.testing.assert_array_equal(ex[0][0],np.arange(46-h,46))
+            ex=temporal_examples([u],h,'test');np.testing.assert_array_equal(ex[0][0],np.arange(66-h,66))
         hashes['test']='bad'
         with self.assertRaises(ValueError):verify_schedules([u],30,hashes)
+
+    def test_window50_changes_only_context_and_trial_names_from_seed42(self):
+        pilot=json.loads(CONFIG.read_text())
+        c=json.loads((ROOT/'experiments/movielens100k_context50_seed42_30epochs.json').read_text());validate(c)
+        self.assertEqual(c['replicate_seeds'],[42]);self.assertEqual(c['context_windows'],[50])
+        for key in ['training','generator','parent','runtime','kaggle']:
+            self.assertEqual(c[key],pilot[key])
+        original={t['candidate']:t for t in pilot['trials'] if t['history_items']==40}
+        self.assertEqual(len(c['trials']),2)
+        for trial in c['trials']:
+            self.assertEqual(trial['files'],original[trial['candidate']]['files'])
+            self.assertEqual(trial['source_trial'],original[trial['candidate']]['source_trial'])
+        bad=copy.deepcopy(c);bad['replicate_seeds']=[101];bad['seed']=101
+        with self.assertRaises(ValueError):validate(bad)
 
     @unittest.skipUnless(os.environ.get('RHPR_GRID_SOURCE'),'requires native GRID')
     def test_native_fresh_predictor_frozen_index_and_exact20epoch_resume_to30(self):

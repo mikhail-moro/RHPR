@@ -2,6 +2,18 @@
 
 ## Research status
 
+- Context50 authorized 2026-11-04: ordinary eager T5, seed42 only, control and
+  actor graph .1, 2 fresh predictors on 2T4, 30 epochs, same protocol as L40.
+  Config experiments/movielens100k_context50_seed42_30epochs.json; new private
+  kernel carasik/rhpr-ml100k-context50. Original frozen seed42 SID indices and
+  fresh original initialization; FP16 AMP, physical128/effective256, beam20
+  FP32 unmasked eval. Val5/10/15/20 then21-30; exact resume and old LR schedule.
+  Only context changes; no quantizer fitting/Flash/TPU/HPO/extra seeds/retries.
+  Quota4.69h before run; expected ~1-1.5h elapsed, not measured. Preserve old
+  completed runs. Report validation/test separately; one exploratory seed.
+  Prepared, not yet submitted; update receipt after actual workflow dispatch.
+
+
 - Context40replication COMPLETE,collected2026-11-04MSK. Private carasik/rhpr-
   ml100k-context40-replication v1,e3308db026871ccec6590ba502b6cce8d65ebd0c,
   4newfits101/202/102.45min;reuse2L40seed42fits,notretrained. All6models
