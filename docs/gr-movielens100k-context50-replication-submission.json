@@ -5,13 +5,13 @@
   "kernel_id": "carasik/rhpr-ml100k-context50-replication",
   "kernel_version": 1,
   "versioned_kernel_id": "carasik/rhpr-ml100k-context50-replication/1",
-  "status": "submitted",
-  "quality_complete": false,
+  "status": "complete",
+  "quality_complete": true,
   "worker_timeout_seconds": 10800,
   "submitted_at_utc": "2026-11-04T11:27:41.300243+00:00",
-  "observed_status": "RUNNING",
-  "observed_at_utc": "2026-11-04T11:29:07.419864+00:00",
-  "observed_at_msk": "2026-11-04T14:29:07.420186+03:00",
+  "observed_status": "COMPLETE",
+  "observed_at_utc": "2026-11-04T13:44:30.805096+00:00",
+  "observed_at_msk": "2026-11-04T16:44:30.805112+03:00",
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41821006440",
   "workflow_result": "success; submit_only=true",
   "config": "experiments/movielens100k_context50_seeds101_202.json",
@@ -32,6 +32,8 @@
     "skipped": 91,
     "full_size_constructor_backward_probes": 4
   },
-  "results_available": false,
-  "resubmitted": false
+  "results_available": true,
+  "resubmitted": false,
+  "runner_duration_minutes": 127.75419748333334,
+  "result_report": "docs/gr-movielens100k-context50-three-seed-results.md"
 }

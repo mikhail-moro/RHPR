@@ -2,6 +2,25 @@
 
 ## Research status
 
+- Context50 replication COMPLETE, collected2026-11-04MSK. Private carasik/rhpr-
+  ml100k-context50-replication v1,d8027d0d84d375659335680f63468423718c4a37,
+  4fits101/202 in127.75min;reuse completed42,not retrained. All6L50 models30ep/
+  10020updates/14valchecks/0AMPskips. Newbest epochs:101control25/graph22,
+  202control29/graph28. L50val meancontrol.063543/graph.067401(+6.07%);
+  test.046596/.042873(-7.99%). Graph/control test by42/101/202:-10.8/+15.2/-24.8%.
+  Val/test graph-control sign reverses each seed. Graph wins val2/3,test1/3.
+  Graph20->50val positive3/3,+8.11%mean;controlnegative3/3,-7.65%. Graph40->50
+  val+2.18%,test-16.80%;new101/202only test-9.62%. No established overall gain.
+  Conditional graph-control50 bootstrapCIs cross0;graph50-40testnegative forall3,
+  crosses0fornew2only. Not seed variance, repeated-holdout or multiplicity correction.
+  Test knownslotscontrol40.42%/graph40.35%;repeats persist. Control101 has63invalid
+  beampaths(20top10),0duplicates;othernewtestsvalid. CPUvalid-path compaction does
+  not change itsNDCG10;official ranks unchanged. Epochs123-125s,newpeak2.400-2.402GiB.
+  119predictionfiles rescored1e-12;configs/index/init/cases/suffixes/resume audited.
+  Report docs/gr-movielens100k-context50-three-seed-results.md/.json;receiptcomplete.
+  No pending GPU work, new inference/training/tuning/dispatch/retries/Telegram.
+
+
 - Context50 replication authorized 2026-11-04 MSK: only seeds101/202, control
   and actor graph.1, four fresh generators, ordinary eager T5,30epochs on2T4.
   Config experiments/movielens100k_context50_seeds101_202.json; NEWprivate kernel
