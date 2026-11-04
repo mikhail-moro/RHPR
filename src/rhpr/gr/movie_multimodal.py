@@ -69,6 +69,8 @@ def run_multimodal_trial(trial, config, plan, users, source, device):
     from rhpr.gr.sid_study import state_digest
     from rhpr.gr.experiment import _train_generator,_evaluate
     seed=trial['seed'];config=copy.deepcopy(config);config['seed']=seed
+    mtl=config.get('kind')=='gr_movie_mtl'
+    if mtl:config['quantizer']['mtl_mode']=trial['mtl_mode']
     actor_screen=config.get('kind')=='gr_movie_actor_screen'
     actor_full=config.get('kind')=='gr_movie_actor_full'
     roles=config.get('kind') in {'gr_movie_people_roles','gr_movie_actor_screen','gr_movie_actor_full'}
@@ -106,7 +108,7 @@ def run_multimodal_trial(trial, config, plan, users, source, device):
     initial=state_digest(dict(model.named_parameters()))
     if initial!=plan['initial_state_sha256_by_seed'][str(seed)]:raise ValueError('generator initial weights differ within seed')
     _write(root/'generator.json',{'parameters':sum(p.numel() for p in model.parameters()),'initial_state_sha256':initial,'config':config['generator']})
-    if actor_screen:
+    if actor_screen or mtl:
         from rhpr.gr.movie_actor_screen import train_generator
         selection=train_generator(model,users,index,config,root,device)
     elif graph_loss:
@@ -120,6 +122,7 @@ def run_multimodal_trial(trial, config, plan, users, source, device):
     np.savez_compressed(root/'test-predictions.npz',semantic_ids=predictions,scores=scores,user_ids=examples[1],target_item_ids=examples[2])
     result={'trial':trial['id'],'stage':trial['stage'],'seed':seed,'initial_state_sha256':initial,
         'active_modalities':trial['modalities'],'quantizer_steps':report['steps'],'selection':selection,'test':metrics}
+    if mtl:result['mtl_mode']=trial['mtl_mode']
     if graph_loss:
         if roles:result['people_role']=trial['people_role']
         if actor_screen or actor_full:result.update(candidate=trial['candidate'],people_source=trial['people_source'],fixed_epoch_screen=actor_screen)

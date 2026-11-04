@@ -20,6 +20,7 @@ def warmup_autoencoder(model, tensors, spec, seed, device, output, normalization
     output=Path(output);output.mkdir(parents=True,exist_ok=True)
     warm=spec['ae_warmup'];model.to(device)
     parameters=[p for name in NEURAL_MODULES for p in getattr(model,name).parameters()]
+    if hasattr(model,'mtl'):parameters += [p for p in model.mtl.parameters() if p.requires_grad]
     optimizer=model.optimizer(params=parameters)
     initial=state_digest(neural_state(model))
     books_before=state_digest({f'{i}.{k}':v for i,book in enumerate(model.quantization_layer_list) for k,v in book.state_dict().items()})
@@ -56,9 +57,13 @@ def warmup_autoencoder(model, tensors, spec, seed, device, output, normalization
             model.train();fields={k:v[indices].to(device) for k,v in tensors.items()}
             optimizer.zero_grad(set_to_none=True)
             # Intentionally bypass the entire residual-quantization forward.
-            z=model.encode_modalities(fields);loss,_=model.reconstruction(z,fields)
+            z=model.encode_modalities(fields);loss,task_losses=model.reconstruction(z,fields)
             if not torch.isfinite(loss):raise FloatingPointError('nonfinite continuous modality AE loss')
-            loss.backward();norm=torch.nn.utils.clip_grad_norm_(parameters,float('inf'))
+            if hasattr(model,'mtl'):
+                shared=[m.weight for m in model.encoder.modules() if isinstance(m,torch.nn.Linear)][-1]
+                model.mtl.backward_tasks(task_losses,loss,[p for n,p in model.named_parameters() if p.requires_grad and n.split('.')[0] in NEURAL_MODULES],shared)
+            else:loss.backward()
+            norm=torch.nn.utils.clip_grad_norm_(parameters,float('inf'))
             if not torch.isfinite(norm):raise FloatingPointError('nonfinite continuous modality AE gradient')
             optimizer.step();updates+=1;exposures+=len(indices)
             if updates%warm['probe_interval']==0 or updates==warm['max_steps']:
@@ -75,7 +80,7 @@ def warmup_autoencoder(model, tensors, spec, seed, device, output, normalization
     if books_before!=books_after or any(book.is_initialized for book in model.quantization_layer_list):raise RuntimeError('continuous AE changed codebooks')
     stop={'reason':'fixed_steps' if fixed else 'spectral_plateau' if stopped else 'max_steps','actual_steps':updates,'max_steps':warm['max_steps'],'criterion':warm['stopping']}
     state=neural_state(model);after=state_digest(state)
-    torch.save({'model':state,'optimizer':optimizer.state_dict(),'seed':seed,'steps':updates,'spec':spec,
+    torch.save({'mtl_state':model.mtl.state_dict() if hasattr(model,'mtl') else None,'model':state,'optimizer':optimizer.state_dict(),'seed':seed,'steps':updates,'spec':spec,
         'normalization':normalization,'quantization_enabled':False,'stopping':stop,
         'data_rng':rng.get_state(),'rng_cpu':torch.get_rng_state(),
         'rng_cuda':torch.cuda.get_rng_state_all() if device.startswith('cuda') else []},output/'autoencoder.pt')

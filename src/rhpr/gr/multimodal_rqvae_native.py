@@ -75,9 +75,13 @@ class MultimodalResidualQuantization(ResidualQuantization):
         # Preserve the historical operation order for the equal-weight control.
         total = (sum(losses.values()) if all(self.reconstruction_weights[k]==1 for k in losses)
                  else sum(self.reconstruction_weights[k]*v for k,v in losses.items()))
+        if hasattr(self, 'mtl'):
+            total = self.mtl.objective(losses)
+            if self.training and torch.is_grad_enabled():self.mtl_losses = losses
         return total, losses
 
     def model_step(self, model_input):
+        if hasattr(self,'mtl_losses'):del self.mtl_losses
         fields = {k: v.to(self.device) for k, v in model_input.transformed_features.items()}
         encoded = self.encode_modalities(fields)
         if self.warmup_transferred and self.initial_latent_audit is None:
@@ -94,3 +98,10 @@ class MultimodalResidualQuantization(ResidualQuantization):
         self.last_quantization_loss = float(qloss.detach())
         self.last_reconstruction_loss = float(reconstruction.detach())
         return codes, residuals, qloss, reconstruction
+
+    def backward(self, loss, *args, **kwargs):
+        if not hasattr(self, 'mtl') or not hasattr(self, 'mtl_losses'):
+            return super().backward(loss, *args, **kwargs)
+        shared = [m.weight for m in self.encoder.modules() if isinstance(m, nn.Linear)][-1]
+        parameters = [p for n,p in self.named_parameters() if p.requires_grad and not n.startswith('mtl.')]
+        self.mtl.backward_tasks({k:v*self.reconstruction_loss_weight for k,v in self.mtl_losses.items()}, loss, parameters, shared)

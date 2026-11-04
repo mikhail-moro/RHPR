@@ -2,6 +2,18 @@
 
 ## Research status
 
+- User authorized2026-11-04: first MovieLens100K MTL screen, metadata+poster+plot,
+  NO people, window20, fixed30epochs,val5. Config movielens100k_mtl_2t4.json.
+  Seed42 chosen for first screen; four fresh pipelines sum/UW/GradNorm/PCGrad.
+  AE3500/RQ3000 fixed, unchanged3x256 and TIGER4+4/d128; frozen prior features,
+  native initialization pins, same temporal targets/FP16train/FP32beam20test.
+  Docs gr-movielens100k-mtl.md specifies algorithm conventions and UW scale caveat.
+  Quantization gradients untouched; save MTL weights/gradient cosines and books.
+  No new seeds/graphs/windows/HPO/fallback/retries/Telegram. GPU quota1.43h;
+  estimated55-75min2T4. Preserve existing source results. Publication/dispatch
+  receipt in docs/gr-movielens100k-mtl-submission.json records actual status.
+
+
 - Context50 split-gap CPU audit COMPLETE2026-11-04MSK; no GPU/model calls.
   Report docs/gr-movielens100k-context50-split-gap.md/.json. Main:new target-choice
   sensitivity using all timestamp-group films from2042embargoed events. Expected

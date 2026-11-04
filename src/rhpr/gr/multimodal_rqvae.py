@@ -62,6 +62,9 @@ def fit_multimodal_rqvae(values, masks, spec, seed, device, source, recipe, outp
         expected=spec['expected_initial_state_sha256_by_seed'][str(seed)]
     if expected!=initial:
         raise ValueError('initial quantizer weights differ from the declared direct-training control')
+    if spec.get('mtl_mode'):
+        from rhpr.gr.modality_mtl import ModalityMTL
+        model.mtl = ModalityMTL(spec['mtl_mode'], active, seed).to(device)
     from src.data.loading.components.interfaces import ItemData
     tensors = {k: torch.from_numpy(v) for k, v in arrays.items()}
     tensors.update({k + '_observed': torch.as_tensor(v, dtype=torch.bool) for k, v in masks.items()})
@@ -73,6 +76,7 @@ def fit_multimodal_rqvae(values, masks, spec, seed, device, source, recipe, outp
         # Keep native initializer randomness independent of AE duration/probes.
         with torch.random.fork_rng(devices=devices):
             warmup=warmup_autoencoder(model,tensors,spec,seed,device,output/'ae-warmup',normalization)
+    if hasattr(model, 'mtl'):model.mtl.reset_phase()
     def collate(indices):
         return ItemData(transformed_features={k: v[indices] for k, v in tensors.items()})
     n = len(next(iter(arrays.values())))
@@ -151,10 +155,11 @@ def fit_multimodal_rqvae(values, masks, spec, seed, device, source, recipe, outp
         'reconstruction_batches':model.reconstruction_updates,
         'batches_without_reconstruction':model.initialization_batches,
         'active_modalities':active,'modality_dimensions':schema,'head_reconstruction_mse':losses,
+        'mtl_final_weights':model.mtl.weights().detach().cpu().tolist() if hasattr(model,'mtl') else None,
         'reconstruction_weights':model.reconstruction_weights,
         'precision':'fp32','quantization_loss_weight':model.quantization_loss_weight,
         'reconstruction_loss_weight':model.reconstruction_loss_weight,
-        'reconstruction_loss':'weighted sum of observed-item, dimension-mean MSEs; fixed catalogue normalization; no UW',
+        'reconstruction_loss':spec.get('mtl_mode','fixed weighted sum')+' observed-item dimension-mean MSE; fixed catalogue normalization',
         'semantic_code_statistics':stats,'parameters':sum(p.numel() for p in model.parameters()),
         'fit_seconds':time.monotonic()-started,'diagnostic_seconds':progress.probe_seconds,
         'checkpoint_sha256':file_sha256(output/'quantizer.pt'),'resolved_model':resolved}
