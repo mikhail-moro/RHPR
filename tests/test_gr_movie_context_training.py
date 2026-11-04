@@ -56,6 +56,19 @@ class MovieContextTrainingTest(unittest.TestCase):
         bad=copy.deepcopy(c);bad['replicate_seeds']=[101];bad['seed']=101
         with self.assertRaises(ValueError):validate(bad)
 
+    def test_window50_replication_preserves_per_seed_indices_and_window40_protocol(self):
+        old=json.loads((ROOT/'experiments/movielens100k_context40_seeds101_202.json').read_text())
+        c=json.loads((ROOT/'experiments/movielens100k_context50_seeds101_202.json').read_text());validate(c)
+        self.assertEqual(c['replicate_seeds'],[101,202]);self.assertEqual(c['context_windows'],[50])
+        for key in ['training','generator','parent','runtime','kaggle','expected_initial_state_sha256_by_seed']:
+            self.assertEqual(c[key],old[key])
+        self.assertEqual(len(c['trials']),4)
+        for new,previous in zip(c['trials'],old['trials']):
+            self.assertEqual(new['history_items'],50)
+            self.assertEqual(new,{**previous,'history_items':50,'id':previous['id'].replace('_L40_','_L50_')})
+        bad=copy.deepcopy(c);bad['context_windows']=[40,50]
+        with self.assertRaises(ValueError):validate(bad)
+
     @unittest.skipUnless(os.environ.get('RHPR_GRID_SOURCE'),'requires native GRID')
     def test_native_fresh_predictor_frozen_index_and_exact20epoch_resume_to30(self):
         import torch

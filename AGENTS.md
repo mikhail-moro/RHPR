@@ -2,6 +2,19 @@
 
 ## Research status
 
+- Context50 replication authorized 2026-11-04 MSK: only seeds101/202, control
+  and actor graph.1, four fresh generators, ordinary eager T5,30epochs on2T4.
+  Config experiments/movielens100k_context50_seeds101_202.json; NEWprivate kernel
+  carasik/rhpr-ml100k-context50-replication. Frozen original corresponding SIDs,
+  exact original101/202 initializers, no AE/RQ/graph fitting. Same protocol as42:
+  FP16AMP/physical128/effective256, unmaskedbeam20FP32, val5/10/15/20 then21-30,
+  exact optimizer/scaler/RNG resume and old LR schedule. No extensions/HPO/new
+  windows/more seeds/retries/hardware or batch fallbacks. Preserve42completed.
+  Quota3.57h;expected2-2.5h elapsed;session timeout180min. Prepared,not submitted.
+  These pipeline seeds vary original frozen indices and generator initialization.
+  Same previously examined holdouts; report val/test and all unfavorable results.
+
+
 - Context50 COMPLETE, collected 2026-11-04 MSK. Private carasik/rhpr-ml100k-
   context50 v1; executable d79fdcee647729dfc1335e690aaf09b724439ab4. Two fresh
   seed42 predictors, frozen original indices, 30 epochs/10020 updates/14 checks,
