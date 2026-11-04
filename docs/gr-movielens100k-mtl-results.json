@@ -1,0 +1,257 @@
+{
+  "temporal_cases_reconstructed": true,
+  "executable": "5af82b106c3d2687459dcb9ebc4cc2e4e1547415",
+  "run_minutes": 63.59685598333333,
+  "models": [
+    {
+      "mode": "sum",
+      "val": 0.05997664933491134,
+      "test": 0.04363531804516907,
+      "recall10": 0.09331919406150584,
+      "best_epoch": 30,
+      "mean_epoch_seconds": 51.78295615806665,
+      "tokenizer_seconds": 216.646650787,
+      "relative_val": 0.0,
+      "relative_test": 0.0
+    },
+    {
+      "mode": "uw",
+      "val": 0.06474750344120436,
+      "test": 0.03926643291631541,
+      "recall10": 0.08589607635206786,
+      "best_epoch": 30,
+      "mean_epoch_seconds": 52.89937959539999,
+      "tokenizer_seconds": 221.225351844,
+      "relative_val": 0.07954519232397317,
+      "relative_test": -0.10012268328905527
+    },
+    {
+      "mode": "gradnorm",
+      "val": 0.05761862708966804,
+      "test": 0.044435424839068156,
+      "recall10": 0.09862142099681867,
+      "best_epoch": 25,
+      "mean_epoch_seconds": 51.49496792743342,
+      "tokenizer_seconds": 266.8654754459999,
+      "relative_val": -0.0393156715387023,
+      "relative_test": 0.018336220056213604
+    },
+    {
+      "mode": "pcgrad",
+      "val": 0.06000819238938348,
+      "test": 0.04014966722942857,
+      "recall10": 0.08589607635206786,
+      "best_epoch": 20,
+      "mean_epoch_seconds": 52.30650301056673,
+      "tokenizer_seconds": 374.8660331699998,
+      "relative_val": 0.0005259222517750572,
+      "relative_test": -0.079881411936366
+    }
+  ],
+  "diagnostics": [
+    {
+      "mode": "sum",
+      "probe_count": 13,
+      "encoder_cos_min": 0.7080681324005127,
+      "encoder_cos_median": 0.9332273602485657,
+      "encoder_negative_pairs": 0,
+      "pair_probes": 39,
+      "pcgrad_probe_projection_counts": null,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "weight_sum": 3.0,
+      "reconstruction_mse": {
+        "plot": 0.8385246992111206,
+        "poster": 0.8132301568984985,
+        "text": 0.7885221242904663
+      },
+      "unique_triples": 1272,
+      "used_codes": [
+        256,
+        244,
+        232
+      ],
+      "ae_seconds": 94.99993464099998,
+      "rq_seconds": 121.64671614600002
+    },
+    {
+      "mode": "uw",
+      "probe_count": 13,
+      "encoder_cos_min": 0.5403531193733215,
+      "encoder_cos_median": 0.9488369226455688,
+      "encoder_negative_pairs": 0,
+      "pair_probes": 39,
+      "pcgrad_probe_projection_counts": null,
+      "weights": [
+        1.2177754640579224,
+        1.1624860763549805,
+        1.1726806163787842
+      ],
+      "weight_sum": 3.552942156791687,
+      "reconstruction_mse": {
+        "plot": 0.833530604839325,
+        "poster": 0.8215166926383972,
+        "text": 0.781040370464325
+      },
+      "unique_triples": 1273,
+      "used_codes": [
+        255,
+        238,
+        231
+      ],
+      "ae_seconds": 96.69970236500001,
+      "rq_seconds": 124.52564947899998
+    },
+    {
+      "mode": "gradnorm",
+      "probe_count": 13,
+      "encoder_cos_min": 0.5135484337806702,
+      "encoder_cos_median": 0.9521068334579468,
+      "encoder_negative_pairs": 0,
+      "pair_probes": 39,
+      "pcgrad_probe_projection_counts": null,
+      "weights": [
+        0.9522875547409058,
+        0.961618959903717,
+        1.0860934257507324
+      ],
+      "weight_sum": 2.9999999403953552,
+      "reconstruction_mse": {
+        "plot": 0.8286888003349304,
+        "poster": 0.8265884518623352,
+        "text": 0.7875068187713623
+      },
+      "unique_triples": 1273,
+      "used_codes": [
+        256,
+        244,
+        209
+      ],
+      "ae_seconds": 117.80252181800006,
+      "rq_seconds": 149.06295362799983
+    },
+    {
+      "mode": "pcgrad",
+      "probe_count": 13,
+      "encoder_cos_min": 0.43706053495407104,
+      "encoder_cos_median": 0.9552982449531555,
+      "encoder_negative_pairs": 0,
+      "pair_probes": 39,
+      "pcgrad_probe_projection_counts": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "weight_sum": 3.0,
+      "reconstruction_mse": {
+        "plot": 0.8377386331558228,
+        "poster": 0.822268545627594,
+        "text": 0.7848186492919922
+      },
+      "unique_triples": 1273,
+      "used_codes": [
+        256,
+        245,
+        231
+      ],
+      "ae_seconds": 175.11975787300025,
+      "rq_seconds": 199.74627529699956
+    }
+  ],
+  "comparisons": [
+    {
+      "mode": "uw",
+      "split": "validation",
+      "delta": 0.004770854106293025,
+      "user95": [
+        -0.006869087955954404,
+        0.016872300364169455
+      ],
+      "better": 87,
+      "worse": 85,
+      "ties": 771
+    },
+    {
+      "mode": "uw",
+      "split": "test",
+      "delta": -0.004368885128853665,
+      "user95": [
+        -0.014139452833708117,
+        0.0049399293830689976
+      ],
+      "better": 55,
+      "worse": 68,
+      "ties": 820
+    },
+    {
+      "mode": "gradnorm",
+      "split": "validation",
+      "delta": -0.0023580222452433013,
+      "user95": [
+        -0.014513102899367775,
+        0.00987817980194212
+      ],
+      "better": 80,
+      "worse": 89,
+      "ties": 774
+    },
+    {
+      "mode": "gradnorm",
+      "split": "test",
+      "delta": 0.0008001067938990836,
+      "user95": [
+        -0.009532420928691021,
+        0.01117440923215261
+      ],
+      "better": 68,
+      "worse": 66,
+      "ties": 809
+    },
+    {
+      "mode": "pcgrad",
+      "split": "validation",
+      "delta": 3.154305447214515e-05,
+      "user95": [
+        -0.012863386105054409,
+        0.011882114510239987
+      ],
+      "better": 94,
+      "worse": 87,
+      "ties": 762
+    },
+    {
+      "mode": "pcgrad",
+      "split": "test",
+      "delta": -0.0034856508157404963,
+      "user95": [
+        -0.014148538155570822,
+        0.0065209934400824125
+      ],
+      "better": 62,
+      "worse": 70,
+      "ties": 811
+    }
+  ],
+  "prediction_files_checked": 28,
+  "bootstrap_scope": "5000 paired-user draws conditional on each fitted pair; excludes pipeline seed uncertainty, target clustering, multiplicity and repeated holdout inspection.",
+  "diagnostic_scope": "13 sampled steps per method, 39 pair cosines on last shared encoder weight; not all updates or full network. PCGrad counts are instantaneous at logged probes only.",
+  "logging_note": "Dedicated mtl-learning-curves.json was not exported; all 52 MTL events recovered from preserved worker stdout."
+}

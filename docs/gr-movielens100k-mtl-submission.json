@@ -5,11 +5,11 @@
   "kernel_id": "carasik/rhpr-ml100k-mtl",
   "kernel_version": 1,
   "versioned_kernel_id": "carasik/rhpr-ml100k-mtl/1",
-  "status": "submitted",
-  "quality_complete": false,
+  "status": "complete",
+  "quality_complete": true,
   "worker_timeout_seconds": 5100,
   "submitted_at_utc": "2026-11-04T18:25:33.227010+00:00",
-  "observed_status": "RUNNING",
+  "observed_status": "COMPLETE",
   "workflow_run_id": 41886967932,
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41886967932",
   "source_files_verified": 199,
@@ -28,5 +28,11 @@
     55,
     75
   ],
-  "tests_run": 964
+  "tests_run": 964,
+  "collection": {
+    "prediction_files_checked": 28,
+    "run_minutes": 63.59685598333333,
+    "failed_trials": 0,
+    "temporal_cases_reconstructed": true
+  }
 }

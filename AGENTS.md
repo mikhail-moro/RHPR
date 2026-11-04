@@ -2,6 +2,22 @@
 
 ## Research status
 
+- MTL seed42 screen COMPLETE2026-11-04MSK, private carasik/rhpr-ml100k-mtl v1,
+  executable5af82b106c3d2687459dcb9ebc4cc2e4e1547415,63.60min2T4,4successful
+  freshfits,30epochs/10020updates/6valchecks/0AMPskips. No new GPU work pending.
+  Sum/UW/GradNorm/PCGrad val .059977/.064748/.057619/.060008;
+  test .043635/.039266/.044435/.040150; relative -10.0/+1.8/-8.0%vs sum.
+  UWwinsvalbutlosestest;allconditionalpaireduserCIs cross0;only1pipeline seed.
+  All13probes/method have positive last-encoder paircos;sum min.708 median.933.
+  PCGrad13sampledstepsprojectioncount0;notaggregateallsteps. UWweightssum3.553
+  vs3,relative weightsnearuniform;GradNorm .952/.962/1.086. No establishedgain.
+  Reconstructed/rescored28predictionfiles, alltemporal casehashes and SIDmaps,
+  bookcounts,initialpins,AE/RQtransfer/checkpointsverified. UW6invalidtestpaths,
+  others0;all0duplicates. MTLdedicatedJSONnotexported;52eventsrecoveredfromstdout.
+  Reports docs/gr-movielens100k-mtl-results.md/.json;CPUreplay/script/ZIPpreserved.
+  No extra seeds/tuning/training/inference/Telegram authorized. Colab deferred.
+
+
 - User authorized2026-11-04: first MovieLens100K MTL screen, metadata+poster+plot,
   NO people, window20, fixed30epochs,val5. Config movielens100k_mtl_2t4.json.
   Seed42 chosen for first screen; four fresh pipelines sum/UW/GradNorm/PCGrad.
