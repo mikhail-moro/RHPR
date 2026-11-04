@@ -10,7 +10,12 @@
   FP16AMP/physical128/effective256, unmaskedbeam20FP32, val5/10/15/20 then21-30,
   exact optimizer/scaler/RNG resume and old LR schedule. No extensions/HPO/new
   windows/more seeds/retries/hardware or batch fallbacks. Preserve42completed.
-  Quota3.57h;expected2-2.5h elapsed;session timeout180min. Prepared,not submitted.
+  Quota3.57h;expected2-2.5h elapsed;session timeout180min. SUBMITTED ONCE v1 RUNNING.
+  Executable d8027d0d84d375659335680f63468423718c4a37;workflow41821006440
+  succeeded submit-only. Tests958OK91skips;4native full-size backward probes OK.
+  All197 embedded sources/config/SHA verified;no paused local TPU edits included.
+  Receipt docs/gr-movielens100k-context50-replication-submission.json. No results
+  yet;collect existing kernel after completion. Do not resubmit or extend.
   These pipeline seeds vary original frozen indices and generator initialization.
   Same previously examined holdouts; report val/test and all unfavorable results.
 

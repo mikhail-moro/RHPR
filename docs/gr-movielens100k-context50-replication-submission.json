@@ -1,0 +1,37 @@
+{
+  "source_code_sha": "d8027d0d84d375659335680f63468423718c4a37",
+  "kernel_metadata_sha256": "d501147266ec393d11ea39c8bf898bbb1c552d82d7300f1c0b9ae4b41b9d5089",
+  "runner_sha256": "866ebeb792a46d8821bbdea180aa0d0e0aa622aceaf85da7bba8c24a181d009c",
+  "kernel_id": "carasik/rhpr-ml100k-context50-replication",
+  "kernel_version": 1,
+  "versioned_kernel_id": "carasik/rhpr-ml100k-context50-replication/1",
+  "status": "submitted",
+  "quality_complete": false,
+  "worker_timeout_seconds": 10800,
+  "submitted_at_utc": "2026-11-04T11:27:41.300243+00:00",
+  "observed_status": "RUNNING",
+  "observed_at_utc": "2026-11-04T11:29:07.419864+00:00",
+  "observed_at_msk": "2026-11-04T14:29:07.420186+03:00",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41821006440",
+  "workflow_result": "success; submit_only=true",
+  "config": "experiments/movielens100k_context50_seeds101_202.json",
+  "config_sha256": "37c739f280f01816ebc85e81acbef220c80a46fb3b6276604839c4872d2cf6cc",
+  "models": [
+    "none_L50_seed101",
+    "actor_w01_L50_seed101",
+    "none_L50_seed202",
+    "actor_w01_L50_seed202"
+  ],
+  "training_epochs": 30,
+  "private": true,
+  "enable_internet": false,
+  "machine_shape": "NvidiaTeslaT4",
+  "embedded_sources_verified": 197,
+  "tests": {
+    "passed": 958,
+    "skipped": 91,
+    "full_size_constructor_backward_probes": 4
+  },
+  "results_available": false,
+  "resubmitted": false
+}

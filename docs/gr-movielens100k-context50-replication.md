@@ -50,3 +50,10 @@ constructor/backward probes at context50 matched original per-seed initializers
 and had finite gradients. All pinned parent files, user/target orders and recent
 20/40 suffixes were verified. Runtime changes only admit the registered new
 seed/window matrix; no predictor/training/attention implementation changes.
+
+Submitted once, version1, 2026-11-04 at14:27:41 MSK. Kaggle status RUNNING.
+Executable:`d8027d0d84d375659335680f63468423718c4a37`.
+Workflow:https://github.com/mikhail-moro/RHPR/actions/runs/41821006440
+All197 embedded sources, exact config and source SHA verified from pulled
+Kaggle code; runner hash matches the Actions submission artifact. Private2T4,
+internet off; no paused local TPU changes included. No quality results yet.
