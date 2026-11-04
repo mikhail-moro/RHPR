@@ -16,6 +16,7 @@ class TemporalUser:
     validation_time: int
     test: int
     test_time: int
+    test_between: tuple[int, ...] = ()
 
 
 def choose_target(rows, user_id, timestamp, seed):
@@ -61,11 +62,14 @@ def load_temporal_users(path, source_ids):
         vt, tt = row['validation'][1], row['test'][1]
         if not values or list(times) != sorted(times) or not max(times) < vt < tt:
             raise ValueError('invalid temporal holdout boundaries')
-        all_ids = [*values, row['validation'][0], row['test'][0]]
+        between = row.get('test_between', [])
+        if any(not vt < t < tt for i,t in between) or [t for i,t in between] != sorted(t for i,t in between):
+            raise ValueError('invalid intervening test context')
+        all_ids = [*values, row['validation'][0], row['test'][0], *[i for i,t in between]]
         if len(set(all_ids)) != len(all_ids) or any(v not in item_map for v in all_ids):
             raise ValueError('duplicate or unknown user movie ID')
         result.append(TemporalUser(int(row['user_id']), tuple(item_map[v] for v in values),
-            tuple(times), item_map[row['validation'][0]], vt, item_map[row['test'][0]], tt))
+            tuple(times), item_map[row['validation'][0]], vt, item_map[row['test'][0]], tt, tuple(item_map[i] for i,t in between)))
     if len(set(u.user_id for u in result)) != len(result):
         raise ValueError('duplicate user ID')
     return result
@@ -87,7 +91,7 @@ def temporal_examples(users, history_items, split):
             for i, t in enumerate(user.train_times): starts.setdefault(t, i)
             examples = ((user.train[max(0, starts[user.train_times[i]] - history_items):starts[user.train_times[i]]], user.train[i]) for i in positions(user))
         else:
-            h = user.train if split == 'validation' else (*user.train, user.validation)
+            h = user.train if split == 'validation' else (*user.train, user.validation, *user.test_between)
             examples = [(h[-history_items:], user.validation if split == 'validation' else user.test)]
         for h, target in examples:
             if not h: raise ValueError('empty temporal training history')

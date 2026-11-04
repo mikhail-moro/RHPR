@@ -220,6 +220,9 @@ def run_movie_suite(config, output):
     elif config.get('kind') == 'gr_movie_multimodal':
         modality_root = resolve_dataset_directory(config['modality_input']['path'])
         verify_resources(modality_root, config['modality_input']['manifest_sha256'])
+    if config['data']['split'] == 'latest_two_singleton_timestamp_groups':
+        from rhpr.gr.movie_singleton import prepare_singleton_input
+        data_root = prepare_singleton_input(data_root, output/'singleton-input', config['data'])
     rows = json.loads((data_root / 'catalog-stage-01.json').read_text()); source_ids = [r['item_id'] for r in rows]
     users = load_temporal_users(data_root / 'sequences.json', source_ids)
     split = json.loads((data_root / 'split-report.json').read_text())

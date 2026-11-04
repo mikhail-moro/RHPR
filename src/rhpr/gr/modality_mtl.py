@@ -18,7 +18,7 @@ class ModalityMTL(nn.Module):
         self.mode=mode; self.tasks=tuple(tasks); self.rng=random.Random(seed)
         self.values=nn.Parameter(torch.zeros(len(tasks)), requires_grad=mode in {'uw','gradnorm'})
         self.register_buffer('reference',torch.zeros(len(tasks)))
-        self.diagnostics={}; self.calls=0; self.phase="ae"; self.history=[]
+        self.diagnostics={}; self.calls=0; self.phase="ae"; self.history=[]; self.total_projections=0; self.projected_updates=0
 
     def weights(self):
         if self.mode=='uw':return torch.exp(-self.values)
@@ -71,7 +71,8 @@ class ModalityMTL(nn.Module):
             for p,g in zip(parameters,extra):
                 value=merged[start:start+p.numel()].view_as(p);start+=p.numel()
                 p.grad=value.clone() if g is None else value+g
-            self.diagnostics={'negative_projection_count':conflicts}
+            self.total_projections+=conflicts; self.projected_updates+=int(conflicts>0)
+            self.diagnostics={'negative_projection_count':conflicts,'total_projections':self.total_projections,'projected_updates':self.projected_updates}
         else:total.backward()
         if any(p.grad is not None and not torch.isfinite(p.grad).all() for p in parameters) or (self.values.grad is not None and not torch.isfinite(self.values.grad).all()):
             raise FloatingPointError('nonfinite modality MTL gradient')
@@ -83,5 +84,5 @@ class ModalityMTL(nn.Module):
             from rhpr.gr.experiment import _event
             _event('modality_mtl',**self.diagnostics)
 
-    def get_extra_state(self):return {'rng':self.rng.getstate(),'calls':self.calls}
-    def set_extra_state(self,state):self.rng.setstate(state['rng']);self.calls=state['calls']
+    def get_extra_state(self):return {'rng':self.rng.getstate(),'calls':self.calls,'total_projections':self.total_projections,'projected_updates':self.projected_updates}
+    def set_extra_state(self,state):self.rng.setstate(state['rng']);self.calls=state['calls'];self.total_projections=state.get('total_projections',0);self.projected_updates=state.get('projected_updates',0)

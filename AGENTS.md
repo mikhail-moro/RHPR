@@ -2,6 +2,20 @@
 
 ## Research status
 
+- User authorized2026-11-04: fresh12-model MTL comparison, singleton endpoints,
+  sum/UW/GradNorm/PCGrad x42/101/202,window20,30epochs,val5. New private kernel
+  carasik/rhpr-ml100k-singleton-mtl;config movielens100k_singleton_mtl_3seeds_2t4.
+  Original manifest-verified943-user sequences+embargo derive903users,82234train
+  events/80268cases;latest2singleton groups and>=2earlier train timestamp groups.
+  3173between-val/testevents CONTEXTONLY,3098aftertestdiscarded;all1273films kept.
+  Testhistory=train+val+between,thenlast20. No trainfuture/same-time leakage.
+  FreshAE3500/RQ3000/TIGER4+4,d128FP16/FP32beam20test;allseedsfullinitpins.
+  2T4;quota15.35h,estimate3–3.5h,watchdog300min. Noextras/retries/Telegram/Colab.
+  Per500MTLJSONexport fixed;PCGradcounts aggregateallsteps;optimization unchanged.
+  See docs/gr-movielens100k-singleton-mtl.md and preflight JSON. Submissionreceipt
+  records actualrunstatus;no qualityresults until existing kernel completes.
+
+
 - MTL timestamp-target CPU follow-up2026-11-04: original tie-group selection
   remains417val/409testof943. Fixed-checkpoint uniform one-target expectedtest
   sum.042557/UW.036979/GradNorm.049768/PCGrad.040819;relativeUW-13.1%,GN+16.9%,

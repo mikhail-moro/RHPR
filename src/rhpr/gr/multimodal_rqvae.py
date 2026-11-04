@@ -163,5 +163,8 @@ def fit_multimodal_rqvae(values, masks, spec, seed, device, source, recipe, outp
         'semantic_code_statistics':stats,'parameters':sum(p.numel() for p in model.parameters()),
         'fit_seconds':time.monotonic()-started,'diagnostic_seconds':progress.probe_seconds,
         'checkpoint_sha256':file_sha256(output/'quantizer.pt'),'resolved_model':resolved}
+    if hasattr(model,'mtl'):
+        _write(output/'mtl-learning-curves.json',model.mtl.history)
+        report['mtl_projection_totals']=dict(total_projections=model.mtl.total_projections,projected_updates=model.mtl.projected_updates,optimizer_calls=model.mtl.calls)
     _write(output/'quantizer.json',report)
     return codes,report
