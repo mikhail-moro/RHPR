@@ -2,6 +2,26 @@
 
 ## Research status
 
+- Context50 split-gap CPU audit COMPLETE2026-11-04MSK; no GPU/model calls.
+  Report docs/gr-movielens100k-context50-split-gap.md/.json. Main:new target-choice
+  sensitivity using all timestamp-group films from2042embargoed events. Expected
+  one-target graph/control50 val+1.85%,test-4.80% vs official+6.07/-7.99%; fixed-
+  model val/test gap shrinks54.8%, not causal attribution or benchmark replacement.
+  Context40test+9.77% becomes+1.54%. Same original checkpoints/test history kept.
+  Pop x actor-overlap composition explains3.7%of signed gap descriptively;96.3%
+  remains. Partial actor-feature correlations<.04. No robust cohort router found.
+  Same293Comedy test targets:graph40+27.1%all3seeds,50-30.0%all3.103ofthose users
+  have identical unpadded movie lists across widths;fitting/padding still confounded.
+  Target choice/checkpoint/user/movie effects matter;no static harmful-genre rule.
+  Cross-selected validation halves diagnostic still graph+7.19%;not independent
+  because fullval LR scheduling. Per-user deltaVal/Test r=.021;single-item sparse.
+  Nice>1h test84users lead only4improved/1worse/79ties,not stableat40/val.
+  72cohort interaction simultaneous bootstrap bands allcross0. User/film tables,
+  90context50prediction rechecks, allofficial40/50label scores and portable replay
+  preserved. Rating timestamps are not viewing. Official artifacts unchanged.
+  No training/inference/dispatch/tuning pending;do not spend GPU without new request.
+
+
 - Context50 replication COMPLETE, collected2026-11-04MSK. Private carasik/rhpr-
   ml100k-context50-replication v1,d8027d0d84d375659335680f63468423718c4a37,
   4fits101/202 in127.75min;reuse completed42,not retrained. All6L50 models30ep/
