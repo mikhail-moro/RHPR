@@ -1,0 +1,192 @@
+{
+  "users": 943,
+  "split_counts": {
+    "validation": {
+      "singleton": 526,
+      "multiple": 417
+    },
+    "test": {
+      "singleton": 534,
+      "multiple": 409
+    }
+  },
+  "models": [
+    {
+      "split": "validation",
+      "mode": "sum",
+      "original_best_epoch": 30,
+      "official_ndcg10": 0.05997664933491134,
+      "uniform_target_expected_ndcg10": 0.05886613222977575,
+      "singleton_ndcg10": 0.05738186054612028,
+      "singleton_users": 526
+    },
+    {
+      "split": "validation",
+      "mode": "uw",
+      "original_best_epoch": 30,
+      "official_ndcg10": 0.06474750344120436,
+      "uniform_target_expected_ndcg10": 0.0656697463700691,
+      "singleton_ndcg10": 0.07251055891398928,
+      "singleton_users": 526
+    },
+    {
+      "split": "validation",
+      "mode": "gradnorm",
+      "original_best_epoch": 25,
+      "official_ndcg10": 0.05761862708966804,
+      "uniform_target_expected_ndcg10": 0.05788076412669505,
+      "singleton_ndcg10": 0.060561165506800345,
+      "singleton_users": 526
+    },
+    {
+      "split": "validation",
+      "mode": "pcgrad",
+      "original_best_epoch": 20,
+      "official_ndcg10": 0.06000819238938348,
+      "uniform_target_expected_ndcg10": 0.059703358773994436,
+      "singleton_ndcg10": 0.060428245106460804,
+      "singleton_users": 526
+    },
+    {
+      "split": "test",
+      "mode": "sum",
+      "original_best_epoch": 30,
+      "official_ndcg10": 0.04363531804516907,
+      "uniform_target_expected_ndcg10": 0.04255702653294045,
+      "singleton_ndcg10": 0.04602452991205186,
+      "singleton_users": 534
+    },
+    {
+      "split": "test",
+      "mode": "uw",
+      "original_best_epoch": 30,
+      "official_ndcg10": 0.03926643291631541,
+      "uniform_target_expected_ndcg10": 0.03697871822412247,
+      "singleton_ndcg10": 0.03444876999965016,
+      "singleton_users": 534
+    },
+    {
+      "split": "test",
+      "mode": "gradnorm",
+      "original_best_epoch": 25,
+      "official_ndcg10": 0.044435424839068156,
+      "uniform_target_expected_ndcg10": 0.04976821259859137,
+      "singleton_ndcg10": 0.05306466297414776,
+      "singleton_users": 534
+    },
+    {
+      "split": "test",
+      "mode": "pcgrad",
+      "original_best_epoch": 20,
+      "official_ndcg10": 0.04014966722942858,
+      "uniform_target_expected_ndcg10": 0.040818798291107315,
+      "singleton_ndcg10": 0.04193400638339625,
+      "singleton_users": 534
+    }
+  ],
+  "comparisons": [
+    {
+      "split": "validation",
+      "mode": "uw",
+      "uniform_delta": 0.006803614140293346,
+      "uniform_relative": 0.11557773345353128,
+      "conditional_user95": [
+        -0.0033589413301411816,
+        0.01701213100845023
+      ],
+      "uniform_label_draw_delta_quantiles": [
+        0.001259845181819768,
+        0.0067353986628531735,
+        0.012243429442342859
+      ],
+      "label_draw_positive_fraction": 0.99,
+      "singleton_relative": 0.2636494917363199
+    },
+    {
+      "split": "validation",
+      "mode": "gradnorm",
+      "uniform_delta": -0.0009853681030806993,
+      "uniform_relative": -0.016739134469281103,
+      "conditional_user95": [
+        -0.011266818285425863,
+        0.009560066944846613
+      ],
+      "uniform_label_draw_delta_quantiles": [
+        -0.0069624546423502146,
+        -0.000984959645163275,
+        0.0048384955432386086
+      ],
+      "label_draw_positive_fraction": 0.3736,
+      "singleton_relative": 0.05540609750924186
+    },
+    {
+      "split": "validation",
+      "mode": "pcgrad",
+      "uniform_delta": 0.0008372265442186771,
+      "uniform_relative": 0.014222550599225503,
+      "conditional_user95": [
+        -0.00951121193235173,
+        0.011322500376417828
+      ],
+      "uniform_label_draw_delta_quantiles": [
+        -0.005773563575615038,
+        0.0007434389532506154,
+        0.006979681118449051
+      ],
+      "label_draw_positive_fraction": 0.5898,
+      "singleton_relative": 0.05308967906141726
+    },
+    {
+      "split": "test",
+      "mode": "uw",
+      "uniform_delta": -0.005578308308817982,
+      "uniform_relative": -0.13107843200699654,
+      "conditional_user95": [
+        -0.014656141444841668,
+        0.0033669280547765834
+      ],
+      "uniform_label_draw_delta_quantiles": [
+        -0.01027902709240876,
+        -0.005592871428573266,
+        -0.0008776427908408225
+      ],
+      "label_draw_positive_fraction": 0.009,
+      "singleton_relative": -0.25151283314618933
+    },
+    {
+      "split": "test",
+      "mode": "gradnorm",
+      "uniform_delta": 0.007211186065650919,
+      "uniform_relative": 0.16944760132781456,
+      "conditional_user95": [
+        -0.0018603546607203455,
+        0.016070119802405605
+      ],
+      "uniform_label_draw_delta_quantiles": [
+        0.0017207919858230195,
+        0.007281316161039764,
+        0.012880543425298067
+      ],
+      "label_draw_positive_fraction": 0.9956,
+      "singleton_relative": 0.15296480106475552
+    },
+    {
+      "split": "test",
+      "mode": "pcgrad",
+      "uniform_delta": -0.0017382282418331363,
+      "uniform_relative": -0.040844682616340555,
+      "conditional_user95": [
+        -0.010322892280107354,
+        0.007358932571159638
+      ],
+      "uniform_label_draw_delta_quantiles": [
+        -0.0070297596711454075,
+        -0.0017258326190015844,
+        0.003863578754965985
+      ],
+      "label_draw_positive_fraction": 0.2672,
+      "singleton_relative": -0.08887703006358094
+    }
+  ],
+  "scope": "Fixed ORIGINAL validation-selected checkpoints and original test histories (train plus original selected val item). Expected NDCG under uniform choice of one target within each timestamp group; diagnostic, not replacement benchmark or checkpoint reselection. Label ranges are conditional sensitivity, not confidence intervals. User CI excludes seed uncertainty, target clustering and multiplicity."
+}

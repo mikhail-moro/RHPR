@@ -77,3 +77,43 @@ Fullsummary docs/gr-movielens100k-mtl-results.json. Local outputs /tmp/mtl-compl
 analysis /tmp/mtl-analysis, including CSV,PNG/PDF, hashes, curves and recovered MTL probes.
 Portable numerical ZIP /tmp/movielens100k-mtl-numerical-evidence.zip includes source
 replay and canonical sequences; large model weights remain private Kaggle.
+
+## Follow-up: timestamp target-choice sensitivity
+
+The original split was intentionally retained for comparability, including SHA256
+selection of one movie from a tied rating-second group. This limits the official
+MTL result too. Validation has417/943multi-film groups;test409/943. Other group
+members were embargoed rather than put in context. This avoids same-second leakage
+but leaves an arbitrary choice of the single scoring target.
+
+Using original selected checkpoints and saved rankings, average ordinary single-target
+NDCG over ALL possible single target choices in each group, then over943users:
+
+| Method | Official test NDCG10 | Uniform target expectation | Relative to uniform sum | Singleton test only n534 |
+|---|---:|---:|---:|---:|
+|Sum|.04364|.04256|—|.04602|
+|UW|.03927|.03698|-13.1%|.03445|
+|GradNorm|.04444|.04977|+16.9%|.05306|
+|PCGrad|.04015|.04082|-4.1%|.04193|
+
+GradNorm's fixed-checkpoint test effect rises from+1.8% to+16.9%;on test singletons
+it is+15.3%. This is a larger lead worth recording, not confirmed training benefit.
+UW remains adverse on test despite favorable validation. Uniform expected VAL scores:
+sum.05887,UW.06567(+11.6%),GradNorm.05788(-1.7%),PCGrad.05970(+1.4%). The val/test
+ranking disagreement therefore persists; target choice alone does not remove it.
+
+GradNorm uniform expected TEST delta+.007211,conditional paired-user95%CI
+[-.001860,+.016070], still includes0. Allother comparison CIs also cross0. Across
+5000shared uniform label draws GradNorm beats sum99.56%of draws, but this is
+conditional label sensitivity on these same fitted models/users, NOT a p-value,
+training replication or population confidence. Both statistics are saved separately.
+
+Checkpoints were selected on ORIGINAL single-target validation, and test histories
+retain ORIGINAL selected validation items. This diagnostic is NOT a replacement
+benchmark, new checkpoint-selection protocol or averaged alternative-history inference.
+No retraining/inference/GPU work. Singleton results also retain original checkpoints.
+Timestamp groups denote rating submissions, not observed watch order.
+
+Replay scripts/research/mtl_timestamp_targets.py; outputs
+ docs/gr-movielens100k-mtl-timestamp-targets.json. The full numerical bundle now also
+contains embargoed-events.json and timestamp_replay.py for portable CPU replay.

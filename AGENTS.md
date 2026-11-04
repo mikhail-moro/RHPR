@@ -2,6 +2,16 @@
 
 ## Research status
 
+- MTL timestamp-target CPU follow-up2026-11-04: original tie-group selection
+  remains417val/409testof943. Fixed-checkpoint uniform one-target expectedtest
+  sum.042557/UW.036979/GradNorm.049768/PCGrad.040819;relativeUW-13.1%,GN+16.9%,
+  PC-4.1%vs sum. GNsingletontest534+15.3%. UniformVAL UW+11.6%,GN-1.7%,PC+1.4%,
+  so disagreementpersists. GNpaireduserCI[-.00186,+.01607]includes0,onepipeline
+  seed;labeldrawpositive99.56%conditionalNOTpvalue. OriginalVALselectedcheckpoints
+  and testhistories unchanged;diagnosticNOTnewbenchmark. NoGPUcalls/training.
+  Updated MTLreport, docs/gr-movielens100k-mtl-timestamp-targets.json, replay andZIP.
+
+
 - MTL seed42 screen COMPLETE2026-11-04MSK, private carasik/rhpr-ml100k-mtl v1,
   executable5af82b106c3d2687459dcb9ebc4cc2e4e1547415,63.60min2T4,4successful
   freshfits,30epochs/10020updates/6valchecks/0AMPskips. No new GPU work pending.
