@@ -47,3 +47,10 @@ Preflight: full repository suite passed (957 tests, 91 skipped). Five native
 context-runner tests also passed, including the full 30-epoch resume path.
 Two full-size constructor/backward probes matched the original seed42 weights
 and had finite gradients. Parent fingerprints and all 20/40 suffix checks passed.
+
+Submitted once as version 1 at 2026-11-04T09:43:04Z; Kaggle status RUNNING.
+Executable commit: `d79fdcee647729dfc1335e690aaf09b724439ab4`.
+Workflow: https://github.com/mikhail-moro/RHPR/actions/runs/41809406443
+Pulled source/config and all 197 embedded files verified against the intended
+package; paused local TPU edits are excluded. Submission receipt and runner
+hash agree with the GitHub Actions artifact. No quality results yet.

@@ -11,7 +11,11 @@
   Only context changes; no quantizer fitting/Flash/TPU/HPO/extra seeds/retries.
   Quota4.69h before run; expected ~1-1.5h elapsed, not measured. Preserve old
   completed runs. Report validation/test separately; one exploratory seed.
-  Prepared, not yet submitted; update receipt after actual workflow dispatch.
+  SUBMITTED ONCE v1 RUNNING; source d79fdcee647729dfc1335e690aaf09b724439ab4.
+  Workflow41809406443 succeeded submit-only;197 embedded sources/config verified.
+  Tests957OK91skips;5native runner tests OK; no results yet, no resubmit.
+  Receipt docs/gr-movielens100k-context50-submission.json. Collect after completion.
+
 
 
 - Context40replication COMPLETE,collected2026-11-04MSK. Private carasik/rhpr-
