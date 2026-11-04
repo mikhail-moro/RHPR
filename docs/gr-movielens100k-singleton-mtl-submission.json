@@ -1,0 +1,257 @@
+{
+  "source_code_sha": "35ce22dd1f07aaf02251af7847eb242f91187413",
+  "kernel_metadata_sha256": "9807701a8505fb86105c596a9c4def387f9863bcc0a531ddecff4bfc25f8f3b6",
+  "runner_sha256": "c1500be3cf27abf75ed4eae34a3c29e7f2aa8957f050bd7fcf7fb7334acb5448",
+  "kernel_id": "carasik/rhpr-ml100k-singleton-mtl",
+  "kernel_version": 1,
+  "versioned_kernel_id": "carasik/rhpr-ml100k-singleton-mtl/1",
+  "status": "submitted",
+  "quality_complete": false,
+  "worker_timeout_seconds": 18000,
+  "submitted_at_utc": "2026-11-04T20:05:21.728091+00:00",
+  "observed_status": "RUNNING",
+  "workflow_run_id": 41903145973,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41903145973",
+  "source_files_verified": 200,
+  "config_verified": true,
+  "tests_run": 969,
+  "tests_skipped": 91,
+  "tests_passed": 878,
+  "native_e2e_methods": [
+    "sum",
+    "uw",
+    "gradnorm",
+    "pcgrad"
+  ],
+  "full_initializer_seeds_verified": [
+    42,
+    101,
+    202
+  ],
+  "gpu_hours_before": 15.35,
+  "expected_minutes": [
+    180,
+    210
+  ],
+  "data": {
+    "case_sha256": {
+      "test": "11d0c2dddc30eaa5adaa7478d68201e9500badbdbafb14807f9925b21f8f88a2",
+      "train": "a8ffcac604667df9996b9268d3fe18bee61ecba72e313694dc15bbc346d41489",
+      "validation": "62179b413e5afa6c7190c737c1bafb02699fe219fa4dae5583eccb6efe69b563"
+    },
+    "catalogue_policy": "same1273films; metadata available independently of retained interactions",
+    "discarded_after_test": 3098,
+    "evaluation_examples": 903,
+    "excluded_users": [
+      {
+        "events": 22,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 27
+      },
+      {
+        "events": 21,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 39
+      },
+      {
+        "events": 23,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 86
+      },
+      {
+        "events": 25,
+        "reason": "fewer_than_two_training_groups",
+        "user_id": 131
+      },
+      {
+        "events": 19,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 143
+      },
+      {
+        "events": 19,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 155
+      },
+      {
+        "events": 22,
+        "reason": "fewer_than_two_training_groups",
+        "user_id": 163
+      },
+      {
+        "events": 59,
+        "reason": "fewer_than_two_training_groups",
+        "user_id": 167
+      },
+      {
+        "events": 26,
+        "reason": "fewer_than_two_training_groups",
+        "user_id": 171
+      },
+      {
+        "events": 43,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 237
+      },
+      {
+        "events": 21,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 247
+      },
+      {
+        "events": 17,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 309
+      },
+      {
+        "events": 63,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 331
+      },
+      {
+        "events": 23,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 355
+      },
+      {
+        "events": 19,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 364
+      },
+      {
+        "events": 33,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 366
+      },
+      {
+        "events": 43,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 368
+      },
+      {
+        "events": 28,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 375
+      },
+      {
+        "events": 19,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 386
+      },
+      {
+        "events": 26,
+        "reason": "fewer_than_two_training_groups",
+        "user_id": 408
+      },
+      {
+        "events": 34,
+        "reason": "fewer_than_two_training_groups",
+        "user_id": 446
+      },
+      {
+        "events": 28,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 471
+      },
+      {
+        "events": 35,
+        "reason": "fewer_than_two_training_groups",
+        "user_id": 517
+      },
+      {
+        "events": 27,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 522
+      },
+      {
+        "events": 18,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 571
+      },
+      {
+        "events": 23,
+        "reason": "fewer_than_two_training_groups",
+        "user_id": 581
+      },
+      {
+        "events": 24,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 583
+      },
+      {
+        "events": 26,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 604
+      },
+      {
+        "events": 40,
+        "reason": "fewer_than_two_training_groups",
+        "user_id": 611
+      },
+      {
+        "events": 23,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 628
+      },
+      {
+        "events": 24,
+        "reason": "fewer_than_two_training_groups",
+        "user_id": 688
+      },
+      {
+        "events": 77,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 724
+      },
+      {
+        "events": 31,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 767
+      },
+      {
+        "events": 32,
+        "reason": "fewer_than_two_training_groups",
+        "user_id": 814
+      },
+      {
+        "events": 31,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 817
+      },
+      {
+        "events": 27,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 845
+      },
+      {
+        "events": 17,
+        "reason": "fewer_than_two_training_groups",
+        "user_id": 855
+      },
+      {
+        "events": 20,
+        "reason": "fewer_than_two_training_groups",
+        "user_id": 866
+      },
+      {
+        "events": 30,
+        "reason": "fewer_than_two_singleton_groups",
+        "user_id": 874
+      },
+      {
+        "events": 20,
+        "reason": "fewer_than_two_training_groups",
+        "user_id": 876
+      }
+    ],
+    "items": 1273,
+    "split": "latest_two_singleton_timestamp_groups",
+    "target_selection": "last two groups containing exactly one retained catalogue item; at least two earlier training timestamp groups",
+    "test_between_events": 3173,
+    "test_context": "all retained events strictly before test, including full intervening timestamp groups; train strictly before validation",
+    "timestamp_semantics": "rating submission, not viewing",
+    "train_events": 82234,
+    "train_examples": 80268,
+    "users": 903
+  }
+}
