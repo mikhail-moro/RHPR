@@ -2,6 +2,23 @@
 
 ## Research status
 
+- Context50 COMPLETE, collected 2026-11-04 MSK. Private carasik/rhpr-ml100k-
+  context50 v1; executable d79fdcee647729dfc1335e690aaf09b724439ab4. Two fresh
+  seed42 predictors, frozen original indices, 30 epochs/10020 updates/14 checks,
+  best epoch26 for both; 0 AMP skips/failures/invalid test paths/duplicates.
+  L50 control/graph val .062088/.067638 (+8.94%); test .047234/.042117 (-10.83%).
+  Graph50 vs40 val+2.50%, test-28.46%; control val-11.60%, test+3.50%.
+  Graph validation rises20/30/40/50 on42, but test does not; one exploratory seed,
+  no established longer-context gain. Fixed epochs20/25/30 also favor graph val.
+  Conditional graph-control50 CIs cross0; graph50-40 test CI negative, conditional
+  on fitted models only. No seed variance or repeated-holdout correction.
+  Epochs130.30/122.37s, peak allocated2.400GiB, runner66.87min. Test known slots
+  control38.93%/graph40.55%; repeats persist. Same eager/FP16/beam20 protocol.
+  94 distinct prediction files rescored to1e-12; index/init/schedules/resume audited.
+  Report docs/gr-movielens100k-context50-results.md/.json; receipt marked complete.
+  No new GPU work or fits pending. Preserve old runs; no resubmit/extensions/HPO.
+
+
 - Context50 authorized 2026-11-04: ordinary eager T5, seed42 only, control and
   actor graph .1, 2 fresh predictors on 2T4, 30 epochs, same protocol as L40.
   Config experiments/movielens100k_context50_seed42_30epochs.json; new private

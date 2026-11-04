@@ -5,12 +5,12 @@
   "kernel_id": "carasik/rhpr-ml100k-context50",
   "kernel_version": 1,
   "versioned_kernel_id": "carasik/rhpr-ml100k-context50/1",
-  "status": "submitted",
-  "quality_complete": false,
+  "status": "complete",
+  "quality_complete": true,
   "worker_timeout_seconds": 10800,
   "submitted_at_utc": "2026-11-04T09:43:04.604737+00:00",
-  "observed_at_utc": "2026-11-04T09:45:45.234803+00:00",
-  "observed_status": "RUNNING",
+  "observed_at_utc": "2026-11-04T11:20:24.185483+00:00",
+  "observed_status": "COMPLETE",
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41809406443",
   "workflow_result": "success; submit_only=true",
   "config": "experiments/movielens100k_context50_seed42_30epochs.json",
@@ -29,6 +29,9 @@
     "skipped": 91,
     "native_context_tests": 5
   },
-  "results_available": false,
-  "resubmitted": false
+  "results_available": true,
+  "resubmitted": false,
+  "collected_at_msk": "2026-11-04T14:20:24.180882+03:00",
+  "runner_duration_minutes": 66.87235253333333,
+  "result_report": "docs/gr-movielens100k-context50-results.md"
 }
