@@ -11,7 +11,9 @@
   AE3500/RQ3000 remainFP32;inactivepeople slot zero preserves oldarchitecture
   and qpin54253fbb;fresh5.22.1generatorpind57fc2e7. TwoT4/fourfreshfits.
   982regressionOK13skip+9newtests+4nativeE2E+2multibatch probes pass.
-  No modelqualityresults yet;submissionreceipt records actual run status.
+  Submitted RUNNING private v1,executable20a4c085,workflow42020589648success;
+  all203embeddedfiles/config/dataset sources/hardware verified. Quality pending;
+  docs/gr-ml1m-clean-mtl-submission.json records version/source/validation.
   No extra seeds/tuning/retries/hardware fallback/Telegram authorized.
   Docs gr-ml1m-clean-mtl.md and preflight JSON;do not launch duplicates.
 

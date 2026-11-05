@@ -1,0 +1,35 @@
+{
+  "source_code_sha": "20a4c08534cd6853e3fd64340f2dc429e6bed3a6",
+  "kernel_metadata_sha256": "6212e3a522112f773e29210304c0bf7e798d4ff8fcd4be6656178e3833d95697",
+  "runner_sha256": "864091e3c7645d015feb4e5c0104777729733accd9c204db31c39a5871c51713",
+  "kernel_id": "carasik/rhpr-ml1m-clean-mtl",
+  "kernel_version": 1,
+  "versioned_kernel_id": "carasik/rhpr-ml1m-clean-mtl/1",
+  "status": "RUNNING",
+  "quality_complete": false,
+  "worker_timeout_seconds": 14400,
+  "submitted_at_utc": "2026-11-05T11:38:44.264753+00:00",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42020589648",
+  "workflow_conclusion": "success",
+  "source_audit": {
+    "git_sha": "20a4c08534cd6853e3fd64340f2dc429e6bed3a6",
+    "embedded_files": 203,
+    "all_embedded_bytes_match": true,
+    "config_exact": true,
+    "runner_sha256": "864091e3c7645d015feb4e5c0104777729733accd9c204db31c39a5871c51713",
+    "private": true,
+    "internet": false,
+    "dataset_sources_exact": true,
+    "hardware": "NvidiaTeslaT4"
+  },
+  "validation": {
+    "regression_tests": 982,
+    "regression_skipped": 13,
+    "new_protocol_tests": 9,
+    "native_end_to_end": 4,
+    "native_multibatch": 2,
+    "failed": 0,
+    "input_byte_replay": true
+  },
+  "gpu_results_pending": true
+}
