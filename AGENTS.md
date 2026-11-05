@@ -7,7 +7,10 @@
   same trained sum42 checkpoint, windows20/50,10warmup+50timedsteps,FP16/dropout.1.
   CPU parity ALL95gradients/beam passed; no CUDA performance claim yet.
   Modern wheels isolated; private weights mounted from existing Kaggle notebook.
-  See docs/gr-t5-sdpa-pilot.md; receipt records actual submission/status.
+  Submitted private carasik/rhpr-t5-sdpa-pilot v1 RUNNING; executable d6edbf78,
+  workflow41993141529success, all201embeddedfiles/config exact.975testsOK13skip;
+  13modernGRIDtests/CPUparity pass. GPU results pending; do not launch duplicates.
+  See docs/gr-t5-sdpa-pilot.md and gr-t5-sdpa-submission.json.
   No extra runs/seeds/ML1M/Telegram/retries authorized.
 
 
