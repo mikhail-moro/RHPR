@@ -2,6 +2,15 @@
 
 ## Research status
 
+- User authorized2026-11-05: bounded native SDPA T4 pilot, NOT full training.
+  Config experiments/t5_sdpa_t4_pilot.json; old4.47eager vs5.22.1eager vsSDPA,
+  same trained sum42 checkpoint, windows20/50,10warmup+50timedsteps,FP16/dropout.1.
+  CPU parity ALL95gradients/beam passed; no CUDA performance claim yet.
+  Modern wheels isolated; private weights mounted from existing Kaggle notebook.
+  See docs/gr-t5-sdpa-pilot.md; receipt records actual submission/status.
+  No extra runs/seeds/ML1M/Telegram/retries authorized.
+
+
 - Singleton MTL12fit run COMPLETE,collected2026-11-05MSK,private carasik/rhpr-
   ml100k-singleton-mtl v1,35ce22dd1f07aaf02251af7847eb242f91187413,195.26min2T4.
   All12freshfits30epochs/9420updates/6valchecks/0AMPskips.903singletonusers,

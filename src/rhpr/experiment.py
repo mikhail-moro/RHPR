@@ -76,6 +76,11 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == 'gr_sdpa_pilot':
+        if output_dir is None:
+            raise ValueError('SDPA pilot requires an output directory')
+        from rhpr.gr.sdpa_pilot import run_pilot
+        return run_pilot(config, output_dir)
     if kind == 'gr_movie_context_training':
         if output_dir is None:raise ValueError('context training requires output directory')
         from rhpr.gr.movie_context_training import run_context_training
