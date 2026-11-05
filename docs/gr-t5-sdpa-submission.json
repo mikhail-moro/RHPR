@@ -5,7 +5,7 @@
   "kernel_id": "carasik/rhpr-t5-sdpa-pilot",
   "kernel_version": 1,
   "versioned_kernel_id": "carasik/rhpr-t5-sdpa-pilot/1",
-  "status": "RUNNING",
+  "status": "COMPLETE",
   "quality_complete": false,
   "worker_timeout_seconds": 1800,
   "submitted_at_utc": "2026-11-05T08:16:21.638347+00:00",
@@ -27,5 +27,7 @@
     "modern_grid_tests": 13,
     "cpu_checkpoint_parity": true
   },
-  "gpu_results_pending": true
+  "gpu_results_pending": false,
+  "pilot_complete": true,
+  "results_report": "docs/gr-t5-sdpa-results.md"
 }

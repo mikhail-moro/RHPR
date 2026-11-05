@@ -2,6 +2,18 @@
 
 ## Research status
 
+- Native SDPA pilot COMPLETE,collected2026-11-05: carasik/rhpr-t5-sdpa-pilot v1,
+  executable d6edbf78,T4/PyTorch2.11;194.2s experiment,3runtimepaths. Real native
+  efficient CUDA forward/backward confirmed. Historical4.47eager→5.22.1SDPA:
+  window20 124.67→128.88ms(+3.38%),allocated .841→.747GiB(-11.25%);
+  window50 348.85→308.27ms(-11.63%),2.353→1.773GiB(-24.64%). E2E signs same.
+  Modern eager itself slower; comparing only modern eager overstates benefit.
+  FP32 all95gradients/hidden/beam parity pass;6FP16benchmarks0AMPskips. One
+  sequential timing run,not full epochs/convergence/NDCG. Defaults unchanged.
+  Reports gr-t5-sdpa-results.md/.json, replay and evidence ZIP preserved.
+  No extra runs/full ML1M/quality training/Telegram authorized or pending.
+
+
 - User authorized2026-11-05: bounded native SDPA T4 pilot, NOT full training.
   Config experiments/t5_sdpa_t4_pilot.json; old4.47eager vs5.22.1eager vsSDPA,
   same trained sum42 checkpoint, windows20/50,10warmup+50timedsteps,FP16/dropout.1.
@@ -9,7 +21,7 @@
   Modern wheels isolated; private weights mounted from existing Kaggle notebook.
   Submitted private carasik/rhpr-t5-sdpa-pilot v1 RUNNING; executable d6edbf78,
   workflow41993141529success, all201embeddedfiles/config exact.975testsOK13skip;
-  13modernGRIDtests/CPUparity pass. GPU results pending; do not launch duplicates.
+  13modernGRIDtests/CPUparity pass. Collected COMPLETE; see results entry above.
   See docs/gr-t5-sdpa-pilot.md and gr-t5-sdpa-submission.json.
   No extra runs/seeds/ML1M/Telegram/retries authorized.
 

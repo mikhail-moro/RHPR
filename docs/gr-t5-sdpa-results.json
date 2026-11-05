@@ -1,0 +1,192 @@
+{
+  "source_code_sha": "d6edbf7815a3814867f915a1cb733a805131b2be",
+  "run_duration_seconds": 194.199066,
+  "child_section_seconds": 173.30301045200008,
+  "rows": [
+    {
+      "backend": "legacy_eager",
+      "history_items": 20,
+      "step_ms": 124.67076851999309,
+      "median_step_ms": 124.07990250000012,
+      "end_to_end_ms": 125.17820659999188,
+      "peak_allocated_GiB": 0.841489315032959,
+      "peak_reserved_GiB": 0.923828125,
+      "within_run_step_sd_ms": 2.922780978065642,
+      "fused_efficient_backward_observed": false,
+      "amp_skipped_updates": 0
+    },
+    {
+      "backend": "legacy_eager",
+      "history_items": 50,
+      "step_ms": 348.8527155400061,
+      "median_step_ms": 348.11027500001046,
+      "end_to_end_ms": 349.82092620001595,
+      "peak_allocated_GiB": 2.3534388542175293,
+      "peak_reserved_GiB": 2.642578125,
+      "within_run_step_sd_ms": 2.3326455342293393,
+      "fused_efficient_backward_observed": false,
+      "amp_skipped_updates": 0
+    },
+    {
+      "backend": "eager",
+      "history_items": 20,
+      "step_ms": 144.45550931999833,
+      "median_step_ms": 144.27095150000468,
+      "end_to_end_ms": 144.50798720000648,
+      "peak_allocated_GiB": 0.8373074531555176,
+      "peak_reserved_GiB": 0.90625,
+      "within_run_step_sd_ms": 1.9879539333039455,
+      "fused_efficient_backward_observed": false,
+      "amp_skipped_updates": 0
+    },
+    {
+      "backend": "eager",
+      "history_items": 50,
+      "step_ms": 371.25164406000295,
+      "median_step_ms": 370.655238500035,
+      "end_to_end_ms": 373.080422999999,
+      "peak_allocated_GiB": 2.3531174659729004,
+      "peak_reserved_GiB": 2.533203125,
+      "within_run_step_sd_ms": 3.491444996190954,
+      "fused_efficient_backward_observed": false,
+      "amp_skipped_updates": 0
+    },
+    {
+      "backend": "sdpa",
+      "history_items": 20,
+      "step_ms": 128.8805794399991,
+      "median_step_ms": 128.36239199998545,
+      "end_to_end_ms": 129.52266939998935,
+      "peak_allocated_GiB": 0.7468376159667969,
+      "peak_reserved_GiB": 0.83203125,
+      "within_run_step_sd_ms": 3.2059855376636897,
+      "fused_efficient_backward_observed": true,
+      "amp_skipped_updates": 0
+    },
+    {
+      "backend": "sdpa",
+      "history_items": 50,
+      "step_ms": 308.2738326399999,
+      "median_step_ms": 307.76234249998424,
+      "end_to_end_ms": 309.35969960000875,
+      "peak_allocated_GiB": 1.7734436988830566,
+      "peak_reserved_GiB": 1.923828125,
+      "within_run_step_sd_ms": 3.975674728696777,
+      "fused_efficient_backward_observed": true,
+      "amp_skipped_updates": 0
+    }
+  ],
+  "comparisons": [
+    {
+      "history_items": 20,
+      "time_change_vs_legacy_pct": 3.3767425756510816,
+      "time_change_vs_modern_eager_pct": -10.7818178436501,
+      "memory_change_vs_legacy_pct": -11.248116568474176,
+      "end_to_end_change_vs_legacy_pct": 3.4706223375449374
+    },
+    {
+      "history_items": 50,
+      "time_change_vs_legacy_pct": -11.632096037203599,
+      "time_change_vs_modern_eager_pct": -16.963645125252114,
+      "memory_change_vs_legacy_pct": -24.64458145131242,
+      "end_to_end_change_vs_legacy_pct": -11.566268216005128
+    }
+  ],
+  "parity": {
+    "legacy_eager": {
+      "loss": 6.101670742034912,
+      "gradient_tensors": 95,
+      "parameters": 4977920,
+      "prediction_shape": [
+        8,
+        20,
+        4
+      ]
+    },
+    "eager": {
+      "loss": 6.101670742034912,
+      "gradient_tensors": 95,
+      "parameters": 4977920,
+      "prediction_shape": [
+        8,
+        20,
+        4
+      ],
+      "legacy_output_parity": {
+        "max_absolute_error": 0.0,
+        "relative_l2": 0.0,
+        "tensors": 2,
+        "atol": 0.0002,
+        "rtol": 0.0002
+      },
+      "legacy_gradient_parity": {
+        "max_absolute_error": 7.450580596923828e-09,
+        "relative_l2": 1.877123330995595e-09,
+        "tensors": 95,
+        "atol": 0.0003,
+        "rtol": 0.003
+      },
+      "legacy_beam_exact_fraction": 1.0,
+      "legacy_beam_scores": {
+        "max_absolute_error": 5.587935447692871e-08,
+        "relative_l2": 4.0633287633388484e-07,
+        "tensors": 1,
+        "atol": 2e-06,
+        "rtol": 0.002
+      }
+    },
+    "sdpa": {
+      "loss": 6.101670742034912,
+      "gradient_tensors": 95,
+      "parameters": 4977920,
+      "prediction_shape": [
+        8,
+        20,
+        4
+      ],
+      "legacy_output_parity": {
+        "max_absolute_error": 9.5367431640625e-07,
+        "relative_l2": 1.4643188187451968e-07,
+        "tensors": 2,
+        "atol": 0.0002,
+        "rtol": 0.0002
+      },
+      "legacy_gradient_parity": {
+        "max_absolute_error": 1.7881393432617188e-07,
+        "relative_l2": 3.134924760110812e-07,
+        "tensors": 95,
+        "atol": 0.0003,
+        "rtol": 0.003
+      },
+      "legacy_beam_exact_fraction": 1.0,
+      "legacy_beam_scores": {
+        "max_absolute_error": 3.725290298461914e-08,
+        "relative_l2": 4.1436272596008633e-07,
+        "tensors": 1,
+        "atol": 2e-06,
+        "rtol": 0.002
+      },
+      "modern_output_parity": {
+        "max_absolute_error": 9.5367431640625e-07,
+        "relative_l2": 1.4643188187451968e-07,
+        "tensors": 2,
+        "atol": 0.0002,
+        "rtol": 0.0002
+      },
+      "modern_gradient_parity": {
+        "max_absolute_error": 1.7881393432617188e-07,
+        "relative_l2": 3.134910477202511e-07,
+        "tensors": 95,
+        "atol": 0.0003,
+        "rtol": 0.003
+      }
+    }
+  },
+  "limitations": [
+    "One sequential run on one physical T4; no randomized runtime order or independent timing repetitions.",
+    "50 optimizer updates timed per configuration; repeated fixed real minibatch, not a full epoch.",
+    "Numerical parity checked in FP32/eval mode with backward; FP16/dropout .1 checked for short-run stability only.",
+    "Profiler totals overlap parent/child operators; do not sum inclusive operator CUDA times.",
+    "No downstream quality, convergence, full-epoch or ML1M speed claims."
+  ]
+}
