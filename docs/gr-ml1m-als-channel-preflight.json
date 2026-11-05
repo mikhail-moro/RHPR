@@ -1,0 +1,43 @@
+{
+  "status": "preflight_passed",
+  "regression_tests": 998,
+  "regression_skipped": 91,
+  "failed": 0,
+  "native_end_to_end": 2,
+  "epochs_each": 30,
+  "val_checks_each": 6,
+  "roundtrip_input_bytes_verified": true,
+  "shuffle_mask_and_multiset_verified": true,
+  "full_size_quantizer_initial_pin": "54253fbb9f6837546a0c29291db31a12cb0be65f75609a6d8f7c3d89aeccc69b",
+  "als_report": {
+    "implementation": "implicit.cpu.als.AlternatingLeastSquares",
+    "version": "0.7.3",
+    "spec": {
+      "factors": 128,
+      "regularization": 0.1,
+      "alpha": 20,
+      "iterations": 20,
+      "seed": 42,
+      "cpu_threads": 1
+    },
+    "user_item_shape": [
+      2786,
+      2874
+    ],
+    "binary_interactions": 303199,
+    "input_csr_sha256": "8c8b028880029e745ea03783737a08aa689b12c8456d7c844b24cc663526b51c",
+    "seconds": 3.519956535019446,
+    "train_only": true,
+    "item_factor_sha256": "b6d11963cc1370d63ef5012c7b6b90569364c20c2e6ac585cde6dbd87b53bbbd",
+    "train_case_sha256": "28339b91f7d22ee78d3eed6e3c00cbd393ecc62e487fe63f74da65fac3937e5b",
+    "users": 2786,
+    "items": 2874,
+    "observed_items": 2777,
+    "no_val_test_read": true,
+    "source": "union of TRAIN contexts and targets, binary unique user-item edges",
+    "all_ratings_are_interactions": true,
+    "shuffle_seed": 42,
+    "shuffle_supported_only": true,
+    "fixed_points_supported": 0
+  }
+}

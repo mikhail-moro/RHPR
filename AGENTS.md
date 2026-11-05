@@ -2,6 +2,18 @@
 
 ## Research status
 
+- Latest authorization2026-11-05: TRAIN-only ALSchannel and shuffledALS on
+  seed42,ordinarysum,2fresh30epochfits/val5 on2T4;reuse oldSUMseed42control.
+  Config experiments/ml1m_als_channel_2t4.json;private carasik/rhpr-ml1m-als-channel.
+  SameML1Mrawclean cases/nativeSDPA/FP16/batch512/512,TIGER4+4d128,AE3500/RQ3000.
+  Frozen128DimplicitALS on303199uniqueTRAINedges,2777supporteditems;noholdout
+  reads. Shuffledonlysupported rows,mask/vector multiset retained. ALSuses
+  existingpeople128slot;NOpeopledata. Oldparameter shapes/pins preserved.
+  One extra unitRecLoss changes totalscale3to4 in BOTHarms;document limitation.
+  Inputprivate carasik/rhpr-ml1m-als-input,manifestcfed1590e72447de047987e45d5399718404a0074eaa6be3bde7ea9086ba9663.
+  No extra methods/HPO/seeds/retries/Colab/hardwarefallback/Telegram.
+
+
 - Latest authorization2026-11-05: repeat ALL4 ML1M clean MTL methods on
   two additional pipeline seeds101/202 (not only SUM/PCGrad). Eightfreshfits
   on2T4 in one private carasik/rhpr-ml1m-clean-mtl-replicates session;

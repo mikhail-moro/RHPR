@@ -9,6 +9,9 @@ from rhpr.gr.movie_data import case_digest
 
 
 def validate(c):
+    if 'collaborative_input' in c:
+        from rhpr.gr.ml1m_als import validate_als
+        return validate_als(c)
     t=c['training'];q=c['quantizer'];d=c['data']
     seeds=c['replicate_seeds'];modes={'sum','uw','gradnorm','pcgrad'}
     if seeds not in ([42],[101,202]) or any(type(s)is not int for s in seeds):
@@ -97,6 +100,12 @@ def run_trial(trial,c,plan,device):
     if file_sha256(Path(plan['modality_root'])/'features.npz')!=plan['features_sha256']:
         raise ValueError('shared frozen embeddings changed')
     q=copy.deepcopy(c['quantizer']);q['mtl_mode']=trial['mtl_mode']
+    cf=None
+    if 'collaborative_input' in c:
+        from rhpr.gr.ml1m_als import attach_channel
+        cf=attach_channel(arrays,masks,plan['collaborative_root'],trial['cf_variant'],c['collaborative_input']['manifest_sha256'])
+        q['zero_inactive_slots']=[]
+        _write(root/'collaborative-provenance.json',cf)
     _write(root/'representation.json',dict(active_modalities=trial['modalities'],frozen_sources=True,source_features_sha256=plan['features_sha256']))
     codes,report=fit_multimodal_rqvae(arrays,masks,q,seed,device,plan['source'],Path(plan['original'])/'configs/experiment/rqvae_train_flat.yaml',root,trial['modalities'])
     del arrays,masks;gc.collect();torch.cuda.empty_cache()if device.startswith('cuda')else None
@@ -112,8 +121,9 @@ def run_trial(trial,c,plan,device):
     examples=case_examples(plan['data_root'],20,'test')
     metrics,pred,probs=_evaluate(model,examples,index,c['training']['evaluation_batch_size'],device,precision='fp32')
     np.savez_compressed(root/'test-predictions.npz',semantic_ids=pred,scores=probs,user_ids=examples[1],target_item_ids=examples[2])
-    result=dict(trial=trial['id'],seed=seed,stage=3,mtl_mode=trial['mtl_mode'],active_modalities=trial['modalities'],initial_state_sha256=initial,
+    result=dict(trial=trial['id'],seed=seed,stage=trial['stage'],mtl_mode=trial['mtl_mode'],active_modalities=trial['modalities'],initial_state_sha256=initial,
         quantizer_steps=report['steps'],selection=selection,test=metrics,features_sha256=plan['features_sha256'],case_sha256=c['data']['case_sha256'])
+    if cf is not None:result['collaborative']=cf
     _write(root/'trial-result.json',result);return result
 
 
@@ -162,6 +172,11 @@ def run_clean_mtl(c,output):
     command=[sys.executable,'-m','pip','install','--no-index','--no-deps','--no-cache-dir','--no-compile','--require-hashes','--only-binary=:all:','--target',str(overlay),'--find-links',str(modern),'-r',str(modern/'requirements-lock.txt')]
     with(output/'modern-install.log').open('w')as f:subprocess.run(command,stdout=f,stderr=subprocess.STDOUT,check=True,timeout=180)
     plan=dict(config=c,output=str(output),source=str(source),original=str(original),data_root=str(data),modality_root=str(modal),source_ids=json.loads((data/'source-ids.json').read_text()),features_sha256=file_sha256(modal/'features.npz'),assignments=assignments(c,torch.cuda.device_count()))
+    if 'collaborative_input' in c:
+        cfroot=resolve_dataset_directory(c['collaborative_input']['path'])
+        verify_resources(cfroot,c['collaborative_input']['manifest_sha256'])
+        if json.loads((cfroot/'source-ids.json').read_text())!=plan['source_ids']:raise ValueError('ALS catalogue order mismatch')
+        plan['collaborative_root']=str(cfroot)
     _write(output/'plan.json',plan)
     # Parent retains its loaded legacy encoder runtime. Only fresh worker
     # interpreters see modern Transformers first in their inherited PYTHONPATH.
