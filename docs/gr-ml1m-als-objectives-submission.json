@@ -5,11 +5,11 @@
   "kernel_id": "carasik/rhpr-ml1m-als-objectives",
   "kernel_version": 1,
   "versioned_kernel_id": "carasik/rhpr-ml1m-als-objectives/1",
-  "status": "RUNNING",
-  "quality_complete": false,
+  "status": "COMPLETE",
+  "quality_complete": true,
   "worker_timeout_seconds": 10800,
   "submitted_at_utc": "2026-11-05T19:11:48.443708+00:00",
-  "gpu_results_pending": true,
+  "gpu_results_pending": false,
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42091502981",
   "source_audit": {
     "git_sha": "a102ceac9a374f5c2627cc3c09cb673afdecf1e5",
@@ -22,5 +22,7 @@
     "dataset_sources_exact": true,
     "hardware": "NvidiaTeslaT4"
   },
-  "workflow_conclusion": "success"
+  "workflow_conclusion": "success",
+  "completed_at_utc": "2026-11-05T19:50:00.395036+00:00",
+  "results_report": "docs/gr-ml1m-als-objectives-results.md"
 }

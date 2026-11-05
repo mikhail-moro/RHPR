@@ -1,0 +1,281 @@
+{
+  "records": [
+    {
+      "model": "sum_seed42",
+      "validation": 0.06665965690329272,
+      "test": 0.06165244460531691,
+      "best_epoch": 25,
+      "mean_epoch_seconds": 56.80911920210001
+    },
+    {
+      "model": "als_seed42",
+      "validation": 0.06417789642225628,
+      "test": 0.05511802036443841,
+      "best_epoch": 25,
+      "mean_epoch_seconds": 59.6564941173
+    },
+    {
+      "model": "shuffled_seed42",
+      "validation": 0.06841460348707964,
+      "test": 0.05932953973675245,
+      "best_epoch": 25,
+      "mean_epoch_seconds": 58.094752430266695
+    },
+    {
+      "model": "als_gradnorm_seed42",
+      "validation": 0.06293545822004046,
+      "test": 0.05342502256768966,
+      "best_epoch": 25,
+      "mean_epoch_seconds": 56.912209974700005
+    },
+    {
+      "model": "als_no_cf_reconstruction_seed42",
+      "validation": 0.06566885773774908,
+      "test": 0.048492417317448376,
+      "best_epoch": 20,
+      "mean_epoch_seconds": 58.221805180000004
+    }
+  ],
+  "comparisons": [
+    {
+      "model": "als_gradnorm_seed42",
+      "reference": "sum_seed42",
+      "split": "validation",
+      "delta": -0.0037241986832522497,
+      "relative_pct": -5.58688546605509,
+      "ci95": [
+        -0.010588405280325947,
+        0.0030622172885669224
+      ]
+    },
+    {
+      "model": "als_gradnorm_seed42",
+      "reference": "sum_seed42",
+      "split": "test",
+      "delta": -0.00822742203762724,
+      "relative_pct": -13.344843161203228,
+      "ci95": [
+        -0.01469644699257534,
+        -0.0017226489132252517
+      ]
+    },
+    {
+      "model": "als_gradnorm_seed42",
+      "reference": "als_seed42",
+      "split": "validation",
+      "delta": -0.0012424382022158257,
+      "relative_pct": -1.9359285228690666,
+      "ci95": [
+        -0.007870552007114773,
+        0.0055094989979125744
+      ]
+    },
+    {
+      "model": "als_gradnorm_seed42",
+      "reference": "als_seed42",
+      "split": "test",
+      "delta": -0.0016929977967487448,
+      "relative_pct": -3.0715867252755142,
+      "ci95": [
+        -0.008239590174396808,
+        0.004665185143947364
+      ]
+    },
+    {
+      "model": "als_no_cf_reconstruction_seed42",
+      "reference": "sum_seed42",
+      "split": "validation",
+      "delta": -0.0009907991655436295,
+      "relative_pct": -1.4863550332715378,
+      "ci95": [
+        -0.00835634858837677,
+        0.006350979428590147
+      ]
+    },
+    {
+      "model": "als_no_cf_reconstruction_seed42",
+      "reference": "sum_seed42",
+      "split": "test",
+      "delta": -0.013160027287868536,
+      "relative_pct": -21.345507663346766,
+      "ci95": [
+        -0.0197456093480492,
+        -0.006419095476466964
+      ]
+    },
+    {
+      "model": "als_no_cf_reconstruction_seed42",
+      "reference": "als_seed42",
+      "split": "validation",
+      "delta": 0.0014909613154927936,
+      "relative_pct": 2.3231695001080506,
+      "ci95": [
+        -0.005530495655363333,
+        0.008640494661593572
+      ]
+    },
+    {
+      "model": "als_no_cf_reconstruction_seed42",
+      "reference": "als_seed42",
+      "split": "test",
+      "delta": -0.006625603046990039,
+      "relative_pct": -12.020756556896975,
+      "ci95": [
+        -0.013186015261124368,
+        0.000394904370503934
+      ]
+    }
+  ],
+  "diagnostics": [
+    {
+      "model": "sum_seed42",
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "fixed_weights": {
+        "people": 1.0,
+        "plot": 1.0,
+        "poster": 1.0,
+        "text": 1.0
+      },
+      "mse": {
+        "plot": 0.889478660326661,
+        "poster": 0.8476137108660109,
+        "text": 0.8256266333199078
+      },
+      "used_codes": [
+        255,
+        252,
+        231
+      ],
+      "unique_triples": 2871,
+      "max_collision": 2
+    },
+    {
+      "model": "als_seed42",
+      "weights": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "fixed_weights": {
+        "people": 1.0,
+        "plot": 1.0,
+        "poster": 1.0,
+        "text": 1.0
+      },
+      "mse": {
+        "people": 0.9002912895989409,
+        "plot": 0.8856003172877105,
+        "poster": 0.8500217574291455,
+        "text": 0.8064733256709683
+      },
+      "used_codes": [
+        256,
+        256,
+        248
+      ],
+      "unique_triples": 2871,
+      "max_collision": 2
+    },
+    {
+      "model": "shuffled_seed42",
+      "weights": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "fixed_weights": {
+        "people": 1.0,
+        "plot": 1.0,
+        "poster": 1.0,
+        "text": 1.0
+      },
+      "mse": {
+        "people": 0.9715035687172889,
+        "plot": 0.8764158283660374,
+        "poster": 0.8379248191104137,
+        "text": 0.8151685717459263
+      },
+      "used_codes": [
+        256,
+        252,
+        249
+      ],
+      "unique_triples": 2873,
+      "max_collision": 2
+    },
+    {
+      "model": "als_gradnorm_seed42",
+      "weights": [
+        0.8778890371322632,
+        0.9296383857727051,
+        1.1272180080413818,
+        1.06525456905365
+      ],
+      "fixed_weights": {
+        "people": 1.0,
+        "plot": 1.0,
+        "poster": 1.0,
+        "text": 1.0
+      },
+      "mse": {
+        "people": 0.8954952200797551,
+        "plot": 0.8770764241968498,
+        "poster": 0.8620053836680487,
+        "text": 0.8076998430901131
+      },
+      "used_codes": [
+        256,
+        254,
+        248
+      ],
+      "unique_triples": 2872,
+      "max_collision": 2
+    },
+    {
+      "model": "als_no_cf_reconstruction_seed42",
+      "weights": null,
+      "fixed_weights": {
+        "people": 0.0,
+        "plot": 1.0,
+        "poster": 1.0,
+        "text": 1.0
+      },
+      "mse": {
+        "people": 1.134161239740099,
+        "plot": 0.8843897363752977,
+        "poster": 0.8356787624588092,
+        "text": 0.8157505232921141
+      },
+      "used_codes": [
+        256,
+        254,
+        252
+      ],
+      "unique_triples": 2873,
+      "max_collision": 2
+    }
+  ],
+  "prediction_files_checked": 35,
+  "duration_minutes": 37.53450766666666,
+  "finished_at": "2026-11-05T19:50:00.395036+00:00",
+  "content_features_identical": true,
+  "all_fits_complete": true,
+  "amp_skips": 0,
+  "scope": "One pipeline seed42; conditional user bootstrap excludes training seed/target-item dependence. No new training/inference. No-CF loss does not remove CF inputs; reconstruction total scale also changes.",
+  "input_audit": {
+    "checkpoint_sha256": "713dc465bbe67977207cf624c24989724f957c12bb3dee6836779463cabc6a4f",
+    "cf_encoder_max_parameter_change": 0.07322151213884354,
+    "cf_decoder_max_parameter_change": 0.0,
+    "observed_items": 2777,
+    "cf_block_masking_changes_latent_fraction": 1.0,
+    "relative_latent_l2_change_median": 0.07252765446901321,
+    "relative_latent_l2_change_p95": 0.20111772418022156,
+    "scope": "CPU tokenizer-only read-only probe, mask CF block after its MLP. Demonstrates surviving input sensitivity, not useful CF semantics, generator behavior or a ranking improvement. No generator inference/training."
+  }
+}

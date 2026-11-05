@@ -11,10 +11,19 @@
   Tinygradientcheck verifies liveALSencoder vs zeroCFdecoder reconstruction
   gradient;bothnativeE2E30epoch/6VAL passed. Reuse old contentSUM/ALSSUM controls.
   No extra methods/seeds/HPO/retries/Colab/hardwarefallback/Telegram.
-  SUBMITTED RUNNING privatev1,executablea102ceac9a37,workflow42091502981.
+  COMPLETE privatev1,executablea102ceac9a37,workflow42091502981.
   All204embeddedfiles/config/5sources/T4/offline verified.1000regressiontests,
   91optional skips,0fail;2nativeE2E+explicitzeroCFgradientcheck passed.
-  Receipt docs/gr-ml1m-als-objectives-submission.json;GPUqualitypending.
+  Bothfits30epochs/8880updates/6VAL/0AMPskips,37.53min. GNselected25,
+  lambda0selected20. VAL/TEST GN .062935/.053425,lambda0 .065669/.048492;
+  TESTvsALSSUM -3.07/-12.02%,vscontent -13.34/-21.35%. No positive evidence.
+  GNfinalweights meta/poster/plot/ALS .878/.930/1.127/1.065;CF not suppressed.
+  Actual lambda0 quantizer audited:CFdecoder unchanged,CFencoder trained;
+  masking CF changes all2777supportedlatents,medianrelativeL2 7.25%.
+  35predictionfiles independently rescored. One seed;vsALSSUM CIs include0;
+  vscontent conditional userCIs negative,not trainingseed inference.
+  Receipt docs/gr-ml1m-als-objectives-submission.json;no GPUwork pending.
+  Report gr-ml1m-als-objectives-results.md/.json,replay/plots/audit/ZIPsaved.
   Docs gr-ml1m-als-objectives.md;do not launch duplicate sessions.
 
 
