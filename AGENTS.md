@@ -11,6 +11,10 @@
   existingpeople128slot;NOpeopledata. Oldparameter shapes/pins preserved.
   One extra unitRecLoss changes totalscale3to4 in BOTHarms;document limitation.
   Inputprivate carasik/rhpr-ml1m-als-input,manifestcfed1590e72447de047987e45d5399718404a0074eaa6be3bde7ea9086ba9663.
+  SUBMITTED RUNNING privatev1,executable6ecbdaa0b54b,workflow42076145430success;
+  all204embeddedfiles/config/5sources/T4/offline verified.998regressiontests,
+  91optional skips,0fail;2nativeE2Epassed. Submission receipt preserved.
+  GPUqualitypending;do not launch duplicates.
   No extra methods/HPO/seeds/retries/Colab/hardwarefallback/Telegram.
 
 
