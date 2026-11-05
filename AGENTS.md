@@ -11,6 +11,10 @@
   Tinygradientcheck verifies liveALSencoder vs zeroCFdecoder reconstruction
   gradient;bothnativeE2E30epoch/6VAL passed. Reuse old contentSUM/ALSSUM controls.
   No extra methods/seeds/HPO/retries/Colab/hardwarefallback/Telegram.
+  SUBMITTED RUNNING privatev1,executablea102ceac9a37,workflow42091502981.
+  All204embeddedfiles/config/5sources/T4/offline verified.1000regressiontests,
+  91optional skips,0fail;2nativeE2E+explicitzeroCFgradientcheck passed.
+  Receipt docs/gr-ml1m-als-objectives-submission.json;GPUqualitypending.
   Docs gr-ml1m-als-objectives.md;do not launch duplicate sessions.
 
 
