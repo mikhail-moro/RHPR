@@ -2,6 +2,18 @@
 
 ## Research status
 
+- Latest authorization2026-11-05: ALS GradNorm + ALSinput lambdaCF0,
+  seed42,2freshfits on2T4;config ml1m_als_objectives_2t4.json,
+  private carasik/rhpr-ml1m-als-objectives. Same30epochs/val5/FP16SDPA512,
+  AE3500/RQ3000FP32,all5pinnedinputs reused. ALS remains active input in
+  botharms;zeroCF uses fixedweights1/1/1/0 with NO MTLadapter,otherwise
+  adapter would override fixedweights. GradNorm4tasks alpha1.5,sumweights4.
+  Tinygradientcheck verifies liveALSencoder vs zeroCFdecoder reconstruction
+  gradient;bothnativeE2E30epoch/6VAL passed. Reuse old contentSUM/ALSSUM controls.
+  No extra methods/seeds/HPO/retries/Colab/hardwarefallback/Telegram.
+  Docs gr-ml1m-als-objectives.md;do not launch duplicate sessions.
+
+
 - Latest authorization2026-11-05: TRAIN-only ALSchannel and shuffledALS on
   seed42,ordinarysum,2fresh30epochfits/val5 on2T4;reuse oldSUMseed42control.
   Config experiments/ml1m_als_channel_2t4.json;private carasik/rhpr-ml1m-als-channel.

@@ -102,9 +102,12 @@ def run_trial(trial,c,plan,device):
     q=copy.deepcopy(c['quantizer']);q['mtl_mode']=trial['mtl_mode']
     cf=None
     if 'collaborative_input' in c:
-        from rhpr.gr.ml1m_als import attach_channel
+        from rhpr.gr.ml1m_als import attach_channel,configure_objective
         cf=attach_channel(arrays,masks,plan['collaborative_root'],trial['cf_variant'],c['collaborative_input']['manifest_sha256'])
         q['zero_inactive_slots']=[]
+        configure_objective(q,trial)
+        cf['objective']=trial.get('cf_objective','sum')
+        cf['reconstruction_weights']=q.get('reconstruction_weights',{})
         _write(root/'collaborative-provenance.json',cf)
     _write(root/'representation.json',dict(active_modalities=trial['modalities'],frozen_sources=True,source_features_sha256=plan['features_sha256']))
     codes,report=fit_multimodal_rqvae(arrays,masks,q,seed,device,plan['source'],Path(plan['original'])/'configs/experiment/rqvae_train_flat.yaml',root,trial['modalities'])

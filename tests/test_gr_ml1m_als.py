@@ -21,3 +21,14 @@ class ALSTests(unittest.TestCase):
    arrays={'people':np.zeros((2,2),dtype='float32')};masks={}
    report=attach_channel(arrays,masks,p,'als',sha(p/'resources-manifest.json'));self.assertEqual(report['observed_items'],1);self.assertFalse(masks['people'][1])
    with self.assertRaises(ValueError):attach_channel(arrays,masks,p,'als','0'*64)
+
+class ObjectiveTests(unittest.TestCase):
+ def test_objective_screen_requires_two_distinct_als_objectives(self):
+  c=json.loads((ROOT/'experiments/ml1m_als_objectives_2t4.json').read_text());validate(c)
+  c['trials'][1]['mtl_mode']='gradnorm'
+  with self.assertRaises(ValueError):validate(c)
+ def test_zero_cf_objective_preserves_inputs_and_avoids_weight_override(self):
+  from rhpr.gr.ml1m_als import configure_objective
+  spec={'mtl_mode':'sum','zero_inactive_slots':[]};trial={'cf_objective':'no_cf_reconstruction'}
+  configure_objective(spec,trial)
+  self.assertEqual(spec['reconstruction_weights'],{'people':0.});self.assertEqual(spec['zero_inactive_slots'],[]);self.assertNotIn('mtl_mode',spec)
