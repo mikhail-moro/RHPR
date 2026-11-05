@@ -2,6 +2,19 @@
 
 ## Research status
 
+- ML1M clean-history CPU audit2026-11-05 COMPLETE;NO GPU/protocol change.
+  Fixed2874films. Priorfilterproposal5672users/839388cases reproduces.
+  799users(14.1%)haveval/test raw timestamp ambiguity hidden by filtering;
+  4440(78.3%)have uncovered events in original up-to20val/test contexts.
+  Not evidence this caused ML100K quality instability. New raw singleton +
+  clean raw up-to20windows:4146users/174378traincases;full20eval:3158/166912;
+  literalcontiguous20+val+test:2786/151166. Allcohorts>=1traincasebeforeval.
+  Initialvalidprefixonly2600/35730(full20:753/21989). Keep raw timeline/barriers,
+  filter examples rather than splice histories;natural short original prefixes
+  allowed,never reset-shortafterunknown. Candidate only,not approved training.
+  Report gr-ml1m-clean-history-audit.md/.json,CLIreplay/CSV/bundle preserved.
+
+
 - Batch T4 pilot COMPLETE,collected2026-11-05;carasik/rhpr-t5-batch-pilot v1,
   executable b777b516,570.12s experiment.16attempts:15complete0AMPskips,
   1OOM(eager window50physical1024),0numericalfailed. SDPA20throughput at
