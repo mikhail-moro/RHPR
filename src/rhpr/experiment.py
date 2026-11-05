@@ -76,6 +76,11 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == 'gr_mini_tiger':
+        if output_dir is None:
+            raise ValueError('mini TIGER requires output directory')
+        from rhpr.gr.mini_tiger import run_mini_tiger
+        return run_mini_tiger(config, output_dir)
     if kind == 'gr_ml1m_clean_mtl':
         if output_dir is None:
             raise ValueError('clean ML1M MTL requires output directory')

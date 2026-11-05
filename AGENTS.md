@@ -2,6 +2,20 @@
 
 ## Research status
 
+- User authorization2026-11-05: frozen-index mini-TIGER calibration. Eight
+  existing SUM/UW/GN/PC indexes at tokenizerseeds42/101;three mini shapes
+  shallow1+1,narrow4+4d64,compact2+2;generatorseeds31415/27182 only.48fresh
+  fits,20epochs,val5,FP16/nativeSDPA/512,2T4;no quantizer/fullmodel fitting.
+  Reuse existing private cleanMTL and replicates notebook outputs as kernel
+  sources;all reference files/manifests/pins verified. NO new dataset upload:
+  that attempted action was rejected by automatic approval review and abandoned.
+  Protocol docs/gr-mini-tiger.md;config ml1m_mini_tiger_2t4.json. Primary
+  correlation against full epoch30VAL;best-of30 secondary;report seed groups
+  and earlyfull comparators.8related indexes,one fullgen seed/index;pilot only.
+  No TEST evaluation,extra shapes/seeds/epochs/HPO/retries/Telegram authorized.
+  Server3h budget;incomplete matrix must fail,never report as full calibration.
+
+
 - Latest authorization2026-11-05: ALS GradNorm + ALSinput lambdaCF0,
   seed42,2freshfits on2T4;config ml1m_als_objectives_2t4.json,
   private carasik/rhpr-ml1m-als-objectives. Same30epochs/val5/FP16SDPA512,

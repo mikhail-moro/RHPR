@@ -1,0 +1,47 @@
+{
+  "matrix_fits": 48,
+  "architectures": {
+    "shallow": 1633664,
+    "narrow": 1375040,
+    "compact": 1175424
+  },
+  "indexes": [
+    "sum_seed42",
+    "uw_seed42",
+    "gradnorm_seed42",
+    "pcgrad_seed42",
+    "sum_seed101",
+    "uw_seed101",
+    "gradnorm_seed101",
+    "pcgrad_seed101"
+  ],
+  "generator_seeds": [
+    31415,
+    27182
+  ],
+  "native_cpu_probe_architectures": 3,
+  "native_probe_epochs": 20,
+  "native_probe_val_checks": 4,
+  "native_probe_test_evaluated": false,
+  "parent_stage_replay_indexes": 8,
+  "parent_sids_and_curves_equal": true,
+  "private": true,
+  "internet": false,
+  "dataset_sources": [
+    "carasik/rhpr-gr-beauty-phase0",
+    "carasik/rhpr-ml1m-clean-mtl-input",
+    "carasik/rhpr-t5-sdpa-runtime"
+  ],
+  "kernel_sources": [
+    "carasik/rhpr-ml1m-clean-mtl",
+    "carasik/rhpr-ml1m-clean-mtl-replicates"
+  ],
+  "new_dataset_upload": false,
+  "dispatcher_base_matches_remote": true,
+  "regression": {
+    "tests": 1005,
+    "optional_skips": 91,
+    "failures": 0,
+    "seconds": 111.547
+  }
+}
