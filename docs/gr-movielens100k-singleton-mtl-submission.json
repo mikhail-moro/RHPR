@@ -5,11 +5,11 @@
   "kernel_id": "carasik/rhpr-ml100k-singleton-mtl",
   "kernel_version": 1,
   "versioned_kernel_id": "carasik/rhpr-ml100k-singleton-mtl/1",
-  "status": "submitted",
-  "quality_complete": false,
+  "status": "complete",
+  "quality_complete": true,
   "worker_timeout_seconds": 18000,
   "submitted_at_utc": "2026-11-04T20:05:21.728091+00:00",
-  "observed_status": "RUNNING",
+  "observed_status": "COMPLETE",
   "workflow_run_id": 41903145973,
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41903145973",
   "source_files_verified": 200,
@@ -253,5 +253,11 @@
     "train_events": 82234,
     "train_examples": 80268,
     "users": 903
+  },
+  "collection": {
+    "run_minutes": 195.26437230000002,
+    "models": 12,
+    "prediction_files_checked": 84,
+    "failed_trials": 0
   }
 }

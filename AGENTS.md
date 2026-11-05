@@ -2,6 +2,24 @@
 
 ## Research status
 
+- Singleton MTL12fit run COMPLETE,collected2026-11-05MSK,private carasik/rhpr-
+  ml100k-singleton-mtl v1,35ce22dd1f07aaf02251af7847eb242f91187413,195.26min2T4.
+  All12freshfits30epochs/9420updates/6valchecks/0AMPskips.903singletonusers,
+  alloriginalsourcebytehashes/splitselection and3casedigests independently checked.
+  Mean VALsum/UW/GN/PC .070893/.065722/.068257/.064754;
+  TEST .046652/.049578/.046040/.047780,relativeUW+6.3/GN-1.3/PC+2.4%.
+  UWTESTtie42,wins101/202;VALworse2/3(-7.3%mean). PCVALworse3/3. Sum remains
+  mean-VALsupported;allconditionaluserCIs cross0,3coupledseeds,sameheldouts.
+  Removing tied-targetchoice does NOT remove val/test disagreement. Old/newmetrics
+  notdirectlycomparable. PCGrad44/19500calls project(.226%),129pairprojections,
+  119inthefirst500AEcalls. All468sampledencoderpaircos positive(min.306).
+  GradNormplotweight~1.09-1.13;UWmostlyglobalRecscale,notpurebalanceablation.
+  Independentlyrescored84predictionfiles, maps/bookcounts/initpins/transfer/
+  checkpointsverified. GN101TEST2invalidpaths,others0,all0duplicates.
+  Reports docs/gr-movielens100k-singleton-mtl-results.md/.json,CPUreplay/ZIP
+  preserved. No new GPU/model calls/training/inference/dispatch/Telegram pending.
+
+
 - User authorized2026-11-04: fresh12-model MTL comparison, singleton endpoints,
   sum/UW/GradNorm/PCGrad x42/101/202,window20,30epochs,val5. New private kernel
   carasik/rhpr-ml100k-singleton-mtl;config movielens100k_singleton_mtl_3seeds_2t4.
