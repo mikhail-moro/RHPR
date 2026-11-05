@@ -10,7 +10,9 @@
   Fixed1024TRAINsample prefixes,byte-pinned existing sum42weights/SIDs.
   OOM/numerical failure recorded,never reduce/retry;childbudget1200s.
   User accepts changed effective batches;no quality/NDCG conclusion.
-  See docs/gr-t5-batch-pilot.md and submission receipt;no duplicate runs.
+  Submitted RUNNING v1,executable b777b516,workflow41998201870success;
+  all202embeddedfiles/config verified,26tests+2nativeCPUbackends pass.
+  See docs/gr-t5-batch-pilot.md and gr-t5-batch-submission.json;no duplicates.
   No extras/fullML1M/Telegram authorized.
 
 

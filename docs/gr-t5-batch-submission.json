@@ -1,0 +1,29 @@
+{
+  "source_code_sha": "b777b516014355e967db6ffcb869c307d5717e0f",
+  "kernel_metadata_sha256": "b7311d3bf6ccdd7e67cf629ee94965d5f1f164e25191ca357f72293e72839578",
+  "runner_sha256": "16e35f5cebe36416f3084651465c9e8324f18d9ec4e6e761431c45a35fc9f57f",
+  "kernel_id": "carasik/rhpr-t5-batch-pilot",
+  "kernel_version": 1,
+  "versioned_kernel_id": "carasik/rhpr-t5-batch-pilot/1",
+  "status": "RUNNING",
+  "quality_complete": false,
+  "worker_timeout_seconds": 1800,
+  "submitted_at_utc": "2026-11-05T08:55:47.274982+00:00",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41998201870",
+  "workflow_conclusion": "success",
+  "source_audit": {
+    "git_sha": "b777b516014355e967db6ffcb869c307d5717e0f",
+    "embedded_files": 202,
+    "all_embedded_bytes_match": true,
+    "config_exact": true,
+    "runner_sha256": "16e35f5cebe36416f3084651465c9e8324f18d9ec4e6e761431c45a35fc9f57f",
+    "private": true,
+    "internet": false
+  },
+  "validation": {
+    "targeted_tests": 26,
+    "failed": 0,
+    "native_cpu_backends": 2
+  },
+  "gpu_results_pending": true
+}
