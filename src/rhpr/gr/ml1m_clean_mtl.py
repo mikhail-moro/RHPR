@@ -1,4 +1,4 @@
-"""One-seed clean-raw-window ML1M MTL comparison with native T5 SDPA."""
+"""Matched clean-raw-window ML1M MTL comparison with native T5 SDPA."""
 from __future__ import annotations
 import argparse,copy,functools,gc,json,os,random,subprocess,sys,time,traceback
 from pathlib import Path
@@ -10,7 +10,10 @@ from rhpr.gr.movie_data import case_digest
 
 def validate(c):
     t=c['training'];q=c['quantizer'];d=c['data']
-    if (c['kind']!='gr_ml1m_clean_mtl' or c['seed']!=42 or c['replicate_seeds']!=[42]
+    seeds=c['replicate_seeds'];modes={'sum','uw','gradnorm','pcgrad'}
+    if seeds not in ([42],[101,202]) or any(type(s)is not int for s in seeds):
+        raise ValueError('only the original seed42 or authorized additional seeds101/202 are supported')
+    if (c['kind']!='gr_ml1m_clean_mtl' or c['seed']!=seeds[0]
             or d['split']!='raw_contiguous_20_val_test' or d['users']!=2786 or d['items']!=2874
             or d['train_examples']!=151166 or d['history_items']!=20
             or t['batch_size']!=512 or t['physical_batch_size']!=512
@@ -23,11 +26,14 @@ def validate(c):
             or q['max_steps']!=3000 or q['init_buffer_size']!=2874
             or q['ae_warmup']!={'max_steps':3500,'probe_interval':500,'stopping':{'kind':'fixed_steps'}}
             or q['zero_inactive_slots']!=['people'] or q['num_hierarchies']!=3 or q['codebook_size']!=256
-            or len(c['trials'])!=4 or {r['mtl_mode']for r in c['trials']}!={'sum','uw','gradnorm','pcgrad'}
-            or any(r['seed']!=42 or r['modalities']!=['text','poster','plot']for r in c['trials'])):
+            or len(c['trials'])!=4*len(seeds)
+            or {(r['seed'],r['mtl_mode'])for r in c['trials']}!={(s,m)for s in seeds for m in modes}
+            or len({r['id']for r in c['trials']})!=len(c['trials'])
+            or any(type(r['seed'])is not int or r['modalities']!=['text','poster','plot']for r in c['trials'])):
         raise ValueError('ML1M clean MTL differs from the matched authorized protocol')
     for pins in [c['expected_initial_state_sha256_by_seed'],q['expected_initial_state_sha256_by_seed']]:
-        if set(pins)!={'42'}or len(pins['42'])!=64:raise ValueError('single-seed initialization pins required')
+        if set(pins)!={str(s)for s in seeds}or any(len(p)!=64 or any(x not in '0123456789abcdef'for x in p)for p in pins.values()):
+            raise ValueError('initialization pins required for every declared seed')
 
 
 @functools.lru_cache(maxsize=3)
@@ -84,7 +90,8 @@ def run_trial(trial,c,plan,device):
     from rhpr.gr.sid_study import state_digest
     from rhpr.gr.experiment import _train_generator,_evaluate
     root=Path(plan['output'])/'trials'/trial['id'];root.mkdir(parents=True,exist_ok=True)
-    seed=42;random.seed(seed);np.random.seed(seed);torch.manual_seed(seed)
+    c=copy.deepcopy(c);seed=trial['seed'];c['seed']=seed
+    random.seed(seed);np.random.seed(seed);torch.manual_seed(seed)
     with np.load(Path(plan['modality_root'])/'features.npz',allow_pickle=False)as z:
         arrays={k:z[k]for k in ['text','poster','plot','people']};masks={k:z[k+'_observed']for k in arrays}
     if file_sha256(Path(plan['modality_root'])/'features.npz')!=plan['features_sha256']:
@@ -98,7 +105,7 @@ def run_trial(trial,c,plan,device):
     random.seed(seed);np.random.seed(seed);torch.manual_seed(seed)
     model=build_grid_generator(index.sids,c['generator'],seed,device,plan['source'])
     initial=state_digest(dict(model.named_parameters()))
-    if initial!=c['expected_initial_state_sha256_by_seed']['42']:raise ValueError('fresh SDPA generator initialization changed')
+    if initial!=c['expected_initial_state_sha256_by_seed'][str(seed)]:raise ValueError('fresh SDPA generator initialization changed')
     _write(root/'generator.json',dict(config=c['generator'],parameters=sum(p.numel()for p in model.parameters()),initial_state_sha256=initial,attention_backend='sdpa'))
     selection=_train_generator(model,plan['data_root'],index,c,root,device,example_builder=case_examples)
     if selection['training_epochs']!=30 or selection['validation_checks']!=6:raise RuntimeError('incomplete30epoch/val5fit')

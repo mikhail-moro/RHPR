@@ -2,6 +2,19 @@
 
 ## Research status
 
+- Latest authorization2026-11-05: repeat ALL4 ML1M clean MTL methods on
+  two additional pipeline seeds101/202 (not only SUM/PCGrad). Eightfreshfits
+  on2T4 in one private carasik/rhpr-ml1m-clean-mtl-replicates session;
+  experiments/ml1m_clean_mtl_replicates_2t4.json. Same exact originalrawclean
+  2786users/2874films/151166cases,shared3modalities,nopeople,AE3500/RQ3000FP32,
+  TIGER4+4d128/FP16/nativeSDPA/batch512/512,30epochs,val5,oneVALselectedTEST.
+  All initialization pins precomputed;trial seed reaches quantizer,generator,
+  and train permutation via trial-local config copy. Preserve seed42 output.
+  Prior no-extra-seeds restriction is superseded only for these8fits.
+  Full preflight and run receipt:docs/gr-ml1m-clean-mtl-replicates*. No extra
+  HPO,methods,retries,Colab deployment,hardware fallback or Telegram authorized.
+
+
 - User authorized2026-11-05: fresh ML1Mclean contiguous20+val+test MTLscreen,
   SUM/UW/GradNorm/PCGrad seed42,30epochs,val5,FP16TIGER/nativeSDPA,512/512.
   Config experiments/ml1m_clean_mtl_2t4.json;private carasik/rhpr-ml1m-clean-mtl.

@@ -30,6 +30,30 @@ class RawCleanCasesTests(unittest.TestCase):
 class ContractTests(unittest.TestCase):
     def config(self):return json.loads((ROOT/'experiments/ml1m_clean_mtl_2t4.json').read_text())
     def test_declared_budget_and_four_methods(self):validate(self.config())
+    def replicates(self):return json.loads((ROOT/'experiments/ml1m_clean_mtl_replicates_2t4.json').read_text())
+    def test_two_additional_seeds_have_all_methods_and_balanced_workers(self):
+        from rhpr.gr.ae_suite import assignments
+        c=self.replicates();validate(c)
+        jobs=assignments(c,2)
+        self.assertEqual([len(j['trials'])for j in jobs],[4,4])
+        self.assertEqual({r['seed']for r in c['trials']},{101,202})
+        for seed in [101,202]:
+            self.assertEqual(len([r for r in c['trials']if r['seed']==seed]),4)
+    def test_rejects_duplicate_method_in_place_of_missing_seed_method(self):
+        c=self.replicates();c['trials'][-1]['mtl_mode']='sum'
+        with self.assertRaises(ValueError):validate(c)
+    def test_every_seed_requires_both_initialization_pins(self):
+        for branch in ['generator','quantizer']:
+            c=self.replicates();pins=c['quantizer']if branch=='quantizer'else c
+            del pins['expected_initial_state_sha256_by_seed']['202']
+            with self.assertRaises(ValueError):validate(c)
+    def test_replicates_preserve_all_non_seed_training_and_data_settings(self):
+        original=self.config();c=self.replicates()
+        for key in ['training','generator','data','representation','fields','movie_input','execution','evaluation','kaggle','plot_encoder','plot_assets','modern_runtime']:
+            self.assertEqual(c[key],original[key])
+        q=copy.deepcopy(c['quantizer']);o=copy.deepcopy(original['quantizer'])
+        q.pop('expected_initial_state_sha256_by_seed');o.pop('expected_initial_state_sha256_by_seed')
+        self.assertEqual(q,o)
     def test_rejects_unapproved_precision_or_protocol_changes(self):
         for branch,key,value in [('training','batch_size',1024),('training','max_epochs',60),('data','users',2787),('generator','attn_implementation','eager')]:
             c=self.config();c[branch][key]=value
