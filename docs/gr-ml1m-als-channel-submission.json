@@ -5,11 +5,11 @@
   "kernel_id": "carasik/rhpr-ml1m-als-channel",
   "kernel_version": 1,
   "versioned_kernel_id": "carasik/rhpr-ml1m-als-channel/1",
-  "status": "RUNNING",
-  "quality_complete": false,
+  "status": "COMPLETE",
+  "quality_complete": true,
   "worker_timeout_seconds": 10800,
   "submitted_at_utc": "2026-11-05T17:35:54.981604+00:00",
-  "gpu_results_pending": true,
+  "gpu_results_pending": false,
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42076145430",
   "source_audit": {
     "git_sha": "6ecbdaa0b54bd8d353270af203cf6d9d01646a24",
@@ -23,5 +23,7 @@
     "hardware": "NvidiaTeslaT4"
   },
   "workflow_conclusion": "success",
-  "reused_control": "carasik/rhpr-ml1m-clean-mtl/1:sum_seed42"
+  "reused_control": "carasik/rhpr-ml1m-clean-mtl/1:sum_seed42",
+  "completed_at_utc": "2026-11-05T18:14:48.305286+00:00",
+  "results_report": "docs/gr-ml1m-als-channel-results.md"
 }
