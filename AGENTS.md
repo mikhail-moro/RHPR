@@ -10,6 +10,10 @@
   TIGER4+4d128/FP16/nativeSDPA/batch512/512,30epochs,val5,oneVALselectedTEST.
   All initialization pins precomputed;trial seed reaches quantizer,generator,
   and train permutation via trial-local config copy. Preserve seed42 output.
+  SUBMITTED RUNNING v1,executablefc2a62bdd57a,workflow42033993480success.
+  All203embeddedfiles/config/hardware/source sets verified;receipt preserved.
+  Fullregression995tests:904pass91optional skips,0fail;8native5.22.1E2Epassed.
+  Results pending;do not resubmit or add compute automatically.
   Prior no-extra-seeds restriction is superseded only for these8fits.
   Full preflight and run receipt:docs/gr-ml1m-clean-mtl-replicates*. No extra
   HPO,methods,retries,Colab deployment,hardware fallback or Telegram authorized.

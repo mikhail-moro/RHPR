@@ -1,0 +1,39 @@
+{
+  "source_code_sha": "fc2a62bdd57af294caadd939bf1bbbda2de7032f",
+  "kernel_metadata_sha256": "7ad6905c1fb3dfac1be4dcf0ff33f902fe7080bcf84a06a9ec450d5f5e6ad226",
+  "runner_sha256": "35f2347640d548087f98d0e2ea0c00881a3ce3907071f0619ecf90a480152423",
+  "kernel_id": "carasik/rhpr-ml1m-clean-mtl-replicates",
+  "kernel_version": 1,
+  "versioned_kernel_id": "carasik/rhpr-ml1m-clean-mtl-replicates/1",
+  "status": "RUNNING",
+  "quality_complete": false,
+  "worker_timeout_seconds": 21600,
+  "submitted_at_utc": "2026-11-05T13:14:46.169912+00:00",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42033993480",
+  "workflow_conclusion": "success",
+  "workflow_artifact_id": 13418245524,
+  "source_audit": {
+    "git_sha": "fc2a62bdd57af294caadd939bf1bbbda2de7032f",
+    "embedded_files": 203,
+    "all_embedded_bytes_match": true,
+    "config_exact": true,
+    "runner_sha256": "35f2347640d548087f98d0e2ea0c00881a3ce3907071f0619ecf90a480152423",
+    "private": true,
+    "internet": false,
+    "dataset_sources_exact": true,
+    "hardware": "NvidiaTeslaT4"
+  },
+  "gpu_results_pending": true,
+  "additional_seeds": [
+    101,
+    202
+  ],
+  "methods": [
+    "sum",
+    "uw",
+    "gradnorm",
+    "pcgrad"
+  ],
+  "fresh_fits": 8,
+  "seed42_reused_as_completed_reference": true
+}
