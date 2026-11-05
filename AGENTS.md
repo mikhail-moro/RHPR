@@ -2,6 +2,18 @@
 
 ## Research status
 
+- User authorized2026-11-05: bounded batch-throughput pilot, NOT full training.
+  experiments/t5_batch_t4_pilot.json; private carasik/rhpr-t5-batch-pilot.
+  Old4.47eager vs5.22.1SDPA,windows20/50,effective/physical256/128,256/256,
+  512/512,1024/1024;16fresh-process attempts on same physical T4.
+  10warmup+50timed+10E2E updates,FP16/dropout.1,LR.001 unchanged.
+  Fixed1024TRAINsample prefixes,byte-pinned existing sum42weights/SIDs.
+  OOM/numerical failure recorded,never reduce/retry;childbudget1200s.
+  User accepts changed effective batches;no quality/NDCG conclusion.
+  See docs/gr-t5-batch-pilot.md and submission receipt;no duplicate runs.
+  No extras/fullML1M/Telegram authorized.
+
+
 - Native SDPA pilot COMPLETE,collected2026-11-05: carasik/rhpr-t5-sdpa-pilot v1,
   executable d6edbf78,T4/PyTorch2.11;194.2s experiment,3runtimepaths. Real native
   efficient CUDA forward/backward confirmed. Historical4.47eager→5.22.1SDPA:

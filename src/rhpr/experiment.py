@@ -76,6 +76,11 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == 'gr_t5_batch_pilot':
+        if output_dir is None:
+            raise ValueError('batch pilot requires an output directory')
+        from rhpr.gr.batch_pilot import run_batch_pilot
+        return run_batch_pilot(config, output_dir)
     if kind == 'gr_sdpa_pilot':
         if output_dir is None:
             raise ValueError('SDPA pilot requires an output directory')
