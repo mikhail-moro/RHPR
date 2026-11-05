@@ -5,8 +5,8 @@
   "kernel_id": "carasik/rhpr-ml1m-clean-mtl-replicates",
   "kernel_version": 1,
   "versioned_kernel_id": "carasik/rhpr-ml1m-clean-mtl-replicates/1",
-  "status": "RUNNING",
-  "quality_complete": false,
+  "status": "COMPLETE",
+  "quality_complete": true,
   "worker_timeout_seconds": 21600,
   "submitted_at_utc": "2026-11-05T13:14:46.169912+00:00",
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42033993480",
@@ -23,7 +23,7 @@
     "dataset_sources_exact": true,
     "hardware": "NvidiaTeslaT4"
   },
-  "gpu_results_pending": true,
+  "gpu_results_pending": false,
   "additional_seeds": [
     101,
     202
@@ -35,5 +35,8 @@
     "pcgrad"
   ],
   "fresh_fits": 8,
-  "seed42_reused_as_completed_reference": true
+  "seed42_reused_as_completed_reference": true,
+  "completed_at_utc": "2026-11-05T15:42:20.172240+00:00",
+  "prediction_files_independently_rescored": 84,
+  "results_report": "docs/gr-ml1m-clean-mtl-replicates-results.md"
 }

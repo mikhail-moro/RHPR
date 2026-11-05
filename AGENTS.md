@@ -10,10 +10,18 @@
   TIGER4+4d128/FP16/nativeSDPA/batch512/512,30epochs,val5,oneVALselectedTEST.
   All initialization pins precomputed;trial seed reaches quantizer,generator,
   and train permutation via trial-local config copy. Preserve seed42 output.
-  SUBMITTED RUNNING v1,executablefc2a62bdd57a,workflow42033993480success.
+  COMPLETE v1,executablefc2a62bdd57a,workflow42033993480success.
   All203embeddedfiles/config/hardware/source sets verified;receipt preserved.
   Fullregression995tests:904pass91optional skips,0fail;8native5.22.1E2Epassed.
-  Results pending;do not resubmit or add compute automatically.
+  All8newfits30epochs/8880updates/6VAL/0AMPskips;146.42min total.
+  Combined3seeds42/101/202:meanVAL/TEST SUM .066740/.059173,
+  UW .066528/.058160(-1.71%TEST),GradNorm .066932/.060195(+1.73%),
+  PCGrad .067324/.058395(-1.32%). PCGradTEST +5.67/-6.28/-4.01% byseed;
+  GradNorm -2.44/+12.38/-2.94%. No robust MTLwinner;allconditional userCIs
+  cross0. Seed42 apparentPCGradgain didnot replicate. Frozenfeatures exactly
+  equal;84predictionfiles independently rescored. Fullreport/replay/ZIPsaved.
+  Report gr-ml1m-clean-mtl-replicates-results.md/.json. No new compute pending;
+  do not resubmit or add compute automatically.
   Prior no-extra-seeds restriction is superseded only for these8fits.
   Full preflight and run receipt:docs/gr-ml1m-clean-mtl-replicates*. No extra
   HPO,methods,retries,Colab deployment,hardware fallback or Telegram authorized.
