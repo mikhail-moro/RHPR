@@ -76,6 +76,11 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == 'gr_ml1m_clean_mtl':
+        if output_dir is None:
+            raise ValueError('clean ML1M MTL requires output directory')
+        from rhpr.gr.ml1m_clean_mtl import run_clean_mtl
+        return run_clean_mtl(config, output_dir)
     if kind == 'gr_t5_batch_pilot':
         if output_dir is None:
             raise ValueError('batch pilot requires an output directory')

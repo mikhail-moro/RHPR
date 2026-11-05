@@ -47,7 +47,21 @@ def fit_multimodal_rqvae(values, masks, spec, seed, device, source, recipe, outp
     from rhpr.gr.rqvae import build_rqvae
     from rhpr.gr.codebook_diagnostics import semantic_statistics
     output = Path(output); output.mkdir(parents=True, exist_ok=True)
-    arrays, normalization = normalize_modalities(values, masks, spec.get("reconstruction_columns"))
+    if spec.get('zero_inactive_slots'):
+        # Preserve the historical four-slot head/shared-MLP architecture while
+        # supplying no people data. Inactive blocks are already zeroed by the
+        # native encoder and are absent from every reconstruction/MTL objective.
+        if set(spec['zero_inactive_slots']) != set(values)-set(active):
+            raise ValueError('zero slots must exactly match inactive modalities')
+        arrays, normalization = normalize_modalities(
+            {k:v for k,v in values.items() if k in active},
+            {k:v for k,v in masks.items() if k in active}, spec.get('reconstruction_columns'))
+        arrays = {k: arrays[k] if k in active else np.zeros_like(v, dtype=np.float32)
+                  for k,v in values.items()}
+        for k in spec['zero_inactive_slots']:
+            normalization[k] = dict(inactive=True, observed_items=0, input_zero=True)
+    else:
+        arrays, normalization = normalize_modalities(values, masks, spec.get("reconstruction_columns"))
     _write(output / 'modality-normalization.json', normalization)
     torch.manual_seed(seed)
     schema = {k: v.shape[1] for k, v in arrays.items()}

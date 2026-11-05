@@ -2,6 +2,20 @@
 
 ## Research status
 
+- User authorized2026-11-05: fresh ML1Mclean contiguous20+val+test MTLscreen,
+  SUM/UW/GradNorm/PCGrad seed42,30epochs,val5,FP16TIGER/nativeSDPA,512/512.
+  Config experiments/ml1m_clean_mtl_2t4.json;private carasik/rhpr-ml1m-clean-mtl.
+  2786users,2874films,151166TRAINcases;allrawbarriers/singletons checked before
+  filtering;casearrays match prioraudit and replay byte-for-byte. Shared once:
+  metadataSentenceT5+keyedposter+description-onlyMPNet384chunks,no people.
+  AE3500/RQ3000 remainFP32;inactivepeople slot zero preserves oldarchitecture
+  and qpin54253fbb;fresh5.22.1generatorpind57fc2e7. TwoT4/fourfreshfits.
+  982regressionOK13skip+9newtests+4nativeE2E+2multibatch probes pass.
+  No modelqualityresults yet;submissionreceipt records actual run status.
+  No extra seeds/tuning/retries/hardware fallback/Telegram authorized.
+  Docs gr-ml1m-clean-mtl.md and preflight JSON;do not launch duplicates.
+
+
 - ML1M clean-history CPU audit2026-11-05 COMPLETE;NO GPU/protocol change.
   Fixed2874films. Priorfilterproposal5672users/839388cases reproduces.
   799users(14.1%)haveval/test raw timestamp ambiguity hidden by filtering;
