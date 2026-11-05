@@ -1,0 +1,322 @@
+{
+  "source_code_sha": "20a4c08534cd6853e3fd64340f2dc429e6bed3a6",
+  "run_minutes": 73.34389513333333,
+  "users": 2786,
+  "items": 2874,
+  "train_examples": 151166,
+  "records": [
+    {
+      "mode": "sum",
+      "seed": 42,
+      "validation": 0.06665965690329272,
+      "test": 0.06165244460531691,
+      "test_recall10": 0.11809045226130653,
+      "best_epoch": 25,
+      "mean_epoch_seconds": 56.80911920210001,
+      "tokenizer_seconds": 242.84712890999992,
+      "invalid_test_predictions": 0
+    },
+    {
+      "mode": "uw",
+      "seed": 42,
+      "validation": 0.06852768808918387,
+      "test": 0.05651160742973686,
+      "test_recall10": 0.11270638908829864,
+      "best_epoch": 30,
+      "mean_epoch_seconds": 57.8521454488,
+      "tokenizer_seconds": 244.47927713700005,
+      "invalid_test_predictions": 1
+    },
+    {
+      "mode": "gradnorm",
+      "seed": 42,
+      "validation": 0.0652262498669219,
+      "test": 0.06014686393895517,
+      "test_recall10": 0.11880832735104092,
+      "best_epoch": 30,
+      "mean_epoch_seconds": 56.768581529366614,
+      "tokenizer_seconds": 302.6607661359999,
+      "invalid_test_predictions": 0
+    },
+    {
+      "mode": "pcgrad",
+      "seed": 42,
+      "validation": 0.07016759375812763,
+      "test": 0.06514585851314318,
+      "test_recall10": 0.12706389088298636,
+      "best_epoch": 30,
+      "mean_epoch_seconds": 57.5105659002,
+      "tokenizer_seconds": 408.2064008560001,
+      "invalid_test_predictions": 0
+    }
+  ],
+  "comparisons": [
+    {
+      "mode": "uw",
+      "split": "validation",
+      "delta": 0.0018680311858911632,
+      "relative_pct": 2.80234143509204,
+      "ci95": [
+        -0.0055467326119571225,
+        0.009121910665834029
+      ],
+      "better_users": 258,
+      "worse_users": 234,
+      "tied_users": 2294
+    },
+    {
+      "mode": "uw",
+      "split": "test",
+      "delta": -0.005140837175580045,
+      "relative_pct": -8.338415789496043,
+      "ci95": [
+        -0.011664788295722699,
+        0.0017725380585052227
+      ],
+      "better_users": 206,
+      "worse_users": 238,
+      "tied_users": 2342
+    },
+    {
+      "mode": "gradnorm",
+      "split": "validation",
+      "delta": -0.001433407036370811,
+      "relative_pct": -2.150336654823086,
+      "ci95": [
+        -0.008525192260771147,
+        0.0059536347983034366
+      ],
+      "better_users": 248,
+      "worse_users": 255,
+      "tied_users": 2283
+    },
+    {
+      "mode": "gradnorm",
+      "split": "test",
+      "delta": -0.0015055806663617315,
+      "relative_pct": -2.442045365759739,
+      "ci95": [
+        -0.00863130848283305,
+        0.005474934131050349
+      ],
+      "better_users": 220,
+      "worse_users": 241,
+      "tied_users": 2325
+    },
+    {
+      "mode": "pcgrad",
+      "split": "validation",
+      "delta": 0.0035079368548349187,
+      "relative_pct": 5.262458611096813,
+      "ci95": [
+        -0.003847772160419767,
+        0.010696022136114739
+      ],
+      "better_users": 271,
+      "worse_users": 248,
+      "tied_users": 2267
+    },
+    {
+      "mode": "pcgrad",
+      "split": "test",
+      "delta": 0.0034934139078262746,
+      "relative_pct": 5.66630233430355,
+      "ci95": [
+        -0.0032306734667457574,
+        0.010148688503973938
+      ],
+      "better_users": 241,
+      "worse_users": 215,
+      "tied_users": 2330
+    }
+  ],
+  "diagnostics": [
+    {
+      "mode": "sum",
+      "final_weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "weight_sum": 3.0,
+      "projection_totals": {
+        "optimizer_calls": 6500,
+        "projected_updates": 0,
+        "total_projections": 0
+      },
+      "sampled_last_layer_cosine_min": 0.12465078383684158,
+      "sampled_last_layer_negative_pairs": 0,
+      "sampled_pairs": 39,
+      "reconstruction_mse": {
+        "plot": 0.889478660326661,
+        "poster": 0.8476137108660109,
+        "text": 0.8256266333199078
+      },
+      "used_codes": [
+        255,
+        252,
+        231
+      ],
+      "unique_triples": 2871,
+      "max_collision_group": 2
+    },
+    {
+      "mode": "uw",
+      "final_weights": [
+        1.1852134466171265,
+        1.1786710023880005,
+        1.1165965795516968
+      ],
+      "weight_sum": 3.4804810285568237,
+      "projection_totals": {
+        "optimizer_calls": 6500,
+        "projected_updates": 0,
+        "total_projections": 0
+      },
+      "sampled_last_layer_cosine_min": -0.2872355878353119,
+      "sampled_last_layer_negative_pairs": 1,
+      "sampled_pairs": 39,
+      "reconstruction_mse": {
+        "plot": 0.8912445861345873,
+        "poster": 0.8433179672841157,
+        "text": 0.8219249687347465
+      },
+      "used_codes": [
+        254,
+        251,
+        238
+      ],
+      "unique_triples": 2869,
+      "max_collision_group": 2
+    },
+    {
+      "mode": "gradnorm",
+      "final_weights": [
+        0.9206382036209106,
+        0.9255743622779846,
+        1.15378737449646
+      ],
+      "weight_sum": 2.9999999403953552,
+      "projection_totals": {
+        "optimizer_calls": 6500,
+        "projected_updates": 0,
+        "total_projections": 0
+      },
+      "sampled_last_layer_cosine_min": 0.05567716062068939,
+      "sampled_last_layer_negative_pairs": 0,
+      "sampled_pairs": 39,
+      "reconstruction_mse": {
+        "plot": 0.8828531182218776,
+        "poster": 0.8498559366852024,
+        "text": 0.8266057552110012
+      },
+      "used_codes": [
+        254,
+        247,
+        248
+      ],
+      "unique_triples": 2871,
+      "max_collision_group": 2
+    },
+    {
+      "mode": "pcgrad",
+      "final_weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "weight_sum": 3.0,
+      "projection_totals": {
+        "optimizer_calls": 6500,
+        "projected_updates": 652,
+        "total_projections": 2240
+      },
+      "sampled_last_layer_cosine_min": 0.2370855063199997,
+      "sampled_last_layer_negative_pairs": 0,
+      "sampled_pairs": 39,
+      "reconstruction_mse": {
+        "plot": 0.8876249086715815,
+        "poster": 0.8390333905515359,
+        "text": 0.8218094491676564
+      },
+      "used_codes": [
+        253,
+        252,
+        244
+      ],
+      "unique_triples": 2870,
+      "max_collision_group": 2,
+      "projected_at_3500": 489,
+      "projection_progress": [
+        {
+          "step": 500,
+          "updates": 196,
+          "pairs": 681
+        },
+        {
+          "step": 1000,
+          "updates": 264,
+          "pairs": 902
+        },
+        {
+          "step": 1500,
+          "updates": 299,
+          "pairs": 1014
+        },
+        {
+          "step": 2000,
+          "updates": 354,
+          "pairs": 1207
+        },
+        {
+          "step": 2500,
+          "updates": 399,
+          "pairs": 1368
+        },
+        {
+          "step": 3000,
+          "updates": 440,
+          "pairs": 1519
+        },
+        {
+          "step": 3500,
+          "updates": 489,
+          "pairs": 1689
+        },
+        {
+          "step": 4000,
+          "updates": 511,
+          "pairs": 1764
+        },
+        {
+          "step": 4500,
+          "updates": 544,
+          "pairs": 1877
+        },
+        {
+          "step": 5000,
+          "updates": 569,
+          "pairs": 1963
+        },
+        {
+          "step": 5500,
+          "updates": 594,
+          "pairs": 2036
+        },
+        {
+          "step": 6000,
+          "updates": 618,
+          "pairs": 2119
+        },
+        {
+          "step": 6500,
+          "updates": 652,
+          "pairs": 2240
+        }
+      ]
+    }
+  ],
+  "source_features_sha256": "fdb8e49551ba896032b93d97a9be51adeb5a776fd160dc199ac5b874b77198e4",
+  "prediction_files_checked": 28,
+  "scope": "One pipeline seed42. Paired-user bootstrap5000draws conditional on fitted models/cohort; excludes training-seed uncertainty, target-item clustering and multiplicity. Exploratory comparison, not a confirmed MTL advantage or proof clean filtering caused improvement."
+}

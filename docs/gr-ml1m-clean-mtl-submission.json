@@ -5,8 +5,8 @@
   "kernel_id": "carasik/rhpr-ml1m-clean-mtl",
   "kernel_version": 1,
   "versioned_kernel_id": "carasik/rhpr-ml1m-clean-mtl/1",
-  "status": "RUNNING",
-  "quality_complete": false,
+  "status": "COMPLETE",
+  "quality_complete": true,
   "worker_timeout_seconds": 14400,
   "submitted_at_utc": "2026-11-05T11:38:44.264753+00:00",
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42020589648",
@@ -31,5 +31,8 @@
     "failed": 0,
     "input_byte_replay": true
   },
-  "gpu_results_pending": true
+  "gpu_results_pending": false,
+  "completed_at_utc": "2026-11-05T12:53:08.567361+00:00",
+  "results_report": "docs/gr-ml1m-clean-mtl-results.md",
+  "prediction_files_independently_rescored": 28
 }

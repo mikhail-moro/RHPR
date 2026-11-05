@@ -11,9 +11,16 @@
   AE3500/RQ3000 remainFP32;inactivepeople slot zero preserves oldarchitecture
   and qpin54253fbb;fresh5.22.1generatorpind57fc2e7. TwoT4/fourfreshfits.
   982regressionOK13skip+9newtests+4nativeE2E+2multibatch probes pass.
-  Submitted RUNNING private v1,executable20a4c085,workflow42020589648success;
-  all203embeddedfiles/config/dataset sources/hardware verified. Quality pending;
-  docs/gr-ml1m-clean-mtl-submission.json records version/source/validation.
+  COMPLETE private v1,executable20a4c085,workflow42020589648success;
+  all203embeddedfiles/config/dataset sources/hardware verified. All4 fits30epochs,
+  8880updates/6VAL/0AMPskips;73.34min whole suite,~57s training epoch.
+  VAL/TEST NDCG10 SUM .066660/.061652,UW .068528/.056512,
+  GradNorm .065226/.060147,PCGrad .070168/.065146 (+5.26%/+5.67% vsSUM).
+  One pipeline seed42;all paired-user bootstrap95%CIs cross0;not confirmed.
+  PCGrad652/6500projectedupdates (10.03%),489AE+163RQ. UWweights sum3.48.
+  28rawpredictionfiles independently rescored;shared cases/features/pins checked.
+  Report gr-ml1m-clean-mtl-results.md/.json,CPUreplay/figures/evidenceZIP saved;
+  docs/gr-ml1m-clean-mtl-submission.json records version/source/completion.
   No extra seeds/tuning/retries/hardware fallback/Telegram authorized.
   Docs gr-ml1m-clean-mtl.md and preflight JSON;do not launch duplicates.
 
