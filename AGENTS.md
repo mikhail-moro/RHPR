@@ -2,6 +2,19 @@
 
 ## Research status
 
+- Batch T4 pilot COMPLETE,collected2026-11-05;carasik/rhpr-t5-batch-pilot v1,
+  executable b777b516,570.12s experiment.16attempts:15complete0AMPskips,
+  1OOM(eager window50physical1024),0numericalfailed. SDPA20throughput at
+  effective/physical256/128,256/256,512,1024:1938/2452/2651/2771examples/s;
+  oldeagerbaseline256/1281969. SDPA50:859/910/934/938 vs oldbaseline708.
+  SDPA256/256 +24.5%throughput20,+28.4%50;effectivebatch unchanged.
+  SDPA512gets95.7%/99.6%of1024throughput with~half memory;larger effective
+  batches change updates/epoch and quality is UNTESTED. No defaults changed.
+  Replayed750timings+150E2E,independent80268case reconstruction/all6samplehashes.
+  Report gr-t5-batch-results.md/.json,replay/figures/evidenceZIP saved.
+  No extra GPU/fulltraining/ML1M/Telegram authorized or pending.
+
+
 - User authorized2026-11-05: bounded batch-throughput pilot, NOT full training.
   experiments/t5_batch_t4_pilot.json; private carasik/rhpr-t5-batch-pilot.
   Old4.47eager vs5.22.1SDPA,windows20/50,effective/physical256/128,256/256,
@@ -10,7 +23,7 @@
   Fixed1024TRAINsample prefixes,byte-pinned existing sum42weights/SIDs.
   OOM/numerical failure recorded,never reduce/retry;childbudget1200s.
   User accepts changed effective batches;no quality/NDCG conclusion.
-  Submitted RUNNING v1,executable b777b516,workflow41998201870success;
+  Submitted v1,executable b777b516,workflow41998201870success;now COMPLETE;
   all202embeddedfiles/config verified,26tests+2nativeCPUbackends pass.
   See docs/gr-t5-batch-pilot.md and gr-t5-batch-submission.json;no duplicates.
   No extras/fullML1M/Telegram authorized.

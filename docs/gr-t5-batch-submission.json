@@ -5,7 +5,7 @@
   "kernel_id": "carasik/rhpr-t5-batch-pilot",
   "kernel_version": 1,
   "versioned_kernel_id": "carasik/rhpr-t5-batch-pilot/1",
-  "status": "RUNNING",
+  "status": "COMPLETE",
   "quality_complete": false,
   "worker_timeout_seconds": 1800,
   "submitted_at_utc": "2026-11-05T08:55:47.274982+00:00",
@@ -25,5 +25,10 @@
     "failed": 0,
     "native_cpu_backends": 2
   },
-  "gpu_results_pending": true
+  "gpu_results_pending": false,
+  "pilot_complete": true,
+  "complete_trials": 15,
+  "oom_trials": 1,
+  "numerical_failed": 0,
+  "results_report": "docs/gr-t5-batch-results.md"
 }
