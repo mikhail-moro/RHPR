@@ -9,9 +9,20 @@
   Reuse existing private cleanMTL and replicates notebook outputs as kernel
   sources;all reference files/manifests/pins verified. NO new dataset upload:
   that attempted action was rejected by automatic approval review and abandoned.
-  Submitted private carasik/rhpr-ml1m-mini-tiger/1 RUNNING,executable44b84d5d,
+  Submitted private carasik/rhpr-ml1m-mini-tiger/1 ERROR,executable44b84d5d,
   workflow42109946957success;all205embeddedfiles/config/3datasets/2parents
   exact.1005tests91optional skips0fail;3native20epoch/4VAL probes pass.
+  Collected ERROR after171.23min:36/48fits complete,all20epochs/4VAL/0AMPskips.
+  Shallow16+narrow16 cover8indexes/2genseeds;compact4coversonly2indexes.
+  Two internaldeadline TimeoutErrors,10neverstarted;no retry/newcompute.
+  All144miniVALfiles+8full30VALindependently rescored. Narrow10 pooledrho.833
+  (genseeds.857/.810),but indexseedgroups.8/-.2,conditionaluserCI[-.024,.905].
+  Shallow20pooledrho-.167;do not infer depthcausality or universalproxy.
+  Meanepochseconds shallow16.96,narrow38.82,fullhistorical57.91.
+  Earlyfull5pooledrho.857shares targettrajectory;not independenttransfer.
+  Reports gr-mini-tiger-results.md/.json;replay,plots,evidenceZIPsaved.
+  Wholequality incomplete,analysis complete,noGPUresults pending;1005tests,
+  91optional skips,0fail.No follow-up authorized.
   Receipt docs/gr-mini-tiger-submission.json;do not launch duplicates.
   Protocol docs/gr-mini-tiger.md;config ml1m_mini_tiger_2t4.json. Primary
   correlation against full epoch30VAL;best-of30 secondary;report seed groups

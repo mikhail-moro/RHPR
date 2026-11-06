@@ -5,13 +5,13 @@
   "kernel_id": "carasik/rhpr-ml1m-mini-tiger",
   "kernel_version": 1,
   "versioned_kernel_id": "carasik/rhpr-ml1m-mini-tiger/1",
-  "status": "RUNNING",
+  "status": "ERROR",
   "quality_complete": false,
   "worker_timeout_seconds": 10800,
   "submitted_at_utc": "2026-11-05T21:09:11.899318+00:00",
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42109946957",
   "workflow_conclusion": "success",
-  "gpu_results_pending": true,
+  "gpu_results_pending": false,
   "new_dataset_uploaded": false,
   "matrix_fits": 48,
   "source_audit": {
@@ -25,5 +25,14 @@
     "dataset_sources_exact": true,
     "kernel_sources_exact": true,
     "hardware": "NvidiaTeslaT4"
-  }
+  },
+  "analysis_complete": true,
+  "completed_fits": 36,
+  "completed_architectures": [
+    "shallow",
+    "narrow"
+  ],
+  "failure_reason": "internal suite compute deadline;36completed,2rejected at next-fit start,10never started",
+  "results_report": "docs/gr-mini-tiger-results.md",
+  "kernel_last_log_seconds": 10273.646614574
 }
