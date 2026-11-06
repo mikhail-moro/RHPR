@@ -42,7 +42,19 @@ def install(model,index,latents,dynamic,output):
         before=time.monotonic();previous=idx.sids.copy()
         books=model.item_sid_embedding_table_encoder.weight[:768].reshape(3,256,128)
         if dynamic:
-            new=SidIndex(assign(latents,books),width=256)
+            codes=assign(latents,books)
+            try:
+                new=SidIndex(codes,width=256)
+            except ValueError as error:
+                # Preserve the failed candidate before suffix construction aborts.
+                np.save(output/f'failed-semantic-codes-epoch-{epoch:03d}.npy',codes,allow_pickle=False)
+                np.save(output/f'failed-codebooks-epoch-{epoch:03d}.npy',books.detach().float().cpu().numpy(),allow_pickle=False)
+                _,counts=np.unique(codes,axis=0,return_counts=True)
+                _write(output/'index-failure.json',dict(epoch=epoch,stage='epoch_start_reassignment',
+                    message=str(error),max_collision_group=int(counts.max()),
+                    used_codes=[int(len(np.unique(codes[:,k])))for k in range(3)],
+                    overflow_groups=int((counts>256).sum()),items_in_overflow_groups=int(counts[counts>256].sum())))
+                raise
             model.rhpr_active_sids.copy_(torch.as_tensor(new.sids.copy(),device=latents.device))
             restore(idx)
         if epoch==1 and not np.array_equal(idx.sids,initial):raise ValueError('initial requantization changes original SIDs')
@@ -135,9 +147,13 @@ def worker(path,slot):
     p=json.loads(Path(path).read_text());c=p['config'];torch.set_num_threads(1)
     if torch.cuda.device_count()!=1 or torch.cuda.get_device_capability()!=(7,5)or transformers.__version__!='5.22.1':raise RuntimeError('requires native5.22.1 and oneT4 per worker')
     trial=p['assignments'][slot]['trials'][0];status=dict(results={},failures=[])
-    try:status['results'][trial['id']]=run_trial(trial,c,p,'cuda:0')
+    _event('shared_codebook_trial_start',trial=trial['id'],worker=slot,dynamic_sid=trial['dynamic'])
+    try:
+        status['results'][trial['id']]=run_trial(trial,c,p,'cuda:0')
+        _event('shared_codebook_trial_complete',trial=trial['id'],worker=slot)
     except Exception as e:
-        status['failures'].append(dict(trial=trial['id'],message=str(e)));(Path(p['output'])/f'worker-{slot}-failure.log').write_text(traceback.format_exc())
+        _event('shared_codebook_trial_failed',trial=trial['id'],worker=slot,exception_type=type(e).__name__,message=str(e))
+        status['failures'].append(dict(trial=trial['id'],exception_type=type(e).__name__,message=str(e)));(Path(p['output'])/f'worker-{slot}-failure.log').write_text(traceback.format_exc())
     _write(Path(p['output'])/'workers'/f'worker-{slot}.json',status)
 
 

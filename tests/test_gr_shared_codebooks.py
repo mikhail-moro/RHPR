@@ -31,3 +31,34 @@ class SharedCodebooksTests(unittest.TestCase):
         p=Path(__file__).resolve().parents[1]/'experiments/ml1m_shared_codebooks_2t4.json'
         c=json.loads(p.read_text());validate(c);c['training']['max_epochs']=10
         with self.assertRaises(ValueError):validate(c)
+
+
+    def test_failed_reassignment_retains_candidate_and_leaves_active_index(self):
+        model=torch.nn.Module();model.item_sid_embedding_table_encoder=torch.nn.Embedding(1024,128)
+        initialize(model,np.zeros((3,256,64),dtype='float32'))
+        codes=np.zeros((257,3),dtype='int64');codes[:,0]=np.arange(257)%256;codes[-1,1]=1
+        index=SidIndex(codes);original=index.sids.copy()
+        with tempfile.TemporaryDirectory()as d:
+            install(model,index,np.zeros((257,64),dtype='float32'),True,d)
+            with self.assertRaisesRegex(ValueError,'collision'):
+                model.rhpr_epoch_start(1,index,Path(d))
+            report=json.loads((Path(d)/'index-failure.json').read_text())
+            self.assertEqual(report['max_collision_group'],257)
+            self.assertEqual(report['stage'],'epoch_start_reassignment')
+            self.assertTrue((Path(d)/'failed-codebooks-epoch-001.npy').is_file())
+            self.assertEqual(np.load(Path(d)/'failed-semantic-codes-epoch-001.npy').shape,(257,3))
+            np.testing.assert_array_equal(index.sids,original)
+
+    def test_worker_identifies_arm_before_any_training_log(self):
+        from unittest.mock import patch
+        from rhpr.gr.shared_codebooks import worker
+        trial=dict(id='live_codebook',dynamic=True)
+        with tempfile.TemporaryDirectory()as d:
+            (Path(d)/'workers').mkdir();p=Path(d)/'plan.json'
+            p.write_text(json.dumps(dict(config={},output=d,assignments=[dict(trials=[trial])])))
+            with patch('torch.cuda.device_count',return_value=1),patch('torch.cuda.get_device_capability',return_value=(7,5)),patch('transformers.__version__','5.22.1'),patch('rhpr.gr.shared_codebooks.run_trial',side_effect=ValueError('example')),patch('rhpr.gr.shared_codebooks._event')as event:
+                worker(p,0)
+            self.assertEqual(event.call_args_list[0].args,('shared_codebook_trial_start',))
+            self.assertEqual(event.call_args_list[0].kwargs['trial'],'live_codebook')
+            self.assertEqual(event.call_args_list[1].kwargs['trial'],'live_codebook')
+            self.assertEqual(event.call_args_list[1].args,('shared_codebook_trial_failed',))

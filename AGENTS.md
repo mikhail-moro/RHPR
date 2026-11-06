@@ -22,8 +22,19 @@
   sourcecheckpass;selectedearlierepoch20/25SIDrestoreverified.
   SUBMITTEDprivatev1RUNNING,executablef6a299f5bb60,workflow42210018539success.
   All206embeddedfiles/config/3datasets/1parentexact;1015tests91skips0fail.
-  Receipt docs/gr-shared-codebooks-submission.json. GPUresults pending;
-  monitorexistingkernel,do not submitduplicates.
+  Receipt docs/gr-shared-codebooks-submission.json. COLLECTEDERROR:staticarm
+  completes30epochs/8880updates/6VAL/0AMPskips,VAL.059715/TEST.051880(-15.85%
+  vshistoricalSUMcontrolTEST.061652). Live29epochs/8584updates/5VAL/0AMPskips,
+  failed atstart30:264itemcollision exceeds256suffix. No liveTEST/topmarkers.
+  MedianSIDchurn95.81%;failedindex244uniquesemanticIDs/2874items,used21/46/64.
+  Posthocdropadded64coordsgives270uniqueIDs/maxgroup254;collapsepersists,
+  geometryliftcontributesbutisnotsolecause.NoRecLosswastrained;NIP-only
+  embeddingupdatesdonotpreservefrozenencodergeometry.FirstbookRMS7.32->.6265.
+  Independentlyreplayed19predfiles,epoch29checkpointandfailedindexrecomputed.
+  1017tests91optional skips0fail. Report gr-shared-codebooks-results.md/.json;
+  replay/plots/labeledlogs/62.4MBevidenceZIPsaved.Loggingfixedwithtrialevents
+  andfailedcandidate snapshotsforfutureonly;NOnewGPUrun/retryauthorized.
+  No GPUresults pending;do not submitduplicates.
 
 
 - User authorization2026-11-06: two smaller mini-TIGER shapes ffn_small
