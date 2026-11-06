@@ -11,6 +11,10 @@
   NO new data upload,quantizer/content/fullmodel training,TEST or Telegram.
   Config ml1m_mini_tiger_transfer_2t4.json,phase seed202_transfer;private
   carasik/rhpr-ml1m-mini-transfer.60minservercap,3000s internaldeadline.
+  Submitted private carasik/rhpr-ml1m-mini-transfer/1 RUNNING,executable31d120c8,
+  workflow42174475061success;all205embeddedfiles/config/3datasets/1parent
+  exact.1009tests91optional skips0fail;2native10epoch/2VAL probes pass.
+  Receipt docs/gr-mini-tiger-transfer-submission.json;do not launch duplicates.
   Protocol docs/gr-mini-tiger-transfer.md. Prior no-followup restriction is
   superseded only for these8fits;do not repeat or resume the failed pilot.
 

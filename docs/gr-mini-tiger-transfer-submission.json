@@ -1,0 +1,30 @@
+{
+  "source_code_sha": "31d120c8c962adfb7c9f1f4db30e18c1f8d6d153",
+  "kernel_metadata_sha256": "5f1229799065d403d1edfedef487ee1142bcf42881f103b55554f487844b5a6d",
+  "runner_sha256": "7fd13cb86ea8b0e7469fa2f505ecd1b9355cad2d1aac090d78c3743c03889885",
+  "kernel_id": "carasik/rhpr-ml1m-mini-transfer",
+  "kernel_version": 1,
+  "versioned_kernel_id": "carasik/rhpr-ml1m-mini-transfer/1",
+  "status": "RUNNING",
+  "quality_complete": false,
+  "worker_timeout_seconds": 3600,
+  "submitted_at_utc": "2026-11-06T06:27:10.572153+00:00",
+  "gpu_results_pending": true,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42174475061",
+  "workflow_conclusion": "success",
+  "matrix_fits": 8,
+  "primary_proxy_epoch": 10,
+  "new_dataset_uploaded": false,
+  "source_audit": {
+    "git_sha": "31d120c8c962adfb7c9f1f4db30e18c1f8d6d153",
+    "embedded_files": 205,
+    "all_embedded_bytes_match": true,
+    "config_exact": true,
+    "runner_sha256": "7fd13cb86ea8b0e7469fa2f505ecd1b9355cad2d1aac090d78c3743c03889885",
+    "private": true,
+    "internet": false,
+    "dataset_sources_exact": true,
+    "kernel_sources_exact": true,
+    "hardware": "NvidiaTeslaT4"
+  }
+}
