@@ -76,7 +76,7 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
-    if kind == 'gr_shared_codebooks':
+    if kind in {'gr_shared_codebooks','gr_codebook_adaptation'}:
         if output_dir is None:
             raise ValueError('shared codebooks require output directory')
         from rhpr.gr.shared_codebooks import run

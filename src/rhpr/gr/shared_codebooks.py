@@ -69,6 +69,9 @@ def install(model,index,latents,dynamic,output):
 
 
 def validate(c):
+    if c.get('kind')=='gr_codebook_adaptation':
+        from rhpr.gr.codebook_adaptation import validate as adaptation_validate
+        return adaptation_validate(c)
     t=c['training'];g=c['generator']
     if (c['kind']!='gr_shared_codebooks' or c['seed']!=42 or len(c['trials'])!=2
         or [(r['id'],r['dynamic'])for r in c['trials']]!=[('codebook_init',False),('live_codebook',True)]
@@ -149,7 +152,10 @@ def worker(path,slot):
     trial=p['assignments'][slot]['trials'][0];status=dict(results={},failures=[])
     _event('shared_codebook_trial_start',trial=trial['id'],worker=slot,dynamic_sid=trial['dynamic'])
     try:
-        status['results'][trial['id']]=run_trial(trial,c,p,'cuda:0')
+        trial_runner=run_trial
+        if c.get('kind')=='gr_codebook_adaptation':
+            from rhpr.gr.codebook_adaptation import run_trial as trial_runner
+        status['results'][trial['id']]=trial_runner(trial,c,p,'cuda:0')
         _event('shared_codebook_trial_complete',trial=trial['id'],worker=slot)
     except Exception as e:
         _event('shared_codebook_trial_failed',trial=trial['id'],worker=slot,exception_type=type(e).__name__,message=str(e))
@@ -178,6 +184,9 @@ def run(c,output):
     original=unpack_grid(roots['resources']/'grid-source.bin',scratch/'original');source=prepare_grid_source(original,scratch/'grid')
     assets=output/'frozen-quantizer';assets.mkdir();frozen_latents(c,parent,source,assets)
     np.save(assets/'initial-sids.npy',np.load(parent/'trials/sum_seed42/semantic-ids.npy'))
+    if c.get('kind')=='gr_codebook_adaptation':
+        from rhpr.gr.codebook_adaptation import stage
+        stage(c,parent,assets)
     overlay=scratch/'modern-site';overlay.mkdir(parents=True,exist_ok=True);modern=roots['modern_runtime']
     with (output/'modern-install.log').open('w')as log:
         subprocess.run([sys.executable,'-m','pip','install','--no-index','--no-deps','--no-cache-dir','--no-compile','--require-hashes','--only-binary=:all:','--target',str(overlay),'--find-links',str(modern),'-r',str(modern/'requirements-lock.txt')],stdout=log,stderr=subprocess.STDOUT,check=True,timeout=180)

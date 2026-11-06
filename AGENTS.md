@@ -2,6 +2,27 @@
 
 ## Research status
 
+- User authorization2026-11-06: projectioncontrol plus additionalfullytrainable
+  RQ-VAE NOprojection arm. Userclarified ordinaryRec+VQloss shouldadaptencoder/
+  decoder to sharedbooks;not a directNIPgradientthroughargmin. Twofreshfits,
+  cleanML1M151166TRAIN,seed42,30epochs/VAL5,FP16SDPA512,2T4,~40minbudget.
+  projected_frozen:original64DRQfullyfrozen,fixedSIDs,trainsharedLinear64->128.
+  joint_rq:NOprojection,expandnativeencoderlast/decoderfirst/books64->128
+  withzeros,functionpreservinginitially;actualcentroidParametersserveTIGER
+  lookup;allRQtrainable. NativeSTE/beta.25meanloss;objectiveNIP+Rec+VQ1/1/1,
+  uniformcatalogue512auxsample/update,FP32RQmath;Adam.001/wd.0001sameasTIGER.
+  SIDsreassignedeveryepochstartfromcurrentencoder/books,epochSIDbufferrestores
+  bestmatchingindexbeforeTEST. Captureobjectivecomponents/churn/collisions,
+  failedcandidatecodes/books/latents.NoHPO/retries/extensions/Telegram/newdata.
+  SAMEinitialTIGERlookup/baseTransformer,pinsbyarm;nominal/activeparams
+  projected8157123/4887808,joint8214531/8214531. ExistingprivatecleanMTLparent
+  and3datasetsreused;no content/RQpretraining. Server37min,fit2050s,quota.65h.
+  Private carasik/rhpr-ml1m-codebook-adaptation;config
+  ml1m_codebook_adaptation_2t4.json,docs/gr-codebook-adaptation.md.
+  2native30epoch/6VALprobespass;encoder/decoder/booksauxgradientsverified;
+  1021tests91optional skips0fail. Noadditionalfitsauthorized.
+
+
 - User authorization2026-11-06: two shared-codebook TIGERfits on existingclean
   ML1M151166TRAINwindows,seed42,30epochs,val5,FP16/nativeSDPA/512,2T4.
   Reuse SUMseed42 frozenRQ-VAE andcontent fromprivatecleanMTLparent.
