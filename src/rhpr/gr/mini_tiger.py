@@ -29,17 +29,28 @@ ARCHITECTURES = {
 }
 
 
+def protocol_shape(c):
+    phase = c.get('calibration_phase', 'pilot')
+    if phase == 'pilot':
+        return list(ARCHITECTURES), [42, 101], 20
+    if phase == 'seed202_transfer':
+        return ['narrow'], [202], 10
+    raise ValueError('unknown mini-TIGER calibration phase')
+
+
 def validate(c):
-    expected = {(a, i, s) for a in ARCHITECTURES for i in c['index_ids']
+    architectures, index_seeds, epochs = protocol_shape(c)
+    expected = {(a, i, s) for a in architectures for i in c['index_ids']
                 for s in c['generator_seeds']}
     actual = [(r['architecture'], r['index_id'], r['seed']) for r in c['trials']]
     t = c['training']
-    indexes = {f'{m}_seed{s}' for m in ['sum', 'uw', 'gradnorm', 'pcgrad'] for s in [42, 101]}
+    indexes = {f'{m}_seed{s}' for m in ['sum', 'uw', 'gradnorm', 'pcgrad'] for s in index_seeds}
     if (c['kind'] != 'gr_mini_tiger' or set(c['index_ids']) != indexes
-            or len(c['index_ids']) != 8 or c['generator_seeds'] != [31415, 27182]
+            or len(c['index_ids']) != len(indexes) or c['generator_seeds'] != [31415, 27182]
             or len(actual) != len(expected) or set(actual) != expected
             or len({r['id'] for r in c['trials']}) != len(actual)
-            or t['max_epochs'] != 20 or t['min_epochs'] != 20
+            or t['max_epochs'] != epochs or t['min_epochs'] != epochs
+            or t['patience_epochs'] != epochs
             or t['validation_interval'] != 5 or t['validate_first_epoch']
             or t['batch_size'] != 512 or t['physical_batch_size'] != 512
             or t['precision'] != 'fp16' or t['evaluation_precision'] != 'fp32'
@@ -48,12 +59,16 @@ def validate(c):
             or c['generator']['attn_implementation'] != 'sdpa'
             or c['generator']['beam_width'] != 20
             or c['generator']['should_check_prefix']
-            or 'index_input' in c or set(c['parents']) != {'42', '101'}
+            or 'index_input' in c or set(c['parents']) != {str(s) for s in index_seeds}
             or set(c['kaggle']['kernel_sources']) != {p['kernel'] for p in c['parents'].values()}
             or c['evaluation'].get('test_after_selection') is not False):
         raise ValueError('mini-TIGER differs from the frozen-index calibration contract')
-    if any(len(c['initialization_pins'][a][str(s)]) != 64
-           for a in ARCHITECTURES for s in c['generator_seeds']):
+    if (epochs == 10 and (c.get('primary_proxy_epoch') != 10
+                          or c.get('suite_deadline_seconds') != 3000)):
+        raise ValueError('transfer fixes narrow epoch10 and its compute budget in advance')
+    if set(c['initialization_pins']) != set(architectures) or any(
+            len(c['initialization_pins'][a][str(s)]) != 64
+            for a in architectures for s in c['generator_seeds']):
         raise ValueError('every architecture/seed needs an initialization pin')
 
 
@@ -117,23 +132,25 @@ def selection_stats(scores, target):
 def correlate(c, records, references):
     """Candidate rankings; epochs are repeated measurements, not samples."""
     index_ids = c['index_ids']
+    architectures, index_seeds, max_epochs = protocol_shape(c)
+    epochs = list(range(5, max_epochs + 1, 5))
     out = dict(index_ids=index_ids, reference_seeds={i: references[i]['full_seed'] for i in index_ids},
                target='fixed full-TIGER epoch30 VAL NDCG@10; best-of30 secondary',
                test_used=False, groups={}, limitations=[
-                   '8 related indexes; each full target has one generator seed',
+                   f'{len(index_ids)} related indexes; each full target has one generator seed',
                    'same validation users, exploratory calibration, no causal/significance claim',
                    'mini generator seeds are distinct from all full pipeline seeds'])
     for group, ids in [('all', index_ids)] + [
             (f'index_seed{s}', [i for i in index_ids if references[i]['full_seed'] == s])
-            for s in [42, 101]]:
+            for s in index_seeds]:
         target = [references[i]['epochs']['30'] for i in ids]
         selected = [max(references[i]['epochs'].values()) for i in ids]
         report = dict(index_ids=ids, early_full={}, mini={})
-        for epoch in [5, 10, 15, 20]:
+        for epoch in epochs:
             report['early_full'][str(epoch)] = selection_stats(
                 [references[i]['epochs'][str(epoch)] for i in ids], target)
-        for architecture in ARCHITECTURES:
-            for epoch in [5, 10, 15, 20]:
+        for architecture in architectures:
+            for epoch in epochs:
                 by_seed = {}
                 for seed in c['generator_seeds']:
                     values = []
@@ -151,6 +168,9 @@ def correlate(c, records, references):
                     seeds={s: selection_stats(v, target) for s, v in by_seed.items()},
                     scores_by_seed=by_seed, mean_scores=mean)
         out['groups'][group] = report
+    if c.get('calibration_phase') == 'seed202_transfer':
+        out['primary_proxy_epoch'] = 10
+        out['primary'] = out['groups']['all']['mini']['narrow_epoch10']
     return out
 
 
@@ -181,7 +201,8 @@ def run_trial(trial, c, plan, device):
            sids_sha256=file_sha256(sid_path), frozen_index=True, test_evaluated=False))
     selection = _train_generator(model, plan['data_root'], index, c, root, device,
                                  example_builder=case_examples)
-    if selection['training_epochs'] != 20 or selection['validation_checks'] != 4:
+    epochs = protocol_shape(c)[2]
+    if selection['training_epochs'] != epochs or selection['validation_checks'] != epochs // 5:
         raise RuntimeError('incomplete mini fit; do not treat as a full-budget result')
     curves = json.loads((root / 'training-curves.json').read_text())
     row = dict(trial=trial['id'], architecture=trial['architecture'], index_id=trial['index_id'],
@@ -256,12 +277,12 @@ def run_mini_tiger(c, output):
         subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=True, timeout=180)
     plan = dict(config=c, output=str(output), source=str(source), data_root=str(roots['movie_input']),
                 index_root=str(index_root), references=refs,
-                deadline=time.time() + 10000, assignments=assignments(c, 2))
+                deadline=time.time() + c.get('suite_deadline_seconds', 10000), assignments=assignments(c, 2))
     _write(output / 'plan.json', plan); sys.path.insert(0, str(overlay))
     summary = launch_workers(output / 'plan.json', worker_module='rhpr.gr.mini_tiger', event_prefix='mini_tiger')
     analysis = correlate(c, summary['results'], refs); _write(output / 'correlations.json', analysis)
-    result = dict(experiment=c['name'], completed=len(summary['results']), indexes=8,
-                  generator_seeds=2, architectures=3, test_evaluated=False)
+    result = dict(experiment=c['name'], completed=len(summary['results']), indexes=len(c['index_ids']),
+                  generator_seeds=2, architectures=len(protocol_shape(c)[0]), test_evaluated=False)
     for name, row in analysis['groups']['all']['mini'].items():
         rho = row['mean']['spearman']
         if rho is not None: result[name + '_spearman'] = rho

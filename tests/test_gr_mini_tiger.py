@@ -52,3 +52,47 @@ class MiniCalibrationTests(unittest.TestCase):
             if change == 'test': c['evaluation']['test_after_selection'] = True
             if change == 'shorter': c['training']['max_epochs'] = 10
             with self.assertRaises(ValueError): validate(c)
+
+    def transfer(self):
+        return json.loads((Path(__file__).resolve().parents[1] / 'experiments/ml1m_mini_tiger_transfer_2t4.json').read_text())
+
+    def test_transfer_is_eight_narrow_fits_with_balanced_workers(self):
+        from rhpr.gr.ae_suite import assignments
+        c = self.transfer(); validate(c)
+        self.assertEqual([len(j['trials']) for j in assignments(c, 2)], [4, 4])
+        self.assertEqual({t['architecture'] for t in c['trials']}, {'narrow'})
+        self.assertTrue(all(i.endswith('seed202') for i in c['index_ids']))
+
+    def test_transfer_reuses_pilot_settings_and_narrow_initialization(self):
+        old = self.config(); c = self.transfer()
+        for k in ['generator', 'data', 'movie_input', 'modern_runtime', 'runtime', 'evaluation', 'execution']:
+            self.assertEqual(c[k], old[k])
+        self.assertEqual(c['initialization_pins']['narrow'], old['initialization_pins']['narrow'])
+        a = dict(c['training']); b = dict(old['training'])
+        for k in ['max_epochs', 'min_epochs', 'patience_epochs', 'max_seconds']:
+            a.pop(k); b.pop(k)
+        self.assertEqual(a, b)
+        self.assertEqual(c['parents']['202']['files'], old['parents']['101']['files'])
+        self.assertEqual(len(c['kaggle']['kernel_sources']), 1)
+        self.assertNotIn('index_input', c)
+
+    def test_transfer_rejects_architecture_epoch_or_candidate_tuning(self):
+        for key in ['architecture', 'epoch', 'candidate', 'phase']:
+            c = self.transfer()
+            if key == 'architecture': c['trials'][0]['architecture'] = 'shallow'
+            if key == 'epoch': c['primary_proxy_epoch'] = 5
+            if key == 'candidate': c['index_ids'][0] = 'sum_seed42'
+            if key == 'phase': c['calibration_phase'] = 'other'
+            with self.assertRaises(ValueError): validate(c)
+
+    def test_transfer_primary_uses_epoch10_not_selected_best_or_epoch5(self):
+        c = self.transfer(); refs = {}; records = {}
+        for j, i in enumerate(c['index_ids']):
+            refs[i] = dict(full_seed=202, epochs={str(e): (j + 1) * .01 for e in [5, 10, 15, 20, 25, 30]})
+            for s in c['generator_seeds']:
+                records[f'{i}_{s}'] = dict(architecture='narrow', index_id=i, seed=s,
+                    epochs={'5': .5 - j * .01, '10': (j + 1) * .01})
+        result = correlate(c, records, refs)
+        self.assertEqual(result['primary_proxy_epoch'], 10)
+        self.assertEqual(result['primary']['mean']['spearman'], 1.)
+        self.assertEqual(set(result['groups']['all']['mini']), {'narrow_epoch5', 'narrow_epoch10'})

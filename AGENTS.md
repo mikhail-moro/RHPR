@@ -2,6 +2,19 @@
 
 ## Research status
 
+- User authorization2026-11-06: fixed narrow mini-TIGER epoch10 transfer on
+  FOUR saved SUM/UW/GN/PC indexes at tokenizerseed202.8freshfits crossed
+  with genseeds31415/27182,2T4;exact10epochs/val5,primary fixedepoch10.
+  Same narrow4+4d64/d_ff512/6heads/d_kv32,initialization pins and all other
+  data/training settings as pilot. No other shapes/seeds/HPO/epoch extension.
+  Reuse only existing private cleanMTL-replicates parent,3existingdatasets;
+  NO new data upload,quantizer/content/fullmodel training,TEST or Telegram.
+  Config ml1m_mini_tiger_transfer_2t4.json,phase seed202_transfer;private
+  carasik/rhpr-ml1m-mini-transfer.60minservercap,3000s internaldeadline.
+  Protocol docs/gr-mini-tiger-transfer.md. Prior no-followup restriction is
+  superseded only for these8fits;do not repeat or resume the failed pilot.
+
+
 - User authorization2026-11-05: frozen-index mini-TIGER calibration. Eight
   existing SUM/UW/GN/PC indexes at tokenizerseeds42/101;three mini shapes
   shallow1+1,narrow4+4d64,compact2+2;generatorseeds31415/27182 only.48fresh
