@@ -23,8 +23,19 @@
   1021tests91optional skips0fail. Noadditionalfitsauthorized.
   SUBMITTEDprivatev1RUNNING,executableb828588a3bb1,workflow42217880480success.
   All208embeddedfiles/config/3datasets/1parentexact;receipt
-  docs/gr-codebook-adaptation-submission.json. GPUresults pending;
-  monitorexistingkernel,do not submitduplicates.
+  docs/gr-codebook-adaptation-submission.json. COMPLETE2/2fits,33.951min,
+  both30epochs/8880updates/6VAL/0AMPskips. ProjectionVAL.03686649/TEST.03114151
+  selected30;fulljointVAL.02118170/TEST.01895965selected25. Historicalcontrol
+  VAL.06665966/TEST.06165244;one seed,no robustgain. Jointindexepoch30occupied
+  27/24/30,1756uniquesemanticIDs,maxcollision9,medianSIDchurn84.93%;RecLoss
+  2.6305->2.3620,VQ.1850->1.4835. RQsupportavoidsoldoverflow,rankingstillpoor.
+  Independent14VAL/TESTpredictionfilesrescored,casehashes/pins/budgetsmatch.
+  TRAINtargetentropyoriginalincrementbits7.6601/2.7691/.0579/.00072 vsjoint30
+  4.4168/3.2097/2.2208/.6405,total10.48779both(fullSIDbijection);thisisnot
+  user-historyconditionalNIPLoss.No measuredgradientconflictclaim.
+  Report gr-codebook-adaptation-results.md/.json,raw/CPUreplay/plots/33MBevidence
+  ZIPsaved. Docs-onlycollection,no newsourceorGPUwork;1021predeploymenttests
+ 91optional skips0fail. No GPUresults pending;no furthercompute authorized.
 
 
 - User authorization2026-11-06: two shared-codebook TIGERfits on existingclean
