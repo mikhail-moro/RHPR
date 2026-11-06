@@ -2,6 +2,19 @@
 
 ## Research status
 
+- User authorization2026-11-06: two smaller mini-TIGER shapes ffn_small
+  (4+4,d64,FF256,H6,kv32,1112896params) and attention_small
+  (4+4,d64,FF256,H4,kv16,719552params).48freshfits:12frozenSUM/UW/GN/PC
+  indexes seeds42/101/202 x2shapes xgenseeds31415/27182.10epochs,val5,
+  fixedepoch10primary vs savedfull30VAL;reportoverall,seedgroups,eachmethod.
+  Reuse savednarrow controls;no retraining baseline. Private carasik/rhpr-ml1m-mini-width,
+  2T4,offline,3existingdatasets,2existingparentkernels;nonewdataupload.
+  No TEST,quantizer/fullmodel/content fitting,Telegram,retries/HPO/extensions.
+  Internal9900s/server180min,quota3.52hchecked. Config
+  ml1m_mini_tiger_width_2t4.json;protocol docs/gr-mini-tiger-width.md.
+  Supersedes prior no-extra-shapes only for these48fits. Do not repeat oldruns.
+
+
 - User authorization2026-11-06: fixed narrow mini-TIGER epoch10 transfer on
   FOUR saved SUM/UW/GN/PC indexes at tokenizerseed202.8freshfits crossed
   with genseeds31415/27182,2T4;exact10epochs/val5,primary fixedepoch10.

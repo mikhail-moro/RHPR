@@ -1,0 +1,549 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-mini-width"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false,
+    "attn_implementation": "sdpa"
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 1,
+    "batch_size": 512,
+    "physical_batch_size": 512,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 10,
+    "min_epochs": 10,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 32,
+    "max_seconds": 1200,
+    "sampling": "precomputed_raw_clean_windows",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 10
+  },
+  "name": "ml1m-mini-tiger-width-reduction",
+  "kind": "gr_mini_tiger",
+  "data": {
+    "split": "raw_contiguous_20_val_test",
+    "items": 2874,
+    "users": 2786,
+    "train_examples": 151166,
+    "case_sha256": {
+      "train": "28339b91f7d22ee78d3eed6e3c00cbd393ecc62e487fe63f74da65fac3937e5b",
+      "validation": "ee9cf5402dbfeae46f669c731fa795939d67e4b9779481102cd30802add27009",
+      "test": "daac961764086cc8966df2afdf1596c8a06774e032b05fade715a10cb94e8fed"
+    },
+    "version": "ML1M-TMDB-Zenodo-clean-original-timeline",
+    "history_items": 20
+  },
+  "movie_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-ml1m-clean-mtl-input",
+    "manifest_sha256": "023d2b52dd8a12553d1dcf24a8a3e9a59f22983ad3cd0b768c7da6318aa98c16"
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "evaluation": {
+    "test_after_selection": false,
+    "save_validation_predictions": true,
+    "selection_metric": "validation item NDCG@10",
+    "save_validation_losses": true
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml1m-clean-mtl-input",
+      "carasik/rhpr-t5-sdpa-runtime"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-ml1m-clean-mtl",
+      "carasik/rhpr-ml1m-clean-mtl-replicates"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "modern_runtime": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-t5-sdpa-runtime",
+    "manifest_sha256": "18f4688aab798d792d9204d1c018d8aba7da80bc97f5aadcdd181b34f6f0b9f6"
+  },
+  "generator_seeds": [
+    31415,
+    27182
+  ],
+  "compare_initialization_by_shape": true,
+  "index_ids": [
+    "sum_seed42",
+    "uw_seed42",
+    "gradnorm_seed42",
+    "pcgrad_seed42",
+    "sum_seed101",
+    "uw_seed101",
+    "gradnorm_seed101",
+    "pcgrad_seed101",
+    "sum_seed202",
+    "uw_seed202",
+    "gradnorm_seed202",
+    "pcgrad_seed202"
+  ],
+  "trials": [
+    {
+      "id": "ffn_small_sum_seed42_gen31415",
+      "architecture": "ffn_small",
+      "index_id": "sum_seed42",
+      "seed": 31415
+    },
+    {
+      "id": "ffn_small_sum_seed42_gen27182",
+      "architecture": "ffn_small",
+      "index_id": "sum_seed42",
+      "seed": 27182
+    },
+    {
+      "id": "ffn_small_uw_seed42_gen31415",
+      "architecture": "ffn_small",
+      "index_id": "uw_seed42",
+      "seed": 31415
+    },
+    {
+      "id": "ffn_small_uw_seed42_gen27182",
+      "architecture": "ffn_small",
+      "index_id": "uw_seed42",
+      "seed": 27182
+    },
+    {
+      "id": "ffn_small_gradnorm_seed42_gen31415",
+      "architecture": "ffn_small",
+      "index_id": "gradnorm_seed42",
+      "seed": 31415
+    },
+    {
+      "id": "ffn_small_gradnorm_seed42_gen27182",
+      "architecture": "ffn_small",
+      "index_id": "gradnorm_seed42",
+      "seed": 27182
+    },
+    {
+      "id": "ffn_small_pcgrad_seed42_gen31415",
+      "architecture": "ffn_small",
+      "index_id": "pcgrad_seed42",
+      "seed": 31415
+    },
+    {
+      "id": "ffn_small_pcgrad_seed42_gen27182",
+      "architecture": "ffn_small",
+      "index_id": "pcgrad_seed42",
+      "seed": 27182
+    },
+    {
+      "id": "ffn_small_sum_seed101_gen31415",
+      "architecture": "ffn_small",
+      "index_id": "sum_seed101",
+      "seed": 31415
+    },
+    {
+      "id": "ffn_small_sum_seed101_gen27182",
+      "architecture": "ffn_small",
+      "index_id": "sum_seed101",
+      "seed": 27182
+    },
+    {
+      "id": "ffn_small_uw_seed101_gen31415",
+      "architecture": "ffn_small",
+      "index_id": "uw_seed101",
+      "seed": 31415
+    },
+    {
+      "id": "ffn_small_uw_seed101_gen27182",
+      "architecture": "ffn_small",
+      "index_id": "uw_seed101",
+      "seed": 27182
+    },
+    {
+      "id": "ffn_small_gradnorm_seed101_gen31415",
+      "architecture": "ffn_small",
+      "index_id": "gradnorm_seed101",
+      "seed": 31415
+    },
+    {
+      "id": "ffn_small_gradnorm_seed101_gen27182",
+      "architecture": "ffn_small",
+      "index_id": "gradnorm_seed101",
+      "seed": 27182
+    },
+    {
+      "id": "ffn_small_pcgrad_seed101_gen31415",
+      "architecture": "ffn_small",
+      "index_id": "pcgrad_seed101",
+      "seed": 31415
+    },
+    {
+      "id": "ffn_small_pcgrad_seed101_gen27182",
+      "architecture": "ffn_small",
+      "index_id": "pcgrad_seed101",
+      "seed": 27182
+    },
+    {
+      "id": "ffn_small_sum_seed202_gen31415",
+      "architecture": "ffn_small",
+      "index_id": "sum_seed202",
+      "seed": 31415
+    },
+    {
+      "id": "ffn_small_sum_seed202_gen27182",
+      "architecture": "ffn_small",
+      "index_id": "sum_seed202",
+      "seed": 27182
+    },
+    {
+      "id": "ffn_small_uw_seed202_gen31415",
+      "architecture": "ffn_small",
+      "index_id": "uw_seed202",
+      "seed": 31415
+    },
+    {
+      "id": "ffn_small_uw_seed202_gen27182",
+      "architecture": "ffn_small",
+      "index_id": "uw_seed202",
+      "seed": 27182
+    },
+    {
+      "id": "ffn_small_gradnorm_seed202_gen31415",
+      "architecture": "ffn_small",
+      "index_id": "gradnorm_seed202",
+      "seed": 31415
+    },
+    {
+      "id": "ffn_small_gradnorm_seed202_gen27182",
+      "architecture": "ffn_small",
+      "index_id": "gradnorm_seed202",
+      "seed": 27182
+    },
+    {
+      "id": "ffn_small_pcgrad_seed202_gen31415",
+      "architecture": "ffn_small",
+      "index_id": "pcgrad_seed202",
+      "seed": 31415
+    },
+    {
+      "id": "ffn_small_pcgrad_seed202_gen27182",
+      "architecture": "ffn_small",
+      "index_id": "pcgrad_seed202",
+      "seed": 27182
+    },
+    {
+      "id": "attention_small_sum_seed42_gen31415",
+      "architecture": "attention_small",
+      "index_id": "sum_seed42",
+      "seed": 31415
+    },
+    {
+      "id": "attention_small_sum_seed42_gen27182",
+      "architecture": "attention_small",
+      "index_id": "sum_seed42",
+      "seed": 27182
+    },
+    {
+      "id": "attention_small_uw_seed42_gen31415",
+      "architecture": "attention_small",
+      "index_id": "uw_seed42",
+      "seed": 31415
+    },
+    {
+      "id": "attention_small_uw_seed42_gen27182",
+      "architecture": "attention_small",
+      "index_id": "uw_seed42",
+      "seed": 27182
+    },
+    {
+      "id": "attention_small_gradnorm_seed42_gen31415",
+      "architecture": "attention_small",
+      "index_id": "gradnorm_seed42",
+      "seed": 31415
+    },
+    {
+      "id": "attention_small_gradnorm_seed42_gen27182",
+      "architecture": "attention_small",
+      "index_id": "gradnorm_seed42",
+      "seed": 27182
+    },
+    {
+      "id": "attention_small_pcgrad_seed42_gen31415",
+      "architecture": "attention_small",
+      "index_id": "pcgrad_seed42",
+      "seed": 31415
+    },
+    {
+      "id": "attention_small_pcgrad_seed42_gen27182",
+      "architecture": "attention_small",
+      "index_id": "pcgrad_seed42",
+      "seed": 27182
+    },
+    {
+      "id": "attention_small_sum_seed101_gen31415",
+      "architecture": "attention_small",
+      "index_id": "sum_seed101",
+      "seed": 31415
+    },
+    {
+      "id": "attention_small_sum_seed101_gen27182",
+      "architecture": "attention_small",
+      "index_id": "sum_seed101",
+      "seed": 27182
+    },
+    {
+      "id": "attention_small_uw_seed101_gen31415",
+      "architecture": "attention_small",
+      "index_id": "uw_seed101",
+      "seed": 31415
+    },
+    {
+      "id": "attention_small_uw_seed101_gen27182",
+      "architecture": "attention_small",
+      "index_id": "uw_seed101",
+      "seed": 27182
+    },
+    {
+      "id": "attention_small_gradnorm_seed101_gen31415",
+      "architecture": "attention_small",
+      "index_id": "gradnorm_seed101",
+      "seed": 31415
+    },
+    {
+      "id": "attention_small_gradnorm_seed101_gen27182",
+      "architecture": "attention_small",
+      "index_id": "gradnorm_seed101",
+      "seed": 27182
+    },
+    {
+      "id": "attention_small_pcgrad_seed101_gen31415",
+      "architecture": "attention_small",
+      "index_id": "pcgrad_seed101",
+      "seed": 31415
+    },
+    {
+      "id": "attention_small_pcgrad_seed101_gen27182",
+      "architecture": "attention_small",
+      "index_id": "pcgrad_seed101",
+      "seed": 27182
+    },
+    {
+      "id": "attention_small_sum_seed202_gen31415",
+      "architecture": "attention_small",
+      "index_id": "sum_seed202",
+      "seed": 31415
+    },
+    {
+      "id": "attention_small_sum_seed202_gen27182",
+      "architecture": "attention_small",
+      "index_id": "sum_seed202",
+      "seed": 27182
+    },
+    {
+      "id": "attention_small_uw_seed202_gen31415",
+      "architecture": "attention_small",
+      "index_id": "uw_seed202",
+      "seed": 31415
+    },
+    {
+      "id": "attention_small_uw_seed202_gen27182",
+      "architecture": "attention_small",
+      "index_id": "uw_seed202",
+      "seed": 27182
+    },
+    {
+      "id": "attention_small_gradnorm_seed202_gen31415",
+      "architecture": "attention_small",
+      "index_id": "gradnorm_seed202",
+      "seed": 31415
+    },
+    {
+      "id": "attention_small_gradnorm_seed202_gen27182",
+      "architecture": "attention_small",
+      "index_id": "gradnorm_seed202",
+      "seed": 27182
+    },
+    {
+      "id": "attention_small_pcgrad_seed202_gen31415",
+      "architecture": "attention_small",
+      "index_id": "pcgrad_seed202",
+      "seed": 31415
+    },
+    {
+      "id": "attention_small_pcgrad_seed202_gen27182",
+      "architecture": "attention_small",
+      "index_id": "pcgrad_seed202",
+      "seed": 27182
+    }
+  ],
+  "initialization_pins": {
+    "ffn_small": {
+      "31415": "60ba46e8176918b5bea52c99ba269e95c16a219f2b57895d6e6212443a952df4",
+      "27182": "07ff22d5160e1169f6d74e44bd46af13cc3e2e84b718020b5ba5a493592d4fd1"
+    },
+    "attention_small": {
+      "31415": "847331a8610abc21df07f3d3b5ebcf84a5f19a0c8f24d13eaa208c3337af71e8",
+      "27182": "59208e392a08ead1647bd47b3a8fe65032dc0e0e618c1bbc0e939b09d9d3accb"
+    }
+  },
+  "parents": {
+    "42": {
+      "kernel": "carasik/rhpr-ml1m-clean-mtl",
+      "source_code_sha": "20a4c08534cd6853e3fd64340f2dc429e6bed3a6",
+      "files": {
+        "run-manifest.json": {
+          "size_bytes": 6293,
+          "sha256": "ba4f9101f192a11c6b6d8bec0eedb64f9a55a9849b304334c84d04c60eae56e8"
+        },
+        "plan.json": {
+          "size_bytes": 35504,
+          "sha256": "87d964c96081afaf627743e709632578844a53e9e408155368786d8316b54447"
+        }
+      },
+      "artifacts": {
+        "sum_seed42": {
+          "semantic-ids.npy": "0bbbdce1bfb853cafd42f9c01a3b1d628769ab9945950013a104895fc95ed829",
+          "training-curves.json": "3b86db87bfae97e6095544d34dec39a2f0c92bfc4b00d7c20a56d6cd5b4e5ff3",
+          "training-selection.json": "6be908e930c116aa3033497b259e8259c51f4d0654170a28f1671dd01df26c97",
+          "generator.json": "be2a99c319d6505a11dc875ca02ee1e36a5f8cb2461bb0c74a108a5b74b19360"
+        },
+        "uw_seed42": {
+          "semantic-ids.npy": "c763cfa95812528f24a576782be3250b1934eff18a6e4901e90efbd9c725698e",
+          "training-curves.json": "8aece57afdfff0040d332b003e2261f206d17922b6a6fb15bcd120f6611c414e",
+          "training-selection.json": "fb7fce416a86dbc038bf53dca15fc81422601dc9d1a18e1e4deb2bc8f0527a6a",
+          "generator.json": "be2a99c319d6505a11dc875ca02ee1e36a5f8cb2461bb0c74a108a5b74b19360"
+        },
+        "gradnorm_seed42": {
+          "semantic-ids.npy": "e45ca975b1c56e3aeb5863bdfd66475afc3b1a8d1c29a15f3e0ddf9c3bb59555",
+          "training-curves.json": "15fc3f394e8e87e6f4326ee113a7c26ab895e3ba8469ae74703735db23029e36",
+          "training-selection.json": "1108fd38a2911f0944733893c367d12e10b5d81f1006544f69576717405990e4",
+          "generator.json": "be2a99c319d6505a11dc875ca02ee1e36a5f8cb2461bb0c74a108a5b74b19360"
+        },
+        "pcgrad_seed42": {
+          "semantic-ids.npy": "ea48070ffd1721f202b7f97bd20cd2aa12dfa4d570392206ddb167dd285b5ed2",
+          "training-curves.json": "156022be3bfb37e897fd7810dabc0abb428644982b6febe3cd6b246d13b08c4f",
+          "training-selection.json": "aa67d2c3fa47740509565066d547a601fc5785ef7dc66a82ab5e766f12867a64",
+          "generator.json": "be2a99c319d6505a11dc875ca02ee1e36a5f8cb2461bb0c74a108a5b74b19360"
+        }
+      }
+    },
+    "101": {
+      "kernel": "carasik/rhpr-ml1m-clean-mtl-replicates",
+      "source_code_sha": "fc2a62bdd57af294caadd939bf1bbbda2de7032f",
+      "files": {
+        "run-manifest.json": {
+          "size_bytes": 7218,
+          "sha256": "5bbdebfab30c6bd503f75aa1b5ef718008d56d29d17fa159170fe4598de4a1c4"
+        },
+        "plan.json": {
+          "size_bytes": 37373,
+          "sha256": "b47e208a26ca960db1d38a8b64b331387529a93d8146331bedd4fd04f6655e20"
+        }
+      },
+      "artifacts": {
+        "sum_seed101": {
+          "semantic-ids.npy": "be2b69775171017bdd11f5b95dcf42a26fd9024669c76d758a0e2b019aaa4722",
+          "training-curves.json": "c56fe82616c4cec8cece4e96d6bc593ae0465e1bcb9c5939c529e24dd82a5ca5",
+          "training-selection.json": "a63efa0d5a1ab0db478408465038ef6c31c378dcadb4cdae94c334b831d715f1",
+          "generator.json": "37561eb54598d7af9ea4a674b55bbf6fcc51b27b6ca511e5eaa0e3326bd433a2"
+        },
+        "uw_seed101": {
+          "semantic-ids.npy": "fe77df8759df489501c1b7fceb4ac2a19737c99be4b075590d730d7f65ba7565",
+          "training-curves.json": "73df6c90025ba31b4b5f4294dd4b443a107ce29882e5dd33c9b89077979ae93c",
+          "training-selection.json": "af80ad90d9c0db851d6680c6df4d9d2dc6a6e6698791be3ca334ac772e6372ce",
+          "generator.json": "37561eb54598d7af9ea4a674b55bbf6fcc51b27b6ca511e5eaa0e3326bd433a2"
+        },
+        "gradnorm_seed101": {
+          "semantic-ids.npy": "edcbc7c920572a909f9699fae08f475846d5a5e8bf24aaa2c232397eece54af9",
+          "training-curves.json": "7c82182f0235c89799d169d3c1858e80449c5c0706048f43b8d93dccff066f50",
+          "training-selection.json": "9c5443686da73e2fb47320ea07397c9c039fd64b9dc80bfec9cd3dccc053fa74",
+          "generator.json": "37561eb54598d7af9ea4a674b55bbf6fcc51b27b6ca511e5eaa0e3326bd433a2"
+        },
+        "pcgrad_seed101": {
+          "semantic-ids.npy": "edfb44a283b9014094b567781e1958e01ba3a1caa7af35ab18d68a94a640bb31",
+          "training-curves.json": "822ed8006e63cee81ce16279596dce8238ea540079886bbbe7b0889a322e605a",
+          "training-selection.json": "28b79e6625af565b9af0961502a0cc7a63418a048ed5855421c46494b31190c7",
+          "generator.json": "37561eb54598d7af9ea4a674b55bbf6fcc51b27b6ca511e5eaa0e3326bd433a2"
+        }
+      }
+    },
+    "202": {
+      "kernel": "carasik/rhpr-ml1m-clean-mtl-replicates",
+      "source_code_sha": "fc2a62bdd57af294caadd939bf1bbbda2de7032f",
+      "files": {
+        "run-manifest.json": {
+          "size_bytes": 7218,
+          "sha256": "5bbdebfab30c6bd503f75aa1b5ef718008d56d29d17fa159170fe4598de4a1c4"
+        },
+        "plan.json": {
+          "size_bytes": 37373,
+          "sha256": "b47e208a26ca960db1d38a8b64b331387529a93d8146331bedd4fd04f6655e20"
+        }
+      },
+      "artifacts": {
+        "sum_seed202": {
+          "semantic-ids.npy": "9088a815160b9b38f875ae3e81e43dd30fabe8feee3f6c5cfcaabe43ff391a17",
+          "training-curves.json": "7a7742a456443d4cee285a752791b9a74f1d5a8f746adbd78a00d1b7ba863320",
+          "training-selection.json": "442730dbeb7a82b9f4b46fc33e36bbcfe1650382559ea75b48e7e02f2b653f47",
+          "generator.json": "0e4f0efb22e0f5e12f405ed9a26bd3b727f451ba200303b0564562fd9d624f75"
+        },
+        "uw_seed202": {
+          "semantic-ids.npy": "cdbf1330252aa62403e9bd5b5f49c27b82ea5e5d5307c5c769f80c394da41f2e",
+          "training-curves.json": "d3ce04d3d8fe502eacd04a8eb28d6181eb3e86319bac93ac7f8626a3203f759d",
+          "training-selection.json": "60d09a8b561dc232410e21d4ccfcf9f0a2a4fc06839ec78d0ddcb34a57d1f819",
+          "generator.json": "0e4f0efb22e0f5e12f405ed9a26bd3b727f451ba200303b0564562fd9d624f75"
+        },
+        "gradnorm_seed202": {
+          "semantic-ids.npy": "8c0e2b5a98750eb30e69fb56240f930247698650d1892e34bfc8766894790289",
+          "training-curves.json": "d8ea66baecdb6067b784b367a8b9a8d8d03ca69df89c859c01904117884d8bbe",
+          "training-selection.json": "0f81b89aafa876a28edd10a654a75ce4afa2088fdfe70a2ba276930da0529a90",
+          "generator.json": "0e4f0efb22e0f5e12f405ed9a26bd3b727f451ba200303b0564562fd9d624f75"
+        },
+        "pcgrad_seed202": {
+          "semantic-ids.npy": "74128ee8e50a5239d10c7fc284d188e0f6fbcc73c3a0f43c892a2903f5b36fe8",
+          "training-curves.json": "43b0633907b04dd107b6b2f1f578e331ede653f91a8da57c3d0c4c6c3cb7d937",
+          "training-selection.json": "cd4892cfd5e60b4c1275c319c348e31fcdba72a930f015d4fe0bf656b323daa4",
+          "generator.json": "0e4f0efb22e0f5e12f405ed9a26bd3b727f451ba200303b0564562fd9d624f75"
+        }
+      }
+    }
+  },
+  "calibration_phase": "width_reduction",
+  "primary_proxy_epoch": 10,
+  "suite_deadline_seconds": 9900
+}

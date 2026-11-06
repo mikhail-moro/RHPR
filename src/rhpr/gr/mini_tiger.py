@@ -29,12 +29,23 @@ ARCHITECTURES = {
 }
 
 
+REDUCED_ARCHITECTURES = {
+    'ffn_small': dict(encoder_layers=4, decoder_layers=4, d_model=64,
+                      d_ff=256, num_heads=6, d_kv=32),
+    'attention_small': dict(encoder_layers=4, decoder_layers=4, d_model=64,
+                            d_ff=256, num_heads=4, d_kv=16),
+}
+ALL_ARCHITECTURES = {**ARCHITECTURES, **REDUCED_ARCHITECTURES}
+
+
 def protocol_shape(c):
     phase = c.get('calibration_phase', 'pilot')
     if phase == 'pilot':
         return list(ARCHITECTURES), [42, 101], 20
     if phase == 'seed202_transfer':
         return ['narrow'], [202], 10
+    if phase == 'width_reduction':
+        return list(REDUCED_ARCHITECTURES), [42, 101, 202], 10
     raise ValueError('unknown mini-TIGER calibration phase')
 
 
@@ -63,9 +74,12 @@ def validate(c):
             or set(c['kaggle']['kernel_sources']) != {p['kernel'] for p in c['parents'].values()}
             or c['evaluation'].get('test_after_selection') is not False):
         raise ValueError('mini-TIGER differs from the frozen-index calibration contract')
-    if (epochs == 10 and (c.get('primary_proxy_epoch') != 10
+    if (c.get('calibration_phase') == 'seed202_transfer' and (c.get('primary_proxy_epoch') != 10
                           or c.get('suite_deadline_seconds') != 3000)):
         raise ValueError('transfer fixes narrow epoch10 and its compute budget in advance')
+    if c.get('calibration_phase') == 'width_reduction' and (
+            c.get('primary_proxy_epoch') != 10 or c.get('suite_deadline_seconds') != 9900):
+        raise ValueError('width reduction fixes epoch10 and the compute budget')
     if set(c['initialization_pins']) != set(architectures) or any(
             len(c['initialization_pins'][a][str(s)]) != 64
             for a in architectures for s in c['generator_seeds']):
@@ -142,7 +156,10 @@ def correlate(c, records, references):
                    'mini generator seeds are distinct from all full pipeline seeds'])
     for group, ids in [('all', index_ids)] + [
             (f'index_seed{s}', [i for i in index_ids if references[i]['full_seed'] == s])
-            for s in index_seeds]:
+            for s in index_seeds] + [
+            (f'method_{m}', [i for i in index_ids if references[i].get('method') == m])
+            for m in ['sum', 'uw', 'gradnorm', 'pcgrad']
+            if sum(references[i].get('method') == m for i in index_ids) >= 2]:
         target = [references[i]['epochs']['30'] for i in ids]
         selected = [max(references[i]['epochs'].values()) for i in ids]
         report = dict(index_ids=ids, early_full={}, mini={})
@@ -171,6 +188,9 @@ def correlate(c, records, references):
     if c.get('calibration_phase') == 'seed202_transfer':
         out['primary_proxy_epoch'] = 10
         out['primary'] = out['groups']['all']['mini']['narrow_epoch10']
+    if c.get('calibration_phase') == 'width_reduction':
+        out['primary_proxy_epoch'] = 10
+        out['primary'] = {a: out['groups']['all']['mini'][f'{a}_epoch10'] for a in architectures}
     return out
 
 
@@ -183,7 +203,7 @@ def run_trial(trial, c, plan, device):
     c = copy.deepcopy(c)
     seed = trial['seed']
     c['seed'] = seed
-    c['generator'].update(ARCHITECTURES[trial['architecture']])
+    c['generator'].update(ALL_ARCHITECTURES[trial['architecture']])
     root = Path(plan['output']) / 'trials' / trial['id']
     root.mkdir(parents=True, exist_ok=True)
     sid_path = Path(plan['index_root']) / (trial['index_id'] + '-semantic-ids.npy')

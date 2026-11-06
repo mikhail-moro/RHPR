@@ -96,3 +96,41 @@ class MiniCalibrationTests(unittest.TestCase):
         self.assertEqual(result['primary_proxy_epoch'], 10)
         self.assertEqual(result['primary']['mean']['spearman'], 1.)
         self.assertEqual(set(result['groups']['all']['mini']), {'narrow_epoch5', 'narrow_epoch10'})
+
+
+class WidthReductionTests(unittest.TestCase):
+    def config(self):
+        return json.loads((Path(__file__).resolve().parents[1] / 'experiments/ml1m_mini_tiger_width_2t4.json').read_text())
+
+    def test_exact_matrix_and_seeds_balanced(self):
+        from rhpr.gr.ae_suite import assignments
+        c = self.config(); validate(c)
+        self.assertEqual(len(c['index_ids']), 12)
+        jobs = assignments(c, 2)
+        self.assertEqual([len(j['trials']) for j in jobs], [24, 24])
+        self.assertEqual([{t['seed'] for t in j['trials']} for j in jobs], [{31415}, {27182}])
+        self.assertEqual({t['architecture'] for t in c['trials']}, {'ffn_small', 'attention_small'})
+
+    def test_no_extra_budget_or_candidates(self):
+        for change in ['epoch', 'deadline', 'matrix', 'test']:
+            c = self.config()
+            if change == 'epoch': c['primary_proxy_epoch'] = 5
+            if change == 'deadline': c['suite_deadline_seconds'] = 15000
+            if change == 'matrix': c['trials'].pop()
+            if change == 'test': c['evaluation']['test_after_selection'] = True
+            with self.assertRaises(ValueError): validate(c)
+
+    def test_methods_and_fixed_epoch_are_reported(self):
+        c = self.config(); refs = {}; records = {}
+        for j, i in enumerate(c['index_ids']):
+            method, seed = i.split('_seed')
+            refs[i] = dict(full_seed=int(seed), method=method,
+                epochs={str(e): (j + 1)*.001 for e in [5,10,15,20,25,30]})
+        for t in c['trials']:
+            j = c['index_ids'].index(t['index_id'])
+            records[t['id']] = {**t, 'epochs': {'5': .5-j*.001, '10': (j+1)*.001}}
+        r = correlate(c, records, refs)
+        self.assertEqual(r['primary_proxy_epoch'], 10)
+        self.assertEqual(r['primary']['ffn_small']['mean']['spearman'], 1.)
+        self.assertEqual(len(r['groups']['method_sum']['index_ids']), 3)
+        self.assertEqual(r['groups']['method_sum']['mini']['attention_small_epoch10']['mean']['spearman'], 1.)
