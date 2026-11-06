@@ -16,7 +16,15 @@
   SUBMITTED privatev1 RUNNING,executabled80787c82e1c,workflow42182356635success.
   All205embeddedfiles/config/3datasets/2parents verified.1012tests91skips0fail;
   4native10epoch/2VALprobes pass. Receipt docs/gr-mini-tiger-width-submission.json.
-  GPUresults pending;monitor existingkernel,no duplicate submission.
+  COMPLETE48/48fits,139.756min,10epochs/2960updates/2VAL/0AMPskips each.
+  Independently replayed96new+48narrow+12fullVALfiles;all metrics/pins match.
+  Narrowall12rho.902,SUMrho1;ffnsmallallrho.385,SUM.5;attention_smallall-.126,
+  SUM1butindividualseed.5/1. Epochseconds38.85/36.37/30.19;only1.07/1.29x
+  speedvsnarrow. Narrowwithinindexseed101rho-.2;poolednotuniversalproxy.
+  Retainnarrowprovisionally;no robust generalreplacement fromsmallerwidths.
+  1012tests91optional skips0fail;report gr-mini-tiger-width-results.md/.json,
+  replay scripts/research/analyze_mini_width.py,plotsand57.2MBevidenceZIPsaved.
+  No GPUresults pending,newcompute,extensions or retries authorized.
 
 
 - User authorization2026-11-06: fixed narrow mini-TIGER epoch10 transfer on
