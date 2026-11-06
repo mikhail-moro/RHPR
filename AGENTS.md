@@ -20,6 +20,10 @@
   server60min/fitbudget3000s. Config ml1m_shared_codebooks_2t4.json,
   docs/gr-shared-codebooks.md. Native2x30epoch/6VALprobesandfrozenencoder
   sourcecheckpass;selectedearlierepoch20/25SIDrestoreverified.
+  SUBMITTEDprivatev1RUNNING,executablef6a299f5bb60,workflow42210018539success.
+  All206embeddedfiles/config/3datasets/1parentexact;1015tests91skips0fail.
+  Receipt docs/gr-shared-codebooks-submission.json. GPUresults pending;
+  monitorexistingkernel,do not submitduplicates.
 
 
 - User authorization2026-11-06: two smaller mini-TIGER shapes ffn_small
