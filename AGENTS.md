@@ -13,6 +13,10 @@
   Internal9900s/server180min,quota3.52hchecked. Config
   ml1m_mini_tiger_width_2t4.json;protocol docs/gr-mini-tiger-width.md.
   Supersedes prior no-extra-shapes only for these48fits. Do not repeat oldruns.
+  SUBMITTED privatev1 RUNNING,executabled80787c82e1c,workflow42182356635success.
+  All205embeddedfiles/config/3datasets/2parents verified.1012tests91skips0fail;
+  4native10epoch/2VALprobes pass. Receipt docs/gr-mini-tiger-width-submission.json.
+  GPUresults pending;monitor existingkernel,no duplicate submission.
 
 
 - User authorization2026-11-06: fixed narrow mini-TIGER epoch10 transfer on
