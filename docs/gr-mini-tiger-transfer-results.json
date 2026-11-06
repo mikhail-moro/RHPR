@@ -1,0 +1,127 @@
+{
+  "complete": true,
+  "fits": 8,
+  "test_evaluated": false,
+  "source_code_sha": "31d120c8c962adfb7c9f1f4db30e18c1f8d6d153",
+  "finished_at": "2026-11-06T06:55:41.629635+00:00",
+  "run_minutes": 27.8231328,
+  "verified_mini_prediction_files": 16,
+  "verified_full_prediction_files": 4,
+  "amp_skips": 0,
+  "spearman": 0.7999999999999999,
+  "per_seed": {
+    "31415": {
+      "spearman": 1.0,
+      "scores": [
+        0.036534639711619826,
+        0.026371272366607305,
+        0.029739356255642006,
+        0.028113038917984827
+      ]
+    },
+    "27182": {
+      "spearman": -0.19999999999999998,
+      "scores": [
+        0.04010443792336816,
+        0.040631440361874535,
+        0.039644548532385145,
+        0.036159570186940763
+      ]
+    }
+  },
+  "primary": {
+    "mean": {
+      "selected_target_regret": 0.0,
+      "spearman": 0.7999999999999999,
+      "top2_overlap": 1.0
+    },
+    "mean_scores": [
+      0.03831953881749399,
+      0.033501356364240925,
+      0.03469195239401358,
+      0.032136304552462795
+    ],
+    "mean_vs_full_selected": {
+      "selected_target_regret": 0.0,
+      "spearman": 0.7999999999999999,
+      "top2_overlap": 1.0
+    },
+    "scores_by_seed": {
+      "27182": [
+        0.04010443792336815,
+        0.04063144036187454,
+        0.039644548532385145,
+        0.036159570186940763
+      ],
+      "31415": [
+        0.036534639711619826,
+        0.026371272366607305,
+        0.02973935625564201,
+        0.028113038917984827
+      ]
+    },
+    "seeds": {
+      "27182": {
+        "selected_target_regret": 0.004791826100466148,
+        "spearman": -0.19999999999999998,
+        "top2_overlap": 0.5
+      },
+      "31415": {
+        "selected_target_regret": 0.0,
+        "spearman": 1.0,
+        "top2_overlap": 1.0
+      }
+    }
+  },
+  "table": [
+    {
+      "index_id": "sum_seed202",
+      "full_epoch30_ndcg": 0.07198748716987582,
+      "mini_mean_epoch10_ndcg": 0.038319538817493996,
+      "mini31415_epoch10_ndcg": 0.036534639711619826,
+      "mini27182_epoch10_ndcg": 0.04010443792336816
+    },
+    {
+      "index_id": "uw_seed202",
+      "full_epoch30_ndcg": 0.06719566106940969,
+      "mini_mean_epoch10_ndcg": 0.03350135636424092,
+      "mini31415_epoch10_ndcg": 0.026371272366607305,
+      "mini27182_epoch10_ndcg": 0.040631440361874535
+    },
+    {
+      "index_id": "gradnorm_seed202",
+      "full_epoch30_ndcg": 0.07119241368246539,
+      "mini_mean_epoch10_ndcg": 0.03469195239401358,
+      "mini31415_epoch10_ndcg": 0.029739356255642006,
+      "mini27182_epoch10_ndcg": 0.039644548532385145
+    },
+    {
+      "index_id": "pcgrad_seed202",
+      "full_epoch30_ndcg": 0.06814737746464937,
+      "mini_mean_epoch10_ndcg": 0.032136304552462795,
+      "mini31415_epoch10_ndcg": 0.028113038917984827,
+      "mini27182_epoch10_ndcg": 0.036159570186940763
+    }
+  ],
+  "early_full": {
+    "10": {
+      "selected_target_regret": 0.0,
+      "spearman": 0.39999999999999997,
+      "top2_overlap": 0.5
+    },
+    "5": {
+      "selected_target_regret": 0.0,
+      "spearman": 0.39999999999999997,
+      "top2_overlap": 0.5
+    }
+  },
+  "conditional_user_bootstrap_ci95": [
+    -0.6000000000000001,
+    1.0
+  ],
+  "bootstrap_scope": "5000 shared user draws;fixed fitted models/four related indexes;excludes training randomness,index selection and target-item dependence",
+  "exact_label_permutation_two_sided_p": 0.3333333333333333,
+  "mean_epoch_seconds": 38.826534571625,
+  "mean_fit_seconds": 403.9609659014999,
+  "scope": "Architecture/epoch fixed before this proxy transfer run. Four related indexes,one full generator seed/index. Existing same VALcohort,not a universal or independently replicated proxy."
+}

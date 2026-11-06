@@ -5,11 +5,11 @@
   "kernel_id": "carasik/rhpr-ml1m-mini-transfer",
   "kernel_version": 1,
   "versioned_kernel_id": "carasik/rhpr-ml1m-mini-transfer/1",
-  "status": "RUNNING",
-  "quality_complete": false,
+  "status": "COMPLETE",
+  "quality_complete": true,
   "worker_timeout_seconds": 3600,
   "submitted_at_utc": "2026-11-06T06:27:10.572153+00:00",
-  "gpu_results_pending": true,
+  "gpu_results_pending": false,
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42174475061",
   "workflow_conclusion": "success",
   "matrix_fits": 8,
@@ -26,5 +26,9 @@
     "dataset_sources_exact": true,
     "kernel_sources_exact": true,
     "hardware": "NvidiaTeslaT4"
-  }
+  },
+  "completed_fits": 8,
+  "finished_at_utc": "2026-11-06T06:55:41.629635+00:00",
+  "run_minutes": 27.8231328,
+  "results_report": "docs/gr-mini-tiger-transfer-results.md"
 }

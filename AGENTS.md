@@ -11,9 +11,16 @@
   NO new data upload,quantizer/content/fullmodel training,TEST or Telegram.
   Config ml1m_mini_tiger_transfer_2t4.json,phase seed202_transfer;private
   carasik/rhpr-ml1m-mini-transfer.60minservercap,3000s internaldeadline.
-  Submitted private carasik/rhpr-ml1m-mini-transfer/1 RUNNING,executable31d120c8,
+  Submitted private carasik/rhpr-ml1m-mini-transfer/1 COMPLETE,executable31d120c8,
   workflow42174475061success;all205embeddedfiles/config/3datasets/1parent
   exact.1009tests91optional skips0fail;2native10epoch/2VAL probes pass.
+  COMPLETE8/8fits,10epochs/2960updates/2VAL/0AMPskips,27.823min,finished
+  2026-11-06T06:55:41.629635UTC.Fixedepoch10meanrho.8,top1/top2correct,
+  targetregret0;genseeds1.0/-.2,singlebadseed selects worstUW.Conditional
+  userCI[-.6,1.0],fourindexes/exactpermutationp.333;no universalproxy claim.
+  Independently rescored16mini+4fullVALfiles;allpins/cases/metrics match.
+  Epochseconds38.827,meanfit403.96s;report gr-mini-tiger-transfer-results.md
+  /.json,replay/plots/evidenceZIPsaved.No GPUresults pending or newcompute.
   Receipt docs/gr-mini-tiger-transfer-submission.json;do not launch duplicates.
   Protocol docs/gr-mini-tiger-transfer.md. Prior no-followup restriction is
   superseded only for these8fits;do not repeat or resume the failed pilot.
