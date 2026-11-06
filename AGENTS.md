@@ -21,6 +21,10 @@
   ml1m_codebook_adaptation_2t4.json,docs/gr-codebook-adaptation.md.
   2native30epoch/6VALprobespass;encoder/decoder/booksauxgradientsverified;
   1021tests91optional skips0fail. Noadditionalfitsauthorized.
+  SUBMITTEDprivatev1RUNNING,executableb828588a3bb1,workflow42217880480success.
+  All208embeddedfiles/config/3datasets/1parentexact;receipt
+  docs/gr-codebook-adaptation-submission.json. GPUresults pending;
+  monitorexistingkernel,do not submitduplicates.
 
 
 - User authorization2026-11-06: two shared-codebook TIGERfits on existingclean
