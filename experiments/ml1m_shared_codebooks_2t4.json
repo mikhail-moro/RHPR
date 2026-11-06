@@ -1,0 +1,138 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-shared-codebooks"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false,
+    "attn_implementation": "sdpa"
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 1,
+    "batch_size": 512,
+    "physical_batch_size": 512,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 30,
+    "min_epochs": 30,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 32,
+    "max_seconds": 3000,
+    "sampling": "precomputed_raw_clean_windows",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 30
+  },
+  "name": "ml1m-tiger-rq-codebook-sharing",
+  "kind": "gr_shared_codebooks",
+  "data": {
+    "split": "raw_contiguous_20_val_test",
+    "items": 2874,
+    "users": 2786,
+    "train_examples": 151166,
+    "case_sha256": {
+      "train": "28339b91f7d22ee78d3eed6e3c00cbd393ecc62e487fe63f74da65fac3937e5b",
+      "validation": "ee9cf5402dbfeae46f669c731fa795939d67e4b9779481102cd30802add27009",
+      "test": "daac961764086cc8966df2afdf1596c8a06774e032b05fade715a10cb94e8fed"
+    },
+    "version": "ML1M-TMDB-Zenodo-clean-original-timeline",
+    "history_items": 20
+  },
+  "movie_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-ml1m-clean-mtl-input",
+    "manifest_sha256": "023d2b52dd8a12553d1dcf24a8a3e9a59f22983ad3cd0b768c7da6318aa98c16"
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "evaluation": {
+    "test_after_selection": true,
+    "save_validation_predictions": true,
+    "selection_metric": "validation item NDCG@10",
+    "save_validation_losses": true
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml1m-clean-mtl-input",
+      "carasik/rhpr-t5-sdpa-runtime"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-ml1m-clean-mtl"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "modern_runtime": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-t5-sdpa-runtime",
+    "manifest_sha256": "18f4688aab798d792d9204d1c018d8aba7da80bc97f5aadcdd181b34f6f0b9f6"
+  },
+  "trials": [
+    {
+      "id": "codebook_init",
+      "seed": 42,
+      "dynamic": false
+    },
+    {
+      "id": "live_codebook",
+      "seed": 42,
+      "dynamic": true
+    }
+  ],
+  "parent": {
+    "kernel": "carasik/rhpr-ml1m-clean-mtl",
+    "source_code_sha": "20a4c08534cd6853e3fd64340f2dc429e6bed3a6",
+    "files": {
+      "run-manifest.json": {
+        "size_bytes": 6293,
+        "sha256": "ba4f9101f192a11c6b6d8bec0eedb64f9a55a9849b304334c84d04c60eae56e8"
+      },
+      "plan.json": {
+        "size_bytes": 35504,
+        "sha256": "87d964c96081afaf627743e709632578844a53e9e408155368786d8316b54447"
+      }
+    }
+  },
+  "parent_files": {
+    "quantizer.pt": "c04fb04c32564404fb6b6916c25ee8a4703517a8ce278fccb2a5dc33bad9b81c",
+    "features.npz": "fdb8e49551ba896032b93d97a9be51adeb5a776fd160dc199ac5b874b77198e4",
+    "codebooks-final.npz": "c155c27472b0766bd3109f6d73cdda468ad5615054fa03f9b4e3a0d311c03150",
+    "semantic-codes.npy": "26637eb249bdd796db7c8ce503bfc49aa74d2ab672c41337e527701fb11ac26f",
+    "semantic-ids.npy": "0bbbdce1bfb853cafd42f9c01a3b1d628769ab9945950013a104895fc95ed829"
+  },
+  "initialization_pin": "df5affc3c6ae40678b80a58deb62d162c51019187790842af5f2e7bc7ac83e6a"
+}

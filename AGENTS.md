@@ -2,6 +2,26 @@
 
 ## Research status
 
+- User authorization2026-11-06: two shared-codebook TIGERfits on existingclean
+  ML1M151166TRAINwindows,seed42,30epochs,val5,FP16/nativeSDPA/512,2T4.
+  Reuse SUMseed42 frozenRQ-VAE andcontent fromprivatecleanMTLparent.
+  Arm codebook_init copies3x256centroids into TIGERinputtable,keepsSIDfixed;
+  arm live_codebook uses SAMEactualtrainable768rows as RQcentroids and
+  reassignsSID atSTARTeveryepoch (userexplicitlyselectedthis). FrozenRQencoder
+  latents cachedonce;decoderunused/frozen,noRecLoss,noargmingradient.
+  64Dbooks/latentszero-liftto128D preservesinitialassignments;all128Drows
+  thenlearn.NostandardGRIDoutputheadtyingadded.Suffix/user/BOSnormal.
+  PersistentactiveSIDbuffer ensuresbestcheckpointrestoresmatchingindex.
+  Exact30epochs/8880updates/6VAL,onebestVALselectedTESTeach;saveeveryepochSID,
+  churn/collisions. Initialmodelsidenticalpindf5affc3c6ae40678b80a58deb62d162c51019187790842af5f2e7bc7ac83e6a.
+  ExistingrandominitSUMcontrolreused;NOthirdfit or newquantizertraining.
+  Private carasik/rhpr-ml1m-shared-codebooks,offline,3datasets/1parent;
+  no newdataupload,retries/HPO/Telegram/hardwarefallback.Quota1.18hchecked;
+  server60min/fitbudget3000s. Config ml1m_shared_codebooks_2t4.json,
+  docs/gr-shared-codebooks.md. Native2x30epoch/6VALprobesandfrozenencoder
+  sourcecheckpass;selectedearlierepoch20/25SIDrestoreverified.
+
+
 - User authorization2026-11-06: two smaller mini-TIGER shapes ffn_small
   (4+4,d64,FF256,H6,kv32,1112896params) and attention_small
   (4+4,d64,FF256,H4,kv16,719552params).48freshfits:12frozenSUM/UW/GN/PC

@@ -216,6 +216,8 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
         if epoch > 1 and time.monotonic() - started + mean_epoch_seconds > specification["max_seconds"]:
             stop_reason = "time_budget"
             break
+        if hasattr(model, 'rhpr_epoch_start'):
+            model.rhpr_epoch_start(epoch, sid_index, output)
         order = np.random.default_rng(seed + epoch).permutation(len(targets))
         model.train()
         epoch_lr=float(optimizer.param_groups[0]['lr'])
@@ -332,6 +334,8 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
         raise RuntimeError("training did not produce a validation-selected checkpoint")
     checkpoint = torch.load(best_path, map_location=device, weights_only=False)
     model.load_state_dict(checkpoint["model"])
+    if hasattr(model, "rhpr_after_checkpoint_load"):
+        model.rhpr_after_checkpoint_load(sid_index)
     values = {"training_epochs": len(curves), "optimizer_updates": updates,
               "amp_skipped_updates": skipped_updates,
               "training_precision": precision, "evaluation_precision": evaluation_precision,

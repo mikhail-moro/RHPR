@@ -76,6 +76,11 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind == 'gr_shared_codebooks':
+        if output_dir is None:
+            raise ValueError('shared codebooks require output directory')
+        from rhpr.gr.shared_codebooks import run
+        return run(config, output_dir)
     if kind == 'gr_mini_tiger':
         if output_dir is None:
             raise ValueError('mini TIGER requires output directory')
