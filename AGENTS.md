@@ -17,7 +17,7 @@
  Newprivatecarasik/rhpr-ml1m-proxy-plateau-finish preservesfailedv1parent;
  original3datasets+3successfulkernel sources. Suite5500s/perfit5000/server100min;
  quota41.74h,expected35–85min. Nativeactual65epoch2skiprecoverycopiedallbytes
- withtrainingfunctionpatchedtofailifcalled. Regression1030tests91skips0fail;
+ withtrainingfunctionpatchedtofailifcalled. Regression1032tests91skips0fail;
  targeted21pass;all4externalbranchesforbidmodelconstruction/training. Configml1m_proxy_plateau_finish_2t4.json;docs
  gr-proxy-plateau-recovery.md/.preflight. FirstfinishCI42376103455 at3ec6719d
  rejectedbySaveKernelHTTP400beforeanysession/GPU(no detailedcause). Revised
@@ -25,6 +25,13 @@
  with83originalartifacthashesandexternal-checkpointreferences. Only2pending
  202modelstrain;finalCPUreplayjoins4original+2newpredictions. Preparedfor
  onecorrectedsubmission;no completedtraining repeated.
+ TwoCIfinishrequests42376103455/42376580202plusdirectSDKdiagnosticwere rejected
+ beforeanyGPU/version. ExactAPIbody:kernel source must be less than1megabytes.
+ Confirmedpayload1226614bytes. Globalzlib-compressedSTOREDzip+minifiedJSON
+ reducesrunner~941484bytes;all210sourcefiles/configvaluespreserved. Local1MiB
+ sizeguardadded;standalonebaselineexecution/fullrecoverybyteauditpass,
+ targeted11packaging/recoverytestsandfull1032tests91skips0fail. NoMLchange.
+ Fourth-inputhypothesiswasnotestablished;rootconfirmedsource-size limit.
  Thisrepairs/completestheoriginalsix-modeltask;no repetitionof4completedfits.
 
 

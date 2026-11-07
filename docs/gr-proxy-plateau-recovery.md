@@ -55,3 +55,21 @@ no model-training code changed in this fix. Source and submission receipt identi
 the new deployment;original failed evidence is retained separately.
 
 External-reference regression also forbids model construction or training for all four reused results. This fallback uploads no new dataset and repeats no completed training.
+
+## Exact submission failure and packaging fix
+
+Both Actions42376103455(3ec6719d) and42376580202(3d1493b9) failed before SaveKernel
+created a session. A direct SDK diagnostic request with the exact audited payload
+returned HTTP400: "The kernel source must be less than 1 megabytes in size."
+No GPU job/version was created by those rejected requests. The earlier speculation
+about the fourth input was not established;the confirmed blocker is source size.
+The external-reference payload was1226614bytes,above the1MiB source limit.
+
+The bundle builder now creates a STORED zip,compresses the complete archive as
+one zlib stream,base64 encodes it,and restores the same importable ZIP at startup.
+JSON configuration is minified with no object/value changes. Recovery runner is
+about941484bytes,under1048576. Every210source entry matches original bytes.
+The builder rejects oversized UTF8runners locally before contacting Kaggle.
+Tests execute the restored standalone baseline runner,check every embedded file
+and full recovery configuration,and enforce the source-size boundary. This changes
+transport packaging only;model/optimizer/RNG/training logic remains unchanged.
