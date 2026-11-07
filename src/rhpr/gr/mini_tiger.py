@@ -36,6 +36,7 @@ REDUCED_ARCHITECTURES = {
                             d_ff=256, num_heads=4, d_kv=16),
 }
 ALL_ARCHITECTURES = {**ARCHITECTURES, **REDUCED_ARCHITECTURES}
+ALL_ARCHITECTURES['full'] = {}
 
 
 def protocol_shape(c):
@@ -46,10 +47,15 @@ def protocol_shape(c):
         return ['narrow'], [202], 10
     if phase == 'width_reduction':
         return list(REDUCED_ARCHITECTURES), [42, 101, 202], 10
+    if phase == 'full_seed_replication':
+        return ['full'], [42, 101, 202], 30
     raise ValueError('unknown mini-TIGER calibration phase')
 
 
 def validate(c):
+    if c.get('calibration_phase') == 'full_seed_replication':
+        from rhpr.gr.proxy_target import validate_target
+        return validate_target(c)
     architectures, index_seeds, epochs = protocol_shape(c)
     expected = {(a, i, s) for a in architectures for i in c['index_ids']
                 for s in c['generator_seeds']}
@@ -99,6 +105,8 @@ def stage_indexes(c, data, output):
             raise ValueError('completed parent data/catalogue differs')
         for method in ['sum', 'uw', 'gradnorm', 'pcgrad']:
             name = f'{method}_seed{seed}'
+            if name not in c['index_ids']:
+                continue
             for filename, digest in parent['artifacts'][name].items():
                 if filename not in {'semantic-ids.npy', 'training-curves.json', 'training-selection.json', 'generator.json'}:
                     raise ValueError('unexpected frozen reference artifact')
@@ -300,6 +308,19 @@ def run_mini_tiger(c, output):
                 deadline=time.time() + c.get('suite_deadline_seconds', 10000), assignments=assignments(c, 2))
     _write(output / 'plan.json', plan); sys.path.insert(0, str(overlay))
     summary = launch_workers(output / 'plan.json', worker_module='rhpr.gr.mini_tiger', event_prefix='mini_tiger')
+    if c.get('calibration_phase') == 'full_seed_replication':
+        from rhpr.gr.proxy_target import correlate_target
+        analysis = correlate_target(c, summary['results'], refs)
+        _write(output / 'correlations.json', analysis)
+        result = dict(experiment=c['name'], completed=len(summary['results']),
+                      indexes=len(c['index_ids']), generator_seeds=1, architectures=1,
+                      test_evaluated=False)
+        for key, estimator in [('mini_mean_spearman', 'mini_mean10'),
+                               ('historical_full_spearman', 'historical_full30')]:
+            rho = analysis['groups']['all']['estimators'][estimator]['spearman']
+            if rho is not None:
+                result[key] = rho
+        return result
     analysis = correlate(c, summary['results'], refs); _write(output / 'correlations.json', analysis)
     result = dict(experiment=c['name'], completed=len(summary['results']), indexes=len(c['index_ids']),
                   generator_seeds=2, architectures=len(protocol_shape(c)[0]), test_evaluated=False)

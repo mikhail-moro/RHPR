@@ -2,6 +2,27 @@
 
 ## Research status
 
+- User authorization2026-11-07: cheap independent full-TIGER proxy diagnostic.
+  Exactly6fresh generators, existing SUM/GradNorm indexes x tokenizer42/101/202,
+  newcommon generatorseed161803,30epochs/VAL5/FP16/nativeSDPA512,2T4.
+  Reuse narrow mini epoch10scores from31415/27182;no mini/tokenizer/content fits.
+  Original full architecture4+4,d128,FF1024,H6,kv64,4977920params.
+  Same151166TRAIN/2786VAL/history20,8880updates/sixVALrequired;NO TEST.
+  Primary fixed newfull30;oldfull30 reference stability and earlynewfull5/10
+  comparators;earlyfull shares targettrajectory,not independent transfer.
+  Structured6candidate subset fixed bylabels,alreadyexamined MTLindexes andVAL;
+  not a newtokenizerfamily benchmark orconvergenceclaim. Reportshortlist/regret,
+  seedgroups/methodgroups,pins andallvalidationpredictions. Existing3datasets/
+  2privateparents only,no dataupload/HPO/extensions/retries/Colab/Telegram.
+  Native6initializersagree4cfe16ae1433c48e8d7aad7531c82af7da3d370f7f5baf25b8d7259d12d39dc6;
+  2tiny native30epoch/6VALprobespass;1025tests91optional skips0fail,
+  finaltargeted16checks pass. Private carasik/rhpr-ml1m-proxy-target.
+  Config experiments/ml1m_proxy_target_replication_2t4.json;
+  docs/gr-proxy-target-replication.md andgr-proxy-target-preflight.json.
+  Observedquota45.00h GPU;expected1.5–2h session;server135min/suite7500s/
+  perfit2300s. PreparedforONESUBMISSION,no resultsyet,no furthercompute.
+
+
 - User authorization2026-11-06: projectioncontrol plus additionalfullytrainable
   RQ-VAE NOprojection arm. Userclarified ordinaryRec+VQloss shouldadaptencoder/
   decoder to sharedbooks;not a directNIPgradientthroughargmin. Twofreshfits,
