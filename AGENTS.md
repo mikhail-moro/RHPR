@@ -23,8 +23,14 @@
  rejectedbySaveKernelHTTP400beforeanysession/GPU(no detailedcause). Revised
  configremovesthefailedfourthinputandembedsverified4selection/curverecords,
  with83originalartifacthashesandexternal-checkpointreferences. Only2pending
- 202modelstrain;finalCPUreplayjoins4original+2newpredictions. Preparedfor
- onecorrectedsubmission;no completedtraining repeated.
+ 202modelstrain;finalCPUreplayjoins4original+2newpredictions. SUBMITTEDONCEprivatefinishv1RUNNING,executableac6b5de04dc4,
+ CI42377368093successsubmit-only,artifact13576157028. Deployed210sourcefiles/
+ exactconfig/T4/private/offline/3datasets/3successfulparentsverified;runner
+ 941488bytes,globalzlibcodec. Receiptdocs/gr-proxy-plateau-finish-submission.json.
+ CollectONLY2new202predictionsetsfromfinish;4completedweights/predictions
+ remaininoriginalfailedkerneland/tmp/proxy-plateau-failed,57VALfilesalready
+ replayed. Finalanalysisjoins4old+2new;newkernelstores4externalreferences,
+ notcopiesoftheirweights/predictions. No additionalfits/retries/HPOauthorized.
  TwoCIfinishrequests42376103455/42376580202plusdirectSDKdiagnosticwere rejected
  beforeanyGPU/version. ExactAPIbody:kernel source must be less than1megabytes.
  Confirmedpayload1226614bytes. Globalzlib-compressedSTOREDzip+minifiedJSON

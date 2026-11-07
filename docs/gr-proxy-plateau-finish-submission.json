@@ -1,0 +1,56 @@
+{
+  "source_code_sha": "ac6b5de04dc492fce22af3e885bdc190c1d7bd7b",
+  "kernel_metadata_sha256": "d2c59be4e9db8d4732a524602345a2621fc23287cf30bab3570bacea8f73057d",
+  "runner_sha256": "abebf42105655450f583d70a5ba8895362dbd9ea8f44f2a1ea35a1ce9e22ffa0",
+  "kernel_id": "carasik/rhpr-ml1m-proxy-plateau-finish",
+  "kernel_version": 1,
+  "versioned_kernel_id": "carasik/rhpr-ml1m-proxy-plateau-finish/1",
+  "status": "submitted",
+  "quality_complete": false,
+  "worker_timeout_seconds": 6000,
+  "submitted_at_utc": "2026-11-07T13:32:00.360857+00:00",
+  "workflow_id": 42377368093,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42377368093",
+  "artifact_id": 13576157028,
+  "observed_status": "RUNNING",
+  "source_audit": {
+    "embedded_files": 210,
+    "source_code_sha": "ac6b5de04dc492fce22af3e885bdc190c1d7bd7b",
+    "runner_sha256": "abebf42105655450f583d70a5ba8895362dbd9ea8f44f2a1ea35a1ce9e22ffa0",
+    "runner_bytes": 941488,
+    "source_limit_bytes": 1048576,
+    "package_compression": "zlib",
+    "exact_config": true,
+    "all_source_bytes_preserved": true,
+    "private": true,
+    "offline": true,
+    "machine_shape": "NvidiaTeslaT4",
+    "datasets": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml1m-clean-mtl-input",
+      "carasik/rhpr-t5-sdpa-runtime"
+    ],
+    "parents": [
+      "carasik/rhpr-ml1m-clean-mtl",
+      "carasik/rhpr-ml1m-clean-mtl-replicates",
+      "carasik/rhpr-ml1m-proxy-target"
+    ],
+    "external_completed_models": 4,
+    "pending_training_models": 2
+  },
+  "rejected_workflows": [
+    42376103455,
+    42376580202
+  ],
+  "rejected_requests_started_gpu": false,
+  "reused_completed_models": 4,
+  "pending_training_models": 2,
+  "preflight": {
+    "tests": 1032,
+    "optional_skips": 91,
+    "failures": 0,
+    "packaging_recovery_checks": 11,
+    "replayed_recovered_predictions": 57,
+    "all_four_completed_models_never_retrained": true
+  }
+}
