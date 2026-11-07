@@ -1,0 +1,41 @@
+{
+  "actual_checkpoint_epoch": 30,
+  "actual_checkpoint_updates": 8880,
+  "actual_optimizer_state_entries": 95,
+  "native_continuation_selection": {
+    "training_epochs": 60,
+    "optimizer_updates": 60,
+    "amp_skipped_updates": 0,
+    "training_precision": "fp32",
+    "evaluation_precision": "fp32",
+    "best_epoch": 25,
+    "training_seconds": 23.465186650981195,
+    "optimizer_training_seconds": 17.624810184410308,
+    "validation_seconds": 1.8429711160133593,
+    "validation_checks": 12,
+    "stopping_reason": "early_stopping",
+    "validation_ndcg10": 1.0,
+    "training_examples_per_epoch": 8,
+    "resumed_from_epoch": 30,
+    "continuation_epochs": 30,
+    "continuation_optimizer_updates": 30,
+    "continuation_optimizer_training_seconds": 9.360024933179375
+  },
+  "rng_restored": true,
+  "checkpoint_pins": 6,
+  "real_checkpoint_restore": {
+    "best_epoch": 30,
+    "best_metric": 0.06533901367923521,
+    "cpu_cuda_python_numpy_rng_to_restore": true,
+    "model_state_sha256": "17cb5e926db98cd91ded4f18c481ee5af8fc0d852140ff035e44e6d3231e84d7",
+    "optimizer_restored": true,
+    "rng_note": "RNG restored immediately before first resumed epoch; this does not enforce bitwise deterministic CUDA kernels",
+    "scaler_restored": true,
+    "sid_matrix_sha256": "c34f64535a2ccdc9578788307f99e0058b75f8910420ece00db36e255a664bee",
+    "source_epoch": 30,
+    "source_updates": 8880,
+    "train_case_sha256": "28339b91f7d22ee78d3eed6e3c00cbd393ecc62e487fe63f74da65fac3937e5b",
+    "validation_case_sha256": "ee9cf5402dbfeae46f669c731fa795939d67e4b9779481102cd30802add27009"
+  },
+  "all_six_checkpoint_metadata_verified": true
+}

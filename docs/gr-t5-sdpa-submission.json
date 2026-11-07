@@ -1,0 +1,33 @@
+{
+  "source_code_sha": "d6edbf7815a3814867f915a1cb733a805131b2be",
+  "kernel_metadata_sha256": "32578a72db381428e6588b7499e51b3ef9bea7a5ddc0bf1cfc1f045e3cad9bc6",
+  "runner_sha256": "90bde5ee4b81fd87a610a77905315f1ed068cd58390ad40f37d1798269071d7e",
+  "kernel_id": "carasik/rhpr-t5-sdpa-pilot",
+  "kernel_version": 1,
+  "versioned_kernel_id": "carasik/rhpr-t5-sdpa-pilot/1",
+  "status": "COMPLETE",
+  "quality_complete": false,
+  "worker_timeout_seconds": 1800,
+  "submitted_at_utc": "2026-11-05T08:16:21.638347+00:00",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41993141529",
+  "workflow_conclusion": "success",
+  "source_audit": {
+    "git_sha": "d6edbf7815a3814867f915a1cb733a805131b2be",
+    "embedded_files": 201,
+    "all_embedded_bytes_match": true,
+    "config_exact": true,
+    "runner_sha256": "90bde5ee4b81fd87a610a77905315f1ed068cd58390ad40f37d1798269071d7e",
+    "private": true,
+    "internet": false
+  },
+  "validation": {
+    "repository_tests": 975,
+    "skipped": 13,
+    "failed": 0,
+    "modern_grid_tests": 13,
+    "cpu_checkpoint_parity": true
+  },
+  "gpu_results_pending": false,
+  "pilot_complete": true,
+  "results_report": "docs/gr-t5-sdpa-results.md"
+}

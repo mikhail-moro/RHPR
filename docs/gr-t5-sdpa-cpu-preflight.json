@@ -1,0 +1,111 @@
+{
+  "legacy_eager": {
+    "backend": "legacy_eager",
+    "transformers": "4.47.0",
+    "torch": "2.10.0+cpu",
+    "device": "cpu",
+    "parity": {
+      "loss": 6.101670742034912,
+      "gradient_tensors": 95,
+      "parameters": 4977920,
+      "prediction_shape": [
+        8,
+        20,
+        4
+      ]
+    },
+    "benchmarks": []
+  },
+  "eager": {
+    "backend": "eager",
+    "transformers": "5.22.1",
+    "torch": "2.10.0+cpu",
+    "device": "cpu",
+    "parity": {
+      "loss": 6.101670742034912,
+      "gradient_tensors": 95,
+      "parameters": 4977920,
+      "prediction_shape": [
+        8,
+        20,
+        4
+      ],
+      "legacy_output_parity": {
+        "max_absolute_error": 0.0,
+        "relative_l2": 0.0,
+        "tensors": 2,
+        "atol": 0.0002,
+        "rtol": 0.0002
+      },
+      "legacy_gradient_parity": {
+        "max_absolute_error": 7.450580596923828e-09,
+        "relative_l2": 1.6467700917745794e-09,
+        "tensors": 95,
+        "atol": 0.0003,
+        "rtol": 0.003
+      },
+      "legacy_beam_exact_fraction": 1.0,
+      "legacy_beam_scores": {
+        "max_absolute_error": 3.725290298461914e-08,
+        "relative_l2": 4.0919695940960996e-07,
+        "tensors": 1,
+        "atol": 2e-06,
+        "rtol": 0.002
+      }
+    },
+    "benchmarks": []
+  },
+  "sdpa": {
+    "backend": "sdpa",
+    "transformers": "5.22.1",
+    "torch": "2.10.0+cpu",
+    "device": "cpu",
+    "parity": {
+      "loss": 6.10167121887207,
+      "gradient_tensors": 95,
+      "parameters": 4977920,
+      "prediction_shape": [
+        8,
+        20,
+        4
+      ],
+      "legacy_output_parity": {
+        "max_absolute_error": 1.1920928955078125e-06,
+        "relative_l2": 1.636582978791391e-07,
+        "tensors": 2,
+        "atol": 0.0002,
+        "rtol": 0.0002
+      },
+      "legacy_gradient_parity": {
+        "max_absolute_error": 2.086162567138672e-07,
+        "relative_l2": 3.6786174555105755e-07,
+        "tensors": 95,
+        "atol": 0.0003,
+        "rtol": 0.003
+      },
+      "legacy_beam_exact_fraction": 1.0,
+      "legacy_beam_scores": {
+        "max_absolute_error": 4.0978193283081055e-08,
+        "relative_l2": 4.445271146454686e-07,
+        "tensors": 1,
+        "atol": 2e-06,
+        "rtol": 0.002
+      },
+      "modern_output_parity": {
+        "max_absolute_error": 1.1920928955078125e-06,
+        "relative_l2": 1.636582978791391e-07,
+        "tensors": 2,
+        "atol": 0.0002,
+        "rtol": 0.0002
+      },
+      "modern_gradient_parity": {
+        "max_absolute_error": 2.086162567138672e-07,
+        "relative_l2": 3.678604966016677e-07,
+        "tensors": 95,
+        "atol": 0.0003,
+        "rtol": 0.003
+      }
+    },
+    "benchmarks": []
+  }
+}

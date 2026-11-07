@@ -1,0 +1,44 @@
+{
+  "kernel_id": "carasik/rhpr-ml100k-graph-loss-weight",
+  "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-ml100k-graph-loss-weight",
+  "version": 1,
+  "status": "RUNNING",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41427695618",
+  "workflow_result": "success;submit_only=true",
+  "executable_git_sha": "35b75d22360eada2053f59177acd18f928fbd867",
+  "package_sha256": "e9f19fc5da5d2ea2940af7128a7fdda181ff9e8e3b7327bef463334098002502",
+  "embedded_source_files_verified": 192,
+  "exact_config": true,
+  "experiment": "experiments/movielens100k_graph_loss_weight_2t4.json",
+  "private": true,
+  "internet": false,
+  "accelerator": "NvidiaTeslaT4",
+  "workers": [
+    "cuda:0",
+    "cuda:1"
+  ],
+  "seed": 42,
+  "trials": 2,
+  "graph_reconstruction_weights": [
+    1,
+    0.1
+  ],
+  "other_reconstruction_weights": 1,
+  "weight_applied_to": [
+    "continuous AE reconstruction",
+    "RQ-VAE reconstruction"
+  ],
+  "raw_input_scaling_changed": false,
+  "quantization_auxiliary_changed": false,
+  "ae_fixed_updates": 3500,
+  "rq_updates": 3000,
+  "frozen_features_sha256": "eeccc0bf7e11f0e2d97acce14ce4973b96d0b4816c6e35ffef679681802dabda",
+  "generator": "TIGER4+4/d128, FP16 train/FP32 eval",
+  "generator_training": "fresh20epoch prefix,val5/10/15/20; verified last/Adam/scaler/RNG continuation from20, valeverynewepoch,min30/cap100/ES20,sameReduceLRfrom21",
+  "test": "once after validation checkpoint selection, none at20boundary",
+  "tests": "941OK87skips;2new native and9legacy native checks passed",
+  "estimated_time": "45–75min plus setup/queue if similar stopping; near-cap~1.5–2h",
+  "notify_telegram": false,
+  "no_results_yet": true,
+  "no_resubmission": true
+}

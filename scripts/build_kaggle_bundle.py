@@ -7,6 +7,7 @@ import json
 import os
 import shutil
 import zipfile
+import zlib
 from pathlib import Path
 
 
@@ -15,7 +16,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _embedded_package() -> str:
     buffer = io.BytesIO()
-    with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+    # One compression stream can share repeated source across module boundaries.
+    # The restored archive uses STORED entries, which zipimport supports natively.
+    with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_STORED) as archive:
         source_root = ROOT / "src"
         package_root = source_root / "rhpr"
         for source in sorted(package_root.rglob("*")):
@@ -27,21 +30,24 @@ def _embedded_package() -> str:
             if source.suffix != ".py" and not vendor_resource:
                 continue
             archive.writestr(source.relative_to(source_root).as_posix(), source.read_bytes())
-    return base64.b64encode(buffer.getvalue()).decode("ascii")
+    return base64.b64encode(zlib.compress(buffer.getvalue(), 9)).decode("ascii")
 
 
 def _render_runner(config_text: str, git_sha: str) -> str:
     package = _embedded_package()
+    config_text = json.dumps(json.loads(config_text), separators=(",", ":"), ensure_ascii=False)
     return f'''from __future__ import annotations
 
 import base64
 import json
 import os
 import sys
+import zlib
 from pathlib import Path
 
 
 EMBEDDED_PACKAGE = {package!r}
+PACKAGE_COMPRESSION = 'zlib'
 EXPERIMENT_CONFIG = {config_text!r}
 GIT_SHA = {git_sha!r}
 WORKING = Path("/kaggle/working")
@@ -51,7 +57,7 @@ CONFIG_PATH = WORKING / "experiment.json"
 print(json.dumps({{"phase": "kernel_python_started", "git_sha": GIT_SHA,
                   "experiment": json.loads(EXPERIMENT_CONFIG).get("name")}}), flush=True)
 WORKING.mkdir(parents=True, exist_ok=True)
-PACKAGE_ARCHIVE.write_bytes(base64.b64decode(EMBEDDED_PACKAGE))
+PACKAGE_ARCHIVE.write_bytes(zlib.decompress(base64.b64decode(EMBEDDED_PACKAGE)))
 CONFIG_PATH.write_text(EXPERIMENT_CONFIG, encoding="utf-8")
 os.environ["GITHUB_SHA"] = GIT_SHA
 sys.path.insert(0, str(PACKAGE_ARCHIVE))
@@ -85,7 +91,10 @@ def build(experiment: Path, kernel_id: str, accelerator: str, output: Path) -> P
         shutil.rmtree(output)
     output.mkdir(parents=True)
     git_sha = os.environ.get("GITHUB_SHA", "local")
-    (output / "run.py").write_text(_render_runner(config_text, git_sha), encoding="utf-8")
+    runner = _render_runner(config_text, git_sha)
+    if len(runner.encode("utf-8")) >= 1024 * 1024:
+        raise ValueError("Kaggle kernel source must be smaller than 1 MiB; reduce embedded payload before submission")
+    (output / "run.py").write_text(runner, encoding="utf-8")
 
     kernel_slug = kernel_id.split("/", 1)[1]
 

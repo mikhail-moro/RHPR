@@ -1,0 +1,130 @@
+{
+  "seed": 42,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-t5-batch-pilot"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false
+  },
+  "data": {
+    "version": "ML100K-TMDB-Zenodo-exact-bridge",
+    "items": 1273,
+    "users": 903,
+    "history_items": 20,
+    "split": "latest_two_singleton_timestamp_groups",
+    "train_events": 82234,
+    "train_examples": 80268,
+    "case_sha256": {
+      "test": "11d0c2dddc30eaa5adaa7478d68201e9500badbdbafb14807f9925b21f8f88a2",
+      "train": "a8ffcac604667df9996b9268d3fe18bee61ecba72e313694dc15bbc346d41489",
+      "validation": "62179b413e5afa6c7190c737c1bafb02699fe219fa4dae5583eccb6efe69b563"
+    }
+  },
+  "movie_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-ml100k-text-ladder-input",
+    "manifest_sha256": "52fa57696f77bc0d137b1d042684afb83e4d17c068fe78c9c5502d573cf84028"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml100k-text-ladder-input",
+      "carasik/rhpr-t5-sdpa-runtime"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-ml100k-singleton-mtl"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "name": "t5-t4-batch-throughput-pilot",
+  "kind": "gr_t5_batch_pilot",
+  "pilot": {
+    "history_items": [
+      20,
+      50
+    ],
+    "backends": [
+      "legacy_eager",
+      "sdpa"
+    ],
+    "batches": [
+      [
+        256,
+        128
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        512,
+        512
+      ],
+      [
+        1024,
+        1024
+      ]
+    ],
+    "warmup_steps": 10,
+    "timed_steps": 50,
+    "end_to_end_steps": 10,
+    "max_seconds": 1200,
+    "new_transformers": "5.22.1"
+  },
+  "pilot_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-t5-sdpa-runtime",
+    "manifest_sha256": "18f4688aab798d792d9204d1c018d8aba7da80bc97f5aadcdd181b34f6f0b9f6"
+  },
+  "parent": {
+    "kernel": "carasik/rhpr-ml100k-singleton-mtl",
+    "source_code_sha": "35ce22dd1f07aaf02251af7847eb242f91187413",
+    "files": {
+      "run-manifest.json": {
+        "size_bytes": 8335,
+        "sha256": "80049abc4761d52fef3d70bfa46a3cbc17c758d58634620a034ecf6ca156a885"
+      }
+    }
+  },
+  "parent_trial_files": [
+    {
+      "path": "trials/sum_seed42/semantic-ids.npy",
+      "size_bytes": 40864,
+      "sha256": "618844d6b55b73d07e1cc1ee8f04b13a082ad32540e51247b38bbb9e9ba29739"
+    },
+    {
+      "path": "trials/sum_seed42/generator-best.pt",
+      "size_bytes": 19976329,
+      "sha256": "f90d8b1c2cc23a39f7d7c2f63b79a477da54ceca3c2c88a8a754164931f810e2"
+    },
+    {
+      "path": "trials/sum_seed42/trial-result.json",
+      "size_bytes": 1162,
+      "sha256": "a6dce785306aa87188acb6b98dd7445ddb88ea23f6ddbc450f425be7a7871f32"
+    }
+  ]
+}

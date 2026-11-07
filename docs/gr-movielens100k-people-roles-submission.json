@@ -1,0 +1,39 @@
+{
+  "kernel_id": "carasik/rhpr-ml100k-people-roles",
+  "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-ml100k-people-roles",
+  "version": 1,
+  "status": "RUNNING",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41441646043",
+  "workflow_result": "success;submit_only=true",
+  "executable_git_sha": "682a23dabed6803d3340607f6ecd7924483ce3ba",
+  "package_sha256": "8e130ae812b890ccc7a8adc16b60d60956c5ff8c51ae0cafe63401458172b6ba",
+  "embedded_source_files_verified": 193,
+  "exact_config": true,
+  "private": true,
+  "internet": false,
+  "accelerator": "NvidiaTeslaT4",
+  "workers": [
+    "cuda:0",
+    "cuda:1"
+  ],
+  "experiment": "experiments/movielens100k_people_roles_2t4.json",
+  "seeds": [
+    42,
+    101,
+    202
+  ],
+  "roles": [
+    "none",
+    "cast",
+    "directors"
+  ],
+  "trials": 9,
+  "ae_fixed_updates": 3500,
+  "rq_updates": 3000,
+  "generator": "TIGER4+4/d128, FP16 train/FP32 eval",
+  "training": "prefix20val5, verifiedresume,min30/cap100/ES20, val each new epoch and prior ReduceLRfrom21",
+  "tests": "944OK88skips;3native role checks and2legacy graph-loss checks passed",
+  "no_results_yet": true,
+  "notify_telegram": false,
+  "no_resubmission": true
+}

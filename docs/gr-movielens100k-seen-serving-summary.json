@@ -1,0 +1,2383 @@
+{
+  "serving_metrics": {
+    "models_evaluated": 6.0,
+    "test_actor_w01_eligible_refilled_ndcg10": 0.08200525699927642,
+    "test_actor_w01_original_beam20_ndcg10": 0.04721545244978565,
+    "test_actor_w01_unmasked_beam100_ndcg10": 0.0478509954065029,
+    "test_none_eligible_refilled_ndcg10": 0.07668215268393756,
+    "test_none_original_beam20_ndcg10": 0.04811195087669074,
+    "test_none_unmasked_beam100_ndcg10": 0.04758471824845419,
+    "training_updates": 0.0,
+    "validation_actor_w01_eligible_refilled_ndcg10": 0.10390111227740506,
+    "validation_actor_w01_original_beam20_ndcg10": 0.0652103758233404,
+    "validation_actor_w01_unmasked_beam100_ndcg10": 0.06507252773816956,
+    "validation_none_eligible_refilled_ndcg10": 0.1086918408835808,
+    "validation_none_original_beam20_ndcg10": 0.0707741556155559,
+    "validation_none_unmasked_beam100_ndcg10": 0.0708356358192771
+  },
+  "independent_verification": {
+    "source_git_sha": "8f0b782b387a5f464bdd514fa6ae5d10f735b764",
+    "duration_seconds": 76.444514,
+    "checks": [
+      {
+        "split": "validation",
+        "trial": "actor_w01_seed101",
+        "users": 943,
+        "eligible10_verified": true,
+        "unique10_verified": true,
+        "original_anchor_exact": true,
+        "prediction_sha256": "de3bd1ee9a32566df9c1f8a785c9b4880899e888fa48c92a85762eb430bf3940"
+      },
+      {
+        "split": "validation",
+        "trial": "actor_w01_seed202",
+        "users": 943,
+        "eligible10_verified": true,
+        "unique10_verified": true,
+        "original_anchor_exact": true,
+        "prediction_sha256": "b28eacaff71ab524bc0fc1bc02cc05a821aff79f54cc0f8b244d1eb0c320eae6"
+      },
+      {
+        "split": "validation",
+        "trial": "actor_w01_seed42",
+        "users": 943,
+        "eligible10_verified": true,
+        "unique10_verified": true,
+        "original_anchor_exact": true,
+        "prediction_sha256": "0b375a8a33bcc9c0684a437a3af6daf298192b4297579d1316ea8d27503177ea"
+      },
+      {
+        "split": "validation",
+        "trial": "none_seed101",
+        "users": 943,
+        "eligible10_verified": true,
+        "unique10_verified": true,
+        "original_anchor_exact": true,
+        "prediction_sha256": "6fdbe349af50ef766409237f495e42daa1a406d44e5283c2b8b7451228f83ee1"
+      },
+      {
+        "split": "validation",
+        "trial": "none_seed202",
+        "users": 943,
+        "eligible10_verified": true,
+        "unique10_verified": true,
+        "original_anchor_exact": true,
+        "prediction_sha256": "3f2cc5004f681c58a3c3ee029a7e66b629d5efa6cddda0c789c00096fe4c828d"
+      },
+      {
+        "split": "validation",
+        "trial": "none_seed42",
+        "users": 943,
+        "eligible10_verified": true,
+        "unique10_verified": true,
+        "original_anchor_exact": true,
+        "prediction_sha256": "425ade0c869a5deece5610f3d296edf71365fcdced88cf832115f2611010d3cf"
+      },
+      {
+        "split": "test",
+        "trial": "actor_w01_seed101",
+        "users": 943,
+        "eligible10_verified": true,
+        "unique10_verified": true,
+        "original_anchor_exact": true,
+        "prediction_sha256": "11e02b4f3e88c8c1b30bd54d920b682adb61047b38a99bcde122a632f77d3c38"
+      },
+      {
+        "split": "test",
+        "trial": "actor_w01_seed202",
+        "users": 943,
+        "eligible10_verified": true,
+        "unique10_verified": true,
+        "original_anchor_exact": true,
+        "prediction_sha256": "38d24352f130ae474f1764821963471b777c385407b3d324b5d17553261c90ce"
+      },
+      {
+        "split": "test",
+        "trial": "actor_w01_seed42",
+        "users": 943,
+        "eligible10_verified": true,
+        "unique10_verified": true,
+        "original_anchor_exact": true,
+        "prediction_sha256": "b08d563d3ce446f3caeb54610c229346fc80cf88487e5227e40c75b03674d02b"
+      },
+      {
+        "split": "test",
+        "trial": "none_seed101",
+        "users": 943,
+        "eligible10_verified": true,
+        "unique10_verified": true,
+        "original_anchor_exact": true,
+        "prediction_sha256": "756c7a3d5f5cfc151ad4637ab06a8aa0dadb3a2dd3299e704805f015db43d605"
+      },
+      {
+        "split": "test",
+        "trial": "none_seed202",
+        "users": 943,
+        "eligible10_verified": true,
+        "unique10_verified": true,
+        "original_anchor_exact": true,
+        "prediction_sha256": "fa199cb581462ac3266bee017b508fbf7de3ac748edb060d40ffb2b7828d97b1"
+      },
+      {
+        "split": "test",
+        "trial": "none_seed42",
+        "users": 943,
+        "eligible10_verified": true,
+        "unique10_verified": true,
+        "original_anchor_exact": true,
+        "prediction_sha256": "0e7136fb5d9d50ba7e259534145dd0b9c7fe27a8efb39a4c16c2591a34c80e3c"
+      }
+    ],
+    "comparisons": [
+      {
+        "split": "validation",
+        "control": 0.10869184088358078,
+        "graph": 0.10390111227740505,
+        "relative": -0.044076248660716466,
+        "delta": -0.00479072860617574,
+        "by_seed_control": [
+          0.10235156984923122,
+          0.11346513150306548,
+          0.1102588212984457
+        ],
+        "by_seed_graph": [
+          0.10669347330345147,
+          0.09635276208010919,
+          0.1086571014486545
+        ],
+        "conditional_shared_user_bootstrap95": [
+          -0.013891843068957735,
+          0.004341881988760963
+        ],
+        "scope": "20000 shared-user bootstrap draws, fixed6fitted models, no retraining variance or multiplicity correction."
+      },
+      {
+        "split": "test",
+        "control": 0.07668215268393756,
+        "graph": 0.08200525699927642,
+        "relative": 0.06941777361518797,
+        "delta": 0.0053231043153388604,
+        "by_seed_control": [
+          0.07583240137782597,
+          0.08099612149014546,
+          0.07321793518384126
+        ],
+        "by_seed_graph": [
+          0.08197530380301066,
+          0.07473047566525894,
+          0.0893099915295597
+        ],
+        "conditional_shared_user_bootstrap95": [
+          -0.0025806882531552926,
+          0.013240470286705722
+        ],
+        "scope": "20000 shared-user bootstrap draws, fixed6fitted models, no retraining variance or multiplicity correction."
+      }
+    ],
+    "training_updates": 0
+  },
+  "graph_summary": {
+    "persons": 15998,
+    "movies": 1273,
+    "undirected_edges": 475238,
+    "weighted_degree_equals_nonsingleton_film_frequency": true,
+    "singleton_cast_movies": 4,
+    "actor_embedding_norm_catalogue_degree_spearman": -0.21874491561524437,
+    "scope": "Exploratory correlations, no causal or external-popularity claim. Mean seed exposures; partial Spearman controls movie train popularity and cast size; shared-film graph dependence and retraining uncertainty not accounted for."
+  },
+  "graph_correlations": [
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "cast_size",
+      "outcome": "recommendation_delta",
+      "spearman": 0.0445864321953569,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "cast_size",
+      "outcome": "repeat_delta",
+      "spearman": 0.05401780836749119,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "cast_size",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.02295464300420756,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "recommendation_delta",
+      "spearman": 0.0009628697639654667,
+      "partial_spearman_movie_pop_cast": 0.002397402083131406
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "repeat_delta",
+      "spearman": -0.0007953610498326504,
+      "partial_spearman_movie_pop_cast": -0.0007895738672878318
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.002599726060800316,
+      "partial_spearman_movie_pop_cast": -0.0019104058161463205
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_unique_neighbors",
+      "outcome": "recommendation_delta",
+      "spearman": 0.039917125618521204,
+      "partial_spearman_movie_pop_cast": 0.014457073401201899
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_unique_neighbors",
+      "outcome": "repeat_delta",
+      "spearman": 0.04784591932082326,
+      "partial_spearman_movie_pop_cast": 0.015398397880948812
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_unique_neighbors",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.02521915613781271,
+      "partial_spearman_movie_pop_cast": 0.01282233194080339
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "recommendation_delta",
+      "spearman": 0.04170036953025884,
+      "partial_spearman_movie_pop_cast": 0.0006169445698244886
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "repeat_delta",
+      "spearman": 0.04924857410984339,
+      "partial_spearman_movie_pop_cast": -0.010001031492249526
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.016602383348437298,
+      "partial_spearman_movie_pop_cast": -0.00675805235782585
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "recommendation_delta",
+      "spearman": 0.02562632145788524,
+      "partial_spearman_movie_pop_cast": 0.0037572742188931706
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "repeat_delta",
+      "spearman": 0.028126020386136614,
+      "partial_spearman_movie_pop_cast": -5.0653031420402424e-05
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.012107923725543491,
+      "partial_spearman_movie_pop_cast": 0.0008741881970568573
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_weighted_strength",
+      "outcome": "recommendation_delta",
+      "spearman": -0.0014597914786509748,
+      "partial_spearman_movie_pop_cast": -0.0002429635647133708
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_weighted_strength",
+      "outcome": "repeat_delta",
+      "spearman": 0.0021104405117821257,
+      "partial_spearman_movie_pop_cast": 0.0022344598788511705
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_weighted_strength",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.005353307557423317,
+      "partial_spearman_movie_pop_cast": -0.004840797689348671
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "repeated_coacting_weight",
+      "outcome": "recommendation_delta",
+      "spearman": -0.025937439064435217,
+      "partial_spearman_movie_pop_cast": -0.04079240698277108
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "repeated_coacting_weight",
+      "outcome": "repeat_delta",
+      "spearman": -0.014105633893516753,
+      "partial_spearman_movie_pop_cast": -0.03290699432839435
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "repeated_coacting_weight",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.0354735429063791,
+      "partial_spearman_movie_pop_cast": -0.0435725916625095
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "recommendation_delta",
+      "spearman": -0.024122829743344752,
+      "partial_spearman_movie_pop_cast": -0.040741734384245124
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "repeat_delta",
+      "spearman": -0.011249432420110263,
+      "partial_spearman_movie_pop_cast": -0.032159759043070224
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.0324726822658989,
+      "partial_spearman_movie_pop_cast": -0.04154178967573109
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_embedding_norm",
+      "outcome": "recommendation_delta",
+      "spearman": -0.0370904310706501,
+      "partial_spearman_movie_pop_cast": -0.02229529535651189
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_embedding_norm",
+      "outcome": "repeat_delta",
+      "spearman": -0.0426163995642973,
+      "partial_spearman_movie_pop_cast": -0.023049735725372063
+    },
+    {
+      "split": "validation",
+      "seed": 42,
+      "feature": "actor_embedding_norm",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.020652695118326472,
+      "partial_spearman_movie_pop_cast": -0.01319211586565666
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "cast_size",
+      "outcome": "recommendation_delta",
+      "spearman": 0.012670063191076832,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "cast_size",
+      "outcome": "repeat_delta",
+      "spearman": 0.004374015233650122,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "cast_size",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.00928757858686162,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "recommendation_delta",
+      "spearman": 0.055670205063077696,
+      "partial_spearman_movie_pop_cast": 0.042499359040215255
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "repeat_delta",
+      "spearman": 0.029095738053744363,
+      "partial_spearman_movie_pop_cast": 0.015934180736535897
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.04267419250175651,
+      "partial_spearman_movie_pop_cast": 0.040880723874951945
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_unique_neighbors",
+      "outcome": "recommendation_delta",
+      "spearman": 0.040213367148654804,
+      "partial_spearman_movie_pop_cast": 0.020724992682330915
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_unique_neighbors",
+      "outcome": "repeat_delta",
+      "spearman": -0.006016443612603033,
+      "partial_spearman_movie_pop_cast": -0.02415994237013039
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_unique_neighbors",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.023682216087958573,
+      "partial_spearman_movie_pop_cast": 0.029463609084950004
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "recommendation_delta",
+      "spearman": 0.07341102069496515,
+      "partial_spearman_movie_pop_cast": 0.007973529175667179
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "repeat_delta",
+      "spearman": 0.04991093705508138,
+      "partial_spearman_movie_pop_cast": -0.007352355147519873
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.000744204068077836,
+      "partial_spearman_movie_pop_cast": -0.005664540525846188
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "recommendation_delta",
+      "spearman": 0.07858693765536078,
+      "partial_spearman_movie_pop_cast": 0.0628612040374452
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "repeat_delta",
+      "spearman": 0.046985850302108716,
+      "partial_spearman_movie_pop_cast": 0.03482221142480517
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.06210663524007593,
+      "partial_spearman_movie_pop_cast": 0.06825023942151762
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_weighted_strength",
+      "outcome": "recommendation_delta",
+      "spearman": 0.05546117263612096,
+      "partial_spearman_movie_pop_cast": 0.042705948672248945
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_weighted_strength",
+      "outcome": "repeat_delta",
+      "spearman": 0.02911580069497877,
+      "partial_spearman_movie_pop_cast": 0.016440570597182343
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_weighted_strength",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.041937918143610906,
+      "partial_spearman_movie_pop_cast": 0.04009483987937841
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "repeated_coacting_weight",
+      "outcome": "recommendation_delta",
+      "spearman": 0.06643644048738555,
+      "partial_spearman_movie_pop_cast": 0.05155980548982389
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "repeated_coacting_weight",
+      "outcome": "repeat_delta",
+      "spearman": 0.057198518224957286,
+      "partial_spearman_movie_pop_cast": 0.046021801547006386
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "repeated_coacting_weight",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.04710863372180242,
+      "partial_spearman_movie_pop_cast": 0.048342605744761305
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "recommendation_delta",
+      "spearman": 0.07552728585024164,
+      "partial_spearman_movie_pop_cast": 0.05985799655380009
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "repeat_delta",
+      "spearman": 0.06329190986765351,
+      "partial_spearman_movie_pop_cast": 0.05157649095051014
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.054444054533395056,
+      "partial_spearman_movie_pop_cast": 0.056306730212209145
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_embedding_norm",
+      "outcome": "recommendation_delta",
+      "spearman": -0.05175758617375203,
+      "partial_spearman_movie_pop_cast": -0.03267490437967077
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_embedding_norm",
+      "outcome": "repeat_delta",
+      "spearman": -0.021650946189321747,
+      "partial_spearman_movie_pop_cast": -0.006215591540476959
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "feature": "actor_embedding_norm",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.02596366451094002,
+      "partial_spearman_movie_pop_cast": -0.026467975535828064
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "cast_size",
+      "outcome": "recommendation_delta",
+      "spearman": 0.041593458550443003,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "cast_size",
+      "outcome": "repeat_delta",
+      "spearman": 0.049290492356889,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "cast_size",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.04922694394195287,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "recommendation_delta",
+      "spearman": -0.010115462661635054,
+      "partial_spearman_movie_pop_cast": -0.0025265140411884625
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "repeat_delta",
+      "spearman": -0.0007073084307423933,
+      "partial_spearman_movie_pop_cast": 0.004555756878161094
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.020858895462459663,
+      "partial_spearman_movie_pop_cast": -0.012473459433970449
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_unique_neighbors",
+      "outcome": "recommendation_delta",
+      "spearman": 0.01197660963511843,
+      "partial_spearman_movie_pop_cast": -0.00849634146007222
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_unique_neighbors",
+      "outcome": "repeat_delta",
+      "spearman": 0.043219236114603876,
+      "partial_spearman_movie_pop_cast": 0.018572217032132507
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_unique_neighbors",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.008674238217301362,
+      "partial_spearman_movie_pop_cast": -0.01637625967489627
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "recommendation_delta",
+      "spearman": 0.01850305739524869,
+      "partial_spearman_movie_pop_cast": 0.005026150220073026
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "repeat_delta",
+      "spearman": 0.05228548281062342,
+      "partial_spearman_movie_pop_cast": 0.030811603813012185
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.01588066158639321,
+      "partial_spearman_movie_pop_cast": -0.004166444020428595
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "recommendation_delta",
+      "spearman": 0.031146605729349804,
+      "partial_spearman_movie_pop_cast": 0.017457485826502247
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "repeat_delta",
+      "spearman": 0.04251035180697486,
+      "partial_spearman_movie_pop_cast": 0.022810757255139286
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.019342381249163963,
+      "partial_spearman_movie_pop_cast": 0.0017293668483748105
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_weighted_strength",
+      "outcome": "recommendation_delta",
+      "spearman": -0.004727582715028574,
+      "partial_spearman_movie_pop_cast": 0.0028100587486423623
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_weighted_strength",
+      "outcome": "repeat_delta",
+      "spearman": 0.002835712462477117,
+      "partial_spearman_movie_pop_cast": 0.008028517896744095
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_weighted_strength",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.013903165182752246,
+      "partial_spearman_movie_pop_cast": -0.005502534377856547
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "repeated_coacting_weight",
+      "outcome": "recommendation_delta",
+      "spearman": 0.012272880633910762,
+      "partial_spearman_movie_pop_cast": 0.004644169721671235
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "repeated_coacting_weight",
+      "outcome": "repeat_delta",
+      "spearman": 0.022648555682010227,
+      "partial_spearman_movie_pop_cast": 0.010511243807728807
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "repeated_coacting_weight",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.00474086770818367,
+      "partial_spearman_movie_pop_cast": -0.004626062975912709
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "recommendation_delta",
+      "spearman": 0.00890216204877752,
+      "partial_spearman_movie_pop_cast": 0.00011654333160691585
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "repeat_delta",
+      "spearman": 0.02686308193524179,
+      "partial_spearman_movie_pop_cast": 0.013401220601686737
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.0008735719630606553,
+      "partial_spearman_movie_pop_cast": -0.009927128729676675
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_embedding_norm",
+      "outcome": "recommendation_delta",
+      "spearman": -0.012823929800329651,
+      "partial_spearman_movie_pop_cast": -0.004957428693540866
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_embedding_norm",
+      "outcome": "repeat_delta",
+      "spearman": -0.0358412135084546,
+      "partial_spearman_movie_pop_cast": -0.022994737708470058
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "feature": "actor_embedding_norm",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.003003149106390786,
+      "partial_spearman_movie_pop_cast": 0.006837626355509699
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "cast_size",
+      "outcome": "recommendation_delta",
+      "spearman": -0.0026855800634360437,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "cast_size",
+      "outcome": "repeat_delta",
+      "spearman": 0.02792060676835904,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "cast_size",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.022354163694034743,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_catalogue_frequency",
+      "outcome": "recommendation_delta",
+      "spearman": 0.02239544033130291,
+      "partial_spearman_movie_pop_cast": 0.027122854345987026
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_catalogue_frequency",
+      "outcome": "repeat_delta",
+      "spearman": 0.030144618442288097,
+      "partial_spearman_movie_pop_cast": 0.03135388903234024
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_catalogue_frequency",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.020349257882702938,
+      "partial_spearman_movie_pop_cast": 0.027141495650018384
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_unique_neighbors",
+      "outcome": "recommendation_delta",
+      "spearman": 0.0004903865772556596,
+      "partial_spearman_movie_pop_cast": 0.005848324117569867
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_unique_neighbors",
+      "outcome": "repeat_delta",
+      "spearman": 0.02851653659668729,
+      "partial_spearman_movie_pop_cast": 0.011762469403643226
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_unique_neighbors",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.01434251533167576,
+      "partial_spearman_movie_pop_cast": 0.0052587004970660375
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "recommendation_delta",
+      "spearman": -0.011699622470234759,
+      "partial_spearman_movie_pop_cast": 0.004700300041733606
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "repeat_delta",
+      "spearman": 0.04318560093977765,
+      "partial_spearman_movie_pop_cast": 0.020451720025898037
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.040755380738236924,
+      "partial_spearman_movie_pop_cast": 0.0022716989492826576
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "recommendation_delta",
+      "spearman": 0.016443971534320378,
+      "partial_spearman_movie_pop_cast": 0.02233718487556673
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "repeat_delta",
+      "spearman": 0.04230565683097716,
+      "partial_spearman_movie_pop_cast": 0.029405835598752487
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.009155803743431327,
+      "partial_spearman_movie_pop_cast": 0.02750683318336582
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_weighted_strength",
+      "outcome": "recommendation_delta",
+      "spearman": 0.025428624143176183,
+      "partial_spearman_movie_pop_cast": 0.030061927313055663
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_weighted_strength",
+      "outcome": "repeat_delta",
+      "spearman": 0.035224458903992575,
+      "partial_spearman_movie_pop_cast": 0.03655523699901778
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_weighted_strength",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.023981753361747335,
+      "partial_spearman_movie_pop_cast": 0.030647696023899707
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "repeated_coacting_weight",
+      "outcome": "recommendation_delta",
+      "spearman": -0.0010040739738984348,
+      "partial_spearman_movie_pop_cast": 0.002561467757042915
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "repeated_coacting_weight",
+      "outcome": "repeat_delta",
+      "spearman": 0.02461139529057139,
+      "partial_spearman_movie_pop_cast": 0.01541230652741586
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "repeated_coacting_weight",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.009584211867844344,
+      "partial_spearman_movie_pop_cast": 0.0020864806250986715
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "recommendation_delta",
+      "spearman": -0.0024036698403734243,
+      "partial_spearman_movie_pop_cast": 0.0014364714420249123
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "repeat_delta",
+      "spearman": 0.027862701290108483,
+      "partial_spearman_movie_pop_cast": 0.017796552825208468
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.00914260165475014,
+      "partial_spearman_movie_pop_cast": 0.003716017077465902
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_embedding_norm",
+      "outcome": "recommendation_delta",
+      "spearman": -0.01993876759234482,
+      "partial_spearman_movie_pop_cast": -0.02511739188767251
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_embedding_norm",
+      "outcome": "repeat_delta",
+      "spearman": -0.05367701611740157,
+      "partial_spearman_movie_pop_cast": -0.044180655099740646
+    },
+    {
+      "split": "validation",
+      "seed": "mean",
+      "feature": "actor_embedding_norm",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.006482500166522655,
+      "partial_spearman_movie_pop_cast": -0.021025280986121678
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "cast_size",
+      "outcome": "recommendation_delta",
+      "spearman": 0.03648921327258006,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "cast_size",
+      "outcome": "repeat_delta",
+      "spearman": 0.02656894064906492,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "cast_size",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.011394478575897572,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "recommendation_delta",
+      "spearman": -0.0021329314277433726,
+      "partial_spearman_movie_pop_cast": -0.00410108989819447
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "repeat_delta",
+      "spearman": 0.0005734981520291535,
+      "partial_spearman_movie_pop_cast": -0.008100811957840895
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.0007380972318718239,
+      "partial_spearman_movie_pop_cast": -0.003490681033321578
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_unique_neighbors",
+      "outcome": "recommendation_delta",
+      "spearman": 0.017130359562882475,
+      "partial_spearman_movie_pop_cast": -0.008601361106156261
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_unique_neighbors",
+      "outcome": "repeat_delta",
+      "spearman": 0.014023556425918984,
+      "partial_spearman_movie_pop_cast": -0.011571426503995827
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_unique_neighbors",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.0003202267529309142,
+      "partial_spearman_movie_pop_cast": -0.01113406442615494
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "recommendation_delta",
+      "spearman": 0.039291074605981004,
+      "partial_spearman_movie_pop_cast": -0.00728870191125772
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "repeat_delta",
+      "spearman": 0.045461591547238736,
+      "partial_spearman_movie_pop_cast": -0.018038832572586625
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.013420609934863886,
+      "partial_spearman_movie_pop_cast": -0.011922834989850832
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "recommendation_delta",
+      "spearman": 0.004573763219603253,
+      "partial_spearman_movie_pop_cast": -0.01725540393848486
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "repeat_delta",
+      "spearman": -0.001542545247970441,
+      "partial_spearman_movie_pop_cast": -0.024444995908506163
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.0073078731524876045,
+      "partial_spearman_movie_pop_cast": -0.016690910571029147
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_weighted_strength",
+      "outcome": "recommendation_delta",
+      "spearman": -0.004791462253412595,
+      "partial_spearman_movie_pop_cast": -0.006834963099495852
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_weighted_strength",
+      "outcome": "repeat_delta",
+      "spearman": -0.0017867072913549046,
+      "partial_spearman_movie_pop_cast": -0.010241943718101575
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_weighted_strength",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.004339057153808491,
+      "partial_spearman_movie_pop_cast": -0.007162788769187059
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "repeated_coacting_weight",
+      "outcome": "recommendation_delta",
+      "spearman": -0.0170780859074993,
+      "partial_spearman_movie_pop_cast": -0.03138945356681793
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "repeated_coacting_weight",
+      "outcome": "repeat_delta",
+      "spearman": -0.007614147449817768,
+      "partial_spearman_movie_pop_cast": -0.0235277687862233
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "repeated_coacting_weight",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.016847006430060884,
+      "partial_spearman_movie_pop_cast": -0.023226767905373223
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "recommendation_delta",
+      "spearman": -0.01878927666294554,
+      "partial_spearman_movie_pop_cast": -0.03481225149573546
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "repeat_delta",
+      "spearman": -0.007640608611979579,
+      "partial_spearman_movie_pop_cast": -0.025191692736198392
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.016938518386992858,
+      "partial_spearman_movie_pop_cast": -0.024041394162690966
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_embedding_norm",
+      "outcome": "recommendation_delta",
+      "spearman": -0.02309427944071266,
+      "partial_spearman_movie_pop_cast": -0.007804015628413342
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_embedding_norm",
+      "outcome": "repeat_delta",
+      "spearman": -0.014805236446542504,
+      "partial_spearman_movie_pop_cast": 0.00360963523146694
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "feature": "actor_embedding_norm",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.004904844976588929,
+      "partial_spearman_movie_pop_cast": 0.0020462824768737774
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "cast_size",
+      "outcome": "recommendation_delta",
+      "spearman": 0.010769965584035496,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "cast_size",
+      "outcome": "repeat_delta",
+      "spearman": 0.024304212140624785,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "cast_size",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.013242176707268209,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "recommendation_delta",
+      "spearman": 0.06157063368409512,
+      "partial_spearman_movie_pop_cast": 0.05099390595985851
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "repeat_delta",
+      "spearman": 0.0324879473834471,
+      "partial_spearman_movie_pop_cast": 0.027328257756959372
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.05624609964187263,
+      "partial_spearman_movie_pop_cast": 0.05599243170430203
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_unique_neighbors",
+      "outcome": "recommendation_delta",
+      "spearman": 0.051540720167828354,
+      "partial_spearman_movie_pop_cast": 0.03710296624620787
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_unique_neighbors",
+      "outcome": "repeat_delta",
+      "spearman": 0.032733442472998,
+      "partial_spearman_movie_pop_cast": 0.012876706899150858
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_unique_neighbors",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.03922584773772628,
+      "partial_spearman_movie_pop_cast": 0.050621811147700674
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "recommendation_delta",
+      "spearman": 0.07390049164252478,
+      "partial_spearman_movie_pop_cast": 0.02423098030396795
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "repeat_delta",
+      "spearman": 0.056288394814014486,
+      "partial_spearman_movie_pop_cast": 0.012131454282649098
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.007347382904048555,
+      "partial_spearman_movie_pop_cast": 0.015614081187451962
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "recommendation_delta",
+      "spearman": 0.07084623323071473,
+      "partial_spearman_movie_pop_cast": 0.05759521156260724
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "repeat_delta",
+      "spearman": 0.06923668052365521,
+      "partial_spearman_movie_pop_cast": 0.05458414228471093
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.0714209918094144,
+      "partial_spearman_movie_pop_cast": 0.08120200894069954
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_weighted_strength",
+      "outcome": "recommendation_delta",
+      "spearman": 0.06197916703433541,
+      "partial_spearman_movie_pop_cast": 0.0517290554765659
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_weighted_strength",
+      "outcome": "repeat_delta",
+      "spearman": 0.0341111576809498,
+      "partial_spearman_movie_pop_cast": 0.029164809622878124
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_weighted_strength",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.056417205601647945,
+      "partial_spearman_movie_pop_cast": 0.05606740109032432
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "repeated_coacting_weight",
+      "outcome": "recommendation_delta",
+      "spearman": 0.07341731248928256,
+      "partial_spearman_movie_pop_cast": 0.06108772576766321
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "repeated_coacting_weight",
+      "outcome": "repeat_delta",
+      "spearman": 0.05049553656485812,
+      "partial_spearman_movie_pop_cast": 0.03827690535146684
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "repeated_coacting_weight",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.06516771787207144,
+      "partial_spearman_movie_pop_cast": 0.0688218346925811
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "recommendation_delta",
+      "spearman": 0.08183528214660123,
+      "partial_spearman_movie_pop_cast": 0.06894288283430071
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "repeat_delta",
+      "spearman": 0.054713638152192906,
+      "partial_spearman_movie_pop_cast": 0.04155530085955234
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.07432210051144639,
+      "partial_spearman_movie_pop_cast": 0.07897889685877046
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_embedding_norm",
+      "outcome": "recommendation_delta",
+      "spearman": -0.052410483664413664,
+      "partial_spearman_movie_pop_cast": -0.03631937581895956
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_embedding_norm",
+      "outcome": "repeat_delta",
+      "spearman": -0.03331148624131716,
+      "partial_spearman_movie_pop_cast": -0.018140164229791023
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "feature": "actor_embedding_norm",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.03354811802956745,
+      "partial_spearman_movie_pop_cast": -0.03664926410715026
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "cast_size",
+      "outcome": "recommendation_delta",
+      "spearman": 0.050310795334565,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "cast_size",
+      "outcome": "repeat_delta",
+      "spearman": 0.055713718461799296,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "cast_size",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.06763591158710076,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "recommendation_delta",
+      "spearman": -0.013688100518563269,
+      "partial_spearman_movie_pop_cast": -0.0028379430040918023
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "repeat_delta",
+      "spearman": -0.010534819835149558,
+      "partial_spearman_movie_pop_cast": -0.002678545935777988
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_catalogue_frequency",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.01994009439878088,
+      "partial_spearman_movie_pop_cast": -0.009406449223150556
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_unique_neighbors",
+      "outcome": "recommendation_delta",
+      "spearman": 0.011256921037177578,
+      "partial_spearman_movie_pop_cast": -0.01225151105496995
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_unique_neighbors",
+      "outcome": "repeat_delta",
+      "spearman": 0.03091558897724996,
+      "partial_spearman_movie_pop_cast": 0.003058968957765022
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_unique_neighbors",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.01414322486380384,
+      "partial_spearman_movie_pop_cast": -0.021411020643785417
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "recommendation_delta",
+      "spearman": 0.011166847946461637,
+      "partial_spearman_movie_pop_cast": -0.0023243771741744156
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "repeat_delta",
+      "spearman": 0.038528093056900636,
+      "partial_spearman_movie_pop_cast": 0.015295443860514076
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.023713985043182978,
+      "partial_spearman_movie_pop_cast": -0.01056533277090419
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "recommendation_delta",
+      "spearman": 0.0363804199678721,
+      "partial_spearman_movie_pop_cast": 0.021308228415568082
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "repeat_delta",
+      "spearman": 0.012981811895417857,
+      "partial_spearman_movie_pop_cast": -0.009752454385128301
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.031755139623615106,
+      "partial_spearman_movie_pop_cast": 0.00664404283652922
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_weighted_strength",
+      "outcome": "recommendation_delta",
+      "spearman": -0.008222411009936283,
+      "partial_spearman_movie_pop_cast": 0.002447804890070467
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_weighted_strength",
+      "outcome": "repeat_delta",
+      "spearman": -0.005071069871940921,
+      "partial_spearman_movie_pop_cast": 0.0027227179265505628
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_weighted_strength",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.014005708482462326,
+      "partial_spearman_movie_pop_cast": -0.0036063595201462806
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "repeated_coacting_weight",
+      "outcome": "recommendation_delta",
+      "spearman": 0.016307562085806054,
+      "partial_spearman_movie_pop_cast": 0.008456731267386141
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "repeated_coacting_weight",
+      "outcome": "repeat_delta",
+      "spearman": 0.033302740563258035,
+      "partial_spearman_movie_pop_cast": 0.02166480217997428
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "repeated_coacting_weight",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.0200475663489529,
+      "partial_spearman_movie_pop_cast": 0.006436282683229974
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "recommendation_delta",
+      "spearman": 0.011059665983551821,
+      "partial_spearman_movie_pop_cast": 0.001887638083602213
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "repeat_delta",
+      "spearman": 0.04037047474128056,
+      "partial_spearman_movie_pop_cast": 0.02751381781257413
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.016088019025936137,
+      "partial_spearman_movie_pop_cast": 0.0005356753805892999
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_embedding_norm",
+      "outcome": "recommendation_delta",
+      "spearman": -0.0064679455622359844,
+      "partial_spearman_movie_pop_cast": 0.0016487755634749606
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_embedding_norm",
+      "outcome": "repeat_delta",
+      "spearman": -0.012469155882466245,
+      "partial_spearman_movie_pop_cast": 0.0006564450020591007
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "feature": "actor_embedding_norm",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.002579893100191529,
+      "partial_spearman_movie_pop_cast": 0.012441058292088135
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "cast_size",
+      "outcome": "recommendation_delta",
+      "spearman": 0.020688178425843803,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "cast_size",
+      "outcome": "repeat_delta",
+      "spearman": 0.02291204472800531,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "cast_size",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.0034806821253272322,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_catalogue_frequency",
+      "outcome": "recommendation_delta",
+      "spearman": 0.024241767816284687,
+      "partial_spearman_movie_pop_cast": 0.033257006132896526
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_catalogue_frequency",
+      "outcome": "repeat_delta",
+      "spearman": 0.014694851629346004,
+      "partial_spearman_movie_pop_cast": 0.007872636939574571
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_catalogue_frequency",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.030054779151094894,
+      "partial_spearman_movie_pop_cast": 0.04258439995752629
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_unique_neighbors",
+      "outcome": "recommendation_delta",
+      "spearman": 0.018667060703337086,
+      "partial_spearman_movie_pop_cast": 0.013630786289230187
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_unique_neighbors",
+      "outcome": "repeat_delta",
+      "spearman": 0.019122646234892498,
+      "partial_spearman_movie_pop_cast": -0.0021581627757042126
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_unique_neighbors",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.008462481087303885,
+      "partial_spearman_movie_pop_cast": 0.01749477484926913
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "recommendation_delta",
+      "spearman": 0.006276712315314152,
+      "partial_spearman_movie_pop_cast": 0.01746159579758441
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "repeat_delta",
+      "spearman": 0.05109964410197454,
+      "partial_spearman_movie_pop_cast": 0.002596172616778723
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_interaction_weighted_popularity",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.022266596348644894,
+      "partial_spearman_movie_pop_cast": 0.017348123252330507
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "recommendation_delta",
+      "spearman": 0.036569698150337566,
+      "partial_spearman_movie_pop_cast": 0.03461146868000726
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "repeat_delta",
+      "spearman": 0.03455802377318922,
+      "partial_spearman_movie_pop_cast": 0.017439142178592316
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_max_catalogue_frequency",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.030585690292174006,
+      "partial_spearman_movie_pop_cast": 0.04071913083429844
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_weighted_strength",
+      "outcome": "recommendation_delta",
+      "spearman": 0.027445944867832105,
+      "partial_spearman_movie_pop_cast": 0.036176781105997806
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_weighted_strength",
+      "outcome": "repeat_delta",
+      "spearman": 0.0178873255626078,
+      "partial_spearman_movie_pop_cast": 0.01146813223481997
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_weighted_strength",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.03402606405686149,
+      "partial_spearman_movie_pop_cast": 0.04616570982948641
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "repeated_coacting_weight",
+      "outcome": "recommendation_delta",
+      "spearman": 0.03114068046949519,
+      "partial_spearman_movie_pop_cast": 0.03077030494799094
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "repeated_coacting_weight",
+      "outcome": "repeat_delta",
+      "spearman": 0.03451697460058935,
+      "partial_spearman_movie_pop_cast": 0.021828711078976902
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "repeated_coacting_weight",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.03512993438621643,
+      "partial_spearman_movie_pop_cast": 0.043162830830289836
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "recommendation_delta",
+      "spearman": 0.03149616850799685,
+      "partial_spearman_movie_pop_cast": 0.03099862900435645
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "repeat_delta",
+      "spearman": 0.035157514369706586,
+      "partial_spearman_movie_pop_cast": 0.02132404722939771
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "repeated_coacting_pair_fraction",
+      "outcome": "log_exposure_ratio",
+      "spearman": 0.038922922424660444,
+      "partial_spearman_movie_pop_cast": 0.04783932006150329
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_embedding_norm",
+      "outcome": "recommendation_delta",
+      "spearman": -0.029173892766854788,
+      "partial_spearman_movie_pop_cast": -0.029620659287208247
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_embedding_norm",
+      "outcome": "repeat_delta",
+      "spearman": -0.024922307800301705,
+      "partial_spearman_movie_pop_cast": -0.009343301672884184
+    },
+    {
+      "split": "test",
+      "seed": "mean",
+      "feature": "actor_embedding_norm",
+      "outcome": "log_exposure_ratio",
+      "spearman": -0.021279956264026026,
+      "partial_spearman_movie_pop_cast": -0.03132005440771805
+    }
+  ],
+  "context_probe": [
+    {
+      "split": "validation",
+      "seed": 42,
+      "paired_cases": 880,
+      "promoted_unseen_wrong_affinity": 0.00014957503861699186,
+      "demoted_unseen_wrong_affinity": 0.00013295796244096452,
+      "mean_paired_delta": 1.6617076176027353e-05,
+      "fraction_positive_paired_delta": 0.5420454545454545,
+      "pooled_partial_pearson_with_user_effect_movie_pop_cast": 0.030568449781627358,
+      "scope": "Descriptive; outcome-selected candidates, overlapping histories/actors, no causal claim. Direct normalized actor graph affinity, excluding known and target films."
+    },
+    {
+      "split": "validation",
+      "seed": 101,
+      "paired_cases": 885,
+      "promoted_unseen_wrong_affinity": 0.00014131912897401557,
+      "demoted_unseen_wrong_affinity": 0.00014340943964001251,
+      "mean_paired_delta": -2.0903106659969935e-06,
+      "fraction_positive_paired_delta": 0.5084745762711864,
+      "pooled_partial_pearson_with_user_effect_movie_pop_cast": -0.018738160818064006,
+      "scope": "Descriptive; outcome-selected candidates, overlapping histories/actors, no causal claim. Direct normalized actor graph affinity, excluding known and target films."
+    },
+    {
+      "split": "validation",
+      "seed": 202,
+      "paired_cases": 901,
+      "promoted_unseen_wrong_affinity": 0.00014380263703560092,
+      "demoted_unseen_wrong_affinity": 0.00014562219244125036,
+      "mean_paired_delta": -1.8195554056494428e-06,
+      "fraction_positive_paired_delta": 0.4839067702552719,
+      "pooled_partial_pearson_with_user_effect_movie_pop_cast": 0.012163936995184635,
+      "scope": "Descriptive; outcome-selected candidates, overlapping histories/actors, no causal claim. Direct normalized actor graph affinity, excluding known and target films."
+    },
+    {
+      "split": "test",
+      "seed": 42,
+      "paired_cases": 882,
+      "promoted_unseen_wrong_affinity": 0.00015397139327229213,
+      "demoted_unseen_wrong_affinity": 0.00013522215248466883,
+      "mean_paired_delta": 1.874924078762333e-05,
+      "fraction_positive_paired_delta": 0.5079365079365079,
+      "pooled_partial_pearson_with_user_effect_movie_pop_cast": 0.02255778688170808,
+      "scope": "Descriptive; outcome-selected candidates, overlapping histories/actors, no causal claim. Direct normalized actor graph affinity, excluding known and target films."
+    },
+    {
+      "split": "test",
+      "seed": 101,
+      "paired_cases": 899,
+      "promoted_unseen_wrong_affinity": 0.00014844233374408102,
+      "demoted_unseen_wrong_affinity": 0.00014245513394563642,
+      "mean_paired_delta": 5.987199798444574e-06,
+      "fraction_positive_paired_delta": 0.5116796440489433,
+      "pooled_partial_pearson_with_user_effect_movie_pop_cast": 0.0009850323378067746,
+      "scope": "Descriptive; outcome-selected candidates, overlapping histories/actors, no causal claim. Direct normalized actor graph affinity, excluding known and target films."
+    },
+    {
+      "split": "test",
+      "seed": 202,
+      "paired_cases": 904,
+      "promoted_unseen_wrong_affinity": 0.00014304229979150682,
+      "demoted_unseen_wrong_affinity": 0.00014237435556634738,
+      "mean_paired_delta": 6.679442251594564e-07,
+      "fraction_positive_paired_delta": 0.49668141592920356,
+      "pooled_partial_pearson_with_user_effect_movie_pop_cast": 0.013148506091892633,
+      "scope": "Descriptive; outcome-selected candidates, overlapping histories/actors, no causal claim. Direct normalized actor graph affinity, excluding known and target films."
+    }
+  ],
+  "target_quality_correlations": [
+    {
+      "split": "validation",
+      "feature": "train_popularity",
+      "seed": 42,
+      "delta_ndcg_spearman": -0.07148175920731982,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "validation",
+      "feature": "train_popularity",
+      "seed": 101,
+      "delta_ndcg_spearman": -0.10872922697229806,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "validation",
+      "feature": "train_popularity",
+      "seed": 202,
+      "delta_ndcg_spearman": 0.008274333791344356,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "validation",
+      "feature": "train_popularity",
+      "seed": "mean",
+      "delta_ndcg_spearman": -0.11218892166393638,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "validation",
+      "feature": "actor_catalogue_frequency",
+      "seed": 42,
+      "delta_ndcg_spearman": -0.024860893057817697,
+      "partial_spearman_movie_pop_cast": -0.016810482325779835
+    },
+    {
+      "split": "validation",
+      "feature": "actor_catalogue_frequency",
+      "seed": 101,
+      "delta_ndcg_spearman": -0.0009719195601733546,
+      "partial_spearman_movie_pop_cast": 0.00018675537324025677
+    },
+    {
+      "split": "validation",
+      "feature": "actor_catalogue_frequency",
+      "seed": 202,
+      "delta_ndcg_spearman": -0.04969875632176462,
+      "partial_spearman_movie_pop_cast": -0.04647327917718277
+    },
+    {
+      "split": "validation",
+      "feature": "actor_catalogue_frequency",
+      "seed": "mean",
+      "delta_ndcg_spearman": -0.007431522599674532,
+      "partial_spearman_movie_pop_cast": -0.01220157574082344
+    },
+    {
+      "split": "validation",
+      "feature": "actor_unique_neighbors",
+      "seed": 42,
+      "delta_ndcg_spearman": -0.015307321074087483,
+      "partial_spearman_movie_pop_cast": -0.009027433412312082
+    },
+    {
+      "split": "validation",
+      "feature": "actor_unique_neighbors",
+      "seed": 101,
+      "delta_ndcg_spearman": -0.008697367452688494,
+      "partial_spearman_movie_pop_cast": 0.018626860013293545
+    },
+    {
+      "split": "validation",
+      "feature": "actor_unique_neighbors",
+      "seed": 202,
+      "delta_ndcg_spearman": -0.014823913909952309,
+      "partial_spearman_movie_pop_cast": -0.029012748337315163
+    },
+    {
+      "split": "validation",
+      "feature": "actor_unique_neighbors",
+      "seed": "mean",
+      "delta_ndcg_spearman": -0.03939415832663118,
+      "partial_spearman_movie_pop_cast": -0.011932059698811084
+    },
+    {
+      "split": "validation",
+      "feature": "actor_interaction_weighted_popularity",
+      "seed": 42,
+      "delta_ndcg_spearman": -0.06870939175962945,
+      "partial_spearman_movie_pop_cast": -0.0065941641927592925
+    },
+    {
+      "split": "validation",
+      "feature": "actor_interaction_weighted_popularity",
+      "seed": 101,
+      "delta_ndcg_spearman": -0.09267875775735863,
+      "partial_spearman_movie_pop_cast": -0.001668974440756843
+    },
+    {
+      "split": "validation",
+      "feature": "actor_interaction_weighted_popularity",
+      "seed": 202,
+      "delta_ndcg_spearman": -0.031266918441688316,
+      "partial_spearman_movie_pop_cast": -0.06179084090890889
+    },
+    {
+      "split": "validation",
+      "feature": "actor_interaction_weighted_popularity",
+      "seed": "mean",
+      "delta_ndcg_spearman": -0.10959173797241831,
+      "partial_spearman_movie_pop_cast": -0.031638912210296265
+    },
+    {
+      "split": "validation",
+      "feature": "repeated_coacting_weight",
+      "seed": 42,
+      "delta_ndcg_spearman": -0.0026600903940351256,
+      "partial_spearman_movie_pop_cast": 0.006473809823029619
+    },
+    {
+      "split": "validation",
+      "feature": "repeated_coacting_weight",
+      "seed": 101,
+      "delta_ndcg_spearman": -0.01245711463309756,
+      "partial_spearman_movie_pop_cast": 0.001177015947651797
+    },
+    {
+      "split": "validation",
+      "feature": "repeated_coacting_weight",
+      "seed": 202,
+      "delta_ndcg_spearman": -0.062421793891009256,
+      "partial_spearman_movie_pop_cast": -0.06386049692427812
+    },
+    {
+      "split": "validation",
+      "feature": "repeated_coacting_weight",
+      "seed": "mean",
+      "delta_ndcg_spearman": -0.020534013724219036,
+      "partial_spearman_movie_pop_cast": -0.006628299772067834
+    },
+    {
+      "split": "validation",
+      "feature": "repeated_coacting_pair_fraction",
+      "seed": 42,
+      "delta_ndcg_spearman": 0.003911718217106594,
+      "partial_spearman_movie_pop_cast": 0.015737793033206035
+    },
+    {
+      "split": "validation",
+      "feature": "repeated_coacting_pair_fraction",
+      "seed": 101,
+      "delta_ndcg_spearman": -0.028137926529885147,
+      "partial_spearman_movie_pop_cast": -0.009520366202790526
+    },
+    {
+      "split": "validation",
+      "feature": "repeated_coacting_pair_fraction",
+      "seed": 202,
+      "delta_ndcg_spearman": -0.07584381304458201,
+      "partial_spearman_movie_pop_cast": -0.07952476374441766
+    },
+    {
+      "split": "validation",
+      "feature": "repeated_coacting_pair_fraction",
+      "seed": "mean",
+      "delta_ndcg_spearman": -0.03467586511995223,
+      "partial_spearman_movie_pop_cast": -0.01518104666774115
+    },
+    {
+      "split": "validation",
+      "feature": "actor_embedding_norm",
+      "seed": 42,
+      "delta_ndcg_spearman": 0.02783376172774624,
+      "partial_spearman_movie_pop_cast": 0.017436471526443075
+    },
+    {
+      "split": "validation",
+      "feature": "actor_embedding_norm",
+      "seed": 101,
+      "delta_ndcg_spearman": -0.00566752811487277,
+      "partial_spearman_movie_pop_cast": -0.02229110404711953
+    },
+    {
+      "split": "validation",
+      "feature": "actor_embedding_norm",
+      "seed": 202,
+      "delta_ndcg_spearman": 0.027686821443072763,
+      "partial_spearman_movie_pop_cast": 0.029285118853636553
+    },
+    {
+      "split": "validation",
+      "feature": "actor_embedding_norm",
+      "seed": "mean",
+      "delta_ndcg_spearman": 0.02827562744555531,
+      "partial_spearman_movie_pop_cast": 0.01171261435879431
+    },
+    {
+      "split": "test",
+      "feature": "train_popularity",
+      "seed": 42,
+      "delta_ndcg_spearman": 0.024883052898394032,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "test",
+      "feature": "train_popularity",
+      "seed": 101,
+      "delta_ndcg_spearman": -0.029762002882267245,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "test",
+      "feature": "train_popularity",
+      "seed": 202,
+      "delta_ndcg_spearman": 0.017681319954276686,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "test",
+      "feature": "train_popularity",
+      "seed": "mean",
+      "delta_ndcg_spearman": -0.006101054091860665,
+      "partial_spearman_movie_pop_cast": null
+    },
+    {
+      "split": "test",
+      "feature": "actor_catalogue_frequency",
+      "seed": 42,
+      "delta_ndcg_spearman": -0.023796319927515373,
+      "partial_spearman_movie_pop_cast": -0.004988316819415826
+    },
+    {
+      "split": "test",
+      "feature": "actor_catalogue_frequency",
+      "seed": 101,
+      "delta_ndcg_spearman": 0.0009828016300629878,
+      "partial_spearman_movie_pop_cast": -0.03254643917702385
+    },
+    {
+      "split": "test",
+      "feature": "actor_catalogue_frequency",
+      "seed": 202,
+      "delta_ndcg_spearman": -0.053169098014128294,
+      "partial_spearman_movie_pop_cast": -0.06212485781040592
+    },
+    {
+      "split": "test",
+      "feature": "actor_catalogue_frequency",
+      "seed": "mean",
+      "delta_ndcg_spearman": -0.04107591613798947,
+      "partial_spearman_movie_pop_cast": -0.04693037085912067
+    },
+    {
+      "split": "test",
+      "feature": "actor_unique_neighbors",
+      "seed": 42,
+      "delta_ndcg_spearman": 0.010065839474773384,
+      "partial_spearman_movie_pop_cast": -0.014339672492578073
+    },
+    {
+      "split": "test",
+      "feature": "actor_unique_neighbors",
+      "seed": 101,
+      "delta_ndcg_spearman": -0.05305963935706726,
+      "partial_spearman_movie_pop_cast": -0.025739563138008445
+    },
+    {
+      "split": "test",
+      "feature": "actor_unique_neighbors",
+      "seed": 202,
+      "delta_ndcg_spearman": -0.01790143085232163,
+      "partial_spearman_movie_pop_cast": -0.02645259035505358
+    },
+    {
+      "split": "test",
+      "feature": "actor_unique_neighbors",
+      "seed": "mean",
+      "delta_ndcg_spearman": -0.03677236110378103,
+      "partial_spearman_movie_pop_cast": -0.04169560300009847
+    },
+    {
+      "split": "test",
+      "feature": "actor_interaction_weighted_popularity",
+      "seed": 42,
+      "delta_ndcg_spearman": 0.022131446644168523,
+      "partial_spearman_movie_pop_cast": 0.019492230673718084
+    },
+    {
+      "split": "test",
+      "feature": "actor_interaction_weighted_popularity",
+      "seed": 101,
+      "delta_ndcg_spearman": -0.023623420207263587,
+      "partial_spearman_movie_pop_cast": -0.02298659444097957
+    },
+    {
+      "split": "test",
+      "feature": "actor_interaction_weighted_popularity",
+      "seed": 202,
+      "delta_ndcg_spearman": -0.006696041755596727,
+      "partial_spearman_movie_pop_cast": -0.03984334546026529
+    },
+    {
+      "split": "test",
+      "feature": "actor_interaction_weighted_popularity",
+      "seed": "mean",
+      "delta_ndcg_spearman": -0.02237396797218733,
+      "partial_spearman_movie_pop_cast": -0.031183144661164744
+    },
+    {
+      "split": "test",
+      "feature": "repeated_coacting_weight",
+      "seed": 42,
+      "delta_ndcg_spearman": 0.04263608241996133,
+      "partial_spearman_movie_pop_cast": 0.045056248110927205
+    },
+    {
+      "split": "test",
+      "feature": "repeated_coacting_weight",
+      "seed": 101,
+      "delta_ndcg_spearman": -0.008645413583033121,
+      "partial_spearman_movie_pop_cast": -0.012355522990592591
+    },
+    {
+      "split": "test",
+      "feature": "repeated_coacting_weight",
+      "seed": 202,
+      "delta_ndcg_spearman": -0.0016837334911720837,
+      "partial_spearman_movie_pop_cast": -0.0035455602577355028
+    },
+    {
+      "split": "test",
+      "feature": "repeated_coacting_weight",
+      "seed": "mean",
+      "delta_ndcg_spearman": 0.03761998874644429,
+      "partial_spearman_movie_pop_cast": 0.038784043683359706
+    },
+    {
+      "split": "test",
+      "feature": "repeated_coacting_pair_fraction",
+      "seed": 42,
+      "delta_ndcg_spearman": 0.044149338184863954,
+      "partial_spearman_movie_pop_cast": 0.04332233595816583
+    },
+    {
+      "split": "test",
+      "feature": "repeated_coacting_pair_fraction",
+      "seed": 101,
+      "delta_ndcg_spearman": -0.0002306208916171832,
+      "partial_spearman_movie_pop_cast": 0.0007646916531080932
+    },
+    {
+      "split": "test",
+      "feature": "repeated_coacting_pair_fraction",
+      "seed": 202,
+      "delta_ndcg_spearman": -0.010534576667923155,
+      "partial_spearman_movie_pop_cast": -0.013383844191888275
+    },
+    {
+      "split": "test",
+      "feature": "repeated_coacting_pair_fraction",
+      "seed": "mean",
+      "delta_ndcg_spearman": 0.03940134206004895,
+      "partial_spearman_movie_pop_cast": 0.04089455366194766
+    },
+    {
+      "split": "test",
+      "feature": "actor_embedding_norm",
+      "seed": 42,
+      "delta_ndcg_spearman": -0.001604742628890634,
+      "partial_spearman_movie_pop_cast": 0.001365668802489591
+    },
+    {
+      "split": "test",
+      "feature": "actor_embedding_norm",
+      "seed": 101,
+      "delta_ndcg_spearman": 0.028926973768044602,
+      "partial_spearman_movie_pop_cast": 0.026446832076186918
+    },
+    {
+      "split": "test",
+      "feature": "actor_embedding_norm",
+      "seed": 202,
+      "delta_ndcg_spearman": 0.054659813663607414,
+      "partial_spearman_movie_pop_cast": 0.059131018060810475
+    },
+    {
+      "split": "test",
+      "feature": "actor_embedding_norm",
+      "seed": "mean",
+      "delta_ndcg_spearman": 0.044114957687649524,
+      "partial_spearman_movie_pop_cast": 0.043683197852792545
+    }
+  ],
+  "serving_kernel": "carasik/rhpr-ml100k-unseen-serving/1",
+  "source_commit": "8f0b782b387a5f464bdd514fa6ae5d10f735b764",
+  "workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/41649512819"
+}

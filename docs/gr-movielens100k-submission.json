@@ -1,0 +1,40 @@
+{
+  "commit": "6537df769c7755a601c7e91672039701c519685d",
+  "exact_config": true,
+  "embedded_source_files": 182,
+  "package_sha256": "680290105a27db0e88b7e22e82faa006092794f26f9d1940a4725e354fdf8b61",
+  "metadata": {
+    "id": "carasik/rhpr-ml100k-text-ladder",
+    "id_no": 141994809,
+    "title": "Rhpr Ml100K Text Ladder",
+    "code_file": "rhpr-ml100k-text-ladder.py",
+    "language": "python",
+    "kernel_type": "script",
+    "is_private": true,
+    "enable_gpu": true,
+    "enable_tpu": false,
+    "enable_internet": false,
+    "keywords": [],
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml100k-text-ladder-input"
+    ],
+    "kernel_sources": [],
+    "competition_sources": [],
+    "model_sources": [],
+    "docker_image": "gcr.io/kaggle-private-byod/python@sha256:9a6bcfda6d03b2cd9aa347ee8c1bae62043328ed0f4afe9bda014e4f8bbf9435",
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "kernel_version": 1,
+  "workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/41235282704",
+  "kernel": "carasik/rhpr-ml100k-text-ladder",
+  "observed_status": "RUNNING",
+  "old_ml1m_status": "CANCEL_ACKNOWLEDGED",
+  "tests": {
+    "full": 917,
+    "skipped": 81,
+    "additional_native_config": 3
+  },
+  "telegram": false,
+  "resubmissions": 0
+}

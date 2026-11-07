@@ -1,0 +1,62 @@
+{
+  "schedules": {
+    "train": {
+      "examples": 85470,
+      "reference_sha256": "abd59fae52fe92e66f4a2864a8372862f39707d50a683cf87947ee1b97e54a4d",
+      "context_sha256": "2c6e601642dbd4f9266696aabb78128def4359d4332fd2be635e0c7ad8c4f84e",
+      "targets_and_users_unchanged": true,
+      "last20_suffix_unchanged": true,
+      "last40_suffix_unchanged": true
+    },
+    "validation": {
+      "examples": 943,
+      "reference_sha256": "883061e7a2d51d06df3e2fab3e76d12520c98de2dba5d52f00a3f925ec4c4826",
+      "context_sha256": "66ca01be2a38fed7981983db645edee32eebbc0c7e5217376c0256cd271e9232",
+      "targets_and_users_unchanged": true,
+      "last20_suffix_unchanged": true,
+      "last40_suffix_unchanged": true
+    },
+    "test": {
+      "examples": 943,
+      "reference_sha256": "ca21089d95d7aa96ff6ca9c11acf8cd9e0c3df15a0959613262a34fafa23b933",
+      "context_sha256": "12df02864cdf8b17fca1e7e547d99965e1c8eafcd2800b05ee6bad738d3f3612",
+      "targets_and_users_unchanged": true,
+      "last20_suffix_unchanged": true,
+      "last40_suffix_unchanged": true
+    }
+  },
+  "frozen_files_verified": true,
+  "real_constructor_backward": [
+    {
+      "trial": "none_L50_seed42",
+      "initial_state_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff",
+      "matches_original_seed42": true,
+      "observed_context_items": 50,
+      "loss": 24.217235565185547,
+      "gradients_finite": true,
+      "optimizer_steps": 0
+    },
+    {
+      "trial": "actor_w01_L50_seed42",
+      "initial_state_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff",
+      "matches_original_seed42": true,
+      "observed_context_items": 50,
+      "loss": 22.937694549560547,
+      "gradients_finite": true,
+      "optimizer_steps": 0
+    }
+  ],
+  "native_protocol_tests": {
+    "tests": 5,
+    "passed": true,
+    "includes_full_30_epoch_resume": true
+  },
+  "published_source_scope": {
+    "baseline_executable": "e3308db026871ccec6590ba502b6cce8d65ebd0c",
+    "baseline_python_files": 197,
+    "runtime_changes": [
+      "rhpr/gr/movie_context_training.py: accept authorized seed42 window50 design"
+    ],
+    "paused_local_genpas_tpu_changes_included": false
+  }
+}

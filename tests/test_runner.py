@@ -23,6 +23,24 @@ from scripts.notify_telegram import build_message  # noqa: E402
 
 
 class RunnerTest(unittest.TestCase):
+    def test_source_size_limit_is_checked_before_submission(self) -> None:
+        with tempfile.TemporaryDirectory() as d,patch('scripts.build_kaggle_bundle._render_runner',return_value='a'*(1024*1024)):
+            with self.assertRaisesRegex(ValueError,'1 MiB'):
+                build(ROOT/'experiments/baseline.json','owner/oversized-kernel','gpu',Path(d)/'bundle')
+
+    def test_recovery_bundle_fits_limit_and_preserves_every_source_byte(self) -> None:
+        import zlib
+        config=ROOT/'experiments/ml1m_proxy_plateau_finish_2t4.json'
+        with tempfile.TemporaryDirectory() as d:
+            path=build(config,'owner/recovery-kernel','gpu',Path(d)/'bundle')
+            runner=path.parent/'run.py';self.assertLess(runner.stat().st_size,1024*1024)
+            values={n.targets[0].id:ast.literal_eval(n.value) for n in ast.parse(runner.read_text()).body
+                    if isinstance(n,ast.Assign) and isinstance(n.targets[0],ast.Name)
+                    and n.targets[0].id in {'EMBEDDED_PACKAGE','EXPERIMENT_CONFIG'}}
+            self.assertEqual(json.loads(values['EXPERIMENT_CONFIG']),json.loads(config.read_text()))
+            with zipfile.ZipFile(io.BytesIO(zlib.decompress(base64.b64decode(values['EMBEDDED_PACKAGE'])))) as z:
+                for name in z.namelist():self.assertEqual(z.read(name),(ROOT/'src'/name).read_bytes())
+
     def test_baseline_is_deterministic_and_writes_contract(self) -> None:
         with tempfile.TemporaryDirectory() as first, tempfile.TemporaryDirectory() as second:
             result_a = execute(ROOT / "experiments" / "baseline.json", Path(first))
@@ -60,7 +78,8 @@ class RunnerTest(unittest.TestCase):
             }
             self.assertEqual(json.loads(assignments["EXPERIMENT_CONFIG"])["seed"], 42)
             self.assertEqual(assignments["GIT_SHA"], "test-revision")
-            package = base64.b64decode(assignments["EMBEDDED_PACKAGE"])
+            import zlib
+            package = zlib.decompress(base64.b64decode(assignments["EMBEDDED_PACKAGE"]))
             with zipfile.ZipFile(io.BytesIO(package)) as archive:
                 self.assertIn("rhpr/runner.py", archive.namelist())
                 self.assertIn("rhpr/sasrec/model.py", archive.namelist())

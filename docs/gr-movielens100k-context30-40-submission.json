@@ -1,0 +1,74 @@
+{
+  "kernel_id": "carasik/rhpr-ml100k-context30-40",
+  "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-ml100k-context30-40",
+  "version": 1,
+  "status": "COMPLETE",
+  "observed_at": "2026-11-03T18:22:43.917001+03:00",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41662734850",
+  "workflow_result": "success;submit_only=true",
+  "executable_git_sha": "bfecf91e658d24415255b480102c9f94e09fcc59",
+  "package_sha256": "e9e86573f482ae16951b77780963e66fc9a6fc1cdbcf8f27c1971e6846be69e7",
+  "embedded_source_files_verified": 197,
+  "exact_config": true,
+  "private": true,
+  "internet": false,
+  "accelerator": "NvidiaTeslaT4",
+  "workers": [
+    "cuda:0",
+    "cuda:1"
+  ],
+  "windows": [
+    30,
+    40
+  ],
+  "candidates": [
+    "none",
+    "actor_w01"
+  ],
+  "seed": 42,
+  "epochs": 30,
+  "training": "fresh predictors only; frozen parent indices",
+  "parent": "carasik/rhpr-ml100k-actor-full-training/1",
+  "validation_epochs": [
+    5,
+    10,
+    15,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ],
+  "known_item_filter": false,
+  "attention": "original T5 eager",
+  "training_precision": "fp16 AMP/GradScaler",
+  "evaluation_precision": "fp32",
+  "beam_width": 20,
+  "tests": "955OK91skips;3native GRID tests OK;4real constructor/backward checks OK",
+  "live_log_verified": {
+    "runtime_ready": true,
+    "trials": 4,
+    "windows": [
+      30,
+      40
+    ],
+    "seed42": true,
+    "quantizer_retrained": false,
+    "worker0_started": "none_L30_seed42",
+    "worker1_started": "actor_w01_L30_seed42"
+  },
+  "estimated_elapsed_hours": [
+    1.5,
+    2
+  ],
+  "results_available": true,
+  "no_resubmission": true,
+  "runner_duration_minutes": 86.07884833333333,
+  "result_report": "docs/gr-movielens100k-context30-40-results.md"
+}

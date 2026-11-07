@@ -1,0 +1,240 @@
+{
+  "cuts": {
+    "42": 0.0030904486775398254,
+    "101": 0.005011238157749176,
+    "202": 0.004531877115368843
+  },
+  "rows": [
+    {
+      "split": "validation",
+      "group": "low_gap",
+      "alternative": "graph",
+      "n_user_seed_cases": 1416,
+      "unique_users": 755,
+      "baseline_ndcg10": 0.05288796917115516,
+      "alternative_ndcg10": 0.046358810077344624,
+      "delta": -0.006529159093810538,
+      "relative_percent": -12.345263386236258,
+      "delta_by_seed": [
+        -0.009362308344331632,
+        -0.004643558208550612,
+        -0.0055816107285493665
+      ],
+      "n_by_seed": [
+        472,
+        472,
+        472
+      ],
+      "ci": [
+        -0.016185380825518614,
+        0.003356915160367419
+      ]
+    },
+    {
+      "split": "validation",
+      "group": "low_gap",
+      "alternative": "other_baseline_seed_mean",
+      "n_user_seed_cases": 1416,
+      "unique_users": 755,
+      "baseline_ndcg10": 0.05288796917115516,
+      "alternative_ndcg10": 0.05472350355709493,
+      "delta": 0.00183553438593977,
+      "relative_percent": 3.470608561277224,
+      "delta_by_seed": [
+        0.0066557746563358396,
+        0.0049489247527421745,
+        -0.006098096251258701
+      ],
+      "n_by_seed": [
+        472,
+        472,
+        472
+      ],
+      "ci": [
+        -0.00444310591194736,
+        0.008177012019371623
+      ]
+    },
+    {
+      "split": "validation",
+      "group": "high_gap",
+      "alternative": "graph",
+      "n_user_seed_cases": 1413,
+      "unique_users": 764,
+      "baseline_ndcg10": 0.08869831697809762,
+      "alternative_ndcg10": 0.08410196612506016,
+      "delta": -0.004596350853037476,
+      "relative_percent": -5.182004585467454,
+      "delta_by_seed": [
+        0.005418132102629509,
+        -0.01727426220553899,
+        -0.001932922456202947
+      ],
+      "n_by_seed": [
+        471,
+        471,
+        471
+      ],
+      "ci": [
+        -0.01537894509368295,
+        0.00602417426974383
+      ]
+    },
+    {
+      "split": "validation",
+      "group": "high_gap",
+      "alternative": "other_baseline_seed_mean",
+      "n_user_seed_cases": 1413,
+      "unique_users": 764,
+      "baseline_ndcg10": 0.08869831697809762,
+      "alternative_ndcg10": 0.08685888549155076,
+      "delta": -0.0018394314865468615,
+      "relative_percent": -2.0738065266797276,
+      "delta_by_seed": [
+        0.0059904249767307365,
+        -0.012031649729533458,
+        0.00052293029316214
+      ],
+      "n_by_seed": [
+        471,
+        471,
+        471
+      ],
+      "ci": [
+        -0.008242354332439436,
+        0.004336711184831566
+      ]
+    },
+    {
+      "split": "test",
+      "group": "low_gap",
+      "alternative": "graph",
+      "n_user_seed_cases": 1436,
+      "unique_users": 777,
+      "baseline_ndcg10": 0.04114296666653459,
+      "alternative_ndcg10": 0.04380905832988719,
+      "delta": 0.0026660916633525988,
+      "relative_percent": 6.480066653825379,
+      "delta_by_seed": [
+        0.013860706479419409,
+        -0.011114369265850825,
+        0.005609051800792843
+      ],
+      "n_by_seed": [
+        487,
+        493,
+        456
+      ],
+      "ci": [
+        -0.006104192266440663,
+        0.011738068363662733
+      ]
+    },
+    {
+      "split": "test",
+      "group": "low_gap",
+      "alternative": "other_baseline_seed_mean",
+      "n_user_seed_cases": 1436,
+      "unique_users": 777,
+      "baseline_ndcg10": 0.04114296666653459,
+      "alternative_ndcg10": 0.04537364200302791,
+      "delta": 0.004230675336493319,
+      "relative_percent": 10.282864069533717,
+      "delta_by_seed": [
+        0.01691696288891604,
+        -0.002405862103757119,
+        -0.0021430287862838683
+      ],
+      "n_by_seed": [
+        487,
+        493,
+        456
+      ],
+      "ci": [
+        -0.0006839369350169056,
+        0.009427531207483126
+      ]
+    },
+    {
+      "split": "test",
+      "group": "high_gap",
+      "alternative": "graph",
+      "n_user_seed_cases": 1393,
+      "unique_users": 764,
+      "baseline_ndcg10": 0.0552960580739515,
+      "alternative_ndcg10": 0.050726997285517314,
+      "delta": -0.004569060788434191,
+      "relative_percent": -8.262905074216409,
+      "delta_by_seed": [
+        -0.013486865369926384,
+        -0.004020110513807167,
+        0.003273837087496567
+      ],
+      "n_by_seed": [
+        456,
+        450,
+        487
+      ],
+      "ci": [
+        -0.013589549486427686,
+        0.004499195167407472
+      ]
+    },
+    {
+      "split": "test",
+      "group": "high_gap",
+      "alternative": "other_baseline_seed_mean",
+      "n_user_seed_cases": 1393,
+      "unique_users": 764,
+      "baseline_ndcg10": 0.0552960580739515,
+      "alternative_ndcg10": 0.05093478759067483,
+      "delta": -0.0043612704832766734,
+      "relative_percent": -7.887127283908781,
+      "delta_by_seed": [
+        -0.009339684047699472,
+        -0.005527563018799077,
+        0.0013779250534006959
+      ],
+      "n_by_seed": [
+        456,
+        450,
+        487
+      ],
+      "ci": [
+        -0.00952080936827411,
+        0.0009564131973488696
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "split": "validation",
+      "baseline_ndcg10": 0.0707741556155559,
+      "gated_ndcg10": 0.06750611416032941,
+      "delta_by_seed": [
+        -0.004686118280513818,
+        -0.0023242412242162136,
+        -0.0027937648609494166
+      ],
+      "ci": [
+        -0.008179042910736099,
+        0.0018303636042337128
+      ]
+    },
+    {
+      "split": "test",
+      "baseline_ndcg10": 0.04811195087669074,
+      "gated_ndcg10": 0.049465258628042574,
+      "delta_by_seed": [
+        0.007158180334546398,
+        -0.005810587537714164,
+        0.002712330457223262
+      ],
+      "ci": [
+        -0.003156827590287336,
+        0.005746323154094301
+      ]
+    }
+  ],
+  "note": "Secondary exploratory check chosen after metadata audit. Per-seed gap threshold = validation score median, without using target labels. Scores describe a finite beam, not calibrated catalogue uncertainty. Other-baseline result averages two separately substituted seeds, not an actual averaged-score ensemble. No gate was fitted or deployed; all CIs conditional on the fixed models, unadjusted for comparisons."
+}

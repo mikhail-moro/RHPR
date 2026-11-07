@@ -1,0 +1,254 @@
+{
+  "actor_graph_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-ml100k-actor-deepwalk",
+    "people_sha256": "93fadcb9eda245b4c34562d237555b0851037b46d84f793ea05d4a1965a8758f",
+    "provenance_sha256": "65b13bdfe86a7ea8f15020c79187eb868efd17e22f96de920e13e1334a32fbee",
+    "source_ids_sha256": "9c4a806b3ed1aa818e9fcdbfd92fd20d6adbbe05c522c4086a8d463f17e0f136"
+  },
+  "compare_initialization_by_seed": true,
+  "data": {
+    "history_items": 20,
+    "items": 1273,
+    "split": "timestamp_group_leave_two",
+    "train_events": 87541,
+    "train_examples": 85470,
+    "users": 943,
+    "version": "ML100K-TMDB-Zenodo-exact-bridge"
+  },
+  "evaluation": {
+    "save_validation_losses": true,
+    "save_validation_predictions": true,
+    "selection_metric": "validation item NDCG@10",
+    "test_after_selection": true
+  },
+  "execution": {
+    "cpu_threads_per_worker": 1,
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ]
+  },
+  "expected_initial_state_sha256": "3579338214a2f9d276f655150e0769ac74085188cb68ec0da24ee15cda8ffce9",
+  "expected_initial_state_sha256_by_seed": {
+    "101": "3579338214a2f9d276f655150e0769ac74085188cb68ec0da24ee15cda8ffce9",
+    "202": "eceff6a83a00e4e757c528381dfa1686db548869660faf77e2f99fb7affc172c",
+    "42": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff"
+  },
+  "fields": [
+    "title_with_year",
+    "genres",
+    "explicit_year",
+    "runtime",
+    "tmdb_keywords"
+  ],
+  "generator": {
+    "beam_width": 20,
+    "codebook_size": 256,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "d_model": 128,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "encoder_layers": 4,
+    "kind": "grid_encoder_decoder",
+    "mlp_layers": null,
+    "num_heads": 6,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "should_check_prefix": false
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml100k-text-ladder-input"
+    ],
+    "kernel_sources": [
+      "carasik/rhpr-ml100k-actor-full-training"
+    ],
+    "competition_sources": [],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "kind": "gr_movie_context_training",
+  "modality_input": {
+    "features_sha256": "eeccc0bf7e11f0e2d97acce14ce4973b96d0b4816c6e35ffef679681802dabda",
+    "legacy_path": "/kaggle/input/rhpr-ml100k-multimodal",
+    "parent_git_sha": "addd3c326dbc55ddf18d2dad2c832bf43000a8e0",
+    "parent_manifest_sha256": "3afd099243a2933a5850ecd497a81da74c61ab2858eda55363e6e4e7761651bb",
+    "path": "/kaggle/input/notebooks/carasik/rhpr-ml100k-multimodal",
+    "source_ids_sha256": "9c4a806b3ed1aa818e9fcdbfd92fd20d6adbbe05c522c4086a8d463f17e0f136"
+  },
+  "movie_input": {
+    "manifest_sha256": "52fa57696f77bc0d137b1d042684afb83e4d17c068fe78c9c5502d573cf84028",
+    "path": "/kaggle/input/datasets/carasik/rhpr-ml100k-text-ladder-input",
+    "sequences_sha256": "2039dc954f02f95c91d039bbec5c1a9f42d35713272de950dd0aafbb4893a499"
+  },
+  "name": "ml100k-frozen-sid-context40-seeds101-202-30epochs",
+  "plot_encoder": {
+    "max_length": 384,
+    "model": "sentence-transformers/all-mpnet-base-v2",
+    "path": "plot-encoder",
+    "revision": "e8c3b32edf5434bc2275fc9bab85f82640a19130"
+  },
+  "quantizer": {
+    "ae_warmup": {
+      "max_steps": 3500,
+      "probe_interval": 500,
+      "stopping": {
+        "kind": "fixed_steps"
+      }
+    },
+    "batch_size": 2048,
+    "codebook_size": 256,
+    "diagnostics_interval_steps": 500,
+    "distance_backend": "torch_cdist",
+    "expected_initial_state_sha256_by_seed": {
+      "101": "c1ff0f159a0c0d428bc92c7dd7aa3503d9625af2c48e34d5612e4a0924fd2d7c",
+      "202": "581cfd528912bf28f2398379504cd9b689a65e37497e6a633f6c8b071ee55aa0",
+      "42": "54253fbb9f6837546a0c29291db31a12cb0be65f75609a6d8f7c3d89aeccc69b"
+    },
+    "head_dim": 128,
+    "head_hidden": 256,
+    "init_buffer_size": 1273,
+    "initialization_steps": 1000,
+    "kind": "grid_multimodal_rqvae",
+    "max_steps": 3000,
+    "num_hierarchies": 3
+  },
+  "replicate_seeds": [
+    101,
+    202
+  ],
+  "representation": {
+    "batch_size": 8,
+    "kind": "sentence_transformer",
+    "max_length": 2048,
+    "model": "sentence-transformers/sentence-t5-base",
+    "revision": "fc5d4628481afbbaaacd7af6bb07cf9d3865f781"
+  },
+  "resources": {
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "scratch_path": "/kaggle/temp/rhpr-ml100k-actor-full"
+  },
+  "runtime": {
+    "kind": "gr",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels"
+  },
+  "seed": 101,
+  "training": {
+    "amp": true,
+    "batch_size": 256,
+    "cpu_threads": 1,
+    "device": "cuda",
+    "evaluation_batch_size": 32,
+    "evaluation_precision": "fp32",
+    "grad_clip_norm": 1.0,
+    "learning_rate": 0.001,
+    "max_epochs": 30,
+    "max_seconds": 7200,
+    "min_epochs": 30,
+    "patience": 5,
+    "patience_epochs": 20,
+    "physical_batch_size": 128,
+    "precision": "fp16",
+    "sampling": "strict_timestamp_prefixes",
+    "scheduler": {
+      "factor": 0.5,
+      "kind": "reduce_on_plateau",
+      "min_lr": 1e-05,
+      "patience_epochs": 5,
+      "start_epoch": 21,
+      "threshold": 0.0001
+    },
+    "validate_first_epoch": false,
+    "validation_interval": 1,
+    "weight_decay": 0.0001
+  },
+  "trials": [
+    {
+      "id": "none_L40_seed101",
+      "candidate": "none",
+      "history_items": 40,
+      "seed": 101,
+      "source_trial": "none_seed101",
+      "files": {
+        "semantic-codes.npy": "98b6cc2895638fb732444b265e90b745867018682a62bcdb872ac014b98546cf",
+        "semantic-ids.npy": "18f6d2264d67d77603cd64b10f42b61bd3e7184a9b236cc8b378efa333041cce",
+        "sid-catalogue.json": "56deec2fe849a58e08c5d92a87d05a34035f21344e3506474192b5d2bbffbe54",
+        "trial-result.json": "10d6f099841c8869421a2f43c6e30b8dac6a864fd69dfc184ed30100811a02be",
+        "training-curves.json": "70f069d3ee8d7429d197d73037c0d0bacb08e5d6505b8a1b77700d59a35d894f"
+      }
+    },
+    {
+      "id": "actor_w01_L40_seed101",
+      "candidate": "actor_w01",
+      "history_items": 40,
+      "seed": 101,
+      "source_trial": "actor_w01_seed101",
+      "files": {
+        "semantic-codes.npy": "4b7424075f6baeaad49206d59671ca0a343c4ef5fe712bc517be68525df6fbf5",
+        "semantic-ids.npy": "d24f708884dc0e4f525fa7619a2c430c38c7ec0e5d9dbd4d1ca81ad63dbeec6d",
+        "sid-catalogue.json": "56deec2fe849a58e08c5d92a87d05a34035f21344e3506474192b5d2bbffbe54",
+        "trial-result.json": "d748bc11f69197967784cc40b35dfaf9295fdae6cf41b0025c54df287f7ce30d",
+        "training-curves.json": "d5ae548d7600cc3fe35c0ebde543f882f5a0e69222cdac409a42a0c8565d34fb"
+      }
+    },
+    {
+      "id": "none_L40_seed202",
+      "candidate": "none",
+      "history_items": 40,
+      "seed": 202,
+      "source_trial": "none_seed202",
+      "files": {
+        "semantic-codes.npy": "04b3a149383150a39eabb4cfb5dc2e8e770e80c578454cadac8c81bbaba9cf44",
+        "semantic-ids.npy": "edaef1a67136bd41ffd4b4813f09b126a2effef9ce3dc2306c1d450cbd2bd8d8",
+        "sid-catalogue.json": "56deec2fe849a58e08c5d92a87d05a34035f21344e3506474192b5d2bbffbe54",
+        "trial-result.json": "a1b21b915a3066c7a09c8ab892718b9eb5a1dcea703f6b5085980bb759e7aba3",
+        "training-curves.json": "5cf0c2c7a7d7fc5f6ac8180918109f026e3c851874efc6a07e81e134e163f3d4"
+      }
+    },
+    {
+      "id": "actor_w01_L40_seed202",
+      "candidate": "actor_w01",
+      "history_items": 40,
+      "seed": 202,
+      "source_trial": "actor_w01_seed202",
+      "files": {
+        "semantic-codes.npy": "6014ea31ae67a406bd5c1fce6d88fb696f131d9813c880357eab434bbbd147ac",
+        "semantic-ids.npy": "10db79c8bea7f61be678321fc32ed8971c9f12675dd7aacddbb10b50cdbc1e5a",
+        "sid-catalogue.json": "56deec2fe849a58e08c5d92a87d05a34035f21344e3506474192b5d2bbffbe54",
+        "trial-result.json": "3f7edd72bb0352eb731289b58bbe70fe0f9ecf6caa1526b18fa49c51480138e2",
+        "training-curves.json": "0560d6523217a956514d87142ae3aaf0fdd0c59a629f0eb26c1cfe7728520ad0"
+      }
+    }
+  ],
+  "context_windows": [
+    40
+  ],
+  "known_item_filter": false,
+  "parent": {
+    "kernel": "carasik/rhpr-ml100k-actor-full-training",
+    "source_code_sha": "70a0c16d65fab69df3d64742fee527975e12df70",
+    "files": {
+      "run-manifest.json": {
+        "size_bytes": 8787,
+        "sha256": "d817f8097e938d95775dcf8a4bfc9259111f5c59b9ef93ad0f60eb447eb33f23"
+      },
+      "split-report.json": {
+        "size_bytes": 1664,
+        "sha256": "a410c4a602f8c169d314c240dbfe8f5267e61e44adeca37908045df0ee3ed1a2"
+      }
+    }
+  },
+  "replication_of": {
+    "kernel": "carasik/rhpr-ml100k-context30-40/1",
+    "source_seed": 42,
+    "history_items": 40
+  }
+}

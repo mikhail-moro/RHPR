@@ -1,0 +1,29 @@
+{
+  "parameters": {
+    "ffn_small": 1112896,
+    "attention_small": 719552
+  },
+  "initialization_pins": {
+    "ffn_small": {
+      "27182": "07ff22d5160e1169f6d74e44bd46af13cc3e2e84b718020b5ba5a493592d4fd1",
+      "31415": "60ba46e8176918b5bea52c99ba269e95c16a219f2b57895d6e6212443a952df4"
+    },
+    "attention_small": {
+      "27182": "59208e392a08ead1647bd47b3a8fe65032dc0e0e618c1bbc0e939b09d9d3accb",
+      "31415": "847331a8610abc21df07f3d3b5ebcf84a5f19a0c8f24d13eaa208c3337af71e8"
+    }
+  },
+  "staged_indexes": 12,
+  "native_probes": 4,
+  "native_probe_epochs": 10,
+  "validation_checks_per_probe": 2,
+  "probe_runtime": "transformers5.22.1 CPU FP32",
+  "test_cases_read": false,
+  "quota_remaining_hours_before_submission": 3.52,
+  "regression": {
+    "tests": 1012,
+    "skipped": 91,
+    "failures": 0,
+    "seconds": 173.485
+  }
+}

@@ -1,0 +1,298 @@
+{
+  "complete": true,
+  "source_code_sha": "b828588a3bb1ca228d73507d875df4bda69d7add",
+  "run_minutes": 33.95077598333333,
+  "finished_at": "2026-11-06T13:03:00.988761+00:00",
+  "verified_prediction_files": 14,
+  "original_index_entropy": {
+    "train_target_prefix_entropy_bits": [
+      7.660104617037565,
+      10.429156697043789,
+      10.487070993218241,
+      10.487790724142236
+    ],
+    "incremental_bits": [
+      7.660104617037565,
+      2.769052080006224,
+      0.05791429617445232,
+      0.0007197309239952432
+    ],
+    "used_codes": [
+      255,
+      252,
+      231
+    ],
+    "unique_semantic_ids": 2871
+  },
+  "arms": {
+    "projected_frozen": {
+      "selection": {
+        "amp_skipped_updates": 0,
+        "best_epoch": 30,
+        "criterion": "validation_item_ndcg@10",
+        "evaluation_precision": "fp32",
+        "optimizer_training_seconds": 1758.209210619,
+        "optimizer_updates": 8880,
+        "selected_validation": {
+          "duplicate_prediction_fraction": 0.0,
+          "duplicate_predictions": 0,
+          "evaluation_examples": 2786,
+          "invalid_prediction_fraction": 0.0008255563531945441,
+          "invalid_predictions": 46,
+          "ndcg@10": 0.03686649004333391,
+          "ndcg@5": 0.025699783957999184,
+          "prediction_count": 55720,
+          "recall@10": 0.07430007178750897,
+          "recall@5": 0.039124192390524046,
+          "seconds": 9.287832993999928
+        },
+        "stopping_reason": "epoch_limit",
+        "training_epochs": 30,
+        "training_examples_per_epoch": 151166,
+        "training_precision": "fp16",
+        "training_seconds": 1828.367996339,
+        "validation_checks": 6,
+        "validation_ndcg10": 0.03686649004333391,
+        "validation_seconds": 65.50278480500015
+      },
+      "test": {
+        "duplicate_prediction_fraction": 0.0,
+        "duplicate_predictions": 0,
+        "evaluation_examples": 2786,
+        "invalid_prediction_fraction": 0.0007537688442211055,
+        "invalid_predictions": 42,
+        "ndcg@10": 0.031141507050041976,
+        "ndcg@5": 0.022255831837473025,
+        "prediction_count": 55720,
+        "recall@10": 0.06460875807609476,
+        "recall@5": 0.0366116295764537,
+        "seconds": 8.485554150999633
+      },
+      "epoch30_index": {
+        "changed_items_previous": 0,
+        "epoch": 30,
+        "max_collision_group": 2,
+        "seconds": 0.0025655870003902237,
+        "used_codes": [
+          255,
+          252,
+          231
+        ]
+      },
+      "epoch30_entropy": {
+        "train_target_prefix_entropy_bits": [
+          7.660104617037565,
+          10.429156697043789,
+          10.487070993218241,
+          10.487790724142236
+        ],
+        "incremental_bits": [
+          7.660104617037565,
+          2.769052080006224,
+          0.05791429617445232,
+          0.0007197309239952432
+        ],
+        "used_codes": [
+          255,
+          252,
+          231
+        ],
+        "unique_semantic_ids": 2871
+      },
+      "objectives": [
+        {
+          "epoch": 1,
+          "nip": 13.474962630787411,
+          "quantization": 0.0,
+          "reconstruction": 0.0
+        },
+        {
+          "epoch": 5,
+          "nip": 7.745836522128131,
+          "quantization": 0.0,
+          "reconstruction": 0.0
+        },
+        {
+          "epoch": 10,
+          "nip": 7.171329776983003,
+          "quantization": 0.0,
+          "reconstruction": 0.0
+        },
+        {
+          "epoch": 20,
+          "nip": 6.749786022547129,
+          "quantization": 0.0,
+          "reconstruction": 0.0
+        },
+        {
+          "epoch": 30,
+          "nip": 6.544123519111324,
+          "quantization": 0.0,
+          "reconstruction": 0.0
+        }
+      ],
+      "validation": [
+        {
+          "epoch": 5,
+          "ndcg10": 0.018821182983239468
+        },
+        {
+          "epoch": 10,
+          "ndcg10": 0.021304698060343727
+        },
+        {
+          "epoch": 15,
+          "ndcg10": 0.0296805868607706
+        },
+        {
+          "epoch": 20,
+          "ndcg10": 0.02852665288511438
+        },
+        {
+          "epoch": 25,
+          "ndcg10": 0.03117124804064422
+        },
+        {
+          "epoch": 30,
+          "ndcg10": 0.03686649004333391
+        }
+      ],
+      "median_sid_churn": 0.0
+    },
+    "joint_rq": {
+      "selection": {
+        "amp_skipped_updates": 0,
+        "best_epoch": 25,
+        "criterion": "validation_item_ndcg@10",
+        "evaluation_precision": "fp32",
+        "optimizer_training_seconds": 1920.407446658999,
+        "optimizer_updates": 8880,
+        "selected_validation": {
+          "duplicate_prediction_fraction": 0.0,
+          "duplicate_predictions": 0,
+          "evaluation_examples": 2786,
+          "invalid_prediction_fraction": 0.0,
+          "invalid_predictions": 0,
+          "ndcg@10": 0.02118170275425469,
+          "ndcg@5": 0.014405164439598618,
+          "prediction_count": 55720,
+          "recall@10": 0.04594400574300072,
+          "recall@5": 0.024766690595836326,
+          "seconds": 9.280356246999872
+        },
+        "stopping_reason": "epoch_limit",
+        "training_epochs": 30,
+        "training_examples_per_epoch": 151166,
+        "training_precision": "fp16",
+        "training_seconds": 1994.172999835,
+        "validation_checks": 6,
+        "validation_ndcg10": 0.02118170275425469,
+        "validation_seconds": 65.43827031599994
+      },
+      "test": {
+        "duplicate_prediction_fraction": 0.0,
+        "duplicate_predictions": 0,
+        "evaluation_examples": 2786,
+        "invalid_prediction_fraction": 0.0,
+        "invalid_predictions": 0,
+        "ndcg@10": 0.018959650861599932,
+        "ndcg@5": 0.012819719680514886,
+        "prediction_count": 55720,
+        "recall@10": 0.04020100502512563,
+        "recall@5": 0.0208183776022972,
+        "seconds": 8.73666880599967
+      },
+      "epoch30_index": {
+        "changed_items_previous": 2385,
+        "epoch": 30,
+        "max_collision_group": 9,
+        "seconds": 0.06861703200002012,
+        "used_codes": [
+          27,
+          24,
+          30
+        ]
+      },
+      "epoch30_entropy": {
+        "train_target_prefix_entropy_bits": [
+          4.416794943493128,
+          7.626537550449374,
+          9.84730952277689,
+          10.487790724142236
+        ],
+        "incremental_bits": [
+          4.416794943493128,
+          3.2097426069562456,
+          2.2207719723275154,
+          0.6404812013653469
+        ],
+        "used_codes": [
+          27,
+          24,
+          30
+        ],
+        "unique_semantic_ids": 1756
+      },
+      "objectives": [
+        {
+          "epoch": 1,
+          "nip": 12.31738057329848,
+          "quantization": 0.18504237989121042,
+          "reconstruction": 2.6305212684579797
+        },
+        {
+          "epoch": 5,
+          "nip": 8.106897396010321,
+          "quantization": 1.5338023719755378,
+          "reconstruction": 2.512350899947656
+        },
+        {
+          "epoch": 10,
+          "nip": 7.719105496599868,
+          "quantization": 1.742015928432748,
+          "reconstruction": 2.4567709879295245
+        },
+        {
+          "epoch": 20,
+          "nip": 7.445147166381011,
+          "quantization": 1.4104713849924706,
+          "reconstruction": 2.3889747664735124
+        },
+        {
+          "epoch": 30,
+          "nip": 7.315980408642743,
+          "quantization": 1.4835045623618204,
+          "reconstruction": 2.3620175799807988
+        }
+      ],
+      "validation": [
+        {
+          "epoch": 5,
+          "ndcg10": 0.017392994155695778
+        },
+        {
+          "epoch": 10,
+          "ndcg10": 0.021066024876380197
+        },
+        {
+          "epoch": 15,
+          "ndcg10": 0.019031215705633653
+        },
+        {
+          "epoch": 20,
+          "ndcg10": 0.020048517754005363
+        },
+        {
+          "epoch": 25,
+          "ndcg10": 0.02118170275425469
+        },
+        {
+          "epoch": 30,
+          "ndcg10": 0.02107799170812341
+        }
+      ],
+      "median_sid_churn": 0.8493389004871259
+    }
+  },
+  "scope": "one seed,two interventions;conditional empirical entropy is unconditional over TRAIN targets,not entropy given userhistory;no causal gradient conflict claim"
+}

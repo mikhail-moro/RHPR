@@ -1,0 +1,183 @@
+{
+  "status": "preflight_passed_not_yet_submitted",
+  "config": "experiments/ml1m_clean_mtl_replicates_2t4.json",
+  "kernel_id": "carasik/rhpr-ml1m-clean-mtl-replicates",
+  "additional_seeds": [
+    101,
+    202
+  ],
+  "trials": [
+    "sum_seed101",
+    "uw_seed101",
+    "gradnorm_seed101",
+    "pcgrad_seed101",
+    "sum_seed202",
+    "uw_seed202",
+    "gradnorm_seed202",
+    "pcgrad_seed202"
+  ],
+  "regression": {
+    "tests_run": 995,
+    "passed": 904,
+    "skipped": 91,
+    "failed": 0,
+    "note": "Native optional GRID tests not enabled in broad run; all eight changed pipelines separately executed under Transformers5.22.1."
+  },
+  "native_end_to_end": {
+    "passed": 8,
+    "epochs_each": 30,
+    "validation_checks_each": 6,
+    "checkpoint_seed_verified": true,
+    "trial_initialization_verified": true,
+    "suite_config_not_mutated": true
+  },
+  "initialization_pins": {
+    "42": {
+      "generator": "d57fc2e783c0a04bfc567c0082541f757e241d1c53d7e79b3e8f281bf2eb9337",
+      "quantizer": "54253fbb9f6837546a0c29291db31a12cb0be65f75609a6d8f7c3d89aeccc69b"
+    },
+    "101": {
+      "generator": "4dcaf4ec587f08ce3ec69536526f4cda5c4ab01eedbc1e09bd7e2803c69ac9b3",
+      "quantizer": "c1ff0f159a0c0d428bc92c7dd7aa3503d9625af2c48e34d5612e4a0924fd2d7c"
+    },
+    "202": {
+      "generator": "0102d0baf3e18b608649a6473bcae2852792a5f0649e4dd4daa35dfcd416bd74",
+      "quantizer": "581cfd528912bf28f2398379504cd9b689a65e37497e6a633f6c8b071ee55aa0"
+    }
+  },
+  "assignments": [
+    {
+      "slot": 0,
+      "device": "cuda:0",
+      "trials": [
+        {
+          "id": "sum_seed101",
+          "seed": 101,
+          "stage": 3,
+          "modalities": [
+            "text",
+            "poster",
+            "plot"
+          ],
+          "mtl_mode": "sum"
+        },
+        {
+          "id": "gradnorm_seed101",
+          "seed": 101,
+          "stage": 3,
+          "modalities": [
+            "text",
+            "poster",
+            "plot"
+          ],
+          "mtl_mode": "gradnorm"
+        },
+        {
+          "id": "sum_seed202",
+          "seed": 202,
+          "stage": 3,
+          "modalities": [
+            "text",
+            "poster",
+            "plot"
+          ],
+          "mtl_mode": "sum"
+        },
+        {
+          "id": "gradnorm_seed202",
+          "seed": 202,
+          "stage": 3,
+          "modalities": [
+            "text",
+            "poster",
+            "plot"
+          ],
+          "mtl_mode": "gradnorm"
+        }
+      ]
+    },
+    {
+      "slot": 1,
+      "device": "cuda:1",
+      "trials": [
+        {
+          "id": "uw_seed101",
+          "seed": 101,
+          "stage": 3,
+          "modalities": [
+            "text",
+            "poster",
+            "plot"
+          ],
+          "mtl_mode": "uw"
+        },
+        {
+          "id": "pcgrad_seed101",
+          "seed": 101,
+          "stage": 3,
+          "modalities": [
+            "text",
+            "poster",
+            "plot"
+          ],
+          "mtl_mode": "pcgrad"
+        },
+        {
+          "id": "uw_seed202",
+          "seed": 202,
+          "stage": 3,
+          "modalities": [
+            "text",
+            "poster",
+            "plot"
+          ],
+          "mtl_mode": "uw"
+        },
+        {
+          "id": "pcgrad_seed202",
+          "seed": 202,
+          "stage": 3,
+          "modalities": [
+            "text",
+            "poster",
+            "plot"
+          ],
+          "mtl_mode": "pcgrad"
+        }
+      ]
+    }
+  ],
+  "quota_observed": {
+    "gpu_used_hours": 34.41,
+    "gpu_remaining_hours": 10.59,
+    "gpu_total_hours": 45,
+    "refresh_at": "2026-11-07T00:00:00",
+    "approx_session_hours": 2.5
+  },
+  "unchanged_data_and_training": true,
+  "original_seed42_pins_reproduced": true,
+  "bundle_metadata": {
+    "id": "carasik/rhpr-ml1m-clean-mtl-replicates",
+    "title": "Rhpr Ml1M Clean Mtl Replicates",
+    "code_file": "run.py",
+    "language": "python",
+    "kernel_type": "script",
+    "is_private": true,
+    "enable_gpu": true,
+    "enable_internet": false,
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml1m-clean-mtl-input",
+      "carasik/rhpr-ml100k-modal-input",
+      "carasik/rhpr-t5-sdpa-runtime"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "regression_log": "c5363eaa614e7e2068d689b7b0c0a5883045f4304f23741e1ae2223b8430e7e5",
+  "native_probe_log": "6e4c1d6c5c66afd91fa72dacd1612fcc2014aec5294f1280e577a83a6a9779d5",
+  "config_sha256": "a3d01a45ee7ccf4b1168a1230bdeea9ef6ca213ff9a2555056fccff0c9d6e1cb",
+  "runner_module_sha256": "1f2cfd86ea9b75d333a913028aac8bca2559ac94de5a8683fae4057ae6feabb3"
+}

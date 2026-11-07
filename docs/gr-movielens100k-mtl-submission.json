@@ -1,0 +1,38 @@
+{
+  "source_code_sha": "5af82b106c3d2687459dcb9ebc4cc2e4e1547415",
+  "kernel_metadata_sha256": "b58589cf3b713857d64319a74d776241947af60609a980c88e6dcfc25381bf2d",
+  "runner_sha256": "b46da10ff776c7d974f6997a94e19ae7c8002369b022d09c03dffb28834e3439",
+  "kernel_id": "carasik/rhpr-ml100k-mtl",
+  "kernel_version": 1,
+  "versioned_kernel_id": "carasik/rhpr-ml100k-mtl/1",
+  "status": "complete",
+  "quality_complete": true,
+  "worker_timeout_seconds": 5100,
+  "submitted_at_utc": "2026-11-04T18:25:33.227010+00:00",
+  "observed_status": "COMPLETE",
+  "workflow_run_id": 41886967932,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41886967932",
+  "source_files_verified": 199,
+  "config_verified": true,
+  "tests_passed": 873,
+  "tests_skipped": 91,
+  "native_e2e_methods": [
+    "sum",
+    "uw",
+    "gradnorm",
+    "pcgrad"
+  ],
+  "gpu_hours_before": 1.43,
+  "seed": 42,
+  "expected_minutes": [
+    55,
+    75
+  ],
+  "tests_run": 964,
+  "collection": {
+    "prediction_files_checked": 28,
+    "run_minutes": 63.59685598333333,
+    "failed_trials": 0,
+    "temporal_cases_reconstructed": true
+  }
+}

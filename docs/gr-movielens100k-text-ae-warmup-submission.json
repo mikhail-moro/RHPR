@@ -1,0 +1,29 @@
+{
+  "experiment": "experiments/movielens100k_text_ae_warmup.json",
+  "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-ml100k-text-ae-warmup",
+  "kernel_id": "carasik/rhpr-ml100k-text-ae-warmup",
+  "executable_git_sha": "444ba8238b2e244b498c4bb23ada89c769723b63",
+  "package_sha256": "d1876d87ec0ccea73ff3c7a6b2414f25c63be0b70024a9184e56af519eecea4a",
+  "embedded_source_files_verified": 187,
+  "exact_config": true,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41328218657",
+  "workflow_result": "success; submit_only=true",
+  "server_status": "RUNNING",
+  "private": true,
+  "accelerator": "NvidiaTeslaT4",
+  "internet": false,
+  "trial_count": 1,
+  "pipeline_seed": 42,
+  "active_modalities": [
+    "text"
+  ],
+  "workers": [
+    "cuda:0"
+  ],
+  "protocol": "continuous AE bounded spectral plateau up to5000; native RQ Adagrad3000; fresh TIGER20epochs val5/10/15/20 selected test",
+  "reused_private_output": "carasik/rhpr-ml100k-multimodal",
+  "frozen_features_sha256": "eeccc0bf7e11f0e2d97acce14ce4973b96d0b4816c6e35ffef679681802dabda",
+  "validation": "927tests OK83skips;7targeted/native OK",
+  "no_training_results_yet": true,
+  "no_resubmission": true
+}

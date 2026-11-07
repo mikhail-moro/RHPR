@@ -1,0 +1,95 @@
+{
+  "mask_sha256": "3a7dea40ed1b4dd2e5e0b76d12dbd706f888e9e8b76740b4359256529da3f56b",
+  "source_sha256": "a6898adb50b9ca05aa231689da44c217cb524e7ebd39d264c56e2832f2c54e20",
+  "items": 2874,
+  "original_users": 6040,
+  "original_events": 1000209,
+  "events_with_feature_coverage": 929772,
+  "policies": {
+    "current_filtered": {
+      "users": 5672,
+      "train_events": 852295,
+      "train_cases": 839388
+    },
+    "first_valid_prefix": {
+      "users": 2600,
+      "train_events": 41053,
+      "train_cases": 35730,
+      "users_with_full20_validation": 753
+    },
+    "latest_clean_run": {
+      "users": 5139,
+      "train_events": 80848,
+      "train_cases": 70980
+    },
+    "raw_clean_windows_upto20": {
+      "users": 4146,
+      "train_events": 638786,
+      "train_cases": 174378,
+      "users_with_full20_validation": 3158
+    },
+    "latest_clean_run_full20": {
+      "users": 3092,
+      "train_events": 103270,
+      "train_cases": 96796
+    },
+    "raw_clean_windows_full20": {
+      "users": 3182,
+      "train_events": 630711,
+      "train_cases": 134695,
+      "train_cases_allow_short": 166912
+    },
+    "contiguous_20_val_test": {
+      "users": 2806,
+      "train_events": 570832,
+      "train_cases": 122749,
+      "train_cases_allow_short": 151166
+    },
+    "first_valid_prefix_full20": {
+      "users": 753,
+      "train_events": 23636,
+      "train_cases": 21989
+    },
+    "raw_clean_windows_full20_admitted": {
+      "users": 3158,
+      "train_events": 629343,
+      "train_cases": 166912,
+      "train_cases_allow_short": 166912
+    },
+    "raw_clean_windows_fixed20_training": {
+      "users": 3012,
+      "train_events": 623000,
+      "train_cases": 134695,
+      "train_cases_allow_short": 164905
+    },
+    "contiguous_20_val_test_admitted": {
+      "users": 2786,
+      "train_events": 569637,
+      "train_cases": 151166,
+      "train_cases_allow_short": 151166
+    }
+  },
+  "current_raw_audit": {
+    "users": 5672,
+    "counts": {
+      "raw_validation_ambiguous": 450,
+      "raw_test_ambiguous": 407,
+      "validation_context_has_missing": 4086,
+      "test_context_has_missing": 4173,
+      "validation_touched_group_has_missing": 4153,
+      "test_touched_group_has_missing": 4244,
+      "validation_has_full20": 5110,
+      "test_has_full20": 5405
+    },
+    "raw_ambiguous_either_target": 799,
+    "either_context_missing": 4440,
+    "either_touched_group_missing": 4498
+  },
+  "notes": [
+    "Targets are singleton groups in ORIGINAL raw timeline for all new protocols.",
+    "Any timestamp group containing an uncovered film is a barrier, including a group touched at the left edge of a20item context.",
+    "Raw-clean training cases require20past raw events; optional short contexts allowed only if their whole available past is covered.",
+    "Train-event counts for raw-clean policies are raw rows beforeval, NOT retained valid supervision; use train_cases for compute.",
+    "No GPU, training, dataset upload or production protocol change performed."
+  ]
+}

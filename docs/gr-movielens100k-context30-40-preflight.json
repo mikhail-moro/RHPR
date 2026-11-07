@@ -1,0 +1,112 @@
+{
+  "user_authorization": "\u0434\u0430\u0432\u0430\u0439 \u043f\u043e\u043f\u0440\u043e\u0431\u0443\u0435\u043c \u043e\u0431\u0443\u0447\u0438\u0442\u044c \u043d\u0430 30 \u0438 40 \u0430\u0439\u0442\u0435\u043c\u0430\u0445; 42, \u0434\u0430\u0432\u0430\u0439 \u043f\u043e\u043f\u0440\u043e\u0431\u0443\u0435\u043c \u0434\u043e 30 \u044d\u043f\u043e\u0445",
+  "trials": 4,
+  "seed": 42,
+  "epochs": 30,
+  "known_item_filter": false,
+  "attention": "original eager T5",
+  "gpu": "2xT4",
+  "frozen_parent": "carasik/rhpr-ml100k-actor-full-training/1",
+  "fresh_generators": true,
+  "quantizer_retrained": false,
+  "quota_remaining_gpu_hours": 7.86,
+  "estimated_elapsed_hours": [
+    1.5,
+    2
+  ],
+  "tests": {
+    "total": 955,
+    "skipped": 91,
+    "result": "OK"
+  },
+  "native_cpu_resume_tests": {
+    "total": 3,
+    "result": "OK"
+  },
+  "real_cpu_checks": [
+    {
+      "trial": "none_L30_seed42",
+      "initial_state_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff",
+      "matches_original_seed42": true,
+      "observed_context_items": 30,
+      "loss": 25.487260818481445,
+      "gradients_finite": true,
+      "optimizer_steps": 0
+    },
+    {
+      "trial": "actor_w01_L30_seed42",
+      "initial_state_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff",
+      "matches_original_seed42": true,
+      "observed_context_items": 30,
+      "loss": 23.566957473754883,
+      "gradients_finite": true,
+      "optimizer_steps": 0
+    },
+    {
+      "trial": "none_L40_seed42",
+      "initial_state_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff",
+      "matches_original_seed42": true,
+      "observed_context_items": 40,
+      "loss": 23.201610565185547,
+      "gradients_finite": true,
+      "optimizer_steps": 0
+    },
+    {
+      "trial": "actor_w01_L40_seed42",
+      "initial_state_sha256": "5f4a24fa8c9b5f7063739fd44822fd0a5f98eff91c7e882563d32529b0c5abff",
+      "matches_original_seed42": true,
+      "observed_context_items": 40,
+      "loss": 20.881141662597656,
+      "gradients_finite": true,
+      "optimizer_steps": 0
+    }
+  ],
+  "schedules": {
+    "30": {
+      "train": {
+        "examples": 85470,
+        "reference_sha256": "abd59fae52fe92e66f4a2864a8372862f39707d50a683cf87947ee1b97e54a4d",
+        "context_sha256": "3ddee651cdbd689468158fe7bef90420d3b003f9f65fa058b78b09edbca6f9d5",
+        "targets_and_users_unchanged": true,
+        "last20_suffix_unchanged": true
+      },
+      "validation": {
+        "examples": 943,
+        "reference_sha256": "883061e7a2d51d06df3e2fab3e76d12520c98de2dba5d52f00a3f925ec4c4826",
+        "context_sha256": "f0ea3a47b2dcb9ad4a7bafca24507e8cf8db975c73f72a648534b506a0bd4d6d",
+        "targets_and_users_unchanged": true,
+        "last20_suffix_unchanged": true
+      },
+      "test": {
+        "examples": 943,
+        "reference_sha256": "ca21089d95d7aa96ff6ca9c11acf8cd9e0c3df15a0959613262a34fafa23b933",
+        "context_sha256": "da055fe69217130ca78a336de0ec7a6f179f0d22ee6d43cdc95cac3df598a02c",
+        "targets_and_users_unchanged": true,
+        "last20_suffix_unchanged": true
+      }
+    },
+    "40": {
+      "train": {
+        "examples": 85470,
+        "reference_sha256": "abd59fae52fe92e66f4a2864a8372862f39707d50a683cf87947ee1b97e54a4d",
+        "context_sha256": "8df28a7f57fe7ab71c855fb77641e9ee4c7a8861015d4aa1eb4f7164d7398aa3",
+        "targets_and_users_unchanged": true,
+        "last20_suffix_unchanged": true
+      },
+      "validation": {
+        "examples": 943,
+        "reference_sha256": "883061e7a2d51d06df3e2fab3e76d12520c98de2dba5d52f00a3f925ec4c4826",
+        "context_sha256": "b16487c45496a4cd1b7feef6df6e1850bc14a8b6a116a156f07e46aa8a8e29a3",
+        "targets_and_users_unchanged": true,
+        "last20_suffix_unchanged": true
+      },
+      "test": {
+        "examples": 943,
+        "reference_sha256": "ca21089d95d7aa96ff6ca9c11acf8cd9e0c3df15a0959613262a34fafa23b933",
+        "context_sha256": "212697a027e069e4afed76a360003dca4ca0691463a3899d5dd2fe4a75fcbeac",
+        "targets_and_users_unchanged": true,
+        "last20_suffix_unchanged": true
+      }
+    }
+  }
+}

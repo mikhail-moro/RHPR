@@ -1,0 +1,56 @@
+{
+  "kernel_id": "carasik/rhpr-ml100k-multimodal-ae",
+  "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-ml100k-multimodal-ae",
+  "version": 1,
+  "server_status": "RUNNING",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41331992852",
+  "workflow_result": "success; submit_only=true",
+  "executable_git_sha": "ba160aac3155831e06286b6e6924eb720b82dfc2",
+  "package_sha256": "2b8f7d428c7162a00a638597e435ac6738af579cff1155e3078aefa5b3b91ca8",
+  "embedded_source_files_verified": 187,
+  "exact_config": true,
+  "experiment": "experiments/movielens100k_multimodal_ae_2t4.json",
+  "private": true,
+  "internet": false,
+  "accelerator": "NvidiaTeslaT4",
+  "workers": [
+    "cuda:0",
+    "cuda:1"
+  ],
+  "fresh_fits": 12,
+  "seeds": [
+    42,
+    101,
+    202
+  ],
+  "stages": [
+    "text",
+    "text+poster",
+    "text+poster+MPNETdescription",
+    "text+poster+MPNETdescription+DeepWalkpeople"
+  ],
+  "fits_per_worker": 6,
+  "ae_max_steps": 5000,
+  "ae_stopping": {
+    "kind": "water_filling_plateau",
+    "min_steps": 2000,
+    "patience_probes": 4,
+    "probe_interval": 500
+  },
+  "rq_adagrad_steps": 3000,
+  "tiger_epochs": 20,
+  "validation_epochs": [
+    5,
+    10,
+    15,
+    20
+  ],
+  "test": "once at selected validation NDCG10 checkpoint",
+  "frozen_input_notebook": "carasik/rhpr-ml100k-multimodal",
+  "frozen_input_git_sha": "addd3c326dbc55ddf18d2dad2c832bf43000a8e0",
+  "frozen_features_sha256": "eeccc0bf7e11f0e2d97acce14ce4973b96d0b4816c6e35ffef679681802dabda",
+  "validation": "929tests OK84skips;9targeted/native OK;all12tiny staged quantizers tested",
+  "estimated_body_hours": "2–2.5 plus setup/queue",
+  "no_results_yet": true,
+  "no_resubmission": true
+}

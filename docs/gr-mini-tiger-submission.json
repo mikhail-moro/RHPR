@@ -1,0 +1,38 @@
+{
+  "source_code_sha": "44b84d5dbad6f6cc1815d06038cfcf0f3acedd68",
+  "kernel_metadata_sha256": "7b660909304b2448c3f106beea5068bb7e3008ba01a1b08d4891bc8b8ec000d7",
+  "runner_sha256": "f809f6876c3394a1c8d1f52c3f6476094616c28af965ac63382dc6ad187754b8",
+  "kernel_id": "carasik/rhpr-ml1m-mini-tiger",
+  "kernel_version": 1,
+  "versioned_kernel_id": "carasik/rhpr-ml1m-mini-tiger/1",
+  "status": "ERROR",
+  "quality_complete": false,
+  "worker_timeout_seconds": 10800,
+  "submitted_at_utc": "2026-11-05T21:09:11.899318+00:00",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42109946957",
+  "workflow_conclusion": "success",
+  "gpu_results_pending": false,
+  "new_dataset_uploaded": false,
+  "matrix_fits": 48,
+  "source_audit": {
+    "git_sha": "44b84d5dbad6f6cc1815d06038cfcf0f3acedd68",
+    "embedded_files": 205,
+    "all_embedded_bytes_match": true,
+    "config_exact": true,
+    "runner_sha256": "f809f6876c3394a1c8d1f52c3f6476094616c28af965ac63382dc6ad187754b8",
+    "private": true,
+    "internet": false,
+    "dataset_sources_exact": true,
+    "kernel_sources_exact": true,
+    "hardware": "NvidiaTeslaT4"
+  },
+  "analysis_complete": true,
+  "completed_fits": 36,
+  "completed_architectures": [
+    "shallow",
+    "narrow"
+  ],
+  "failure_reason": "internal suite compute deadline;36completed,2rejected at next-fit start,10never started",
+  "results_report": "docs/gr-mini-tiger-results.md",
+  "kernel_last_log_seconds": 10273.646614574
+}
