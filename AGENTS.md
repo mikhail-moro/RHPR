@@ -2,6 +2,23 @@
 
 ## Research status
 
+- User authorization2026-11-07: continue SIX fullTIGERs from epoch30 of private
+  carasik/rhpr-ml1m-proxy-target/1 to operational VALplateau. Same seed161803,
+  SUM/GradNorm indexes x42/101/202,data/FP16SDPA512/AdamLR.001 unchanged.
+  Exact model+Adam+scaler+CPU/CUDA/Python/NumPyRNG resume;12last/bestweights
+  SHA/sizepinned,all6metadata30epochs/8880updates/95Adamstates/1CUDA RNG checked.
+  Min60/max100totalepochs,VAL5,patience20epochsbeyondbest;NOnewLRscheduler.
+  EScriterion=operationalplateau;epoch100withoutcriterion=censored,notconverged.
+  Preserve fixed30;newtargetbestVALundercontinuationrule. NoTEST,proxy/tokenizer
+  fits,oldseedfits,HPO/retries/extensions/Colab/newuploads/Telegram.
+  Existing3datasets+3privateparents,2T4,3resumes/worker. Expected1.5–4h session;
+  perfit5000s/suite15500s/server270min;quota43.43hobserved. Nativeactualepoch30
+  model/optimizerrestore+tiny30->60ES/RNGprobe pass.1027tests91skips0fail,
+  targeted18pass. Configexperiments/ml1m_proxy_plateau_2t4.json;
+  docs/gr-proxy-plateau.md/.preflight;privatecarasik/rhpr-ml1m-proxy-plateau.
+  PreparedforONESUBMISSION;noresults yet,noothercomputeauthorized.
+
+
 - User authorization2026-11-07: cheap independent full-TIGER proxy diagnostic.
   Exactly6fresh generators, existing SUM/GradNorm indexes x tokenizer42/101/202,
   newcommon generatorseed161803,30epochs/VAL5/FP16/nativeSDPA512,2T4.

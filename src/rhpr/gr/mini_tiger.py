@@ -49,10 +49,15 @@ def protocol_shape(c):
         return list(REDUCED_ARCHITECTURES), [42, 101, 202], 10
     if phase == 'full_seed_replication':
         return ['full'], [42, 101, 202], 30
+    if phase == 'full_plateau':
+        return ['full'], [42, 101, 202], 100
     raise ValueError('unknown mini-TIGER calibration phase')
 
 
 def validate(c):
+    if c.get('calibration_phase') == 'full_plateau':
+        from rhpr.gr.proxy_plateau import validate_plateau
+        return validate_plateau(c)
     if c.get('calibration_phase') == 'full_seed_replication':
         from rhpr.gr.proxy_target import validate_target
         return validate_target(c)
@@ -203,6 +208,9 @@ def correlate(c, records, references):
 
 
 def run_trial(trial, c, plan, device):
+    if c.get('calibration_phase') == 'full_plateau':
+        from rhpr.gr.proxy_plateau import run_trial as continue_trial
+        return continue_trial(trial, c, plan, device)
     import torch
     from rhpr.gr.grid import build_grid_generator
     from rhpr.gr.sid import SidIndex
@@ -291,6 +299,10 @@ def run_mini_tiger(c, output):
             raise ValueError('frozen ML1M cases changed')
     index_root = output / 'frozen-indexes'
     refs = stage_indexes(c, roots['movie_input'], index_root)
+    resume_root = None
+    if c.get('calibration_phase') == 'full_plateau':
+        from rhpr.gr.proxy_plateau import verify_continuation
+        resume_root = str(verify_continuation(c))
     if set(refs) != set(c['index_ids']):
         raise ValueError('reference index matrix changed')
     scratch = Path(c['resources']['scratch_path'])
@@ -306,8 +318,13 @@ def run_mini_tiger(c, output):
     plan = dict(config=c, output=str(output), source=str(source), data_root=str(roots['movie_input']),
                 index_root=str(index_root), references=refs,
                 deadline=time.time() + c.get('suite_deadline_seconds', 10000), assignments=assignments(c, 2))
+    if resume_root is not None:
+        plan['resume_root'] = resume_root
     _write(output / 'plan.json', plan); sys.path.insert(0, str(overlay))
     summary = launch_workers(output / 'plan.json', worker_module='rhpr.gr.mini_tiger', event_prefix='mini_tiger')
+    if c.get('calibration_phase') == 'full_plateau':
+        from rhpr.gr.proxy_plateau import summarize
+        return summarize(c, summary['results'], refs, output)
     if c.get('calibration_phase') == 'full_seed_replication':
         from rhpr.gr.proxy_target import correlate_target
         analysis = correlate_target(c, summary['results'], refs)
