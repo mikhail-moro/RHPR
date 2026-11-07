@@ -16,7 +16,10 @@
   model/optimizerrestore+tiny30->60ES/RNGprobe pass.1027tests91skips0fail,
   targeted18pass. Configexperiments/ml1m_proxy_plateau_2t4.json;
   docs/gr-proxy-plateau.md/.preflight;privatecarasik/rhpr-ml1m-proxy-plateau.
-  PreparedforONESUBMISSION;noresults yet,noothercomputeauthorized.
+  SUBMITTEDONCEprivatev1RUNNING,executable64500ca852e7,workflow42366590879
+  successsubmit-only;210embeddedfiles/exactconfig/T4/private/offline/3datasets/
+  3parentsverified. Receiptdocs/gr-proxy-plateau-submission.json. Noresults yet;
+  collectexistingkernelaftercompletion,noresubmit/extraepochs/seeds/Telegram.
 
 
 - User authorization2026-11-07: cheap independent full-TIGER proxy diagnostic.
