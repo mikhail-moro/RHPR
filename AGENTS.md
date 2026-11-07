@@ -20,7 +20,11 @@
   Config experiments/ml1m_proxy_target_replication_2t4.json;
   docs/gr-proxy-target-replication.md andgr-proxy-target-preflight.json.
   Observedquota45.00h GPU;expected1.5–2h session;server135min/suite7500s/
-  perfit2300s. PreparedforONESUBMISSION,no resultsyet,no furthercompute.
+  perfit2300s. SUBMITTEDONCEprivatev1RUNNING,executable5ed498804545,
+  workflow42354986331successsubmit-only;209embeddedfiles/exactconfig/
+  3datasets/2parents/T4/private/offlineverified;receipt
+  docs/gr-proxy-target-submission.json. No resultsyet;collectexistingkernel
+  aftercompletion. No resubmit/extensions/newfits or notifications.
 
 
 - User authorization2026-11-06: projectioncontrol plus additionalfullytrainable

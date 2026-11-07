@@ -1,0 +1,42 @@
+{
+  "source_code_sha": "5ed498804545ea41686eee9eaa8d9f67747be0db",
+  "kernel_metadata_sha256": "7fca2267f3c361bbe7ed652ecf4c3e5120e2a090414a23d3d94c7cd50fa21f1c",
+  "runner_sha256": "e69f47e0931fc3ab59acc9f0db855c34500ee820de76e295f407ec6cf9b9be16",
+  "kernel_id": "carasik/rhpr-ml1m-proxy-target",
+  "kernel_version": 1,
+  "versioned_kernel_id": "carasik/rhpr-ml1m-proxy-target/1",
+  "status": "submitted",
+  "quality_complete": false,
+  "worker_timeout_seconds": 8100,
+  "submitted_at_utc": "2026-11-07T08:19:47.603981+00:00",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42354986331",
+  "workflow_id": 42354986331,
+  "artifact_id": 13566294464,
+  "observed_status": "RUNNING",
+  "source_audit": {
+    "embedded_files": 209,
+    "source_code_sha": "5ed498804545ea41686eee9eaa8d9f67747be0db",
+    "runner_sha256": "e69f47e0931fc3ab59acc9f0db855c34500ee820de76e295f407ec6cf9b9be16",
+    "exact_config": true,
+    "private": true,
+    "offline": true,
+    "machine_shape": "NvidiaTeslaT4",
+    "datasets": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml1m-clean-mtl-input",
+      "carasik/rhpr-t5-sdpa-runtime"
+    ],
+    "parents": [
+      "carasik/rhpr-ml1m-clean-mtl",
+      "carasik/rhpr-ml1m-clean-mtl-replicates"
+    ]
+  },
+  "preflight": {
+    "tests": 1025,
+    "optional_skips": 91,
+    "failures": 0,
+    "final_targeted_checks": 16,
+    "native_30epoch_probes": 2,
+    "initialization_pin": "4cfe16ae1433c48e8d7aad7531c82af7da3d370f7f5baf25b8d7259d12d39dc6"
+  }
+}
