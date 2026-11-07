@@ -320,6 +320,9 @@ def run_mini_tiger(c, output):
                 deadline=time.time() + c.get('suite_deadline_seconds', 10000), assignments=assignments(c, 2))
     if resume_root is not None:
         plan['resume_root'] = resume_root
+    if c.get('recovery_parent'):
+        from rhpr.gr.proxy_plateau import verify_recovery
+        plan['recovery_root'] = str(verify_recovery(c))
     _write(output / 'plan.json', plan); sys.path.insert(0, str(overlay))
     summary = launch_workers(output / 'plan.json', worker_module='rhpr.gr.mini_tiger', event_prefix='mini_tiger')
     if c.get('calibration_phase') == 'full_plateau':

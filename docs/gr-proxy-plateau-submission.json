@@ -12,7 +12,7 @@
   "workflow_id": 42366590879,
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42366590879",
   "artifact_id": 13571766260,
-  "observed_status": "RUNNING",
+  "observed_status": "ERROR",
   "source_audit": {
     "embedded_files": 210,
     "source_code_sha": "64500ca852e7bc478df3127e3421d661f36bfa12",
@@ -40,5 +40,9 @@
     "actual_epoch30_optimizer_restore": true,
     "native30_to60_resume": true,
     "all_six_checkpoint_metadata_verified": true
-  }
+  },
+  "recoverable_completed_models": 4,
+  "not_started_models": 2,
+  "failure_reason": "Post-fit guard omitted AMP skipped updates from attempted batch accounting",
+  "failure_report": "docs/gr-proxy-plateau-recovery.md"
 }

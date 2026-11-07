@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from rhpr.gr.mini_tiger import validate, protocol_shape
-from rhpr.gr.proxy_plateau import summarize
+from rhpr.gr.proxy_plateau import summarize, validate_completion
 
 
 class ProxyPlateauTests(unittest.TestCase):
@@ -38,6 +38,25 @@ class ProxyPlateauTests(unittest.TestCase):
             self.assertEqual((m['plateau_reached'],m['budget_censored']),(3,3))
             self.assertAlmostEqual(r['estimators']['same_full30']['spearman'],-1.)
             self.assertFalse(m['test_evaluated'])
+
+    def test_amp_skips_count_as_attempted_batches_not_missing_training(self):
+        c=self.config()
+        for epochs,skipped in [(60,0),(65,2),(100,7)]:
+            s=dict(resumed_from_epoch=30,training_epochs=epochs,stopping_reason='early_stopping',
+                   training_examples_per_epoch=151166,optimizer_updates=296*epochs-skipped,amp_skipped_updates=skipped)
+            validate_completion(s,c)
+            s['optimizer_updates']-=1
+            with self.assertRaises(RuntimeError):validate_completion(s,c)
+        s.update(optimizer_updates=296*epochs-7,stopping_reason='time_budget')
+        with self.assertRaises(RuntimeError):validate_completion(s,c)
+
+    def test_recovery_reuses_four_and_only_two_pending_models_can_train(self):
+        c=json.loads((Path(__file__).resolve().parents[1]/'experiments/ml1m_proxy_plateau_finish_2t4.json').read_text());validate(c)
+        done=set(c['recovery_parent']['completed_trials'])
+        self.assertEqual(len(done),4)
+        self.assertEqual({t['index_id'] for t in c['trials'] if t['id'] not in done},{'sum_seed202','gradnorm_seed202'})
+        c['recovery_parent']['completed_trials'].pop()
+        with self.assertRaises(ValueError):validate(c)
 
 
 if __name__=='__main__':unittest.main()

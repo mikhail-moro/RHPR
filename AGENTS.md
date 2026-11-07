@@ -2,6 +2,27 @@
 
 ## Research status
 
+- Failure repair2026-11-07: original plateau kernel64500ca852e7 ERRORafter
+ 4modelsfinished. Post-fitguard incorrectly compared successfulAdamsteps to
+ scheduledbatches;correct invariant updates+AMPskips=ceil(N/batch)*epochs.
+ SUM42/GN42 both60/17760steps/0skip;SUM101100/29593steps/7skips,best80;
+ GN10165/19238steps/2skips,best45. All4meetoperationalES. 202neverstarted.
+ Independentlyreplayed57VALfiles;allmetrics/counts/cases/SIDs match1e-12.
+ Fourlast/bestweightsdownloaded/hashed/metadata verified. Sourcefailedplan/
+ config,4checkpoints+sidecars+57predictions83filespinned. No successmanifest
+ existsforfailedparent;customrecoveryverifiesallpinnedbytes. FailureZIPsaved.
+ FinishONLYoriginal2pending202continuationsfromfull30;copy4finishedmodels
+ withouttraining. Same6matrix,min60/max100,VAL5,patience20,LR.001/FP16/SDPA512.
+ No newseeds/tokenizer/proxyfits/TEST/HPO/hardwarefallback/notifications.
+ Newprivatecarasik/rhpr-ml1m-proxy-plateau-finish preservesfailedv1parent;
+ original3datasets+4existingkernel sources. Suite5500s/perfit5000/server100min;
+ quota41.74h,expected35–85min. Nativeactual65epoch2skiprecoverycopiedallbytes
+ withtrainingfunctionpatchedtofailifcalled. Regression1029tests91skips0fail;
+ targeted20pass. Configml1m_proxy_plateau_finish_2t4.json;docs
+ gr-proxy-plateau-recovery.md/.preflight. PreparedforONEfinishsubmission.
+ Thisrepairs/completestheoriginalsix-modeltask;no repetitionof4completedfits.
+
+
 - User authorization2026-11-07: continue SIX fullTIGERs from epoch30 of private
   carasik/rhpr-ml1m-proxy-target/1 to operational VALplateau. Same seed161803,
   SUM/GradNorm indexes x42/101/202,data/FP16SDPA512/AdamLR.001 unchanged.
@@ -16,10 +37,11 @@
   model/optimizerrestore+tiny30->60ES/RNGprobe pass.1027tests91skips0fail,
   targeted18pass. Configexperiments/ml1m_proxy_plateau_2t4.json;
   docs/gr-proxy-plateau.md/.preflight;privatecarasik/rhpr-ml1m-proxy-plateau.
-  SUBMITTEDONCEprivatev1RUNNING,executable64500ca852e7,workflow42366590879
+  SUBMITTEDONCEprivatev1ERROR,executable64500ca852e7,workflow42366590879
   successsubmit-only;210embeddedfiles/exactconfig/T4/private/offline/3datasets/
-  3parentsverified. Receiptdocs/gr-proxy-plateau-submission.json. Noresults yet;
-  collectexistingkernelaftercompletion,noresubmit/extraepochs/seeds/Telegram.
+  3parentsverified. Receiptdocs/gr-proxy-plateau-submission.json. ERROR due
+  to incorrect post-fit AMP accounting;four validcompletedmodels preserved,
+  two202notstarted. See latest recovery entry;do not repeat completed fits.
 
 
 - User authorization2026-11-07: cheap independent full-TIGER proxy diagnostic.

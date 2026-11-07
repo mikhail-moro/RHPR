@@ -2,6 +2,7 @@
 import copy
 import json
 import random
+import shutil
 from pathlib import Path
 
 import numpy as np
@@ -14,8 +15,17 @@ from rhpr.gr.proxy_target import INDEX_IDS, TARGET_SEED, _stats, validate_target
 
 def validate_plateau(c):
     t=c['training']
+    recovery=c.get('recovery_parent')
+    if recovery and (recovery['kernel']!='carasik/rhpr-ml1m-proxy-plateau'
+            or recovery['source_code_sha']!='64500ca852e7bc478df3127e3421d661f36bfa12'
+            or set(recovery['completed_trials'])!={f'full_{m}_seed{s}_gen161803' for s in [42,101] for m in ['sum','gradnorm']}):
+        raise ValueError('recovery must reuse all four finished42/101 models; only202 may train')
+    if recovery:
+        required={'experiment.json','plan.json'}|{f'trials/{i}/{n}' for i in recovery['completed_trials']
+            for n in ['generator-last.pt','generator-best.pt','generator.json','training-curves.json','training-selection.json','resume-verification.json']}
+        if not required<=set(recovery['files']):raise ValueError('all completed checkpoints and provenance must be pinned')
     if (t['max_epochs']!=100 or t['min_epochs']!=60 or t['patience_epochs']!=20
-            or t['max_seconds']!=5000 or 'scheduler' in t or c['suite_deadline_seconds']!=15500
+            or t['max_seconds']!=5000 or 'scheduler' in t or c['suite_deadline_seconds']!=(5500 if recovery else 15500)
             or c['continuation_parent']['kernel']!='carasik/rhpr-ml1m-proxy-target'
             or c['continuation_parent']['source_code_sha']!='5ed498804545ea41686eee9eaa8d9f67747be0db'
             or set(c['continuation_parent']['artifacts'])!={x['id'] for x in c['trials']}):
@@ -23,9 +33,10 @@ def validate_plateau(c):
     old=copy.deepcopy(c);old['calibration_phase']='full_seed_replication'
     old['training'].update(max_epochs=30,min_epochs=30,patience_epochs=30,max_seconds=2300)
     old['suite_deadline_seconds']=7500
-    old['kaggle']['kernel_sources']=[k for k in old['kaggle']['kernel_sources'] if k!=c['continuation_parent']['kernel']]
+    extra={c['continuation_parent']['kernel']}|({recovery['kernel']} if recovery else set())
+    old['kaggle']['kernel_sources']=[k for k in old['kaggle']['kernel_sources'] if k not in extra]
     validate_target(old)
-    if set(c['kaggle']['kernel_sources'])!={p['kernel'] for p in c['parents'].values()}|{c['continuation_parent']['kernel']}:
+    if set(c['kaggle']['kernel_sources'])!={p['kernel'] for p in c['parents'].values()}|extra:
         raise ValueError('only original frozen-index parents and completed continuation parent may be mounted')
     for row in c['continuation_parent']['artifacts'].values():
         if set(row)!={'generator-last.pt','generator-best.pt','training-curves.json','training-selection.json','generator.json'}:
@@ -46,7 +57,55 @@ def verify_continuation(c):
     return source
 
 
+def verify_recovery(c, input_root=Path('/kaggle/input')):
+    """A failed parent has no run-manifest; pin its exact plan/config and all reused bytes."""
+    parent=c['recovery_parent'];owner,slug=parent['kernel'].split('/')
+    roots=[Path(parent['path'])] if parent.get('path') else []
+    roots += [input_root/slug,input_root/owner/slug,input_root/'notebooks'/owner/slug,input_root/'kernels'/owner/slug]
+    source=next((p for p in roots if (p/'experiment.json').is_file()),None)
+    if source is None and input_root.exists():
+        source=next((p.parent for p in input_root.rglob('experiment.json') if slug in p.parts),None)
+    if source is None:raise FileNotFoundError('failed plateau recovery source is not mounted')
+    for name,expected in parent['files'].items():
+        p=source/name
+        if Path(name).is_absolute() or '..' in Path(name).parts or not p.resolve().is_relative_to(source.resolve()):raise ValueError('unsafe recovery path')
+        if p.stat().st_size!=expected['size_bytes'] or file_sha256(p)!=expected['sha256']:raise ValueError('recovery bytes changed: '+name)
+    old=json.loads((source/'experiment.json').read_text());validate_plateau(old)
+    for k in ['seed','data','generator','training','proxy_reference','index_ids','trials']:
+        if old[k]!=c[k]:raise ValueError('recovery changes '+k)
+    return source
+
+
+def validate_completion(selection,c):
+    expected=((selection['training_examples_per_epoch']+c['training']['batch_size']-1)
+              //c['training']['batch_size'])*selection['training_epochs']
+    # The engine counts successful Adam steps separately from GradScaler skips.
+    skipped=selection['amp_skipped_updates']
+    if (selection['resumed_from_epoch']!=30 or not 60<=selection['training_epochs']<=100
+            or selection['stopping_reason'] not in ['early_stopping','epoch_limit']
+            or not 0<=skipped<=16 or selection['optimizer_updates']+skipped!=expected):
+        raise RuntimeError('continuation incomplete; do not report a budget exit as plateau')
+
+
+def record_trial(trial,c,out,initial,selection,**extra):
+    validate_completion(selection,c)
+    curves=json.loads((out/'training-curves.json').read_text())
+    row=dict(trial=trial['id'],architecture='full',index_id=trial['index_id'],seed=trial['seed'],
+        initialization_group=f"full_{trial['seed']}",initial_state_sha256=initial,selection=selection,
+        plateau_reached=selection['stopping_reason']=='early_stopping',budget_censored=selection['stopping_reason']=='epoch_limit',
+        epochs={str(x['epoch']):x['validation']['ndcg@10'] for x in curves if 'validation' in x},**extra)
+    _write(out/'trial-result.json',row);return row
+
+
 def run_trial(trial,c,plan,device):
+    out=Path(plan['output'])/'trials'/trial['id'];out.mkdir(parents=True,exist_ok=True)
+    if trial['id'] in c.get('recovery_parent',{}).get('completed_trials',[]):
+        source=Path(plan['recovery_root'])/'trials'/trial['id']
+        for name in c['recovery_parent']['files']:
+            if Path(name).parent==Path('trials')/trial['id']:shutil.copyfile(Path(plan['recovery_root'])/name,out/Path(name).name)
+        selection=json.loads((out/'training-selection.json').read_text());g=json.loads((out/'generator.json').read_text())
+        if g['initial_state_sha256']!=c['initialization_pins']['full'][str(trial['seed'])] or g['sids_sha256']!=plan['references'][trial['index_id']]['sids_sha256']:raise ValueError('recovered generator differs')
+        return record_trial(trial,c,out,g['initial_state_sha256'],selection,reused_completed=True,recovery_kernel=c['recovery_parent']['kernel'],new_training_updates=0)
     import torch
     from rhpr.gr.grid import build_grid_generator
     from rhpr.gr.sid import SidIndex
@@ -63,18 +122,7 @@ def run_trial(trial,c,plan,device):
         initial_state_sha256=initial,sids_sha256=file_sha256(sid),frozen_index=True,resumed=True,test_evaluated=False))
     source=Path(plan['resume_root'])/'trials'/trial['id']
     selection=_train_generator(model,plan['data_root'],index,c,out,device,example_builder=case_examples,resume_from=source)
-    expected_updates=((selection['training_examples_per_epoch']+c['training']['batch_size']-1)
-                      //c['training']['batch_size'])*selection['training_epochs']
-    if (selection['resumed_from_epoch']!=30 or selection['training_epochs']<60
-            or selection['stopping_reason'] not in ['early_stopping','epoch_limit']
-            or selection['optimizer_updates']!=expected_updates):
-        raise RuntimeError('continuation incomplete; do not report a budget exit as plateau')
-    curves=json.loads((out/'training-curves.json').read_text())
-    row=dict(trial=trial['id'],architecture='full',index_id=trial['index_id'],seed=seed,
-        initialization_group=f'full_{seed}',initial_state_sha256=initial,selection=selection,
-        plateau_reached=selection['stopping_reason']=='early_stopping',budget_censored=selection['stopping_reason']=='epoch_limit',
-        epochs={str(x['epoch']):x['validation']['ndcg@10'] for x in curves if 'validation' in x})
-    _write(out/'trial-result.json',row);return row
+    return record_trial(trial,c,out,initial,selection,reused_completed=False)
 
 
 def summarize(c,records,refs,output):
