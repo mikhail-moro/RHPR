@@ -26,12 +26,19 @@ best checkpoint,95Adam state entries and1CUDA RNG agree with metadata. No full
 experiment metrics or run-manifest exists because the suite aborted.
 
 New private kernel carasik/rhpr-ml1m-proxy-plateau-finish preserves the failed
-notebook as an immutable parent. Original three datasets and original three
-kernel sources remain;add only this existing failed parent. Its exact plan,
-experiment,4last/best checkpoints,sidecars and57predictions(83files total) are
-size/SHA256 pinned. Failed-parent verification uses these pins because no success
-manifest exists. Recover/copy all4models without invoking training;continue ONLY
-SUM202 andGradNorm202 from the ORIGINAL full30 source with exactoptimizer/RNG.
+notebook output. The first dispatch42376103455 at3ec6719d was rejected by SaveKernel
+HTTP400 before a session/version or GPU work was created. It attempted to attach
+this failed output as a fourth kernel source;the response did not expose a detailed
+cause. Revised deployment retains only the original three successful kernel sources.
+The failed source plan,experiment,4last/best checkpoints,sidecars and57predictions
+(83files total) remain size/SHA256 pinned as provenance. Their already verified
+selection/curve/generator records are embedded in the private config as external
+completed results. Weights and predictions stay in the original private failed
+kernel and local evidenceZIP;they are not silently claimed as newly generated or
+copied into the finish kernel. Final CPU analysis joins these existing57prediction
+files with the new202outputs. Recovery writes explicit external-checkpoint-reference
+sidecars. Continue ONLY SUM202 andGradNorm202 from the ORIGINAL full30 source with
+exactoptimizer/RNG.
 Same six-model final matrix,min60/max100,VAL5,patience20,LR.001,FP16SDPA512.
 No new seeds,tokenizer/proxy fits,TEST,HPO,hardware fallback or repeated completed
 training. This completes the originally authorized six models,not a new sweep.
@@ -46,3 +53,5 @@ model and all pinned sidecars/predictions bit-for-bit while a patched training
 function would raise if called. Original FP32 continuation/RNGprobe remains valid;
 no model-training code changed in this fix. Source and submission receipt identify
 the new deployment;original failed evidence is retained separately.
+
+External-reference regression also forbids model construction or training for all four reused results. This fallback uploads no new dataset and repeats no completed training.

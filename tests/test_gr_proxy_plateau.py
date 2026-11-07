@@ -58,5 +58,18 @@ class ProxyPlateauTests(unittest.TestCase):
         c['recovery_parent']['completed_trials'].pop()
         with self.assertRaises(ValueError):validate(c)
 
+    def test_external_completed_results_do_not_construct_or_train_models(self):
+        import tempfile
+        from unittest.mock import patch
+        from rhpr.gr.proxy_plateau import run_trial
+        c=json.loads((Path(__file__).resolve().parents[1]/'experiments/ml1m_proxy_plateau_finish_2t4.json').read_text())
+        with tempfile.TemporaryDirectory() as d,patch('rhpr.gr.proxy_plateau._train_generator',side_effect=AssertionError('must reuse')),patch('rhpr.gr.grid.build_grid_generator',side_effect=AssertionError('must not construct')):
+            for t in c['trials']:
+                if t['id'] not in c['recovery_parent']['completed_trials']:continue
+                r=run_trial(t,c,dict(output=d),'cpu')
+                self.assertTrue(r['external_artifacts'])
+                self.assertEqual(r['new_training_updates'],0)
+                self.assertEqual(r['selection'],c['recovery_parent']['external_records'][t['id']]['selection'])
+
 
 if __name__=='__main__':unittest.main()

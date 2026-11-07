@@ -4,5 +4,11 @@
   "new_training_updates": 0,
   "all_pinned_files_preserved": true,
   "verified_prediction_files": 57,
-  "four_completed_checkpoints_verified": true
+  "four_completed_checkpoints_verified": true,
+  "external_completed_results": 4,
+  "external_model_construction_forbidden": true,
+  "only_pending_202_train": true,
+  "first_finish_workflow": 42376103455,
+  "first_finish_submission_rejected_http": 400,
+  "first_finish_gpu_started": false
 }

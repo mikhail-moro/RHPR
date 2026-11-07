@@ -11,15 +11,20 @@
  Fourlast/bestweightsdownloaded/hashed/metadata verified. Sourcefailedplan/
  config,4checkpoints+sidecars+57predictions83filespinned. No successmanifest
  existsforfailedparent;customrecoveryverifiesallpinnedbytes. FailureZIPsaved.
- FinishONLYoriginal2pending202continuationsfromfull30;copy4finishedmodels
- withouttraining. Same6matrix,min60/max100,VAL5,patience20,LR.001/FP16/SDPA512.
+ FinishONLYoriginal2pending202continuationsfromfull30;reuse4finishedmodels
+ withoutexecution;weights/predictionsremaininoriginalfailedkernel/evidenceZIP. Same6matrix,min60/max100,VAL5,patience20,LR.001/FP16/SDPA512.
  No newseeds/tokenizer/proxyfits/TEST/HPO/hardwarefallback/notifications.
  Newprivatecarasik/rhpr-ml1m-proxy-plateau-finish preservesfailedv1parent;
- original3datasets+4existingkernel sources. Suite5500s/perfit5000/server100min;
+ original3datasets+3successfulkernel sources. Suite5500s/perfit5000/server100min;
  quota41.74h,expected35–85min. Nativeactual65epoch2skiprecoverycopiedallbytes
- withtrainingfunctionpatchedtofailifcalled. Regression1029tests91skips0fail;
- targeted20pass. Configml1m_proxy_plateau_finish_2t4.json;docs
- gr-proxy-plateau-recovery.md/.preflight. PreparedforONEfinishsubmission.
+ withtrainingfunctionpatchedtofailifcalled. Regression1030tests91skips0fail;
+ targeted21pass;all4externalbranchesforbidmodelconstruction/training. Configml1m_proxy_plateau_finish_2t4.json;docs
+ gr-proxy-plateau-recovery.md/.preflight. FirstfinishCI42376103455 at3ec6719d
+ rejectedbySaveKernelHTTP400beforeanysession/GPU(no detailedcause). Revised
+ configremovesthefailedfourthinputandembedsverified4selection/curverecords,
+ with83originalartifacthashesandexternal-checkpointreferences. Only2pending
+ 202modelstrain;finalCPUreplayjoins4original+2newpredictions. Preparedfor
+ onecorrectedsubmission;no completedtraining repeated.
  Thisrepairs/completestheoriginalsix-modeltask;no repetitionof4completedfits.
 
 

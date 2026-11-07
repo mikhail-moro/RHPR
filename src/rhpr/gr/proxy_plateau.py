@@ -33,7 +33,7 @@ def validate_plateau(c):
     old=copy.deepcopy(c);old['calibration_phase']='full_seed_replication'
     old['training'].update(max_epochs=30,min_epochs=30,patience_epochs=30,max_seconds=2300)
     old['suite_deadline_seconds']=7500
-    extra={c['continuation_parent']['kernel']}|({recovery['kernel']} if recovery else set())
+    extra={c['continuation_parent']['kernel']}|({recovery['kernel']} if recovery and not recovery.get('external_records') else set())
     old['kaggle']['kernel_sources']=[k for k in old['kaggle']['kernel_sources'] if k not in extra]
     validate_target(old)
     if set(c['kaggle']['kernel_sources'])!={p['kernel'] for p in c['parents'].values()}|extra:
@@ -41,6 +41,17 @@ def validate_plateau(c):
     for row in c['continuation_parent']['artifacts'].values():
         if set(row)!={'generator-last.pt','generator-best.pt','training-curves.json','training-selection.json','generator.json'}:
             raise ValueError('complete optimizer/RNG checkpoint and provenance must be pinned')
+    if recovery and recovery.get('external_records'):
+        records=recovery['external_records']
+        if set(records)!=set(recovery['completed_trials']):raise ValueError('all four external results are required')
+        for tid,r in records.items():
+            validate_completion(r['selection'],c)
+            i=r['index_id'];seed=i.split('_seed')[1]
+            if (r['trial']!=tid or r['initial_state_sha256']!=c['initialization_pins']['full'][str(TARGET_SEED)]
+                    or r['generator']['sids_sha256']!=c['parents'][seed]['artifacts'][i]['semantic-ids.npy']):
+                raise ValueError('external result initializer/index changed')
+            if max(x['validation']['ndcg@10'] for x in r['training_curves'] if 'validation' in x)!=r['selection']['validation_ndcg10']:
+                raise ValueError('external result selection changed')
 
 
 def verify_continuation(c):
@@ -60,6 +71,9 @@ def verify_continuation(c):
 def verify_recovery(c, input_root=Path('/kaggle/input')):
     """A failed parent has no run-manifest; pin its exact plan/config and all reused bytes."""
     parent=c['recovery_parent'];owner,slug=parent['kernel'].split('/')
+    if parent.get('external_records'):
+        validate_plateau(c)
+        return 'external-verified-results-checkpoints-remain-in-original-kernel'
     roots=[Path(parent['path'])] if parent.get('path') else []
     roots += [input_root/slug,input_root/owner/slug,input_root/'notebooks'/owner/slug,input_root/'kernels'/owner/slug]
     source=next((p for p in roots if (p/'experiment.json').is_file()),None)
@@ -100,6 +114,11 @@ def record_trial(trial,c,out,initial,selection,**extra):
 def run_trial(trial,c,plan,device):
     out=Path(plan['output'])/'trials'/trial['id'];out.mkdir(parents=True,exist_ok=True)
     if trial['id'] in c.get('recovery_parent',{}).get('completed_trials',[]):
+        external=c['recovery_parent'].get('external_records',{}).get(trial['id'])
+        if external:
+            for name,key in [('generator.json','generator'),('training-curves.json','training_curves'),('training-selection.json','selection'),('resume-verification.json','resume_verification')]:_write(out/name,external[key])
+            _write(out/'external-checkpoint-reference.json',dict(kernel=c['recovery_parent']['kernel'],version=1,trial=trial['id'],source_code_sha=c['recovery_parent']['source_code_sha'],files={n:v for n,v in c['recovery_parent']['files'].items() if n.startswith('trials/'+trial['id']+'/')},weights_and_predictions_in_original_parent=True))
+            return record_trial(trial,c,out,external['initial_state_sha256'],external['selection'],reused_completed=True,recovery_kernel=c['recovery_parent']['kernel'],new_training_updates=0,external_artifacts=True)
         source=Path(plan['recovery_root'])/'trials'/trial['id']
         for name in c['recovery_parent']['files']:
             if Path(name).parent==Path('trials')/trial['id']:shutil.copyfile(Path(plan['recovery_root'])/name,out/Path(name).name)
