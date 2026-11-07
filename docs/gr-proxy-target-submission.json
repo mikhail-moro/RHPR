@@ -6,13 +6,13 @@
   "kernel_version": 1,
   "versioned_kernel_id": "carasik/rhpr-ml1m-proxy-target/1",
   "status": "submitted",
-  "quality_complete": false,
+  "quality_complete": true,
   "worker_timeout_seconds": 8100,
   "submitted_at_utc": "2026-11-07T08:19:47.603981+00:00",
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42354986331",
   "workflow_id": 42354986331,
   "artifact_id": 13566294464,
-  "observed_status": "RUNNING",
+  "observed_status": "COMPLETE",
   "source_audit": {
     "embedded_files": 209,
     "source_code_sha": "5ed498804545ea41686eee9eaa8d9f67747be0db",
@@ -38,5 +38,7 @@
     "final_targeted_checks": 16,
     "native_30epoch_probes": 2,
     "initialization_pin": "4cfe16ae1433c48e8d7aad7531c82af7da3d370f7f5baf25b8d7259d12d39dc6"
-  }
+  },
+  "completed_fits": 6,
+  "results_report": "docs/gr-proxy-target-results.md"
 }

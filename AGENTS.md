@@ -23,8 +23,19 @@
   perfit2300s. SUBMITTEDONCEprivatev1RUNNING,executable5ed498804545,
   workflow42354986331successsubmit-only;209embeddedfiles/exactconfig/
   3datasets/2parents/T4/private/offlineverified;receipt
-  docs/gr-proxy-target-submission.json. No resultsyet;collectexistingkernel
-  aftercompletion. No resubmit/extensions/newfits or notifications.
+  docs/gr-proxy-target-submission.json. COMPLETE6/6fits,93.343min,all30epochs/
+  8880updates/6VAL/0AMPskips. Same6indices mini-oldfullrho.8857 becomes
+  mini-newfull-.0286;old/newfull.2571;earlynewfull10/new30.0286. Mini selects
+  SUM202(.065194),newwinnerGN202(.070583),regret.005390/7.64%;paireduserCI
+  [-.001107,.012239]cross0(fixedmodels,posthocpair,no seed/selectioncorrection).
+  Mini top3retainswinner,notstrongwith6candidates. Fournewbestepochs30;
+  no convergenceclaim. Posthoclate-meanrho.486,twofullseedmean.657;not new
+  confirmation. SameVAL/relatedindices;oldfullseeds coupledtoindexseedgroups,
+  newcommon161803. No validatedportableproxy or isolatedarchitecturefailure.
+  Independent54predictionreplays(36new+12mini+6oldfull),allmetrics/pins/budgets
+  exact. Meanfullfit30.44min,epoch58.61s. Reportsgr-proxy-target-results.md/
+  .json,replayanalyze_proxy_target.py,plots/numericalevidenceZIPsaved.
+  No GPUresults pending. No additionalruns/extensions/HPO/notifications.
 
 
 - User authorization2026-11-06: projectioncontrol plus additionalfullytrainable
