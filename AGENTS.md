@@ -2,6 +2,32 @@
 
 ## Research status
 
+- Plateau followup COMPLETE,collected2026-11-07,no newGPU/TEST. Finishprivate
+ carasik/rhpr-ml1m-proxy-plateau-finish/1(ac6b5de04dc4) completed2pending202
+ fitsin56.119min;reuse4fromfailed64500ca852e7 unchanged. All6meetoperational
+ ES min60/max100/VAL5/patience20;0censored,notproofglobalconvergence.
+ Best/stop:SUM42 40/60,GN42 30/60,SUM10180/100,GN10145/65,SUM20265/85,
+ GN20245/65. Total435epochs,16AMPskips;counterupdates+skips=296*epochverified.
+ FullselectedVAL .069266/.065429/.070717/.066399/.069456/.072976 inindexorder;
+ meanperindexgainvsbestfirst30+2.54%(selectedVAL,notTESTgain).
+ Mini2seed10 ->fixed30rho-.0286,->bestwithin30.4286,->ESselected.4286.
+ Fixed30->ESselected-.0857;bestwithin30->ESselected.7714. Earlybest15->ES.6571,
+ best20->ES.8286. Epoch25fixedhappens.9429,posthoc,norecipeclaim. Prior
+ fixed30failuredoesnotestablishuniversalproxyfailure;newselectedtargetdiffers.
+ MiniSUM202selected.069456 vsGN202best.072976,regret.003520/4.82%,rank3/6;
+ paireduserCI[-.004163,.010996]cross0;rhoCI[-.5429,.8857],fixedselectedmodels,
+ excludesseed/checkpoint-selection uncertainty. WithinSUM/GN3indexrho-.5/.5.
+ Onefullseed/sixrelatedexaminedindexes/sameVAL,no portableproxyestablished.
+ Independent105predictionsreplayed:87full(57old4+30new202inclhistory),12mini,
+ 6historicalfull;allmetrics/pins/cases/RNG/worker/reuseflagsmatch1e-12.
+ Meanfulltotalfit73.34min/index,mini2~13.36min,earlyfull15~15.14min(training+
+ recordedrankingvalidationbasis);no measuredsearchspeedupclaim.
+ Reportsdocs/gr-proxy-plateau-results.md/.json,replayanalyze_proxy_plateau.py,
+ plots/evidenceZIPsaved. Full1032tests91optional skips0fail;CPUreplaypassed.
+ FinishreceiptCOMPLETE/quality_complete;originalfailedjobremainsERROR.
+ No models/results pending. No additionalruns/epochs/HPO/retries/Telegram.
+
+
 - Failure repair2026-11-07: original plateau kernel64500ca852e7 ERRORafter
  4modelsfinished. Post-fitguard incorrectly compared successfulAdamsteps to
  scheduledbatches;correct invariant updates+AMPskips=ceil(N/batch)*epochs.

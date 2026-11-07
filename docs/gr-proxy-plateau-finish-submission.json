@@ -6,13 +6,13 @@
   "kernel_version": 1,
   "versioned_kernel_id": "carasik/rhpr-ml1m-proxy-plateau-finish/1",
   "status": "submitted",
-  "quality_complete": false,
+  "quality_complete": true,
   "worker_timeout_seconds": 6000,
   "submitted_at_utc": "2026-11-07T13:32:00.360857+00:00",
   "workflow_id": 42377368093,
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42377368093",
   "artifact_id": 13576157028,
-  "observed_status": "RUNNING",
+  "observed_status": "COMPLETE",
   "source_audit": {
     "embedded_files": 210,
     "source_code_sha": "ac6b5de04dc492fce22af3e885bdc190c1d7bd7b",
@@ -52,5 +52,8 @@
     "packaging_recovery_checks": 11,
     "replayed_recovered_predictions": 57,
     "all_four_completed_models_never_retrained": true
-  }
+  },
+  "completed_models": 6,
+  "newly_trained_models": 2,
+  "results_report": "docs/gr-proxy-plateau-results.md"
 }
