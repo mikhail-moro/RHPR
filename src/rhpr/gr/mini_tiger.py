@@ -37,6 +37,13 @@ REDUCED_ARCHITECTURES = {
 }
 ALL_ARCHITECTURES = {**ARCHITECTURES, **REDUCED_ARCHITECTURES}
 ALL_ARCHITECTURES['full'] = {}
+MIDDLE_ARCHITECTURES = {
+    'middle_width': dict(encoder_layers=4, decoder_layers=4, d_model=96,
+                         d_ff=768, num_heads=6, d_kv=48),
+    'half_depth': dict(encoder_layers=2, decoder_layers=2, d_model=128,
+                       d_ff=1024, num_heads=6, d_kv=64),
+}
+ALL_ARCHITECTURES.update(MIDDLE_ARCHITECTURES)
 
 
 def protocol_shape(c):
@@ -51,10 +58,15 @@ def protocol_shape(c):
         return ['full'], [42, 101, 202], 30
     if phase == 'full_plateau':
         return ['full'], [42, 101, 202], 100
+    if phase == 'middle_architectures':
+        return list(MIDDLE_ARCHITECTURES), [42, 101, 202], 10
     raise ValueError('unknown mini-TIGER calibration phase')
 
 
 def validate(c):
+    if c.get('calibration_phase') == 'middle_architectures':
+        from rhpr.gr.proxy_architectures import validate_middle
+        return validate_middle(c)
     if c.get('calibration_phase') == 'full_plateau':
         from rhpr.gr.proxy_plateau import validate_plateau
         return validate_plateau(c)
@@ -325,6 +337,9 @@ def run_mini_tiger(c, output):
         plan['recovery_root'] = str(verify_recovery(c))
     _write(output / 'plan.json', plan); sys.path.insert(0, str(overlay))
     summary = launch_workers(output / 'plan.json', worker_module='rhpr.gr.mini_tiger', event_prefix='mini_tiger')
+    if c.get('calibration_phase') == 'middle_architectures':
+        from rhpr.gr.proxy_architectures import summarize_middle
+        return summarize_middle(c, summary['results'], output)
     if c.get('calibration_phase') == 'full_plateau':
         from rhpr.gr.proxy_plateau import summarize
         return summarize(c, summary['results'], refs, output)

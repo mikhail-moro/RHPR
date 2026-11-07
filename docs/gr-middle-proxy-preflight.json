@@ -1,0 +1,26 @@
+{
+  "initialization_pins": {
+    "middle_width": {
+      "31415": "963687609a3471023b5685ccce39bca47df712556ac6c0824e888398d915c9cd",
+      "27182": "77cea05d30baede199601bccad780c577db2799f7d8030af1d3840c919d7c570"
+    },
+    "half_depth": {
+      "31415": "ad87ba17e3f8e31e0f6ec409219996ba3efde53ec8649bcd3c9b534d2103ed6f",
+      "27182": "3d1b36114fc59c6aa18234022349278e74f1a7a08db7ffc890388a902d4acdee"
+    }
+  },
+  "parameters": {
+    "middle_width": 2897952,
+    "half_depth": 2748416
+  },
+  "all24_initializers_verified": true,
+  "native_probes": 4,
+  "epochs": 10,
+  "validation_checks": 2,
+  "case_hashes_verified": true,
+  "worker_jobs": [
+    12,
+    12
+  ],
+  "plateau_reference_sha256": "2d75a97f8fe44720e2c7fabe29e865a261533f1cffe7e2056af4d6551a2ee124"
+}

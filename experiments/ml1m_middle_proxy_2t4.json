@@ -1,0 +1,658 @@
+{
+  "seed": 31415,
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-middle-proxy"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false,
+    "attn_implementation": "sdpa"
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 1,
+    "batch_size": 512,
+    "physical_batch_size": 512,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 10,
+    "min_epochs": 10,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 32,
+    "max_seconds": 1200,
+    "sampling": "precomputed_raw_clean_windows",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 10
+  },
+  "name": "ml1m-middle-proxy-architectures",
+  "kind": "gr_mini_tiger",
+  "data": {
+    "split": "raw_contiguous_20_val_test",
+    "items": 2874,
+    "users": 2786,
+    "train_examples": 151166,
+    "case_sha256": {
+      "train": "28339b91f7d22ee78d3eed6e3c00cbd393ecc62e487fe63f74da65fac3937e5b",
+      "validation": "ee9cf5402dbfeae46f669c731fa795939d67e4b9779481102cd30802add27009",
+      "test": "daac961764086cc8966df2afdf1596c8a06774e032b05fade715a10cb94e8fed"
+    },
+    "version": "ML1M-TMDB-Zenodo-clean-original-timeline",
+    "history_items": 20
+  },
+  "movie_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-ml1m-clean-mtl-input",
+    "manifest_sha256": "023d2b52dd8a12553d1dcf24a8a3e9a59f22983ad3cd0b768c7da6318aa98c16"
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "evaluation": {
+    "test_after_selection": false,
+    "save_validation_predictions": true,
+    "selection_metric": "validation item NDCG@10",
+    "save_validation_losses": true
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml1m-clean-mtl-input",
+      "carasik/rhpr-t5-sdpa-runtime"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-ml1m-clean-mtl",
+      "carasik/rhpr-ml1m-clean-mtl-replicates"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "modern_runtime": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-t5-sdpa-runtime",
+    "manifest_sha256": "18f4688aab798d792d9204d1c018d8aba7da80bc97f5aadcdd181b34f6f0b9f6"
+  },
+  "generator_seeds": [
+    31415,
+    27182
+  ],
+  "compare_initialization_by_shape": true,
+  "index_ids": [
+    "sum_seed42",
+    "gradnorm_seed42",
+    "sum_seed101",
+    "gradnorm_seed101",
+    "sum_seed202",
+    "gradnorm_seed202"
+  ],
+  "trials": [
+    {
+      "id": "middle_width_sum_seed42_gen31415",
+      "architecture": "middle_width",
+      "index_id": "sum_seed42",
+      "seed": 31415
+    },
+    {
+      "id": "middle_width_sum_seed42_gen27182",
+      "architecture": "middle_width",
+      "index_id": "sum_seed42",
+      "seed": 27182
+    },
+    {
+      "id": "middle_width_gradnorm_seed42_gen31415",
+      "architecture": "middle_width",
+      "index_id": "gradnorm_seed42",
+      "seed": 31415
+    },
+    {
+      "id": "middle_width_gradnorm_seed42_gen27182",
+      "architecture": "middle_width",
+      "index_id": "gradnorm_seed42",
+      "seed": 27182
+    },
+    {
+      "id": "middle_width_sum_seed101_gen31415",
+      "architecture": "middle_width",
+      "index_id": "sum_seed101",
+      "seed": 31415
+    },
+    {
+      "id": "middle_width_sum_seed101_gen27182",
+      "architecture": "middle_width",
+      "index_id": "sum_seed101",
+      "seed": 27182
+    },
+    {
+      "id": "middle_width_gradnorm_seed101_gen31415",
+      "architecture": "middle_width",
+      "index_id": "gradnorm_seed101",
+      "seed": 31415
+    },
+    {
+      "id": "middle_width_gradnorm_seed101_gen27182",
+      "architecture": "middle_width",
+      "index_id": "gradnorm_seed101",
+      "seed": 27182
+    },
+    {
+      "id": "middle_width_sum_seed202_gen31415",
+      "architecture": "middle_width",
+      "index_id": "sum_seed202",
+      "seed": 31415
+    },
+    {
+      "id": "middle_width_sum_seed202_gen27182",
+      "architecture": "middle_width",
+      "index_id": "sum_seed202",
+      "seed": 27182
+    },
+    {
+      "id": "middle_width_gradnorm_seed202_gen31415",
+      "architecture": "middle_width",
+      "index_id": "gradnorm_seed202",
+      "seed": 31415
+    },
+    {
+      "id": "middle_width_gradnorm_seed202_gen27182",
+      "architecture": "middle_width",
+      "index_id": "gradnorm_seed202",
+      "seed": 27182
+    },
+    {
+      "id": "half_depth_sum_seed42_gen31415",
+      "architecture": "half_depth",
+      "index_id": "sum_seed42",
+      "seed": 31415
+    },
+    {
+      "id": "half_depth_sum_seed42_gen27182",
+      "architecture": "half_depth",
+      "index_id": "sum_seed42",
+      "seed": 27182
+    },
+    {
+      "id": "half_depth_gradnorm_seed42_gen31415",
+      "architecture": "half_depth",
+      "index_id": "gradnorm_seed42",
+      "seed": 31415
+    },
+    {
+      "id": "half_depth_gradnorm_seed42_gen27182",
+      "architecture": "half_depth",
+      "index_id": "gradnorm_seed42",
+      "seed": 27182
+    },
+    {
+      "id": "half_depth_sum_seed101_gen31415",
+      "architecture": "half_depth",
+      "index_id": "sum_seed101",
+      "seed": 31415
+    },
+    {
+      "id": "half_depth_sum_seed101_gen27182",
+      "architecture": "half_depth",
+      "index_id": "sum_seed101",
+      "seed": 27182
+    },
+    {
+      "id": "half_depth_gradnorm_seed101_gen31415",
+      "architecture": "half_depth",
+      "index_id": "gradnorm_seed101",
+      "seed": 31415
+    },
+    {
+      "id": "half_depth_gradnorm_seed101_gen27182",
+      "architecture": "half_depth",
+      "index_id": "gradnorm_seed101",
+      "seed": 27182
+    },
+    {
+      "id": "half_depth_sum_seed202_gen31415",
+      "architecture": "half_depth",
+      "index_id": "sum_seed202",
+      "seed": 31415
+    },
+    {
+      "id": "half_depth_sum_seed202_gen27182",
+      "architecture": "half_depth",
+      "index_id": "sum_seed202",
+      "seed": 27182
+    },
+    {
+      "id": "half_depth_gradnorm_seed202_gen31415",
+      "architecture": "half_depth",
+      "index_id": "gradnorm_seed202",
+      "seed": 31415
+    },
+    {
+      "id": "half_depth_gradnorm_seed202_gen27182",
+      "architecture": "half_depth",
+      "index_id": "gradnorm_seed202",
+      "seed": 27182
+    }
+  ],
+  "initialization_pins": {
+    "middle_width": {
+      "31415": "963687609a3471023b5685ccce39bca47df712556ac6c0824e888398d915c9cd",
+      "27182": "77cea05d30baede199601bccad780c577db2799f7d8030af1d3840c919d7c570"
+    },
+    "half_depth": {
+      "31415": "ad87ba17e3f8e31e0f6ec409219996ba3efde53ec8649bcd3c9b534d2103ed6f",
+      "27182": "3d1b36114fc59c6aa18234022349278e74f1a7a08db7ffc890388a902d4acdee"
+    }
+  },
+  "parents": {
+    "42": {
+      "kernel": "carasik/rhpr-ml1m-clean-mtl",
+      "source_code_sha": "20a4c08534cd6853e3fd64340f2dc429e6bed3a6",
+      "files": {
+        "run-manifest.json": {
+          "size_bytes": 6293,
+          "sha256": "ba4f9101f192a11c6b6d8bec0eedb64f9a55a9849b304334c84d04c60eae56e8"
+        },
+        "plan.json": {
+          "size_bytes": 35504,
+          "sha256": "87d964c96081afaf627743e709632578844a53e9e408155368786d8316b54447"
+        }
+      },
+      "artifacts": {
+        "sum_seed42": {
+          "semantic-ids.npy": "0bbbdce1bfb853cafd42f9c01a3b1d628769ab9945950013a104895fc95ed829",
+          "training-curves.json": "3b86db87bfae97e6095544d34dec39a2f0c92bfc4b00d7c20a56d6cd5b4e5ff3",
+          "training-selection.json": "6be908e930c116aa3033497b259e8259c51f4d0654170a28f1671dd01df26c97",
+          "generator.json": "be2a99c319d6505a11dc875ca02ee1e36a5f8cb2461bb0c74a108a5b74b19360"
+        },
+        "gradnorm_seed42": {
+          "semantic-ids.npy": "e45ca975b1c56e3aeb5863bdfd66475afc3b1a8d1c29a15f3e0ddf9c3bb59555",
+          "training-curves.json": "15fc3f394e8e87e6f4326ee113a7c26ab895e3ba8469ae74703735db23029e36",
+          "training-selection.json": "1108fd38a2911f0944733893c367d12e10b5d81f1006544f69576717405990e4",
+          "generator.json": "be2a99c319d6505a11dc875ca02ee1e36a5f8cb2461bb0c74a108a5b74b19360"
+        }
+      }
+    },
+    "101": {
+      "kernel": "carasik/rhpr-ml1m-clean-mtl-replicates",
+      "source_code_sha": "fc2a62bdd57af294caadd939bf1bbbda2de7032f",
+      "files": {
+        "run-manifest.json": {
+          "size_bytes": 7218,
+          "sha256": "5bbdebfab30c6bd503f75aa1b5ef718008d56d29d17fa159170fe4598de4a1c4"
+        },
+        "plan.json": {
+          "size_bytes": 37373,
+          "sha256": "b47e208a26ca960db1d38a8b64b331387529a93d8146331bedd4fd04f6655e20"
+        }
+      },
+      "artifacts": {
+        "sum_seed101": {
+          "semantic-ids.npy": "be2b69775171017bdd11f5b95dcf42a26fd9024669c76d758a0e2b019aaa4722",
+          "training-curves.json": "c56fe82616c4cec8cece4e96d6bc593ae0465e1bcb9c5939c529e24dd82a5ca5",
+          "training-selection.json": "a63efa0d5a1ab0db478408465038ef6c31c378dcadb4cdae94c334b831d715f1",
+          "generator.json": "37561eb54598d7af9ea4a674b55bbf6fcc51b27b6ca511e5eaa0e3326bd433a2"
+        },
+        "gradnorm_seed101": {
+          "semantic-ids.npy": "edcbc7c920572a909f9699fae08f475846d5a5e8bf24aaa2c232397eece54af9",
+          "training-curves.json": "7c82182f0235c89799d169d3c1858e80449c5c0706048f43b8d93dccff066f50",
+          "training-selection.json": "9c5443686da73e2fb47320ea07397c9c039fd64b9dc80bfec9cd3dccc053fa74",
+          "generator.json": "37561eb54598d7af9ea4a674b55bbf6fcc51b27b6ca511e5eaa0e3326bd433a2"
+        }
+      }
+    },
+    "202": {
+      "kernel": "carasik/rhpr-ml1m-clean-mtl-replicates",
+      "source_code_sha": "fc2a62bdd57af294caadd939bf1bbbda2de7032f",
+      "files": {
+        "run-manifest.json": {
+          "size_bytes": 7218,
+          "sha256": "5bbdebfab30c6bd503f75aa1b5ef718008d56d29d17fa159170fe4598de4a1c4"
+        },
+        "plan.json": {
+          "size_bytes": 37373,
+          "sha256": "b47e208a26ca960db1d38a8b64b331387529a93d8146331bedd4fd04f6655e20"
+        }
+      },
+      "artifacts": {
+        "sum_seed202": {
+          "semantic-ids.npy": "9088a815160b9b38f875ae3e81e43dd30fabe8feee3f6c5cfcaabe43ff391a17",
+          "training-curves.json": "7a7742a456443d4cee285a752791b9a74f1d5a8f746adbd78a00d1b7ba863320",
+          "training-selection.json": "442730dbeb7a82b9f4b46fc33e36bbcfe1650382559ea75b48e7e02f2b653f47",
+          "generator.json": "0e4f0efb22e0f5e12f405ed9a26bd3b727f451ba200303b0564562fd9d624f75"
+        },
+        "gradnorm_seed202": {
+          "semantic-ids.npy": "8c0e2b5a98750eb30e69fb56240f930247698650d1892e34bfc8766894790289",
+          "training-curves.json": "d8ea66baecdb6067b784b367a8b9a8d8d03ca69df89c859c01904117884d8bbe",
+          "training-selection.json": "0f81b89aafa876a28edd10a654a75ce4afa2088fdfe70a2ba276930da0529a90",
+          "generator.json": "0e4f0efb22e0f5e12f405ed9a26bd3b727f451ba200303b0564562fd9d624f75"
+        }
+      }
+    }
+  },
+  "calibration_phase": "middle_architectures",
+  "primary_proxy_epoch": 10,
+  "suite_deadline_seconds": 8400,
+  "proxy_reference": {
+    "architecture": "narrow",
+    "epoch": 10,
+    "generator_seeds": [
+      31415,
+      27182
+    ],
+    "indexes": {
+      "sum_seed42": {
+        "kernel": "carasik/rhpr-ml1m-mini-tiger/1",
+        "source_code_sha": "44b84d5dbad6f6cc1815d06038cfcf0f3acedd68",
+        "sids_sha256": "0bbbdce1bfb853cafd42f9c01a3b1d628769ab9945950013a104895fc95ed829",
+        "scores_by_seed": {
+          "31415": 0.029272394267482495,
+          "27182": 0.037315032804725236
+        },
+        "evidence": {
+          "31415": {
+            "generator.json": "a14952473ccdc2c6618b1546e3d1bd74cdba6f06f360adb78fc35d32c9bcda01",
+            "training-curves.json": "b57adc9810416636386171f89055ba4f2423b54053a3287ef73c99a3c9563ad2",
+            "trial-result.json": "f5f073d66501ed3c2ee54d451db50d9c7309920e991cf44f05e80cd946ccf228",
+            "validation-epoch-010.npz": "6d1631b186cdf16f79c3d600e452b0fe11ddf0202082d360a43dfc1b291d1246"
+          },
+          "27182": {
+            "generator.json": "e6082287b470d3171e898d690b13ccf43401e11ada71d70ab863f7a868c7ce7d",
+            "training-curves.json": "6b5c4976a531385bc466fcb4539b9a3ec54a596c1bd4f2c1971c946beff5dd70",
+            "trial-result.json": "30ea12d7fc8da65c8c7b7dbbb09af57083792bb73b4c1e798bd9a4bc676f2efd",
+            "validation-epoch-010.npz": "68ab3cb24a1a1078459edf30047664cda8de74e65b4c2fc214cf6521d4592cc6"
+          }
+        }
+      },
+      "gradnorm_seed42": {
+        "kernel": "carasik/rhpr-ml1m-mini-tiger/1",
+        "source_code_sha": "44b84d5dbad6f6cc1815d06038cfcf0f3acedd68",
+        "sids_sha256": "e45ca975b1c56e3aeb5863bdfd66475afc3b1a8d1c29a15f3e0ddf9c3bb59555",
+        "scores_by_seed": {
+          "31415": 0.029401075273257724,
+          "27182": 0.03638214954008467
+        },
+        "evidence": {
+          "31415": {
+            "generator.json": "dcda26033e04607d4de97bcd05d43a36773dd3d3e02f808d6ad4f9a7162fb9b8",
+            "training-curves.json": "4529d5ae2f12af8ac1a98e74cc5706ef9181f1175910c9b0c94fdd87127beff5",
+            "trial-result.json": "6125763edb6215daaee49c6e8cfaf8ba396117d1271659558302508a2b561cea",
+            "validation-epoch-010.npz": "82a33891e8260509f3137f352bcd52254f183c7f9a2b7799a033e8f27f7819cc"
+          },
+          "27182": {
+            "generator.json": "927fa871a90b180adb1a2adbd659f1929cc8b1e3e4f08fcca3b06378bf7cd2d8",
+            "training-curves.json": "c4ad3812f822e84c8a5f20ae8767b9e656140120a4b1d99e9a889f2eee41b35a",
+            "trial-result.json": "d1c67fb8982d04165c509d036424f95024189c4eaae90595fd0058c473ea6e84",
+            "validation-epoch-010.npz": "0a6d83c0cec2e627141490c4b91dbfb37956badf68ed8db87f7b07d06d94202f"
+          }
+        }
+      },
+      "sum_seed101": {
+        "kernel": "carasik/rhpr-ml1m-mini-tiger/1",
+        "source_code_sha": "44b84d5dbad6f6cc1815d06038cfcf0f3acedd68",
+        "sids_sha256": "be2b69775171017bdd11f5b95dcf42a26fd9024669c76d758a0e2b019aaa4722",
+        "scores_by_seed": {
+          "31415": 0.02744586628233957,
+          "27182": 0.03526676438965747
+        },
+        "evidence": {
+          "31415": {
+            "generator.json": "b47e3c98711927c5f19e03684d4edf8d72f176b34f68de2106bc2d17512ccc3f",
+            "training-curves.json": "8786ec177cf58d32b976ce8fd45788903348fb21c2a10fea5960fc9f34f7468d",
+            "trial-result.json": "32ed067d7ea1fd2a04b2321f834a9d1cb7f5b09812179354d7a107eb6ba9de11",
+            "validation-epoch-010.npz": "358e96238846c5e4096926434790e249e8c775bcd370f1b3226318d1342fa471"
+          },
+          "27182": {
+            "generator.json": "42ee69ad4b4d9b263498eeb124538b78a9806cdcc89ab9377e563ccb943823f0",
+            "training-curves.json": "3fe1ed4d6b07b2edf6a9847f3c1c3aa6aa30367c1ed1041f04f1d39dacb2d855",
+            "trial-result.json": "575677c2fe42c2715fe9a8f1192548d54ad1922109a52df077e00add1393a4cc",
+            "validation-epoch-010.npz": "a83db62b91123ca70d9d46a768143c8e2ca350f0c9cc885196dea0c4027c0a2c"
+          }
+        }
+      },
+      "gradnorm_seed101": {
+        "kernel": "carasik/rhpr-ml1m-mini-tiger/1",
+        "source_code_sha": "44b84d5dbad6f6cc1815d06038cfcf0f3acedd68",
+        "sids_sha256": "edcbc7c920572a909f9699fae08f475846d5a5e8bf24aaa2c232397eece54af9",
+        "scores_by_seed": {
+          "31415": 0.027580293541956607,
+          "27182": 0.03431733102633653
+        },
+        "evidence": {
+          "31415": {
+            "generator.json": "34dd9af17934ffd3357003fd2fe556b663725965a7a66e75c530519de800e845",
+            "training-curves.json": "d6f0983a7af5badefc9487ae3a1dad518d35847b8a1c00a116252ca2c23c32bc",
+            "trial-result.json": "4f27e1ab6faaf13cbaf53bb412443233006ff3f8f5491635ed927c30ccbeb608",
+            "validation-epoch-010.npz": "adecf6b0470d649eb7d09c8e0782cc3b682b58f6e685907d23bf14ca3b4f3170"
+          },
+          "27182": {
+            "generator.json": "b67206e628d536b07d3241dd822826b37e286807a5b1eff3dd039b41ed3088fa",
+            "training-curves.json": "821008a35feb871dfa8032deec909621a7627b823ce341236a7b65067d409d4e",
+            "trial-result.json": "a0af9c14d94f4c1b390947fc337ba2a1ba81e5064933e716296dc23b40a0ab52",
+            "validation-epoch-010.npz": "b02f96661ae485dfe49449335f1b64b811343aa4ae01c55d6dd1ac9692e7e210"
+          }
+        }
+      },
+      "sum_seed202": {
+        "kernel": "carasik/rhpr-ml1m-mini-transfer/1",
+        "source_code_sha": "31d120c8c962adfb7c9f1f4db30e18c1f8d6d153",
+        "sids_sha256": "9088a815160b9b38f875ae3e81e43dd30fabe8feee3f6c5cfcaabe43ff391a17",
+        "scores_by_seed": {
+          "31415": 0.036534639711619826,
+          "27182": 0.04010443792336815
+        },
+        "evidence": {
+          "31415": {
+            "generator.json": "8778616c9a99dd857f0f0d12221c3ad9178f6f6d1e99045f7bd72dcf49e83f8d",
+            "training-curves.json": "44a636e6a89aaaf3dff7c1d99e4104c352a625574ab64f35cc6d185fce4f784f",
+            "trial-result.json": "8c88cad29a531f9ce34e8273d58bcd02b6c6dc42bd4f9baf38883f53cdc0e012",
+            "validation-epoch-010.npz": "6e4081f98a60ea09881125de624f6444f1783946f13f7b104221e358c3f9d0af"
+          },
+          "27182": {
+            "generator.json": "005d17e05db773b5657473dac99625d0c29f6a76a00f84b050a97a29b310c282",
+            "training-curves.json": "d730013ff2a23d41400d6a537063e1908806a4593630e4f6a0fb919559204f35",
+            "trial-result.json": "f7c54daeca694048033ae26c69475d90860584accc2c70fb0e9841c2b6f52c8f",
+            "validation-epoch-010.npz": "07e58cbb9f110c159700700ea17377331dc27ad326ebd60dd766c320d4d58ce8"
+          }
+        }
+      },
+      "gradnorm_seed202": {
+        "kernel": "carasik/rhpr-ml1m-mini-transfer/1",
+        "source_code_sha": "31d120c8c962adfb7c9f1f4db30e18c1f8d6d153",
+        "sids_sha256": "8c0e2b5a98750eb30e69fb56240f930247698650d1892e34bfc8766894790289",
+        "scores_by_seed": {
+          "31415": 0.02973935625564201,
+          "27182": 0.039644548532385145
+        },
+        "evidence": {
+          "31415": {
+            "generator.json": "30fda4ca425a87e94ad2a1d56678c9fa1ca56b4698364b05a864272727c906b5",
+            "training-curves.json": "aca8d3fc261360a01cf3f3aa2af9eeab01757d879735651273a5c350f3311923",
+            "trial-result.json": "a686ce94106cd2bee8e07419df0dc9cd73ee071fcd3803b39fba6cadb7348140",
+            "validation-epoch-010.npz": "e02b9cf7d5311343205c090aa3a81a2adfeb1aa0b0db307aab08912ca553128d"
+          },
+          "27182": {
+            "generator.json": "bcff1c1db54de7e8b915ea544566bc4ce8d8db0342d20e46dcb33b8a4fa2b8ac",
+            "training-curves.json": "bee4a86857be04c0496dcac7d816563af35abf8fb78ddbe5d65b1af6da309c93",
+            "trial-result.json": "a69537850d5c080a7d552f73a86d2626f929f1ea8086b2b15650477e46c768f1",
+            "validation-epoch-010.npz": "8235448d278127a8b443513bbac5e018a43572f8669bd9abc835b7d98dc20272"
+          }
+        }
+      }
+    }
+  },
+  "proxy_reference_sha256": "6e487d9c94bef76cdfab52eef45261811e70d6156531e5c4451b0f698c95c89f",
+  "reference_full_initialization_pin": "4cfe16ae1433c48e8d7aad7531c82af7da3d370f7f5baf25b8d7259d12d39dc6",
+  "plateau_reference": {
+    "target_seed": 161803,
+    "policy": {
+      "min_epochs": 60,
+      "max_epochs": 100,
+      "patience_epochs": 20,
+      "validation_interval": 5
+    },
+    "report_sha256": "fd598279509d7c2fa6aeff0713d90ce7ee495e4f8753c3534c11273c7e12cbe5",
+    "indexes": {
+      "sum_seed42": {
+        "selected_ndcg10": 0.06926600846510994,
+        "best_epoch": 40,
+        "stop_epoch": 60,
+        "sids_sha256": "0bbbdce1bfb853cafd42f9c01a3b1d628769ab9945950013a104895fc95ed829",
+        "source_kernel": "carasik/rhpr-ml1m-proxy-plateau/1",
+        "source_code_sha": "64500ca852e7bc478df3127e3421d661f36bfa12",
+        "evidence": {
+          "generator.json": "efd23f694ed3bfcd091efa86c97945bce8f06c8bdd8e2c0e6f5f9d269aee8b4c",
+          "training-selection.json": "17d9f5e49247626a168449d203278704772ed65411cf9dee59d0081e34e448c3",
+          "training-curves.json": "4a451ce315ffde46a5582f60424ed1e3c411eed1cdaaa172819b5d6c6cb9d74a",
+          "validation-epoch-040.npz": "89021cead49a614a8f466df3986d31a95dd65609c3cb2c2d0e32e63826676d69"
+        },
+        "early_selected": {
+          "5": 0.03203163219084991,
+          "10": 0.05190821415759714,
+          "15": 0.05552811441199144,
+          "20": 0.05876999957618025,
+          "25": 0.05995968319007656,
+          "30": 0.06533901367923521
+        }
+      },
+      "gradnorm_seed42": {
+        "selected_ndcg10": 0.0654293976279707,
+        "best_epoch": 30,
+        "stop_epoch": 60,
+        "sids_sha256": "e45ca975b1c56e3aeb5863bdfd66475afc3b1a8d1c29a15f3e0ddf9c3bb59555",
+        "source_kernel": "carasik/rhpr-ml1m-proxy-plateau/1",
+        "source_code_sha": "64500ca852e7bc478df3127e3421d661f36bfa12",
+        "evidence": {
+          "generator.json": "21f1694604935b4fc9dd2d240aee9e277ad32ca7b0a74549e4557843a584371b",
+          "training-selection.json": "906b6c13cfd6cea32cf9c1924e08e5d41590715ccd431024c5ae30d881732a8d",
+          "training-curves.json": "cb4fbe3a47a01419cbca16da4cdb2ce0e3dc92feabf21f75d57595d0cb76b7a3",
+          "validation-epoch-030.npz": "8324ceb34aa52bf9012aa29991c944ccb32b9c4cc935ff8826e2b690c8770b07"
+        },
+        "early_selected": {
+          "5": 0.028096004041399333,
+          "10": 0.04595377232021729,
+          "15": 0.05584287236581162,
+          "20": 0.058025819918713244,
+          "25": 0.058241591381775364,
+          "30": 0.0654293976279707
+        }
+      },
+      "sum_seed101": {
+        "selected_ndcg10": 0.07071714400002913,
+        "best_epoch": 80,
+        "stop_epoch": 100,
+        "sids_sha256": "be2b69775171017bdd11f5b95dcf42a26fd9024669c76d758a0e2b019aaa4722",
+        "source_kernel": "carasik/rhpr-ml1m-proxy-plateau/1",
+        "source_code_sha": "64500ca852e7bc478df3127e3421d661f36bfa12",
+        "evidence": {
+          "generator.json": "ba0ae032d588f09ce65462c2b2992ca65fd521a9df1814dca59f13ebbdb29260",
+          "training-selection.json": "0d83fe7abf98799e1ff88098680046ccbc78a8154377b1f821811c49ba5ce686",
+          "training-curves.json": "dcd7218413eabe76cd3f5ccc3924775389403363c64f042bf27fc06583316b54",
+          "validation-epoch-080.npz": "46c4b3206b6afe52f7df69fe86a0e7e4ffd3d745ab52db6ff39b0eb23f584805"
+        },
+        "early_selected": {
+          "5": 0.029763027075876306,
+          "10": 0.052584117898677035,
+          "15": 0.05903716091639382,
+          "20": 0.06171128092849569,
+          "25": 0.0672293957329293,
+          "30": 0.0672293957329293
+        }
+      },
+      "gradnorm_seed101": {
+        "selected_ndcg10": 0.06639868686825921,
+        "best_epoch": 45,
+        "stop_epoch": 65,
+        "sids_sha256": "edcbc7c920572a909f9699fae08f475846d5a5e8bf24aaa2c232397eece54af9",
+        "source_kernel": "carasik/rhpr-ml1m-proxy-plateau/1",
+        "source_code_sha": "64500ca852e7bc478df3127e3421d661f36bfa12",
+        "evidence": {
+          "generator.json": "980062aadd04bf90ac7ff25c85c83fb4cc2014e7f055ab09d54b05a7b2e2c73f",
+          "training-selection.json": "cd545fd6f9d3c7ff938c3bbd6623b252b5e4c5b7138e64b8c1aa2ace56273f4c",
+          "training-curves.json": "3ee17eca0cc8bcffd4d5ddf6a0f548c61373d6f34ceed125bb09e4eaa5944199",
+          "validation-epoch-045.npz": "d27c65266f7d7daec2ea713e336fc0d339ca5758f32b8fa21fd02fdebe79af35"
+        },
+        "early_selected": {
+          "5": 0.03544659825235477,
+          "10": 0.055721312850331384,
+          "15": 0.05842803282154151,
+          "20": 0.05842803282154151,
+          "25": 0.06455131920433586,
+          "30": 0.06632775493123864
+        }
+      },
+      "sum_seed202": {
+        "selected_ndcg10": 0.06945628528633584,
+        "best_epoch": 65,
+        "stop_epoch": 85,
+        "sids_sha256": "9088a815160b9b38f875ae3e81e43dd30fabe8feee3f6c5cfcaabe43ff391a17",
+        "source_kernel": "carasik/rhpr-ml1m-proxy-plateau-finish/1",
+        "source_code_sha": "ac6b5de04dc492fce22af3e885bdc190c1d7bd7b",
+        "evidence": {
+          "generator.json": "c6b0d3058ec6be6fc94c952c66703d8efeb44478265b95e0cf845aa8764b7b5e",
+          "training-selection.json": "2119556391f283ee4dbed8e08150974db9ab4145f995117e61587a43b747243d",
+          "training-curves.json": "2db7f8fa51792941eaba2c9d2f25a794ac3fc3f0ef6f53a168887fe3d581426f",
+          "validation-epoch-065.npz": "9bcde8f38588d70e7b8aba7347d86c7d6728d5ac0e449fd64dc09110681a8c38"
+        },
+        "early_selected": {
+          "5": 0.03337115433666984,
+          "10": 0.05885172549415131,
+          "15": 0.06205739245633573,
+          "20": 0.06907888511808652,
+          "25": 0.06907888511808652,
+          "30": 0.06907888511808652
+        }
+      },
+      "gradnorm_seed202": {
+        "selected_ndcg10": 0.07297642751036625,
+        "best_epoch": 45,
+        "stop_epoch": 65,
+        "sids_sha256": "8c0e2b5a98750eb30e69fb56240f930247698650d1892e34bfc8766894790289",
+        "source_kernel": "carasik/rhpr-ml1m-proxy-plateau-finish/1",
+        "source_code_sha": "ac6b5de04dc492fce22af3e885bdc190c1d7bd7b",
+        "evidence": {
+          "generator.json": "6916cffc61785abbb6f89ea48c3154a61a3972b46a80a4bfd3f8c2bb23104393",
+          "training-selection.json": "5f7f0879f08763a7708137da882b62bd852da49dc293a6006b58a2946b670cf8",
+          "training-curves.json": "14d2600a59ccb05ddfeaee21c9c2d938ad04b1132bfe53f7be940322755041e3",
+          "validation-epoch-045.npz": "3f8bb05a88fd73f4c73774c75af39a91fa818f333d5e6236d808b5f844ec372c"
+        },
+        "early_selected": {
+          "5": 0.03127724783570126,
+          "10": 0.054103534218121765,
+          "15": 0.06195656598428955,
+          "20": 0.06756083625251648,
+          "25": 0.0689996666127066,
+          "30": 0.07058342799373359
+        }
+      }
+    }
+  },
+  "plateau_reference_sha256": "2d75a97f8fe44720e2c7fabe29e865a261533f1cffe7e2056af4d6551a2ee124"
+}

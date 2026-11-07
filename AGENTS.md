@@ -2,6 +2,27 @@
 
 ## Research status
 
+- User authorization2026-11-07: intermediate proxy architecture screen on SAME
+ six frozen SUM/GradNorm indexes x42/101/202;two mini seeds31415/27182.
+ Exactly24fresh generator fits,10epochs/VAL5,FP16/nativeSDPA/512,2T4.
+ middle_width4+4,d96,FF768,H6,kv48=2897952params;half_depth2+2,d128,
+ FF1024,H6,kv64=2748416params. Originalnarrow10/controlandearlyfull reused,
+ no baseline/fullmodel/tokenizer/content fitting,TEST,HPO/retries/newdata/
+ Colab/hardwarefallback/Telegram. Same151166TRAIN/2786VAL/history20.
+ Primaryfixedproxy10mean2seeds vsfrozenfullselectedVALunderES60/100/20,
+ seed161803;epoch5/individualseeds/groups secondary. Plateau referencepinned
+ 2d75a97f8fe44720e2c7fabe29e865a261533f1cffe7e2056af4d6551a2ee124,
+ includesSID/source/selection/curve/bestpredictionhashesandearlyfullscores.
+ Architecturedevelopmentonexaminedsixindexes,notheldoutconfirmation.
+ All24nativeinitializerschecked,fouractualtiny10epoch/2VALprobespass;
+ 1035tests91optional skips0fail,targeted15pass. Same3datasets/2completed
+ privateparents,offline. Privatecarasik/rhpr-ml1m-middle-proxy;config
+ experiments/ml1m_middle_proxy_2t4.json;docs/gr-middle-proxy.md/preflight.
+ Quota40.79hobserved,expected1.5–2h session;server150min/suite8400/perfit1200.
+ Newphaseandregistry preserveoldermini contracts. PreparedforONESUBMISSION;
+ noresults yet,noadditionalfits/epochs/automaticfollowupauthorized.
+
+
 - Plateau followup COMPLETE,collected2026-11-07,no newGPU/TEST. Finishprivate
  carasik/rhpr-ml1m-proxy-plateau-finish/1(ac6b5de04dc4) completed2pending202
  fitsin56.119min;reuse4fromfailed64500ca852e7 unchanged. All6meetoperational
