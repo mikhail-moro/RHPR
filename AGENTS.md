@@ -19,8 +19,12 @@
  privateparents,offline. Privatecarasik/rhpr-ml1m-middle-proxy;config
  experiments/ml1m_middle_proxy_2t4.json;docs/gr-middle-proxy.md/preflight.
  Quota40.79hobserved,expected1.5–2h session;server150min/suite8400/perfit1200.
- Newphaseandregistry preserveoldermini contracts. PreparedforONESUBMISSION;
- noresults yet,noadditionalfits/epochs/automaticfollowupauthorized.
+ Newphaseandregistry preserveoldermini contracts. SUBMITTEDONCEprivatev1RUNNING,
+ executable2fd232815bc0,workflow42385458308successsubmit-only,artifact13579341451.
+ All211embeddedfiles/exactconfig/private/offline/T4/3datasets/2parentsverified;
+ runner836118bytes,globalzlibcodec. Receipt docs/gr-middle-proxy-submission.json.
+ Results pending;collectexistingkernelaftercompletion,noresubmit/extraepochs/
+ seeds/HPO/Telegram. Noadditionalfitsorautomaticfollowupauthorized.
 
 
 - Plateau followup COMPLETE,collected2026-11-07,no newGPU/TEST. Finishprivate
