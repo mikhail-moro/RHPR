@@ -17,8 +17,11 @@
   server timeout540min,internal27000s,perfit3500s. Experiment config
   experiments/ml1m_tokenizer_generator_stability_2t4.json, protocol
   docs/gr-ml1m-sid-stability.md, private kernel carasik/rhpr-ml1m-sid-stability.
-  PREPARED: submission and completion must be recorded separately; do not
-  duplicate submissions or add seeds/fits/retries/notifications.
+  SUBMITTED once: private kernel observed RUNNING, executable2e3e56f75121,
+  workflow42419138870 success submit-only, artifact13592677707. Deployed
+  214source files and config verified exact, private/offline/2T4. Receipt
+  docs/gr-ml1m-sid-stability-submission.json. Completion pending; collect
+  existing kernel once done, no duplicate submission, extra seeds or retries.
 
 
 

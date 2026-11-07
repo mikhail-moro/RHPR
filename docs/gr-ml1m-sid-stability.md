@@ -56,3 +56,7 @@ GRID/HF5.22 CPU generator30epoch/3VAL tiny-data smoke. The fake smoke sizes and
 precision do not replace a T4 integration test. Full regression 1040 tests,
 91 optional skips, 0 failures; focused8 protocol/integration tests pass. Output
 config `experiments/ml1m_tokenizer_generator_stability_2t4.json`.
+
+Submission: workflow42419138870 SUCCESS (submit-only); private kernel
+observed RUNNING. Exact executable source2e3e56f7512150fa44f847c3377760582542cc46.
+Receipt `docs/gr-ml1m-sid-stability-submission.json`. Completion is pending.
