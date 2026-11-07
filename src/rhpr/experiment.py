@@ -86,6 +86,11 @@ def run_experiment(
             raise ValueError('mini TIGER requires output directory')
         from rhpr.gr.mini_tiger import run_mini_tiger
         return run_mini_tiger(config, output_dir)
+    if kind == 'gr_ml1m_stability':
+        if output_dir is None:
+            raise ValueError('ML1M stability experiment requires output directory')
+        from rhpr.gr.ml1m_stability_suite import run_stability
+        return run_stability(config, output_dir)
     if kind == 'gr_ml1m_clean_mtl':
         if output_dir is None:
             raise ValueError('clean ML1M MTL requires output directory')

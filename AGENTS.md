@@ -2,6 +2,26 @@
 
 ## Research status
 
+- User authorized 2026-11-08 ML1M SID/generator stability experiment:
+  3 pipelines: T5 metadata→RQ-KMeans, metadata→AE/RQ-VAE, metadata+poster+
+  plot→AE/RQ-VAE SUM; tokenizer seeds42/101;3 narrow generator seeds
+  31415/27182/161803 per fixed index:18 fresh fits,2T4.
+  Same2874items,151166train windows,2786VAL,history20; no TEST evaluation.
+  validation10/min30/max60/patience20, no scheduler; save CE/predictions/
+  checkpoints and explicitly mark any60epoch cap as censored. Reuse exact
+  multimodal SUM parent indexes/feature archive; build4 new text indexes.
+  Fixed30 and best-selected VAL reported separately; 3×2seed scope exploratory.
+  Preflight 1040tests/91optional skips/0fail plus focused8; native CPU 30epoch/
+  3VAL generator probe; tiny native text AE→RQ 2 seeds; real2874-item KMeans;
+  source/cases/SID/init hashes verified. Kaggle39.34 GPUhours available;
+  server timeout540min,internal27000s,perfit3500s. Experiment config
+  experiments/ml1m_tokenizer_generator_stability_2t4.json, protocol
+  docs/gr-ml1m-sid-stability.md, private kernel carasik/rhpr-ml1m-sid-stability.
+  PREPARED: submission and completion must be recorded separately; do not
+  duplicate submissions or add seeds/fits/retries/notifications.
+
+
+
 - Intermediate proxy screen COMPLETE,collected2026-11-07. Private
  carasik/rhpr-ml1m-middle-proxy/1,source2fd232815bc0;24/24fits,0failures,
  86.1847min session,2T4. Same six frozen SUM/GN42/101/202,two mini seeds

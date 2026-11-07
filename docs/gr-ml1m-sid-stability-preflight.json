@@ -1,0 +1,34 @@
+{
+  "pins": {
+    "31415": "43f3f9aa900f7e522f68f4f5006e532f1f789694cb07683573c256cd0fb34e5d",
+    "27182": "39c83ab2667f65b7eb18ad76e53ceb6485f29464b9723733fd9eba37c6329aac",
+    "161803": "b5fa87cd49b21d9d4a44d706d3005d997ce0522eef954eb31658637d08c2c85d"
+  },
+  "parameter_count": 1375040,
+  "initializers_checked": 6,
+  "case_hashes_verified": true,
+  "workers": [
+    9,
+    9
+  ],
+  "generator_native_tiny_30epochs_3val": true,
+  "index_real_kmeans_items": 2874,
+  "index_real_kmeans_seed": 42,
+  "index_real_kmeans_unique_sids": 2874,
+  "text_ae_rq_native_tiny_smoke_seeds": [
+    42,
+    101
+  ],
+  "tokenizer_initializers_checked": [
+    42,
+    101
+  ],
+  "full_regression_tests": 1040,
+  "optional_skips": 91,
+  "full_regression_failures": 0,
+  "focused_tests": 8,
+  "quota_remaining_gpu_hours": 39.34,
+  "server_timeout_minutes": 540,
+  "output_kernel": "carasik/rhpr-ml1m-sid-stability",
+  "gpu_work_launched": false
+}
