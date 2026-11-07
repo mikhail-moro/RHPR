@@ -47,3 +47,11 @@ partial calibration,precision change or shortened matrix. All predictions,losses
 curves,weights,case/index/initialization pins and config/source revisions saved.
 The bundle-size guard requires source<1MiB;global-zlib packaging preserves source
 bytes and configuration values. Config experiments/ml1m_middle_proxy_2t4.json.
+
+## Completed collection
+
+All24 fits completed in86.18min,no failures,no extraGPU runs. Primary
+epoch10 rho is−.20/−.60 for middle_width/half_depth versus reused narrow+.4286.
+Both improve their own NDCG but do not improve proxy ranking transfer here.
+See [verified results](gr-middle-proxy-results.md) for costs,selection regret,
+secondary checks and limitations;no portable proxy recipe established.

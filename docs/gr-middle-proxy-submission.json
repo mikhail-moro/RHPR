@@ -5,14 +5,14 @@
   "kernel_id": "carasik/rhpr-ml1m-middle-proxy",
   "kernel_version": 1,
   "versioned_kernel_id": "carasik/rhpr-ml1m-middle-proxy/1",
-  "status": "submitted",
-  "quality_complete": false,
+  "status": "complete",
+  "quality_complete": true,
   "worker_timeout_seconds": 9000,
   "submitted_at_utc": "2026-11-07T15:15:25.511932+00:00",
   "workflow_id": 42385458308,
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42385458308",
   "artifact_id": 13579341451,
-  "observed_status": "RUNNING",
+  "observed_status": "COMPLETE",
   "source_audit": {
     "embedded_files": 211,
     "source_code_sha": "2fd232815bc0435f9c54b0f76f5c7964116f5561",
@@ -41,5 +41,24 @@
     "targeted_checks": 15,
     "native_10epoch_2val_probes": 4,
     "all24_initializers_verified": true
+  },
+  "completed_at_utc": "2026-11-07T16:42:23.519919+00:00",
+  "session_minutes": 86.18467236666667,
+  "collected_fits": 24,
+  "failures": 0,
+  "test_evaluated": false,
+  "verification": {
+    "prediction_files": 66,
+    "new": 48,
+    "reused_narrow": 12,
+    "selected_full": 6,
+    "report": "docs/gr-middle-proxy-results.json",
+    "replay": "scripts/research/analyze_middle_proxy.py",
+    "numerical_tolerance": 1e-12,
+    "regression": {
+      "tests": 1035,
+      "optional_skips": 91,
+      "failures": 0
+    }
   }
 }

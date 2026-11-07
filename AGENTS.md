@@ -2,29 +2,33 @@
 
 ## Research status
 
-- User authorization2026-11-07: intermediate proxy architecture screen on SAME
- six frozen SUM/GradNorm indexes x42/101/202;two mini seeds31415/27182.
- Exactly24fresh generator fits,10epochs/VAL5,FP16/nativeSDPA/512,2T4.
- middle_width4+4,d96,FF768,H6,kv48=2897952params;half_depth2+2,d128,
- FF1024,H6,kv64=2748416params. Originalnarrow10/controlandearlyfull reused,
- no baseline/fullmodel/tokenizer/content fitting,TEST,HPO/retries/newdata/
- Colab/hardwarefallback/Telegram. Same151166TRAIN/2786VAL/history20.
- Primaryfixedproxy10mean2seeds vsfrozenfullselectedVALunderES60/100/20,
- seed161803;epoch5/individualseeds/groups secondary. Plateau referencepinned
- 2d75a97f8fe44720e2c7fabe29e865a261533f1cffe7e2056af4d6551a2ee124,
- includesSID/source/selection/curve/bestpredictionhashesandearlyfullscores.
- Architecturedevelopmentonexaminedsixindexes,notheldoutconfirmation.
- All24nativeinitializerschecked,fouractualtiny10epoch/2VALprobespass;
- 1035tests91optional skips0fail,targeted15pass. Same3datasets/2completed
- privateparents,offline. Privatecarasik/rhpr-ml1m-middle-proxy;config
- experiments/ml1m_middle_proxy_2t4.json;docs/gr-middle-proxy.md/preflight.
- Quota40.79hobserved,expected1.5–2h session;server150min/suite8400/perfit1200.
- Newphaseandregistry preserveoldermini contracts. SUBMITTEDONCEprivatev1RUNNING,
- executable2fd232815bc0,workflow42385458308successsubmit-only,artifact13579341451.
- All211embeddedfiles/exactconfig/private/offline/T4/3datasets/2parentsverified;
- runner836118bytes,globalzlibcodec. Receipt docs/gr-middle-proxy-submission.json.
- Results pending;collectexistingkernelaftercompletion,noresubmit/extraepochs/
- seeds/HPO/Telegram. Noadditionalfitsorautomaticfollowupauthorized.
+- Intermediate proxy screen COMPLETE,collected2026-11-07. Private
+ carasik/rhpr-ml1m-middle-proxy/1,source2fd232815bc0;24/24fits,0failures,
+ 86.1847min session,2T4. Same six frozen SUM/GN42/101/202,two mini seeds
+ 31415/27182,10epochs/VAL5,151166TRAIN/2786VAL/history20,FP16/SDPA/512.
+ Primaryfixed10mean2 vsfrozenfullESselectedseed161803:
+ oldnarrow4+4d64FF512=1.375M,rho+.4286,choiceSUM202,relative regret4.82%;
+ middle_width4+4d96FF768=2.898M,rho-.20,choiceGN101,regret9.01%;
+ half_depth2+2d128FF1024=2.748M,rho-.60,choiceSUM42,regret5.08%.
+ NewownmeanNDCG .04905/.05009 vsoldnarrow .03358:betterownpredictions
+ do NOT imply betterindexranking. Mean2seedtraining+recordedranking
+ min/index13.36/17.20/10.66;narrowcross-session,notcontrolledbenchmark.
+ Epoch5middlemeanrho+.4857 butindividualseeds+.5429/-.4857,secondary,
+ notvalidatedrecipe. Primaryindividualmiddle-.3714/-.0857,half-.4857/-.60.
+ WithinSUM3 rho-.5/-.5/-1;withinGN3+.5/+.5/-.5,descriptiveonly.
+ Newtop2overlap0,bestfullGN202 retainedmiddle top3 butexcludedhalf top3.
+ Conditional5000shared-userbootstrapCIallcross0;excludesseed/selection
+ uncertainty. Sixrelatedexaminedindexes/onefullseed/sameVAL;noportable
+ proxyrecipeorstatisticallyestablishedarchitecturedifference.
+ Independently66predictionsreplayed48new+12oldnarrow+6selectedfull,
+ NDCG/Recall5/10match1e-12;allcase/SID/reference/initializer/sourcepins,
+ 24matrix,worker12+12,10epochs/2VAL/2960stepsverified;0AMPskips.
+ Full1035tests91optionalskips0fail;CPUreplaypasses. Reports
+ docs/gr-middle-proxy-results.md/.json;scriptanalyze_middle_proxy.py;
+ receiptCOMPLETE/quality_complete. PNG/PDF/CSV/evidenceZIPsaved,no
+ weightsinZIP;weightsremainprivateoriginalKagglekernels.
+ No newGPU/TEST/extraepochs/seeds/HPO/Telegram. No runs pending.
+ Noautomaticfollowupauthorized.
 
 
 - Plateau followup COMPLETE,collected2026-11-07,no newGPU/TEST. Finishprivate
