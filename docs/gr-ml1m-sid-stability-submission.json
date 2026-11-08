@@ -1,7 +1,7 @@
 {
-  "status": "submitted",
-  "observed_kernel_status": "RUNNING",
-  "quality_complete": false,
+  "status": "complete",
+  "observed_kernel_status": "COMPLETE",
+  "quality_complete": true,
   "kernel_id": "carasik/rhpr-ml1m-sid-stability",
   "kernel_id_no": 143306096,
   "source_code_sha": "2e3e56f7512150fa44f847c3377760582542cc46",
@@ -22,5 +22,14 @@
     "dataset_count": 3,
     "kernel_parent_count": 2
   },
-  "notes": "Workflow success confirms submission only, not experiment completion. No duplicate run, retries or additional seeds."
+  "notes": "Workflow was submit-only. Completion and all 18 fits were subsequently verified from the kernel outputs; no duplicate run or retries.",
+  "completed_at_utc": "2026-11-08T04:24:30.374750+00:00",
+  "completed_fits": 18,
+  "failed_fits": 0,
+  "early_stopped": 5,
+  "budget_censored": 13,
+  "test_evaluated": false,
+  "independent_replay_predictions": 107,
+  "amp_skips": 15,
+  "results": "docs/gr-ml1m-sid-stability-results.md"
 }

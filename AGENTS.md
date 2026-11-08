@@ -2,27 +2,36 @@
 
 ## Research status
 
-- User authorized 2026-11-08 ML1M SID/generator stability experiment:
-  3 pipelines: T5 metadata→RQ-KMeans, metadata→AE/RQ-VAE, metadata+poster+
-  plot→AE/RQ-VAE SUM; tokenizer seeds42/101;3 narrow generator seeds
-  31415/27182/161803 per fixed index:18 fresh fits,2T4.
-  Same2874items,151166train windows,2786VAL,history20; no TEST evaluation.
-  validation10/min30/max60/patience20, no scheduler; save CE/predictions/
-  checkpoints and explicitly mark any60epoch cap as censored. Reuse exact
-  multimodal SUM parent indexes/feature archive; build4 new text indexes.
-  Fixed30 and best-selected VAL reported separately; 3×2seed scope exploratory.
-  Preflight 1040tests/91optional skips/0fail plus focused8; native CPU 30epoch/
-  3VAL generator probe; tiny native text AE→RQ 2 seeds; real2874-item KMeans;
-  source/cases/SID/init hashes verified. Kaggle39.34 GPUhours available;
-  server timeout540min,internal27000s,perfit3500s. Experiment config
-  experiments/ml1m_tokenizer_generator_stability_2t4.json, protocol
-  docs/gr-ml1m-sid-stability.md, private kernel carasik/rhpr-ml1m-sid-stability.
-  SUBMITTED once: private kernel observed RUNNING, executable2e3e56f75121,
-  workflow42419138870 success submit-only, artifact13592677707. Deployed
-  214source files and config verified exact, private/offline/2T4. Receipt
-  docs/gr-ml1m-sid-stability-submission.json. Completion pending; collect
-  existing kernel once done, no duplicate submission, extra seeds or retries.
-
+- ML1M SID/generator stability COMPLETE, collected2026-11-08, no new GPU.
+  Private carasik/rhpr-ml1m-sid-stability, source2e3e56f75121,
+  workflow42419138870; 18/18 fits, 6.26h on2T4, 0failed, TEST closed.
+  Six fixed indexes: 2seed each text RQ-KMeans, text AE/RQ-VAE and
+  multimodal SUM AE/RQ-VAE; each crossed with generator seeds31415/27182/
+  161803, narrow mini-TIGER1.375M. VAL10/min30/max60/patience20.
+  5/18 reached operational ES (4at60,1at50);13/18 censored at60, so no
+  conclusion about converged results. Fixed30 mean NDCG KMeans .059574,
+  textVAE .057837, multimodal .054482; fixed50 .064622/.059003/.057701;
+  selected mixed-epoch means .065377/.061544/.059092 (VAL selection bias).
+  Mean within-index generator SD at30 .001725/.001985/.003369; at50
+  .002513/.005325/.002198: order reverses, no robust multimodality-stability
+  claim with only2tokenizer indexes and3 gen seeds/method.
+  Fixed50 KMeans−multimodal mean +.006921, 6/6 matched seed pairs positive,
+  conditional shared-user CI [.00360,.01023]; does not include tokenizer/
+  generator randomness, item clustering, multiple or selection effects.
+  mini-TIGER correlation with full not reliably established; do not claim
+  deployment/test improvement or causal KMeans-only effect. KMeans/VAE
+  changes model pipeline; modalities change both inputs and head structure.
+  CPU replay107 prediction files with pinned source/cases/SIDs/weights-init
+  and all epoch counters. 15 AMP skips among316720 batches,27 invalid paths
+  among5962040 candidates,0 duplicates; original rankings retained.
+  Report docs/gr-ml1m-sid-stability-results.md/.json, receipt COMPLETE,
+  replay scripts/research/analyze_ml1m_sid_stability.py, bootstrap/plot CLIs
+  scripts/research/analyze_tokenizer_generator_stability.py and
+  scripts/research/plot_tokenizer_generator_stability.py. Graph
+  /tmp/ml1m-stability-analysis/stability-summary.png; numerical evidence
+  /tmp/ml1m-sid-stability-evidence.zip SHA256
+  6ee60239826a12c892357f392854680b6342bcc869b8a759f644e0de71a3eb1c.
+  Checkpoint weights remain private Kaggle. No new runs/epochs/TEST/notifications.
 
 
 - Intermediate proxy screen COMPLETE,collected2026-11-07. Private
