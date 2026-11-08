@@ -1,0 +1,17 @@
+{
+  "native_probes": 2,
+  "epochs_per_probe": 30,
+  "validation_checks_per_probe": 6,
+  "original_checkpoint_and_assignments_verified": true,
+  "shared_parameter_gradient_and_checkpoint_restore_verified": true,
+  "initialization_pin": "df5affc3c6ae40678b80a58deb62d162c51019187790842af5f2e7bc7ac83e6a",
+  "train_examples": 151166,
+  "seed": 42,
+  "quota_remaining_hours": 1.18,
+  "regression": {
+    "tests": 1015,
+    "skips": 91,
+    "failures": 0,
+    "seconds": 170.379
+  }
+}

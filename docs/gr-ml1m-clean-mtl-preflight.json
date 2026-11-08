@@ -1,0 +1,79 @@
+{
+  "items": 2874,
+  "users": 2786,
+  "train_examples": 151166,
+  "validation_examples": 2786,
+  "test_examples": 2786,
+  "case_sha256": {
+    "train": "28339b91f7d22ee78d3eed6e3c00cbd393ecc62e487fe63f74da65fac3937e5b",
+    "validation": "ee9cf5402dbfeae46f669c731fa795939d67e4b9779481102cd30802add27009",
+    "test": "daac961764086cc8966df2afdf1596c8a06774e032b05fade715a10cb94e8fed"
+  },
+  "split": "raw_contiguous_20_val_test",
+  "training": "all earlier raw clean up-to20windows; natural original short prefixes only",
+  "target_selection": "latest adjacent original raw singleton val/test with full20cleancontext and at least1earlier admitted training example",
+  "timestamp_groups": "any uncovered member invalidates whole group, including touched left boundary group",
+  "all_ratings_retained": true,
+  "source_files": [
+    {
+      "name": "ml-1m.zip",
+      "sha256": "a6898adb50b9ca05aa231689da44c217cb524e7ebd39d264c56e2832f2c54e20"
+    },
+    {
+      "name": "kept-item-masks.parquet",
+      "sha256": "3a7dea40ed1b4dd2e5e0b76d12dbd706f888e9e8b76740b4359256529da3f56b"
+    },
+    {
+      "name": "catalogue-fields.json.gz",
+      "sha256": "59b6df1dacf285486c7242ba87e8211b890be9a41205a460f5d44131faf8b4a7"
+    },
+    {
+      "name": "ml1m_text.tsv",
+      "sha256": "4676223139ff78710f4451bcca0cc389cca03303db6f4980d96eefc1f90925a3"
+    },
+    {
+      "name": "ml1m_mm_json.zip",
+      "sha256": "a58498e77bc20a878433a8dd9f678e9fffbb80e88f4293bb20c352db96ce9281"
+    }
+  ],
+  "metadata_fields": [
+    "title_with_year",
+    "genres",
+    "explicit_year",
+    "runtime",
+    "tmdb_keywords"
+  ],
+  "plot_field": "Zenodo description ONLY",
+  "no_interactions_used_for_features": true,
+  "manifest_sha256": "023d2b52dd8a12553d1dcf24a8a3e9a59f22983ad3cd0b768c7da6318aa98c16",
+  "tests": {
+    "regression": 982,
+    "regression_skipped": 13,
+    "new_protocol": 9,
+    "failed": 0,
+    "native_full_pipeline_modes": [
+      "sum",
+      "uw",
+      "gradnorm",
+      "pcgrad"
+    ],
+    "native_multibatch_modes": [
+      "sum",
+      "pcgrad"
+    ]
+  },
+  "text_encoder": {
+    "metadata_tokens_max": 298,
+    "metadata_tokens_p95": 103.0,
+    "encoder_shape": [
+      2,
+      768
+    ],
+    "no_metadata_truncation": true
+  },
+  "initialization": {
+    "generator": "d57fc2e783c0a04bfc567c0082541f757e241d1c53d7e79b3e8f281bf2eb9337",
+    "quantizer": "54253fbb9f6837546a0c29291db31a12cb0be65f75609a6d8f7c3d89aeccc69b"
+  },
+  "byte_exact_input_replay": true
+}

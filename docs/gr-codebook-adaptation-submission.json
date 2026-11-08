@@ -1,0 +1,26 @@
+{
+  "source_code_sha": "b828588a3bb1ca228d73507d875df4bda69d7add",
+  "kernel_metadata_sha256": "91964e92e27d2d950c8c08698561cff95a439d404aa0dd1c8e57a3a8f76f18c4",
+  "runner_sha256": "98b54c1e6e989e9360f189d1ee76425e5c9ce6d375caf6a0aa0ee47533ca1510",
+  "kernel_id": "carasik/rhpr-ml1m-codebook-adaptation",
+  "kernel_version": 1,
+  "versioned_kernel_id": "carasik/rhpr-ml1m-codebook-adaptation/1",
+  "status": "submitted",
+  "quality_complete": true,
+  "worker_timeout_seconds": 2220,
+  "submitted_at_utc": "2026-11-06T12:28:23.540475+00:00",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42217880480",
+  "workflow_id": 42217880480,
+  "artifact_id": 13501044897,
+  "observed_status": "COMPLETE",
+  "source_audit": {
+    "embedded_files": 208,
+    "source_code_sha": "b828588a3bb1ca228d73507d875df4bda69d7add",
+    "runner_sha256": "98b54c1e6e989e9360f189d1ee76425e5c9ce6d375caf6a0aa0ee47533ca1510",
+    "exact_config": true,
+    "private": true,
+    "offline": true
+  },
+  "completed_fits": 2,
+  "results_report": "docs/gr-codebook-adaptation-results.md"
+}

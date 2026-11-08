@@ -1,0 +1,60 @@
+{
+  "kernel_id": "carasik/rhpr-ml100k-full-training-seed42",
+  "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-ml100k-full-training-seed42",
+  "version": 1,
+  "status": "RUNNING",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41363415397",
+  "workflow_result": "success;submit_only=true",
+  "executable_git_sha": "ce0efd6d6816a24d5710d5baeda706abc3d8e8cb",
+  "package_sha256": "f961db92e96598f5b7433b7a2a5284a8e52133e5f26e7d348634a4e9ee80bd29",
+  "embedded_source_files_verified": 191,
+  "exact_config": true,
+  "experiment": "experiments/movielens100k_full_training_seed42_2t4.json",
+  "private": true,
+  "internet": false,
+  "accelerator": "NvidiaTeslaT4",
+  "workers": [
+    "cuda:0",
+    "cuda:1"
+  ],
+  "seed": 42,
+  "continuations": 4,
+  "variants": [
+    "tiger_no_people",
+    "tiger_graph",
+    "tiger_names",
+    "sasrec_id"
+  ],
+  "resume_epoch": 20,
+  "source_updates": 6680,
+  "source_artifacts": "64downloaded/source-verified files,321038738bytes; immutable hashes in config",
+  "frozen_indices": true,
+  "offline_retraining": false,
+  "min_total_epochs": 30,
+  "max_total_epochs": 100,
+  "validation_every_new_epoch": true,
+  "early_stopping_patience_epochs": 20,
+  "scheduler": {
+    "kind": "ReduceLROnPlateau",
+    "factor": 0.5,
+    "failed_checks_before_reduction": 5,
+    "start_epoch": 21,
+    "min_lr": 0.00001,
+    "absolute_threshold": 0.0001
+  },
+  "resume_restores": [
+    "model",
+    "Adam",
+    "scaler",
+    "CPU/CUDA/Python/NumPy RNG",
+    "prior best",
+    "curves",
+    "epoch/update counts"
+  ],
+  "validation_losses": "FP32 teacher-forced CE per SID level / SASRec item CE",
+  "test": "once after validation checkpoint selection",
+  "tests": "937OK86skips;8targeted/native OK, including bitwise CPU uninterrupted/resumed trajectory",
+  "estimated_time": "up to~2–2.5hours plus setup/queue;ESmaystopsooner",
+  "no_results_yet": true,
+  "no_resubmission": true
+}

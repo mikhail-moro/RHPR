@@ -16,7 +16,8 @@ from rhpr.gr.experiment import _event, _write
 from rhpr.gr.sid import validate_item_embeddings
 
 
-def build_rqvae(source_root, recipe_path, dimension, spec, *, feature_schema=None, field_dim=64):
+def build_rqvae(source_root, recipe_path, dimension, spec, *, feature_schema=None, field_dim=64,
+                modality_schema=None, active_modalities=None):
     latent_dim = spec.get("latent_dim")
     if latent_dim is not None and (type(latent_dim) is not int or latent_dim < 1):
         raise ValueError("quantizer.latent_dim must be a positive integer")
@@ -41,6 +42,19 @@ def build_rqvae(source_root, recipe_path, dimension, spec, *, feature_schema=Non
         recipe.model._target_ = "rhpr.gr.field_rqvae_native.FieldResidualQuantization"
         recipe.model.feature_schema = feature_schema
         recipe.model.field_dim = field_dim
+        recipe.model.reconstruction_loss_function = None
+    if modality_schema is not None:
+        if feature_schema is not None:
+            raise ValueError('field and modality schemas are mutually exclusive')
+        recipe.model._target_ = 'rhpr.gr.multimodal_rqvae_native.MultimodalResidualQuantization'
+        recipe.model.modality_schema = modality_schema
+        recipe.model.active_modalities = active_modalities
+        recipe.model.head_dim = spec['head_dim']
+        recipe.model.head_hidden = spec['head_hidden']
+        if 'reconstruction_weights' in spec:
+            recipe.model.reconstruction_weights = spec['reconstruction_weights']
+        if 'reconstruction_columns' in spec:
+            recipe.model.reconstruction_columns = spec['reconstruction_columns']
         recipe.model.reconstruction_loss_function = None
     if spec.get("distance_backend", "upstream") == "torch_cdist":
         # All references in this recipe use the same squared L2 metric,

@@ -1,0 +1,54 @@
+{
+  "kernel_id": "carasik/rhpr-ml100k-names-sasrec-controls",
+  "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-ml100k-names-sasrec-controls",
+  "version": 1,
+  "status": "RUNNING",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41350345747",
+  "workflow_result": "success;submit_only=true",
+  "executable_git_sha": "8c9200133eee6473776836e3b5344e02446c05a6",
+  "package_sha256": "b4063d809c548c84d2df8e08fc0ae56d469c520d9b960e11a948f8d721d6e9bb",
+  "embedded_source_files_verified": 189,
+  "exact_config": true,
+  "experiment": "experiments/movielens100k_names_sasrec_controls_2t4.json",
+  "private": true,
+  "internet": false,
+  "accelerator": "NvidiaTeslaT4",
+  "workers": [
+    "cuda:0",
+    "cuda:1"
+  ],
+  "fresh_fits": 6,
+  "seeds": [
+    42,
+    101,
+    202
+  ],
+  "predictors": [
+    "tiger_names_text_poster_plot_no_graph",
+    "sasrec_id_only"
+  ],
+  "epochs": 20,
+  "validation_epochs": [
+    5,
+    10,
+    15,
+    20
+  ],
+  "tiger_active_nonembedding_parameters": 4590464,
+  "sasrec_active_nonembedding_parameters": 4609536,
+  "relative_capacity_difference": 0.004154699829908237,
+  "capacity_match_definition": "Unique parameters reached by real loss backward, excluding nn.Embedding and deduplicating ties; predictor only, excludes offline encoder/AE/RQ",
+  "tiger_profile_supported_forward_flops": 427366562,
+  "sasrec_profile_supported_forward_flops": 187366576,
+  "flop_scope": "B1,20valid items, training forward incl output heads, FMA=2; no backward/beam/offline compression",
+  "equal_flop_budget": false,
+  "frozen_inputs": [
+    "carasik/rhpr-ml100k-multimodal",
+    "carasik/rhpr-ml100k-text-ladder"
+  ],
+  "benchmark": "FP32 resident recommendation B1/B32,10warm/50samples, matching full-history train cases",
+  "tests": "932OK85skips;3targeted/native OK;1273film replacement verified",
+  "estimated_time": "40–60minutes plus setup/queue",
+  "no_results_yet": true,
+  "no_resubmission": true
+}

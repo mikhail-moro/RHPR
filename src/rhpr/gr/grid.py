@@ -241,19 +241,42 @@ def build_grid_generator(
     if mlp_layers is not None and (isinstance(mlp_layers, bool) or not isinstance(mlp_layers, int) or mlp_layers < 1):
         raise ValueError("mlp_layers must be a positive integer or null")
     torch.manual_seed(seed)
+    attention_options = {}
+    if 'attn_implementation' in config:
+        backend = config['attn_implementation']
+        if backend not in {'eager', 'sdpa'}:
+            raise ValueError('GRID attention backend must be eager or sdpa')
+        attention_options['attn_implementation'] = backend
     encoder_config = T5Config(
         vocab_size=width, d_model=d_model, d_ff=d_ff, d_kv=d_kv,
         num_heads=num_heads, num_layers=encoder_layers, dropout_rate=dropout,
         feed_forward_proj="relu",
+        **attention_options,
     )
     decoder_config = T5Config(
         vocab_size=width, d_model=d_model, d_ff=d_ff, d_kv=d_kv,
         num_heads=num_heads, num_layers=decoder_layers, dropout_rate=dropout,
         feed_forward_proj="relu", is_decoder=True, is_encoder_decoder=False,
+        **attention_options,
     )
+    encoder_model = T5EncoderModel(encoder_config)
+    import inspect
+    if 'embed_tokens' in inspect.signature(T5Stack.__init__).parameters:
+        decoder_model = T5Stack(decoder_config, embed_tokens=torch.nn.Embedding(width, d_model))
+    else:
+        decoder_model = T5Stack(decoder_config)
+        # GRID uses the Transformers 4 keyword constructor; 5 accepts two
+        # positional caches. Keep this translation local to the GRID module.
+        module = sys.modules[grid.SemanticIDEncoderDecoder.__module__]
+        cache_class = module.EncoderDecoderCache
+        if 'self_attention_cache' not in inspect.signature(cache_class.__init__).parameters:
+            class GridEncoderDecoderCache(cache_class):
+                def __init__(self, self_attention_cache, cross_attention_cache):
+                    super().__init__(self_attention_cache, cross_attention_cache)
+            module.EncoderDecoderCache = GridEncoderDecoderCache
     model = grid.SemanticIDEncoderDecoder(
-        huggingface_model=T5EncoderModel(encoder_config),
-        decoder=T5Stack(decoder_config, embed_tokens=torch.nn.Embedding(width, d_model)),
+        huggingface_model=encoder_model,
+        decoder=decoder_model,
         codebooks=torch.as_tensor(values.T.copy(), dtype=torch.long),
         num_hierarchies=values.shape[1], num_embeddings_per_hierarchy=width,
         embedding_dim=d_model, num_user_bins=user_bins,

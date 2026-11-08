@@ -1,0 +1,41 @@
+{
+  "fits": 8,
+  "architecture": "narrow",
+  "parameters": 1375040,
+  "index_ids": [
+    "sum_seed202",
+    "uw_seed202",
+    "gradnorm_seed202",
+    "pcgrad_seed202"
+  ],
+  "generator_seeds": [
+    31415,
+    27182
+  ],
+  "primary_proxy_epoch": 10,
+  "epochs": 10,
+  "validation_interval": 5,
+  "native_probes": 2,
+  "native_probe_epochs": 10,
+  "native_probe_validation_checks": 2,
+  "native_probe_test_evaluated": false,
+  "all_four_seed202_reference_hashes_verified": true,
+  "initialization_pins_reused": true,
+  "private": true,
+  "internet": false,
+  "dataset_sources": [
+    "carasik/rhpr-gr-beauty-phase0",
+    "carasik/rhpr-ml1m-clean-mtl-input",
+    "carasik/rhpr-t5-sdpa-runtime"
+  ],
+  "kernel_sources": [
+    "carasik/rhpr-ml1m-clean-mtl-replicates"
+  ],
+  "new_dataset_uploaded": false,
+  "regression": {
+    "tests": 1009,
+    "optional_skips": 91,
+    "failures": 0,
+    "seconds": 101.332
+  }
+}

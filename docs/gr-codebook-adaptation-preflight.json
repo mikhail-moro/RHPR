@@ -1,0 +1,29 @@
+{
+  "projected_frozen": {
+    "parameters": 8157123,
+    "trainable_parameters": 4887808
+  },
+  "rq_gradient_paths": {
+    "encoder": 420.02517676353455,
+    "decoder": 559.3094938993454,
+    "codebooks": 0.08756355568766594
+  },
+  "joint_rq": {
+    "parameters": 8214531,
+    "trainable_parameters": 8214531
+  },
+  "initialization_pins": {
+    "projected_frozen": "57943b2f0723c6422131b012d8a8bfd90706235085872bf59c76c9bcc5272ad9",
+    "joint_rq": "8d0bcc7713ad8e96ea87f388fee590ab8333a9baf0bc50cc567c2121e74185d3"
+  },
+  "initial_TIGER_lookup_identical": true,
+  "native_probes": 2,
+  "epochs": 30,
+  "validation_checks": 6,
+  "regression": {
+    "tests": 1021,
+    "optional_skips": 91,
+    "failures": 0,
+    "seconds": 119.072
+  }
+}

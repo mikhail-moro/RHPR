@@ -1,0 +1,24 @@
+{
+  "tests": {
+    "pilot_contract_and_accumulation": 13,
+    "native_grid": 13,
+    "failed": 0
+  },
+  "native_cpu": [
+    {
+      "backend": "legacy_eager",
+      "cpu_loss": 5.166406154632568,
+      "params": 4977920,
+      "sample256_sha256": "00ccb2f0bbaf6f9bda621eb532910dbfa98dab669b13c87ec4eeb162aa325ec6",
+      "true_grid_accumulation": true
+    },
+    {
+      "backend": "sdpa",
+      "cpu_loss": 5.047266960144043,
+      "params": 4977920,
+      "sample256_sha256": "00ccb2f0bbaf6f9bda621eb532910dbfa98dab669b13c87ec4eeb162aa325ec6",
+      "true_grid_accumulation": true
+    }
+  ],
+  "notes": "Backend attention configs checked on real GRID; CPU accumulation and1024case window50 sample pass; no GPU timing claims."
+}

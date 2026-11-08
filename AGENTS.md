@@ -2,6 +2,1506 @@
 
 ## Research status
 
+- ML1M SID/generator stability COMPLETE, collected2026-11-08, no new GPU.
+  Private carasik/rhpr-ml1m-sid-stability, source2e3e56f75121,
+  workflow42419138870; 18/18 fits, 6.26h on2T4, 0failed, TEST closed.
+  Six fixed indexes: 2seed each text RQ-KMeans, text AE/RQ-VAE and
+  multimodal SUM AE/RQ-VAE; each crossed with generator seeds31415/27182/
+  161803, narrow mini-TIGER1.375M. VAL10/min30/max60/patience20.
+  5/18 reached operational ES (4at60,1at50);13/18 censored at60, so no
+  conclusion about converged results. Fixed30 mean NDCG KMeans .059574,
+  textVAE .057837, multimodal .054482; fixed50 .064622/.059003/.057701;
+  selected mixed-epoch means .065377/.061544/.059092 (VAL selection bias).
+  Mean within-index generator SD at30 .001725/.001985/.003369; at50
+  .002513/.005325/.002198: order reverses, no robust multimodality-stability
+  claim with only2tokenizer indexes and3 gen seeds/method.
+  Fixed50 KMeans−multimodal mean +.006921, 6/6 matched seed pairs positive,
+  conditional shared-user CI [.00360,.01023]; does not include tokenizer/
+  generator randomness, item clustering, multiple or selection effects.
+  mini-TIGER correlation with full not reliably established; do not claim
+  deployment/test improvement or causal KMeans-only effect. KMeans/VAE
+  changes model pipeline; modalities change both inputs and head structure.
+  CPU replay107 prediction files with pinned source/cases/SIDs/weights-init
+  and all epoch counters. 15 AMP skips among316720 batches,27 invalid paths
+  among5962040 candidates,0 duplicates; original rankings retained.
+  Report docs/gr-ml1m-sid-stability-results.md/.json, receipt COMPLETE,
+  replay scripts/research/analyze_ml1m_sid_stability.py, bootstrap/plot CLIs
+  scripts/research/analyze_tokenizer_generator_stability.py and
+  scripts/research/plot_tokenizer_generator_stability.py. Graph
+  /tmp/ml1m-stability-analysis/stability-summary.png; numerical evidence
+  /tmp/ml1m-sid-stability-evidence.zip SHA256
+  6ee60239826a12c892357f392854680b6342bcc869b8a759f644e0de71a3eb1c.
+  Checkpoint weights remain private Kaggle. No new runs/epochs/TEST/notifications.
+
+
+- Intermediate proxy screen COMPLETE,collected2026-11-07. Private
+ carasik/rhpr-ml1m-middle-proxy/1,source2fd232815bc0;24/24fits,0failures,
+ 86.1847min session,2T4. Same six frozen SUM/GN42/101/202,two mini seeds
+ 31415/27182,10epochs/VAL5,151166TRAIN/2786VAL/history20,FP16/SDPA/512.
+ Primaryfixed10mean2 vsfrozenfullESselectedseed161803:
+ oldnarrow4+4d64FF512=1.375M,rho+.4286,choiceSUM202,relative regret4.82%;
+ middle_width4+4d96FF768=2.898M,rho-.20,choiceGN101,regret9.01%;
+ half_depth2+2d128FF1024=2.748M,rho-.60,choiceSUM42,regret5.08%.
+ NewownmeanNDCG .04905/.05009 vsoldnarrow .03358:betterownpredictions
+ do NOT imply betterindexranking. Mean2seedtraining+recordedranking
+ min/index13.36/17.20/10.66;narrowcross-session,notcontrolledbenchmark.
+ Epoch5middlemeanrho+.4857 butindividualseeds+.5429/-.4857,secondary,
+ notvalidatedrecipe. Primaryindividualmiddle-.3714/-.0857,half-.4857/-.60.
+ WithinSUM3 rho-.5/-.5/-1;withinGN3+.5/+.5/-.5,descriptiveonly.
+ Newtop2overlap0,bestfullGN202 retainedmiddle top3 butexcludedhalf top3.
+ Conditional5000shared-userbootstrapCIallcross0;excludesseed/selection
+ uncertainty. Sixrelatedexaminedindexes/onefullseed/sameVAL;noportable
+ proxyrecipeorstatisticallyestablishedarchitecturedifference.
+ Independently66predictionsreplayed48new+12oldnarrow+6selectedfull,
+ NDCG/Recall5/10match1e-12;allcase/SID/reference/initializer/sourcepins,
+ 24matrix,worker12+12,10epochs/2VAL/2960stepsverified;0AMPskips.
+ Full1035tests91optionalskips0fail;CPUreplaypasses. Reports
+ docs/gr-middle-proxy-results.md/.json;scriptanalyze_middle_proxy.py;
+ receiptCOMPLETE/quality_complete. PNG/PDF/CSV/evidenceZIPsaved,no
+ weightsinZIP;weightsremainprivateoriginalKagglekernels.
+ No newGPU/TEST/extraepochs/seeds/HPO/Telegram. No runs pending.
+ Noautomaticfollowupauthorized.
+
+
+- Plateau followup COMPLETE,collected2026-11-07,no newGPU/TEST. Finishprivate
+ carasik/rhpr-ml1m-proxy-plateau-finish/1(ac6b5de04dc4) completed2pending202
+ fitsin56.119min;reuse4fromfailed64500ca852e7 unchanged. All6meetoperational
+ ES min60/max100/VAL5/patience20;0censored,notproofglobalconvergence.
+ Best/stop:SUM42 40/60,GN42 30/60,SUM10180/100,GN10145/65,SUM20265/85,
+ GN20245/65. Total435epochs,16AMPskips;counterupdates+skips=296*epochverified.
+ FullselectedVAL .069266/.065429/.070717/.066399/.069456/.072976 inindexorder;
+ meanperindexgainvsbestfirst30+2.54%(selectedVAL,notTESTgain).
+ Mini2seed10 ->fixed30rho-.0286,->bestwithin30.4286,->ESselected.4286.
+ Fixed30->ESselected-.0857;bestwithin30->ESselected.7714. Earlybest15->ES.6571,
+ best20->ES.8286. Epoch25fixedhappens.9429,posthoc,norecipeclaim. Prior
+ fixed30failuredoesnotestablishuniversalproxyfailure;newselectedtargetdiffers.
+ MiniSUM202selected.069456 vsGN202best.072976,regret.003520/4.82%,rank3/6;
+ paireduserCI[-.004163,.010996]cross0;rhoCI[-.5429,.8857],fixedselectedmodels,
+ excludesseed/checkpoint-selection uncertainty. WithinSUM/GN3indexrho-.5/.5.
+ Onefullseed/sixrelatedexaminedindexes/sameVAL,no portableproxyestablished.
+ Independent105predictionsreplayed:87full(57old4+30new202inclhistory),12mini,
+ 6historicalfull;allmetrics/pins/cases/RNG/worker/reuseflagsmatch1e-12.
+ Meanfulltotalfit73.34min/index,mini2~13.36min,earlyfull15~15.14min(training+
+ recordedrankingvalidationbasis);no measuredsearchspeedupclaim.
+ Reportsdocs/gr-proxy-plateau-results.md/.json,replayanalyze_proxy_plateau.py,
+ plots/evidenceZIPsaved. Full1032tests91optional skips0fail;CPUreplaypassed.
+ FinishreceiptCOMPLETE/quality_complete;originalfailedjobremainsERROR.
+ No models/results pending. No additionalruns/epochs/HPO/retries/Telegram.
+
+
+- Failure repair2026-11-07: original plateau kernel64500ca852e7 ERRORafter
+ 4modelsfinished. Post-fitguard incorrectly compared successfulAdamsteps to
+ scheduledbatches;correct invariant updates+AMPskips=ceil(N/batch)*epochs.
+ SUM42/GN42 both60/17760steps/0skip;SUM101100/29593steps/7skips,best80;
+ GN10165/19238steps/2skips,best45. All4meetoperationalES. 202neverstarted.
+ Independentlyreplayed57VALfiles;allmetrics/counts/cases/SIDs match1e-12.
+ Fourlast/bestweightsdownloaded/hashed/metadata verified. Sourcefailedplan/
+ config,4checkpoints+sidecars+57predictions83filespinned. No successmanifest
+ existsforfailedparent;customrecoveryverifiesallpinnedbytes. FailureZIPsaved.
+ FinishONLYoriginal2pending202continuationsfromfull30;reuse4finishedmodels
+ withoutexecution;weights/predictionsremaininoriginalfailedkernel/evidenceZIP. Same6matrix,min60/max100,VAL5,patience20,LR.001/FP16/SDPA512.
+ No newseeds/tokenizer/proxyfits/TEST/HPO/hardwarefallback/notifications.
+ Newprivatecarasik/rhpr-ml1m-proxy-plateau-finish preservesfailedv1parent;
+ original3datasets+3successfulkernel sources. Suite5500s/perfit5000/server100min;
+ quota41.74h,expected35–85min. Nativeactual65epoch2skiprecoverycopiedallbytes
+ withtrainingfunctionpatchedtofailifcalled. Regression1032tests91skips0fail;
+ targeted21pass;all4externalbranchesforbidmodelconstruction/training. Configml1m_proxy_plateau_finish_2t4.json;docs
+ gr-proxy-plateau-recovery.md/.preflight. FirstfinishCI42376103455 at3ec6719d
+ rejectedbySaveKernelHTTP400beforeanysession/GPU(no detailedcause). Revised
+ configremovesthefailedfourthinputandembedsverified4selection/curverecords,
+ with83originalartifacthashesandexternal-checkpointreferences. Only2pending
+ 202modelstrain;finalCPUreplayjoins4original+2newpredictions. SUBMITTEDONCEprivatefinishv1RUNNING,executableac6b5de04dc4,
+ CI42377368093successsubmit-only,artifact13576157028. Deployed210sourcefiles/
+ exactconfig/T4/private/offline/3datasets/3successfulparentsverified;runner
+ 941488bytes,globalzlibcodec. Receiptdocs/gr-proxy-plateau-finish-submission.json.
+ CollectONLY2new202predictionsetsfromfinish;4completedweights/predictions
+ remaininoriginalfailedkerneland/tmp/proxy-plateau-failed,57VALfilesalready
+ replayed. Finalanalysisjoins4old+2new;newkernelstores4externalreferences,
+ notcopiesoftheirweights/predictions. No additionalfits/retries/HPOauthorized.
+ TwoCIfinishrequests42376103455/42376580202plusdirectSDKdiagnosticwere rejected
+ beforeanyGPU/version. ExactAPIbody:kernel source must be less than1megabytes.
+ Confirmedpayload1226614bytes. Globalzlib-compressedSTOREDzip+minifiedJSON
+ reducesrunner~941484bytes;all210sourcefiles/configvaluespreserved. Local1MiB
+ sizeguardadded;standalonebaselineexecution/fullrecoverybyteauditpass,
+ targeted11packaging/recoverytestsandfull1032tests91skips0fail. NoMLchange.
+ Fourth-inputhypothesiswasnotestablished;rootconfirmedsource-size limit.
+ Thisrepairs/completestheoriginalsix-modeltask;no repetitionof4completedfits.
+
+
+- User authorization2026-11-07: continue SIX fullTIGERs from epoch30 of private
+  carasik/rhpr-ml1m-proxy-target/1 to operational VALplateau. Same seed161803,
+  SUM/GradNorm indexes x42/101/202,data/FP16SDPA512/AdamLR.001 unchanged.
+  Exact model+Adam+scaler+CPU/CUDA/Python/NumPyRNG resume;12last/bestweights
+  SHA/sizepinned,all6metadata30epochs/8880updates/95Adamstates/1CUDA RNG checked.
+  Min60/max100totalepochs,VAL5,patience20epochsbeyondbest;NOnewLRscheduler.
+  EScriterion=operationalplateau;epoch100withoutcriterion=censored,notconverged.
+  Preserve fixed30;newtargetbestVALundercontinuationrule. NoTEST,proxy/tokenizer
+  fits,oldseedfits,HPO/retries/extensions/Colab/newuploads/Telegram.
+  Existing3datasets+3privateparents,2T4,3resumes/worker. Expected1.5–4h session;
+  perfit5000s/suite15500s/server270min;quota43.43hobserved. Nativeactualepoch30
+  model/optimizerrestore+tiny30->60ES/RNGprobe pass.1027tests91skips0fail,
+  targeted18pass. Configexperiments/ml1m_proxy_plateau_2t4.json;
+  docs/gr-proxy-plateau.md/.preflight;privatecarasik/rhpr-ml1m-proxy-plateau.
+  SUBMITTEDONCEprivatev1ERROR,executable64500ca852e7,workflow42366590879
+  successsubmit-only;210embeddedfiles/exactconfig/T4/private/offline/3datasets/
+  3parentsverified. Receiptdocs/gr-proxy-plateau-submission.json. ERROR due
+  to incorrect post-fit AMP accounting;four validcompletedmodels preserved,
+  two202notstarted. See latest recovery entry;do not repeat completed fits.
+
+
+- User authorization2026-11-07: cheap independent full-TIGER proxy diagnostic.
+  Exactly6fresh generators, existing SUM/GradNorm indexes x tokenizer42/101/202,
+  newcommon generatorseed161803,30epochs/VAL5/FP16/nativeSDPA512,2T4.
+  Reuse narrow mini epoch10scores from31415/27182;no mini/tokenizer/content fits.
+  Original full architecture4+4,d128,FF1024,H6,kv64,4977920params.
+  Same151166TRAIN/2786VAL/history20,8880updates/sixVALrequired;NO TEST.
+  Primary fixed newfull30;oldfull30 reference stability and earlynewfull5/10
+  comparators;earlyfull shares targettrajectory,not independent transfer.
+  Structured6candidate subset fixed bylabels,alreadyexamined MTLindexes andVAL;
+  not a newtokenizerfamily benchmark orconvergenceclaim. Reportshortlist/regret,
+  seedgroups/methodgroups,pins andallvalidationpredictions. Existing3datasets/
+  2privateparents only,no dataupload/HPO/extensions/retries/Colab/Telegram.
+  Native6initializersagree4cfe16ae1433c48e8d7aad7531c82af7da3d370f7f5baf25b8d7259d12d39dc6;
+  2tiny native30epoch/6VALprobespass;1025tests91optional skips0fail,
+  finaltargeted16checks pass. Private carasik/rhpr-ml1m-proxy-target.
+  Config experiments/ml1m_proxy_target_replication_2t4.json;
+  docs/gr-proxy-target-replication.md andgr-proxy-target-preflight.json.
+  Observedquota45.00h GPU;expected1.5–2h session;server135min/suite7500s/
+  perfit2300s. SUBMITTEDONCEprivatev1RUNNING,executable5ed498804545,
+  workflow42354986331successsubmit-only;209embeddedfiles/exactconfig/
+  3datasets/2parents/T4/private/offlineverified;receipt
+  docs/gr-proxy-target-submission.json. COMPLETE6/6fits,93.343min,all30epochs/
+  8880updates/6VAL/0AMPskips. Same6indices mini-oldfullrho.8857 becomes
+  mini-newfull-.0286;old/newfull.2571;earlynewfull10/new30.0286. Mini selects
+  SUM202(.065194),newwinnerGN202(.070583),regret.005390/7.64%;paireduserCI
+  [-.001107,.012239]cross0(fixedmodels,posthocpair,no seed/selectioncorrection).
+  Mini top3retainswinner,notstrongwith6candidates. Fournewbestepochs30;
+  no convergenceclaim. Posthoclate-meanrho.486,twofullseedmean.657;not new
+  confirmation. SameVAL/relatedindices;oldfullseeds coupledtoindexseedgroups,
+  newcommon161803. No validatedportableproxy or isolatedarchitecturefailure.
+  Independent54predictionreplays(36new+12mini+6oldfull),allmetrics/pins/budgets
+  exact. Meanfullfit30.44min,epoch58.61s. Reportsgr-proxy-target-results.md/
+  .json,replayanalyze_proxy_target.py,plots/numericalevidenceZIPsaved.
+  No GPUresults pending. No additionalruns/extensions/HPO/notifications.
+
+
+- User authorization2026-11-06: projectioncontrol plus additionalfullytrainable
+  RQ-VAE NOprojection arm. Userclarified ordinaryRec+VQloss shouldadaptencoder/
+  decoder to sharedbooks;not a directNIPgradientthroughargmin. Twofreshfits,
+  cleanML1M151166TRAIN,seed42,30epochs/VAL5,FP16SDPA512,2T4,~40minbudget.
+  projected_frozen:original64DRQfullyfrozen,fixedSIDs,trainsharedLinear64->128.
+  joint_rq:NOprojection,expandnativeencoderlast/decoderfirst/books64->128
+  withzeros,functionpreservinginitially;actualcentroidParametersserveTIGER
+  lookup;allRQtrainable. NativeSTE/beta.25meanloss;objectiveNIP+Rec+VQ1/1/1,
+  uniformcatalogue512auxsample/update,FP32RQmath;Adam.001/wd.0001sameasTIGER.
+  SIDsreassignedeveryepochstartfromcurrentencoder/books,epochSIDbufferrestores
+  bestmatchingindexbeforeTEST. Captureobjectivecomponents/churn/collisions,
+  failedcandidatecodes/books/latents.NoHPO/retries/extensions/Telegram/newdata.
+  SAMEinitialTIGERlookup/baseTransformer,pinsbyarm;nominal/activeparams
+  projected8157123/4887808,joint8214531/8214531. ExistingprivatecleanMTLparent
+  and3datasetsreused;no content/RQpretraining. Server37min,fit2050s,quota.65h.
+  Private carasik/rhpr-ml1m-codebook-adaptation;config
+  ml1m_codebook_adaptation_2t4.json,docs/gr-codebook-adaptation.md.
+  2native30epoch/6VALprobespass;encoder/decoder/booksauxgradientsverified;
+  1021tests91optional skips0fail. Noadditionalfitsauthorized.
+  SUBMITTEDprivatev1RUNNING,executableb828588a3bb1,workflow42217880480success.
+  All208embeddedfiles/config/3datasets/1parentexact;receipt
+  docs/gr-codebook-adaptation-submission.json. COMPLETE2/2fits,33.951min,
+  both30epochs/8880updates/6VAL/0AMPskips. ProjectionVAL.03686649/TEST.03114151
+  selected30;fulljointVAL.02118170/TEST.01895965selected25. Historicalcontrol
+  VAL.06665966/TEST.06165244;one seed,no robustgain. Jointindexepoch30occupied
+  27/24/30,1756uniquesemanticIDs,maxcollision9,medianSIDchurn84.93%;RecLoss
+  2.6305->2.3620,VQ.1850->1.4835. RQsupportavoidsoldoverflow,rankingstillpoor.
+  Independent14VAL/TESTpredictionfilesrescored,casehashes/pins/budgetsmatch.
+  TRAINtargetentropyoriginalincrementbits7.6601/2.7691/.0579/.00072 vsjoint30
+  4.4168/3.2097/2.2208/.6405,total10.48779both(fullSIDbijection);thisisnot
+  user-historyconditionalNIPLoss.No measuredgradientconflictclaim.
+  Report gr-codebook-adaptation-results.md/.json,raw/CPUreplay/plots/33MBevidence
+  ZIPsaved. Docs-onlycollection,no newsourceorGPUwork;1021predeploymenttests
+ 91optional skips0fail. No GPUresults pending;no furthercompute authorized.
+
+
+- User authorization2026-11-06: two shared-codebook TIGERfits on existingclean
+  ML1M151166TRAINwindows,seed42,30epochs,val5,FP16/nativeSDPA/512,2T4.
+  Reuse SUMseed42 frozenRQ-VAE andcontent fromprivatecleanMTLparent.
+  Arm codebook_init copies3x256centroids into TIGERinputtable,keepsSIDfixed;
+  arm live_codebook uses SAMEactualtrainable768rows as RQcentroids and
+  reassignsSID atSTARTeveryepoch (userexplicitlyselectedthis). FrozenRQencoder
+  latents cachedonce;decoderunused/frozen,noRecLoss,noargmingradient.
+  64Dbooks/latentszero-liftto128D preservesinitialassignments;all128Drows
+  thenlearn.NostandardGRIDoutputheadtyingadded.Suffix/user/BOSnormal.
+  PersistentactiveSIDbuffer ensuresbestcheckpointrestoresmatchingindex.
+  Exact30epochs/8880updates/6VAL,onebestVALselectedTESTeach;saveeveryepochSID,
+  churn/collisions. Initialmodelsidenticalpindf5affc3c6ae40678b80a58deb62d162c51019187790842af5f2e7bc7ac83e6a.
+  ExistingrandominitSUMcontrolreused;NOthirdfit or newquantizertraining.
+  Private carasik/rhpr-ml1m-shared-codebooks,offline,3datasets/1parent;
+  no newdataupload,retries/HPO/Telegram/hardwarefallback.Quota1.18hchecked;
+  server60min/fitbudget3000s. Config ml1m_shared_codebooks_2t4.json,
+  docs/gr-shared-codebooks.md. Native2x30epoch/6VALprobesandfrozenencoder
+  sourcecheckpass;selectedearlierepoch20/25SIDrestoreverified.
+  SUBMITTEDprivatev1RUNNING,executablef6a299f5bb60,workflow42210018539success.
+  All206embeddedfiles/config/3datasets/1parentexact;1015tests91skips0fail.
+  Receipt docs/gr-shared-codebooks-submission.json. COLLECTEDERROR:staticarm
+  completes30epochs/8880updates/6VAL/0AMPskips,VAL.059715/TEST.051880(-15.85%
+  vshistoricalSUMcontrolTEST.061652). Live29epochs/8584updates/5VAL/0AMPskips,
+  failed atstart30:264itemcollision exceeds256suffix. No liveTEST/topmarkers.
+  MedianSIDchurn95.81%;failedindex244uniquesemanticIDs/2874items,used21/46/64.
+  Posthocdropadded64coordsgives270uniqueIDs/maxgroup254;collapsepersists,
+  geometryliftcontributesbutisnotsolecause.NoRecLosswastrained;NIP-only
+  embeddingupdatesdonotpreservefrozenencodergeometry.FirstbookRMS7.32->.6265.
+  Independentlyreplayed19predfiles,epoch29checkpointandfailedindexrecomputed.
+  1017tests91optional skips0fail. Report gr-shared-codebooks-results.md/.json;
+  replay/plots/labeledlogs/62.4MBevidenceZIPsaved.Loggingfixedwithtrialevents
+  andfailedcandidate snapshotsforfutureonly;NOnewGPUrun/retryauthorized.
+  No GPUresults pending;do not submitduplicates.
+
+
+- User authorization2026-11-06: two smaller mini-TIGER shapes ffn_small
+  (4+4,d64,FF256,H6,kv32,1112896params) and attention_small
+  (4+4,d64,FF256,H4,kv16,719552params).48freshfits:12frozenSUM/UW/GN/PC
+  indexes seeds42/101/202 x2shapes xgenseeds31415/27182.10epochs,val5,
+  fixedepoch10primary vs savedfull30VAL;reportoverall,seedgroups,eachmethod.
+  Reuse savednarrow controls;no retraining baseline. Private carasik/rhpr-ml1m-mini-width,
+  2T4,offline,3existingdatasets,2existingparentkernels;nonewdataupload.
+  No TEST,quantizer/fullmodel/content fitting,Telegram,retries/HPO/extensions.
+  Internal9900s/server180min,quota3.52hchecked. Config
+  ml1m_mini_tiger_width_2t4.json;protocol docs/gr-mini-tiger-width.md.
+  Supersedes prior no-extra-shapes only for these48fits. Do not repeat oldruns.
+  SUBMITTED privatev1 RUNNING,executabled80787c82e1c,workflow42182356635success.
+  All205embeddedfiles/config/3datasets/2parents verified.1012tests91skips0fail;
+  4native10epoch/2VALprobes pass. Receipt docs/gr-mini-tiger-width-submission.json.
+  COMPLETE48/48fits,139.756min,10epochs/2960updates/2VAL/0AMPskips each.
+  Independently replayed96new+48narrow+12fullVALfiles;all metrics/pins match.
+  Narrowall12rho.902,SUMrho1;ffnsmallallrho.385,SUM.5;attention_smallall-.126,
+  SUM1butindividualseed.5/1. Epochseconds38.85/36.37/30.19;only1.07/1.29x
+  speedvsnarrow. Narrowwithinindexseed101rho-.2;poolednotuniversalproxy.
+  Retainnarrowprovisionally;no robust generalreplacement fromsmallerwidths.
+  1012tests91optional skips0fail;report gr-mini-tiger-width-results.md/.json,
+  replay scripts/research/analyze_mini_width.py,plotsand57.2MBevidenceZIPsaved.
+  No GPUresults pending,newcompute,extensions or retries authorized.
+
+
+- User authorization2026-11-06: fixed narrow mini-TIGER epoch10 transfer on
+  FOUR saved SUM/UW/GN/PC indexes at tokenizerseed202.8freshfits crossed
+  with genseeds31415/27182,2T4;exact10epochs/val5,primary fixedepoch10.
+  Same narrow4+4d64/d_ff512/6heads/d_kv32,initialization pins and all other
+  data/training settings as pilot. No other shapes/seeds/HPO/epoch extension.
+  Reuse only existing private cleanMTL-replicates parent,3existingdatasets;
+  NO new data upload,quantizer/content/fullmodel training,TEST or Telegram.
+  Config ml1m_mini_tiger_transfer_2t4.json,phase seed202_transfer;private
+  carasik/rhpr-ml1m-mini-transfer.60minservercap,3000s internaldeadline.
+  Submitted private carasik/rhpr-ml1m-mini-transfer/1 COMPLETE,executable31d120c8,
+  workflow42174475061success;all205embeddedfiles/config/3datasets/1parent
+  exact.1009tests91optional skips0fail;2native10epoch/2VAL probes pass.
+  COMPLETE8/8fits,10epochs/2960updates/2VAL/0AMPskips,27.823min,finished
+  2026-11-06T06:55:41.629635UTC.Fixedepoch10meanrho.8,top1/top2correct,
+  targetregret0;genseeds1.0/-.2,singlebadseed selects worstUW.Conditional
+  userCI[-.6,1.0],fourindexes/exactpermutationp.333;no universalproxy claim.
+  Independently rescored16mini+4fullVALfiles;allpins/cases/metrics match.
+  Epochseconds38.827,meanfit403.96s;report gr-mini-tiger-transfer-results.md
+  /.json,replay/plots/evidenceZIPsaved.No GPUresults pending or newcompute.
+  Receipt docs/gr-mini-tiger-transfer-submission.json;do not launch duplicates.
+  Protocol docs/gr-mini-tiger-transfer.md. Prior no-followup restriction is
+  superseded only for these8fits;do not repeat or resume the failed pilot.
+
+
+- User authorization2026-11-05: frozen-index mini-TIGER calibration. Eight
+  existing SUM/UW/GN/PC indexes at tokenizerseeds42/101;three mini shapes
+  shallow1+1,narrow4+4d64,compact2+2;generatorseeds31415/27182 only.48fresh
+  fits,20epochs,val5,FP16/nativeSDPA/512,2T4;no quantizer/fullmodel fitting.
+  Reuse existing private cleanMTL and replicates notebook outputs as kernel
+  sources;all reference files/manifests/pins verified. NO new dataset upload:
+  that attempted action was rejected by automatic approval review and abandoned.
+  Submitted private carasik/rhpr-ml1m-mini-tiger/1 ERROR,executable44b84d5d,
+  workflow42109946957success;all205embeddedfiles/config/3datasets/2parents
+  exact.1005tests91optional skips0fail;3native20epoch/4VAL probes pass.
+  Collected ERROR after171.23min:36/48fits complete,all20epochs/4VAL/0AMPskips.
+  Shallow16+narrow16 cover8indexes/2genseeds;compact4coversonly2indexes.
+  Two internaldeadline TimeoutErrors,10neverstarted;no retry/newcompute.
+  All144miniVALfiles+8full30VALindependently rescored. Narrow10 pooledrho.833
+  (genseeds.857/.810),but indexseedgroups.8/-.2,conditionaluserCI[-.024,.905].
+  Shallow20pooledrho-.167;do not infer depthcausality or universalproxy.
+  Meanepochseconds shallow16.96,narrow38.82,fullhistorical57.91.
+  Earlyfull5pooledrho.857shares targettrajectory;not independenttransfer.
+  Reports gr-mini-tiger-results.md/.json;replay,plots,evidenceZIPsaved.
+  Wholequality incomplete,analysis complete,noGPUresults pending;1005tests,
+  91optional skips,0fail.No follow-up authorized.
+  Receipt docs/gr-mini-tiger-submission.json;do not launch duplicates.
+  Protocol docs/gr-mini-tiger.md;config ml1m_mini_tiger_2t4.json. Primary
+  correlation against full epoch30VAL;best-of30 secondary;report seed groups
+  and earlyfull comparators.8related indexes,one fullgen seed/index;pilot only.
+  No TEST evaluation,extra shapes/seeds/epochs/HPO/retries/Telegram authorized.
+  Server3h budget;incomplete matrix must fail,never report as full calibration.
+
+
+- Latest authorization2026-11-05: ALS GradNorm + ALSinput lambdaCF0,
+  seed42,2freshfits on2T4;config ml1m_als_objectives_2t4.json,
+  private carasik/rhpr-ml1m-als-objectives. Same30epochs/val5/FP16SDPA512,
+  AE3500/RQ3000FP32,all5pinnedinputs reused. ALS remains active input in
+  botharms;zeroCF uses fixedweights1/1/1/0 with NO MTLadapter,otherwise
+  adapter would override fixedweights. GradNorm4tasks alpha1.5,sumweights4.
+  Tinygradientcheck verifies liveALSencoder vs zeroCFdecoder reconstruction
+  gradient;bothnativeE2E30epoch/6VAL passed. Reuse old contentSUM/ALSSUM controls.
+  No extra methods/seeds/HPO/retries/Colab/hardwarefallback/Telegram.
+  COMPLETE privatev1,executablea102ceac9a37,workflow42091502981.
+  All204embeddedfiles/config/5sources/T4/offline verified.1000regressiontests,
+  91optional skips,0fail;2nativeE2E+explicitzeroCFgradientcheck passed.
+  Bothfits30epochs/8880updates/6VAL/0AMPskips,37.53min. GNselected25,
+  lambda0selected20. VAL/TEST GN .062935/.053425,lambda0 .065669/.048492;
+  TESTvsALSSUM -3.07/-12.02%,vscontent -13.34/-21.35%. No positive evidence.
+  GNfinalweights meta/poster/plot/ALS .878/.930/1.127/1.065;CF not suppressed.
+  Actual lambda0 quantizer audited:CFdecoder unchanged,CFencoder trained;
+  masking CF changes all2777supportedlatents,medianrelativeL2 7.25%.
+  35predictionfiles independently rescored. One seed;vsALSSUM CIs include0;
+  vscontent conditional userCIs negative,not trainingseed inference.
+  Receipt docs/gr-ml1m-als-objectives-submission.json;no GPUwork pending.
+  Report gr-ml1m-als-objectives-results.md/.json,replay/plots/audit/ZIPsaved.
+  Docs gr-ml1m-als-objectives.md;do not launch duplicate sessions.
+
+
+- Latest authorization2026-11-05: TRAIN-only ALSchannel and shuffledALS on
+  seed42,ordinarysum,2fresh30epochfits/val5 on2T4;reuse oldSUMseed42control.
+  Config experiments/ml1m_als_channel_2t4.json;private carasik/rhpr-ml1m-als-channel.
+  SameML1Mrawclean cases/nativeSDPA/FP16/batch512/512,TIGER4+4d128,AE3500/RQ3000.
+  Frozen128DimplicitALS on303199uniqueTRAINedges,2777supporteditems;noholdout
+  reads. Shuffledonlysupported rows,mask/vector multiset retained. ALSuses
+  existingpeople128slot;NOpeopledata. Oldparameter shapes/pins preserved.
+  One extra unitRecLoss changes totalscale3to4 in BOTHarms;document limitation.
+  Inputprivate carasik/rhpr-ml1m-als-input,manifestcfed1590e72447de047987e45d5399718404a0074eaa6be3bde7ea9086ba9663.
+  COMPLETE privatev1,executable6ecbdaa0b54b,workflow42076145430success;
+  all204embeddedfiles/config/5sources/T4/offline verified.998regressiontests,
+  91optional skips,0fail;2nativeE2Epassed. Submission receipt preserved.
+  Bothfits30epochs/8880updates/6VAL/0AMPskips,38.07min;all selectedepoch25.
+  VAL/TEST content .066660/.061652,trueALS .064178/.055118(-10.60%TEST),
+  shuffled .068415/.059330(-3.77%). TrueALSvs shuffled -7.10%TEST.
+  One seed;allconditional bootstrapCIs include0. No gross codecollapse;
+  trueALSRecMSE .900 vs shuffled .972,betterRec didnot imply betterranking.
+ 42predictionfiles rescored incl old4refs;contentfeaturesexact,samepinsverified.
+  Report gr-ml1m-als-channel-results.md/.json,replay/figures/evidenceZIPsaved.
+  No new compute pending;do not launch duplicates.
+  No extra methods/HPO/seeds/retries/Colab/hardwarefallback/Telegram.
+
+
+- Latest authorization2026-11-05: repeat ALL4 ML1M clean MTL methods on
+  two additional pipeline seeds101/202 (not only SUM/PCGrad). Eightfreshfits
+  on2T4 in one private carasik/rhpr-ml1m-clean-mtl-replicates session;
+  experiments/ml1m_clean_mtl_replicates_2t4.json. Same exact originalrawclean
+  2786users/2874films/151166cases,shared3modalities,nopeople,AE3500/RQ3000FP32,
+  TIGER4+4d128/FP16/nativeSDPA/batch512/512,30epochs,val5,oneVALselectedTEST.
+  All initialization pins precomputed;trial seed reaches quantizer,generator,
+  and train permutation via trial-local config copy. Preserve seed42 output.
+  COMPLETE v1,executablefc2a62bdd57a,workflow42033993480success.
+  All203embeddedfiles/config/hardware/source sets verified;receipt preserved.
+  Fullregression995tests:904pass91optional skips,0fail;8native5.22.1E2Epassed.
+  All8newfits30epochs/8880updates/6VAL/0AMPskips;146.42min total.
+  Combined3seeds42/101/202:meanVAL/TEST SUM .066740/.059173,
+  UW .066528/.058160(-1.71%TEST),GradNorm .066932/.060195(+1.73%),
+  PCGrad .067324/.058395(-1.32%). PCGradTEST +5.67/-6.28/-4.01% byseed;
+  GradNorm -2.44/+12.38/-2.94%. No robust MTLwinner;allconditional userCIs
+  cross0. Seed42 apparentPCGradgain didnot replicate. Frozenfeatures exactly
+  equal;84predictionfiles independently rescored. Fullreport/replay/ZIPsaved.
+  Report gr-ml1m-clean-mtl-replicates-results.md/.json. No new compute pending;
+  do not resubmit or add compute automatically.
+  Prior no-extra-seeds restriction is superseded only for these8fits.
+  Full preflight and run receipt:docs/gr-ml1m-clean-mtl-replicates*. No extra
+  HPO,methods,retries,Colab deployment,hardware fallback or Telegram authorized.
+
+
+- User authorized2026-11-05: fresh ML1Mclean contiguous20+val+test MTLscreen,
+  SUM/UW/GradNorm/PCGrad seed42,30epochs,val5,FP16TIGER/nativeSDPA,512/512.
+  Config experiments/ml1m_clean_mtl_2t4.json;private carasik/rhpr-ml1m-clean-mtl.
+  2786users,2874films,151166TRAINcases;allrawbarriers/singletons checked before
+  filtering;casearrays match prioraudit and replay byte-for-byte. Shared once:
+  metadataSentenceT5+keyedposter+description-onlyMPNet384chunks,no people.
+  AE3500/RQ3000 remainFP32;inactivepeople slot zero preserves oldarchitecture
+  and qpin54253fbb;fresh5.22.1generatorpind57fc2e7. TwoT4/fourfreshfits.
+  982regressionOK13skip+9newtests+4nativeE2E+2multibatch probes pass.
+  COMPLETE private v1,executable20a4c085,workflow42020589648success;
+  all203embeddedfiles/config/dataset sources/hardware verified. All4 fits30epochs,
+  8880updates/6VAL/0AMPskips;73.34min whole suite,~57s training epoch.
+  VAL/TEST NDCG10 SUM .066660/.061652,UW .068528/.056512,
+  GradNorm .065226/.060147,PCGrad .070168/.065146 (+5.26%/+5.67% vsSUM).
+  One pipeline seed42;all paired-user bootstrap95%CIs cross0;not confirmed.
+  PCGrad652/6500projectedupdates (10.03%),489AE+163RQ. UWweights sum3.48.
+  28rawpredictionfiles independently rescored;shared cases/features/pins checked.
+  Report gr-ml1m-clean-mtl-results.md/.json,CPUreplay/figures/evidenceZIP saved;
+  docs/gr-ml1m-clean-mtl-submission.json records version/source/completion.
+  No extra seeds/tuning/retries/hardware fallback/Telegram authorized.
+  Docs gr-ml1m-clean-mtl.md and preflight JSON;do not launch duplicates.
+
+
+- ML1M clean-history CPU audit2026-11-05 COMPLETE;NO GPU/protocol change.
+  Fixed2874films. Priorfilterproposal5672users/839388cases reproduces.
+  799users(14.1%)haveval/test raw timestamp ambiguity hidden by filtering;
+  4440(78.3%)have uncovered events in original up-to20val/test contexts.
+  Not evidence this caused ML100K quality instability. New raw singleton +
+  clean raw up-to20windows:4146users/174378traincases;full20eval:3158/166912;
+  literalcontiguous20+val+test:2786/151166. Allcohorts>=1traincasebeforeval.
+  Initialvalidprefixonly2600/35730(full20:753/21989). Keep raw timeline/barriers,
+  filter examples rather than splice histories;natural short original prefixes
+  allowed,never reset-shortafterunknown. Candidate only,not approved training.
+  Report gr-ml1m-clean-history-audit.md/.json,CLIreplay/CSV/bundle preserved.
+
+
+- Batch T4 pilot COMPLETE,collected2026-11-05;carasik/rhpr-t5-batch-pilot v1,
+  executable b777b516,570.12s experiment.16attempts:15complete0AMPskips,
+  1OOM(eager window50physical1024),0numericalfailed. SDPA20throughput at
+  effective/physical256/128,256/256,512,1024:1938/2452/2651/2771examples/s;
+  oldeagerbaseline256/1281969. SDPA50:859/910/934/938 vs oldbaseline708.
+  SDPA256/256 +24.5%throughput20,+28.4%50;effectivebatch unchanged.
+  SDPA512gets95.7%/99.6%of1024throughput with~half memory;larger effective
+  batches change updates/epoch and quality is UNTESTED. No defaults changed.
+  Replayed750timings+150E2E,independent80268case reconstruction/all6samplehashes.
+  Report gr-t5-batch-results.md/.json,replay/figures/evidenceZIP saved.
+  No extra GPU/fulltraining/ML1M/Telegram authorized or pending.
+
+
+- User authorized2026-11-05: bounded batch-throughput pilot, NOT full training.
+  experiments/t5_batch_t4_pilot.json; private carasik/rhpr-t5-batch-pilot.
+  Old4.47eager vs5.22.1SDPA,windows20/50,effective/physical256/128,256/256,
+  512/512,1024/1024;16fresh-process attempts on same physical T4.
+  10warmup+50timed+10E2E updates,FP16/dropout.1,LR.001 unchanged.
+  Fixed1024TRAINsample prefixes,byte-pinned existing sum42weights/SIDs.
+  OOM/numerical failure recorded,never reduce/retry;childbudget1200s.
+  User accepts changed effective batches;no quality/NDCG conclusion.
+  Submitted v1,executable b777b516,workflow41998201870success;now COMPLETE;
+  all202embeddedfiles/config verified,26tests+2nativeCPUbackends pass.
+  See docs/gr-t5-batch-pilot.md and gr-t5-batch-submission.json;no duplicates.
+  No extras/fullML1M/Telegram authorized.
+
+
+- Native SDPA pilot COMPLETE,collected2026-11-05: carasik/rhpr-t5-sdpa-pilot v1,
+  executable d6edbf78,T4/PyTorch2.11;194.2s experiment,3runtimepaths. Real native
+  efficient CUDA forward/backward confirmed. Historical4.47eager→5.22.1SDPA:
+  window20 124.67→128.88ms(+3.38%),allocated .841→.747GiB(-11.25%);
+  window50 348.85→308.27ms(-11.63%),2.353→1.773GiB(-24.64%). E2E signs same.
+  Modern eager itself slower; comparing only modern eager overstates benefit.
+  FP32 all95gradients/hidden/beam parity pass;6FP16benchmarks0AMPskips. One
+  sequential timing run,not full epochs/convergence/NDCG. Defaults unchanged.
+  Reports gr-t5-sdpa-results.md/.json, replay and evidence ZIP preserved.
+  No extra runs/full ML1M/quality training/Telegram authorized or pending.
+
+
+- User authorized2026-11-05: bounded native SDPA T4 pilot, NOT full training.
+  Config experiments/t5_sdpa_t4_pilot.json; old4.47eager vs5.22.1eager vsSDPA,
+  same trained sum42 checkpoint, windows20/50,10warmup+50timedsteps,FP16/dropout.1.
+  CPU parity ALL95gradients/beam passed; no CUDA performance claim yet.
+  Modern wheels isolated; private weights mounted from existing Kaggle notebook.
+  Submitted private carasik/rhpr-t5-sdpa-pilot v1 RUNNING; executable d6edbf78,
+  workflow41993141529success, all201embeddedfiles/config exact.975testsOK13skip;
+  13modernGRIDtests/CPUparity pass. Collected COMPLETE; see results entry above.
+  See docs/gr-t5-sdpa-pilot.md and gr-t5-sdpa-submission.json.
+  No extra runs/seeds/ML1M/Telegram/retries authorized.
+
+
+- Singleton MTL12fit run COMPLETE,collected2026-11-05MSK,private carasik/rhpr-
+  ml100k-singleton-mtl v1,35ce22dd1f07aaf02251af7847eb242f91187413,195.26min2T4.
+  All12freshfits30epochs/9420updates/6valchecks/0AMPskips.903singletonusers,
+  alloriginalsourcebytehashes/splitselection and3casedigests independently checked.
+  Mean VALsum/UW/GN/PC .070893/.065722/.068257/.064754;
+  TEST .046652/.049578/.046040/.047780,relativeUW+6.3/GN-1.3/PC+2.4%.
+  UWTESTtie42,wins101/202;VALworse2/3(-7.3%mean). PCVALworse3/3. Sum remains
+  mean-VALsupported;allconditionaluserCIs cross0,3coupledseeds,sameheldouts.
+  Removing tied-targetchoice does NOT remove val/test disagreement. Old/newmetrics
+  notdirectlycomparable. PCGrad44/19500calls project(.226%),129pairprojections,
+  119inthefirst500AEcalls. All468sampledencoderpaircos positive(min.306).
+  GradNormplotweight~1.09-1.13;UWmostlyglobalRecscale,notpurebalanceablation.
+  Independentlyrescored84predictionfiles, maps/bookcounts/initpins/transfer/
+  checkpointsverified. GN101TEST2invalidpaths,others0,all0duplicates.
+  Reports docs/gr-movielens100k-singleton-mtl-results.md/.json,CPUreplay/ZIP
+  preserved. No new GPU/model calls/training/inference/dispatch/Telegram pending.
+
+
+- User authorized2026-11-04: fresh12-model MTL comparison, singleton endpoints,
+  sum/UW/GradNorm/PCGrad x42/101/202,window20,30epochs,val5. New private kernel
+  carasik/rhpr-ml100k-singleton-mtl;config movielens100k_singleton_mtl_3seeds_2t4.
+  Original manifest-verified943-user sequences+embargo derive903users,82234train
+  events/80268cases;latest2singleton groups and>=2earlier train timestamp groups.
+  3173between-val/testevents CONTEXTONLY,3098aftertestdiscarded;all1273films kept.
+  Testhistory=train+val+between,thenlast20. No trainfuture/same-time leakage.
+  FreshAE3500/RQ3000/TIGER4+4,d128FP16/FP32beam20test;allseedsfullinitpins.
+  2T4;quota15.35h,estimate3–3.5h,watchdog300min. Noextras/retries/Telegram/Colab.
+  Per500MTLJSONexport fixed;PCGradcounts aggregateallsteps;optimization unchanged.
+  See docs/gr-movielens100k-singleton-mtl.md and preflight JSON. Submissionreceipt
+  records actualrunstatus;no qualityresults until existing kernel completes.
+
+
+- MTL timestamp-target CPU follow-up2026-11-04: original tie-group selection
+  remains417val/409testof943. Fixed-checkpoint uniform one-target expectedtest
+  sum.042557/UW.036979/GradNorm.049768/PCGrad.040819;relativeUW-13.1%,GN+16.9%,
+  PC-4.1%vs sum. GNsingletontest534+15.3%. UniformVAL UW+11.6%,GN-1.7%,PC+1.4%,
+  so disagreementpersists. GNpaireduserCI[-.00186,+.01607]includes0,onepipeline
+  seed;labeldrawpositive99.56%conditionalNOTpvalue. OriginalVALselectedcheckpoints
+  and testhistories unchanged;diagnosticNOTnewbenchmark. NoGPUcalls/training.
+  Updated MTLreport, docs/gr-movielens100k-mtl-timestamp-targets.json, replay andZIP.
+
+
+- MTL seed42 screen COMPLETE2026-11-04MSK, private carasik/rhpr-ml100k-mtl v1,
+  executable5af82b106c3d2687459dcb9ebc4cc2e4e1547415,63.60min2T4,4successful
+  freshfits,30epochs/10020updates/6valchecks/0AMPskips. No new GPU work pending.
+  Sum/UW/GradNorm/PCGrad val .059977/.064748/.057619/.060008;
+  test .043635/.039266/.044435/.040150; relative -10.0/+1.8/-8.0%vs sum.
+  UWwinsvalbutlosestest;allconditionalpaireduserCIs cross0;only1pipeline seed.
+  All13probes/method have positive last-encoder paircos;sum min.708 median.933.
+  PCGrad13sampledstepsprojectioncount0;notaggregateallsteps. UWweightssum3.553
+  vs3,relative weightsnearuniform;GradNorm .952/.962/1.086. No establishedgain.
+  Reconstructed/rescored28predictionfiles, alltemporal casehashes and SIDmaps,
+  bookcounts,initialpins,AE/RQtransfer/checkpointsverified. UW6invalidtestpaths,
+  others0;all0duplicates. MTLdedicatedJSONnotexported;52eventsrecoveredfromstdout.
+  Reports docs/gr-movielens100k-mtl-results.md/.json;CPUreplay/script/ZIPpreserved.
+  No extra seeds/tuning/training/inference/Telegram authorized. Colab deferred.
+
+
+- User authorized2026-11-04: first MovieLens100K MTL screen, metadata+poster+plot,
+  NO people, window20, fixed30epochs,val5. Config movielens100k_mtl_2t4.json.
+  Seed42 chosen for first screen; four fresh pipelines sum/UW/GradNorm/PCGrad.
+  AE3500/RQ3000 fixed, unchanged3x256 and TIGER4+4/d128; frozen prior features,
+  native initialization pins, same temporal targets/FP16train/FP32beam20test.
+  Docs gr-movielens100k-mtl.md specifies algorithm conventions and UW scale caveat.
+  Quantization gradients untouched; save MTL weights/gradient cosines and books.
+  No new seeds/graphs/windows/HPO/fallback/retries/Telegram. GPU quota1.43h;
+  estimated55-75min2T4. Preserve existing source results. Publication/dispatch
+  receipt in docs/gr-movielens100k-mtl-submission.json records actual status.
+
+
+- Context50 split-gap CPU audit COMPLETE2026-11-04MSK; no GPU/model calls.
+  Report docs/gr-movielens100k-context50-split-gap.md/.json. Main:new target-choice
+  sensitivity using all timestamp-group films from2042embargoed events. Expected
+  one-target graph/control50 val+1.85%,test-4.80% vs official+6.07/-7.99%; fixed-
+  model val/test gap shrinks54.8%, not causal attribution or benchmark replacement.
+  Context40test+9.77% becomes+1.54%. Same original checkpoints/test history kept.
+  Pop x actor-overlap composition explains3.7%of signed gap descriptively;96.3%
+  remains. Partial actor-feature correlations<.04. No robust cohort router found.
+  Same293Comedy test targets:graph40+27.1%all3seeds,50-30.0%all3.103ofthose users
+  have identical unpadded movie lists across widths;fitting/padding still confounded.
+  Target choice/checkpoint/user/movie effects matter;no static harmful-genre rule.
+  Cross-selected validation halves diagnostic still graph+7.19%;not independent
+  because fullval LR scheduling. Per-user deltaVal/Test r=.021;single-item sparse.
+  Nice>1h test84users lead only4improved/1worse/79ties,not stableat40/val.
+  72cohort interaction simultaneous bootstrap bands allcross0. User/film tables,
+  90context50prediction rechecks, allofficial40/50label scores and portable replay
+  preserved. Rating timestamps are not viewing. Official artifacts unchanged.
+  No training/inference/dispatch/tuning pending;do not spend GPU without new request.
+
+
+- Context50 replication COMPLETE, collected2026-11-04MSK. Private carasik/rhpr-
+  ml100k-context50-replication v1,d8027d0d84d375659335680f63468423718c4a37,
+  4fits101/202 in127.75min;reuse completed42,not retrained. All6L50 models30ep/
+  10020updates/14valchecks/0AMPskips. Newbest epochs:101control25/graph22,
+  202control29/graph28. L50val meancontrol.063543/graph.067401(+6.07%);
+  test.046596/.042873(-7.99%). Graph/control test by42/101/202:-10.8/+15.2/-24.8%.
+  Val/test graph-control sign reverses each seed. Graph wins val2/3,test1/3.
+  Graph20->50val positive3/3,+8.11%mean;controlnegative3/3,-7.65%. Graph40->50
+  val+2.18%,test-16.80%;new101/202only test-9.62%. No established overall gain.
+  Conditional graph-control50 bootstrapCIs cross0;graph50-40testnegative forall3,
+  crosses0fornew2only. Not seed variance, repeated-holdout or multiplicity correction.
+  Test knownslotscontrol40.42%/graph40.35%;repeats persist. Control101 has63invalid
+  beampaths(20top10),0duplicates;othernewtestsvalid. CPUvalid-path compaction does
+  not change itsNDCG10;official ranks unchanged. Epochs123-125s,newpeak2.400-2.402GiB.
+  119predictionfiles rescored1e-12;configs/index/init/cases/suffixes/resume audited.
+  Report docs/gr-movielens100k-context50-three-seed-results.md/.json;receiptcomplete.
+  No pending GPU work, new inference/training/tuning/dispatch/retries/Telegram.
+
+
+- Context50 replication authorized 2026-11-04 MSK: only seeds101/202, control
+  and actor graph.1, four fresh generators, ordinary eager T5,30epochs on2T4.
+  Config experiments/movielens100k_context50_seeds101_202.json; NEWprivate kernel
+  carasik/rhpr-ml100k-context50-replication. Frozen original corresponding SIDs,
+  exact original101/202 initializers, no AE/RQ/graph fitting. Same protocol as42:
+  FP16AMP/physical128/effective256, unmaskedbeam20FP32, val5/10/15/20 then21-30,
+  exact optimizer/scaler/RNG resume and old LR schedule. No extensions/HPO/new
+  windows/more seeds/retries/hardware or batch fallbacks. Preserve42completed.
+  Quota3.57h;expected2-2.5h elapsed;session timeout180min. SUBMITTED ONCE v1 RUNNING.
+  Executable d8027d0d84d375659335680f63468423718c4a37;workflow41821006440
+  succeeded submit-only. Tests958OK91skips;4native full-size backward probes OK.
+  All197 embedded sources/config/SHA verified;no paused local TPU edits included.
+  Receipt docs/gr-movielens100k-context50-replication-submission.json. No results
+  yet;collect existing kernel after completion. Do not resubmit or extend.
+  These pipeline seeds vary original frozen indices and generator initialization.
+  Same previously examined holdouts; report val/test and all unfavorable results.
+
+
+- Context50 COMPLETE, collected 2026-11-04 MSK. Private carasik/rhpr-ml100k-
+  context50 v1; executable d79fdcee647729dfc1335e690aaf09b724439ab4. Two fresh
+  seed42 predictors, frozen original indices, 30 epochs/10020 updates/14 checks,
+  best epoch26 for both; 0 AMP skips/failures/invalid test paths/duplicates.
+  L50 control/graph val .062088/.067638 (+8.94%); test .047234/.042117 (-10.83%).
+  Graph50 vs40 val+2.50%, test-28.46%; control val-11.60%, test+3.50%.
+  Graph validation rises20/30/40/50 on42, but test does not; one exploratory seed,
+  no established longer-context gain. Fixed epochs20/25/30 also favor graph val.
+  Conditional graph-control50 CIs cross0; graph50-40 test CI negative, conditional
+  on fitted models only. No seed variance or repeated-holdout correction.
+  Epochs130.30/122.37s, peak allocated2.400GiB, runner66.87min. Test known slots
+  control38.93%/graph40.55%; repeats persist. Same eager/FP16/beam20 protocol.
+  94 distinct prediction files rescored to1e-12; index/init/schedules/resume audited.
+  Report docs/gr-movielens100k-context50-results.md/.json; receipt marked complete.
+  No new GPU work or fits pending. Preserve old runs; no resubmit/extensions/HPO.
+
+
+- Context50 authorized 2026-11-04: ordinary eager T5, seed42 only, control and
+  actor graph .1, 2 fresh predictors on 2T4, 30 epochs, same protocol as L40.
+  Config experiments/movielens100k_context50_seed42_30epochs.json; new private
+  kernel carasik/rhpr-ml100k-context50. Original frozen seed42 SID indices and
+  fresh original initialization; FP16 AMP, physical128/effective256, beam20
+  FP32 unmasked eval. Val5/10/15/20 then21-30; exact resume and old LR schedule.
+  Only context changes; no quantizer fitting/Flash/TPU/HPO/extra seeds/retries.
+  Quota4.69h before run; expected ~1-1.5h elapsed, not measured. Preserve old
+  completed runs. Report validation/test separately; one exploratory seed.
+  SUBMITTED ONCE v1 RUNNING; source d79fdcee647729dfc1335e690aaf09b724439ab4.
+  Workflow41809406443 succeeded submit-only;197 embedded sources/config verified.
+  Tests957OK91skips;5native runner tests OK; no results yet, no resubmit.
+  Receipt docs/gr-movielens100k-context50-submission.json. Collect after completion.
+
+
+
+- Context40replication COMPLETE,collected2026-11-04MSK. Private carasik/rhpr-
+  ml100k-context40-replication v1,e3308db026871ccec6590ba502b6cce8d65ebd0c,
+  4newfits101/202/102.45min;reuse2L40seed42fits,notretrained. All6models
+  30epochs/10020updates/14valchecks/0AMPskips/0invalidtest/0duplicates.
+  L40test control/graph:42 .04564/.05887(+29%),101 .04862/.04759(-2.1%),
+  202 .04656/.04812(+3.3%). Mean.04694/.05153(+9.8%)drivenby42;
+  new101/202only+0.56%. Valmeancontrol.06789/graph.06596(-2.8%),graphwins1/3.
+  ConditionaltestCI[-.00217,+.01133]andvalCIcross0;notseeduncertainty.
+  Matched<=30epochval graph20->40positive3/3:+4.0/+8.5/+5.3%,mean+5.8%,
+  CI[-.00380,+.01112]cross0;controlmean-1.34%. Descriptiveleadonly.
+  L40testknownslotscontrol40.23%/graph40.28%;repetitionstill~40%.
+  Newepochs96-100s;peakfitallocated1.84GiB,physical128unchanged. Fixedval
+  epochs20/25/30graphmeanalsoworse. Selectedepochs101control25/graph28,
+  202control26/graph28. Prior42graph30cap. No convergence/generalgraphclaim.
+  102predictionfilesrescored1e-12;allcase/index/init/resumeproofsOK.
+  Tests956OK91skips. Report docs/gr-movielens100k-context40-three-seed-results
+  .md/.json;artifacts/movielens100k-context40-replication/analysis.
+  NoGPUworkpending. Noextra inference/training/tuning/extensions/seeds/Telegram.
+
+
+
+- Context40replication SUBMITTED ONCE,v1RUNNING,2026-11-03MSK. Private
+  carasik/rhpr-ml100k-context40-replication;workflow41682670062successsubmit-only.
+  Executablee3308db026871ccec6590ba502b6cce8d65ebd0c;197sources/exactconfig
+  verified;onlyscopevalidatorchangedvs42. Fourfreshfits L40none/actor.1 x101/202,
+  30epochs,originalperseedfrozenSIDs,FP16/eager/unmaskedbeam20FP32eval/2T4.
+  Runtime ready;workersstartednone_L40_seed101 andactor_w01_L40_seed101;
+  then202. Tests956OK91skips;4realconstructor/backward checksOK.
+  Receipt docs/gr-movielens100k-context40-replication-submission.json and
+  artifacts/movielens100k-context40-replication. Seed42completeunchanged.
+  Noresultsyet;collectexistingrun aftercompletion. Noresubmit/extensions/HPO/
+  morewindows/seeds/precision/hardwarefallback/Telegram.
+
+
+
+- User authorized two more seeds2026-11-03 after context40signal. Prepare ONLY
+  L40 control/actor.1 x101/202,4fresh predictors,30epochs,sameprotocolas42.
+  Config experiments/movielens100k_context40_seeds101_202.json; doc
+  gr-movielens100k-context40-replication.md. Original SIDperpipeline seed frozen;
+  predictor initialization matches original101/202;noAE/RQorgraphretraining.
+  Unmaskedbeam20/FP32eval,FP16AMP/eager,effective256/physical128. Prefix20val5,
+  then21-30valeach/verifiedresume/oldplateauLR. NoHPO/newwindows/extensions.
+  NEWprivate kernel carasik/rhpr-ml100k-context40-replication,2T4,quota6.42h.
+  Expected~1.5-2h;seed42source results immutable. Notgenerator-only variance.
+
+
+
+- Context30/40 COMPLETE,collected2026-11-03MSK,private carasik/rhpr-ml100k-
+  context30-40 v1,sourcebfecf91e658d24415255b480102c9f94e09fcc59,86.08min.
+  Fourfreshseed42predictors,frozenoriginalSID,30epochs/10020updates/14valchecks,
+  0AMPskips/failures/invalidtest/duplicatetest. NoGPUworkpending.
+  Matched<=30epochval control20/30/40=.06656/.06544/.07024;
+  graph=.06345/.06461/.06599. Graph losesall3valwindows.
+  TestL30control.04790/graph.04361;L40.04564/.05887(+29%graph),butONEseed,
+  valsignopposite,no robustgainclaim. HistoricalL20graph test.04593isepoch31,
+  NOT30budgetmatched(graphvalbest<=30is24);controltest.04530epoch26matches.
+  Selectedepochs control30=27,graph30=27,control40=27,graph40=30(cap).
+  TestrepeatsL30control43.34%/graph42.32%;L40 38.82/40.25%. Fixedvalepoch30
+  directionalsofalls;repetitionnotremoved. MeanepochL30 66.7-69.4s,L40 92.9-
+  97.8s;peakfit+valallocated1.33/1.84GiB,physical128unchanged.
+  64distinctpredictionfilesrescored1e-12;allSID/hash/case/init/resumeproofsOK.
+  Tests955OK91skips. Report docs/gr-movielens100k-context30-40-results.md/json,
+  artifacts/movielens100k-context30-40/analysis. Noextensions/newruns/seeds.
+  Do not inferhistorycausality:trainingchangesallusers;fixedleftpad+prepend
+  usertoken changesuser-item relative distances whenmaxwindowchanges.
+
+
+
+- Context30/40 SUBMITTED ONCE,v1RUNNING,2026-11-03MSK. Private
+  carasik/rhpr-ml100k-context30-40; workflow41662734850success submit-only.
+  Executablebfecf91e658d24415255b480102c9f94e09fcc59;197embeddedsourcefiles
+  andexactconfigverified;2T4/private/nointernet. Runtime ready;workers started
+  none_L30_seed42 andactor_w01_L30_seed42. Fourfits total, thenL40;seed42,
+  max30epochs, noFA/no seenmask, oldfrozenSIDs/freshpredictors. Tests955OK91skip,
+  native3OK,realinitializers/backwards4OK. Receiptdoc gr-movielens100k-context30-
+  40-submission.json and artifacts/movielens100k-context30-40. Noresults yet.
+  Do not resubmit/extend/tune/addseeds;collect thisexistingrun oncompletion.
+
+
+
+- User authorized context training2026-11-03: NOFlashAttention, windows30and40;
+  clarified seed42ONLY and30epochs. Four fresh TIGERgenerators: none/actor.1
+  x30/40. Frozen original seed42SIDs, no AE/RQ fitting or predictor warmstart.
+  Config experiments/movielens100k_context30_40_30epochs.json; module
+  rhpr.gr.movie_context_training; doc gr-movielens100k-context30-40.md.
+  SameFP16AMP/eager, effective256/physical128, unmasked beam20/FP32eval.
+  Prefix20val5then21-30valeach withverifiedoptimizer/scaler/RNGresume;
+  plateauLRfrom21; bestvalcheckpoint;30epoch cap isNOTconvergence evidence.
+  Four realCPUconstructor/backward checks matchoriginal5f4a24fa… initializer.
+  Original85470targets/943heldoutusers andlast20suffix allverifiedunchanged.
+  CompareL20validationwithinfirst30;historicalL20testhaslongertrainingbudget.
+  Private NEWkernel carasik/rhpr-ml100k-context30-40;2T4;quota7.86hbefore.
+  Expected~1.5-2helapsed. Noextras/seeds/extensions/precision/hardwarefallback.
+
+
+
+- Unseen serving COMPLETE2026-11-03,private carasik/rhpr-ml100k-unseen-serving v1,
+  source8f0b782b387a5f464bdd514fa6ae5d10f735b764/workflow41649512819.
+  6original fixed best checkpoints,0trainingupdates,2T4,runner76.44s.
+  Known-past mask+beam100/refill256: test control.076682/graph.082005(+6.94%),
+  val.108692/.103901(-4.41%). Test2/3wins;conditionalCI[-.00258,+.01324]cross0.
+  All12x943outputs10uniquevalidunseen;13casesneeded256,0exactfallback.
+  Parent32-user20beam anchors exact;allweightsunchanged;metricsrescored1e-12.
+  Original unmasked results unchanged;new servingpolicy,old checkpoints/no
+  reselection. No reliable overall graphgain established. No pendingGPUwork.
+  Actorgraph reconstructed15998nodes/475238edges. Frequency/promotion rho~.02,
+  partial aftermoviepop/cast~.03;strong repeatededges~.03test/~0val. Context
+  normalizedaffinity promotion partialPearson-.019to+.031acrosssplits/seeds.
+  No strong actorhub/PopBias explanation. No externalcelebrity data.
+  Report docs/gr-movielens100k-seen-serving-results.md;summary JSON/replay
+  scripts/analyze_actor_graph_bias.py committed. Preserve originalprotocol.
+
+
+
+- User authorized unseen-item serving inference2026-11-03 for all6frozen actor
+  full/control checkpoints and graph popularity/edge-strength analysis.
+  Config experiments/movielens100k_actor_seen_serving.json; module
+  rhpr.gr.movie_seen_serving; doc gr-movielens100k-seen-serving.md.
+  No retraining/reselection. Beam100unmasked plus known-past eligible top10,
+  refill256onlyshortusers, exact full-catalogue fallback onlyremaining shortages;
+  preserve raw AR scoring, require no repeats, verify parent hashes and beam20
+  replay anchor. Private NEWkernel rhpr-ml100k-unseen-serving; parent immutable.
+  Tests952OK90skips; native raw-score/exact fallback check passed.
+  Current /tmp caches from prior turns were wiped; rawsource remains onKaggle.
+
+
+
+- Actor harm audit COMPLETE2026-11-03, CPU cached predictions only; no GPU.
+  docs/gr-movielens100k-actor-harm.md, artifacts/movielens100k-actor-full/harm.
+  Official unmasked metrics unchanged. Test known-seen top10 occupancy control
+  41.35%/graph42.83%; retained-beam20 all-known-past filtering testNDCG
+  .071584/.077037, val .104387/.100386; not new decoder/official scores.
+  Only13/216 original harmed test user-seed cases become ties, none strict wins;
+  repeats do not explain all graph harm. Filtered test CI crosses0,seed101loses.
+  Actor-overlap promoted unseen wrong candidates test67.5vs63.4%, but val61.5vs
+  61.6%; no validated harmful-edge gate. Popularity/hub mechanism unsupported.
+  Known-past excludes embargoed timestamp siblings; targets verified not seen.
+  Preserve original protocol; any future mask/refill evaluation separate.
+
+
+
+- Actor subgroup audit COMPLETE2026-11-03,CPUonly/noinference/training.
+  Full3seed andscreen2seed cachedpredictions;20selectedfilesrescored,
+  exact943cases/hashes/IDsverified.104group rows/32contrasts retained.
+  No group positiveonall3fullseeds onBOTHval/test. Director-overlap test
+  n57 .08034->.09906(+23.3%,3/3but42neartie,25->33hitsacross171fits),
+  valn54 .06204->.05596(-9.8%);oldscreen testmean+37.6%but1/2seeds only.
+  Gainnotonesingletarget, butall3signbreaksremovingBatman&Robin;CIs cross0.
+  Rare<=20trainingpositions testn84 .001709->.003897 isonly1->3hits across
+  252fittedcases;screenvalopposite,nocoldstartclaim. Past>=100val+12%(3/3),
+  test-2.7%;actualinputstilllast20. Graph-coherenthistory screenpositiveboth
+  splits/2seeds,fulltestnegative3/3;no transferablerule. Directactoroverlap,
+  repetition/support/castsize notstable. Secondaryfixedmedianbaselinebeamgap
+  probe:graphlowconfidence test+6.5%,val-12.3%;anotherbaselineseedtest+10.3%,
+  notgraph-specific. Hypotheticalgatevalnegative3/3;notselected/deployed.
+  Only6testusersbetterall3and6worseall3,72bothsigns;examples/influence saved.
+  AllconditionalCIs unadjusted/excludetrainingvariance;holdoutsalreadyused.
+  Report docs/gr-movielens100k-actor-subgroups.md; artifacts/
+  movielens100k-actor-full/subgroups links /tmp/actor-full-subgroups withall
+  CSV/ranks/features/replays/plots. EvidenceZIP in/tmp. Tests949OK90skips.
+  No newGPUwork/gates;preservepriorstudies/controls/pausedTPUedits.
+
+- Full actor comparison COMPLETE,collected2026-11-03MSK. Private
+  carasik/rhpr-ml100k-actor-full-training v1,6freshfits/3seeds/2T4,159.34min,
+  nofailures/allES/nonecapped. Mean testNDCG10 control .04811±.00271,
+  actor.1 .04722±.00500(-1.9%);seed42+1.4%,101-15.2%,202+9.1%(2/3wins).
+  Valcontrol .07077/graph .06521(-7.9%,graphloses3/3). Shared-user conditional
+  testCI[-.00714,+.00539] crosses0;no robustgain,equivalence orstableharm.
+  Prior+7.4%screen notreplicated;freshAE/RQindicesalsochanged despite same
+  initialAE/generatorweights/config/features/normalization. L1ARIvsoldscreen
+  .235–.310;notjustlabelpermutation. Exactnumerical/runtimecauseunknown;
+  generatorCEdiff alreadyepoch1. Cannotattributeflipsolelytolongtraining.
+  Best/stop control42:26/46,101:31/51,202:34/54;graph31/51,48/68,29/49.
+  All229predfilesrescored,372filesdownloaded;casehashes/actorinputs/norm/pins/
+  AE-RQtransfer/prefixresume/LR/ES verified. AMPskipsgraph42=1,101=3,
+  control202=1;testinvalidcontrol42=2,202=1,duplicates0. Tests949OK90skips.
+  Report docs/gr-movielens100k-actor-full-results.md; artifacts/
+  movielens100k-actor-full/analysis linksCSV/plots/replay/ranks in/tmp;
+  numericalZIP in/tmp;largeweightsprivateKaggle. No pendingGPUwork and no
+  automaticnewruns/extensions/retries/seeds/tuning/graphchanges/TPU/Telegram.
+  Preserveallpriorstudies/controls/pausedTPUedits. Publicationpositivegraph
+  claimnotestablished;previouslyexaminedholdout andtraininguncertaintyremain.
+
+- Full actor comparison submitted ONCE,v1RUNNING,2026-11-03MSK. Private
+  carasik/rhpr-ml100k-actor-full-training;6freshfits/3seeds/2T4.
+  Workflow41535407288 successsubmit-only;executable
+  70a0c16d65fab69df3d64742fee527975e12df70. Exactconfig/all195embedded
+  sourcefilesverified;packageSHA
+  d22ad4da3631a43efeb72f9b7d53701861b8230e05b5e5d7e7c4792c3c235595.
+  Tests949OK90skips;newfullsuite2checks andlegacyactorsuite3checks native
+  GRIDpassed;all6real-schema constructorpins(including202) verified.
+  Frozenactorgraphhash/orderverified. Receipt
+  docs/gr-movielens100k-actor-full-submission.json; artifacts/
+  movielens100k-actor-full haspreflight/submissionaudit/quota. Samefullpolicy:
+  fresh20prefix,val5 thenverifiedresume,last/Adam/scaler/allRNG,min30/max100/
+  ES20/valeachnew/ReduceLRfrom21. .1frozeninAE+RQ,nonecontrol,seed42/101/202.
+  Noresults;waitforusercompletion,collectexistingrun. Do notresubmit/extend/
+  tune/newseeds/changegraph/TPU/Telegram. Preserveallprioroutputs/pausedTPU.
+
+- User authorized full actor comparison2026-11-03. Config
+  movielens100k_actor_full_2t4.json;doc gr-movielens100k-actor-full.md.
+  SIXfresh fits: none vsnewactorweight.1 ×42/101/202. Coefficient selected
+  on priorval, frozen. Samefeatures/graph15998nodes seed42, schemas/pins,
+  cast-only64Dloss/normalization, AE3500fixed/RQ3000, .1inbothstages.
+  Fullpriorprotocol: fresh20prefix,val5,verifiedlast/Adam/scaler/allRNG
+  resume at20; thenvaleachnew,min30/max100/ES20, ReduceLRfrom21factor.5
+  after5badchecks/floor1e-5/threshold1e-4. One finaltest,noneat20boundary.
+  Screen30lastcheckpoints existbutconstantLRthrough30incompatiblewithprior
+  fullschedulefrom21;all6fresh forcommonprotocol. SameTIGER4+4/d128/FP16.
+  2T4/3trialseach,pairs42/101sameworker,202splitforbalance. Private target
+  carasik/rhpr-ml100k-actor-full-training. NoHPO/extensions/retries/extraseeds/
+  graphchanges/TPU/Telegram. Preserveallpriorcontrols/pausedTPUedits. Old
+  holdout alreadyexamined;notindependentconfirmation orDeepWalk-vsidentity.
+
+- Actor-only graph screen COMPLETE,collected2026-11-03MSK. Private
+  carasik/rhpr-ml100k-actor-screen v1,10fits/2seeds/2T4,157.86min,nofailures,
+  exactly30epochs/6valchecks/constantLR/zeroAMP. Mean val/testNDCG10:
+  none .05695/.04223;oldsharedcast1 .06021/.03957;newactor1 .06047/.04308;
+  newactor.3 .06117/.04247;newactor.1 .06325/.04535. Weight.1 winsval2/2,
+  testvsnone+7.4%(2/2;+13.7/+1.4%),conditionaluserCI[-.00450,+.01083]
+  crosses0;notastablebenefit/optimalityclaim. .1vsnew1testpositive1/2 only.
+  Selectedepochs .1 30/25;fixed30 is a screen,notconvergence. RawotherheadMSE
+  improves1->.1 onbothseeds,peopleworsens;notaprovenNDCGmechanism. Actor1
+  highseedspreadalsowithoutdirector edges;priorSDnotcausalproof.
+  All70predfilesrescored,260filesdownloaded;exactcases/hashes/normalization/
+  actorprovenance/pins/AE-RQtransfer/weights/schedule verified. Oneinvalidtest
+  actor.3seed42,others0;duplicates0. Report
+  docs/gr-movielens100k-actor-screen-results.md; artifacts/
+  movielens100k-actor-screen/analysis links fullCSV/plots/replay/ranks in/tmp;
+  numericalZIP in/tmp;largeweightsprivateKaggle. No pendingGPUwork; do not
+  automaticallyextend/tune/addseeds/weights/retrainGraph/TPU/Telegram.
+  Tests947OK89skips. Preserveallpriorcontrols/pausedTPUedits. Primarycandidate waschosenonval,
+  testdescriptive,alreadyexaminedholdout; noDeepWalkoveridentityclaim.
+
+- Actor-only graph screen submitted ONCE,v1QUEUED,2026-11-02. Private
+  carasik/rhpr-ml100k-actor-screen;10fits/2seeds/2T4,5arms×42/101.
+  Workflow41481526966 success submit-only;executable
+  5858df9f4682a15fdc740d3717469c8d4c6e22c5. Exactconfig/all194embedded
+  sourcefiles verified;packageSHA
+  be2b6eb81133a895d200f9cc363d9eb48e1058fabaf362e553b86c66d07f72eb.
+  Newprivate actorDeepWalkdatasetREADY;15998nodes, same1273items, exactnode
+  set/filmmeanpooling/hash/order verified. Otherfrozenmodalitiesbitwiseequal.
+  Tests947OK89skips;3nativeactor/3legacyrolechecks passed. Receipt
+  docs/gr-movielens100k-actor-screen-submission.json; artifacts/
+  movielens100k-actor-screen haspreflight/graphprovenance/submissionaudit.
+  Fixed30epochs,val5,constantLR,bestval; weights1/.3/.1 inAE+RQ, newactorgraph
+  plusnopeople/oldsharedcast controls. Noresults;waitforusercompletion,
+  collectexistingrun. No resubmission/extensions/tuning/newseeds/TPU/Telegram.
+  SDKstatusdefaultQUEUED=0 is omitted byMCP whenqueued. Preservepriorstudies.
+
+- User authorized actor-only graph/loss screening,2026-11-02. Config
+  movielens100k_actor_screen_2t4.json; doc gr-movielens100k-actor-screen.md.
+  Two pipeline seeds42/101 ×5arms: nopeople,old sharedgraph cast(weight1),
+  new actor-only graph weights1/.3/.1. FIXED30epochs,val5/10/15/20/25/30,
+  constantLR/no scheduler, bestval selection, one test; primary tuning uses
+  meanval only. AE3500fixed/RQ3000, coefficientinbothstages, otherweights1;
+  selectedcast64Dnormalized/zero-padded/loss only64, same nativepins/schema.
+  NewDeepWalk oncastONLY:15998people/same1273movies, samegensim4.4 SGNS/walk
+  settings/seed42. CPU graphprepared once, savednewprivate dataset
+  carasik/rhpr-ml100k-actor-deepwalk, hashes/sourceorderverified. No interactions.
+  Tenfits/2T4, sameGPU perseed all5arms; private kernel target
+  carasik/rhpr-ml100k-actor-screen. No retries/extensions/newseeds/weights/TPU/
+  Telegram. Old fulltrainingcontrol notmatched to30epoch screen. Preserve all
+  prioroutputs/controls andpausedTPUedits. DirectorSD3seeds is not causal
+  proof of instability. No graph-identity advantage claimed.
+
+- People-role ablation COMPLETE,collected2026-11-02MSK. Private
+  carasik/rhpr-ml100k-people-roles v1;9fits/3seeds/2T4,227.51min,allES,
+  nonecapped/nofailures. Mean testNDCG10 nopeople .04703±.00269,
+  cast .04525±.00234(-3.8%),directors .04182±.00570(-11.1%); each wins1/3.
+  Conditional paired-userCIs cross0; no stablebenefit/harm established.
+  Valcast .06845 vscontrol .06411,positive3/3. Same-director groupval(n54)
+  control .05860/director .08275,buttest(n57) .09735/.08705; subgroup
+  observation doesnottransfer. Fixed3500AE: historicalseed42samecodes/AE,
+  differentgenerator;101/202oldAE4000/5000yielddifferentindices,usefreshcontrol.
+  All291predfilesrescored,494files/2pagesdownloaded;roleloss/normalization,
+  pins,AE/RQtransfer/resume andLR/ES verified. AMPskips1eachcast42/cast101/
+  director101;invalidtest12none202/1director202,duplicates0. Tests944OK88skips.
+  Report docs/gr-movielens100k-people-roles-results.md; compactartifacts/
+  movielens100k-people-roles/analysis; fullreplay/CSV/plots/ranks /tmp/movie-roles-analysis,
+  numericalZIP in/tmp; largeweightsremainKaggle. No pendingGPUwork. No
+  autoextensions/tuning/newseeds/retrainingDeepWalk/TPU/Telegram. Preserve
+  priorstudies/controls andpausedTPUedits.
+
+- People-role ablation submitted ONCE,v1RUNNING,2026-11-02. Private
+  carasik/rhpr-ml100k-people-roles;9freshfits/3seeds/2T4. Workflow41441646043
+  success submit-only; executable682a23dabed6803d3340607f6ecd7924483ce3ba.
+  Exactconfig/all193embeddedsourcefiles verified;packageSHA
+  8e130ae812b890ccc7a8adc16b60d60956c5ff8c51ae0cafe63401458172b6ba.
+  Receipt docs/gr-movielens100k-people-roles-submission.json; artifacts/
+  movielens100k-people-roles haspreflight/submissionaudit/quota.
+  Tests944OK88skips,3native rolechecks(incltinyAE/RQ/fullresume) and2legacy
+  graph-losschecks passed. Sameinitialneuralpins3seeds and real1273film role
+  isolation verified. Noresults yet;waitforuser,collectexistingrun. Do not
+  resubmit/extend/tune/addseeds/retrainDeepWalk/TPU/Telegram. Preserve all
+  oldoutputs/controls andpausedTPUedits.
+
+- User authorized people-role ablation on2026-11-02: nine fresh fits,
+  seeds42/101/202 × nopeople/cast-only/directors-only. Config
+  movielens100k_people_roles_2t4.json; doc gr-movielens100k-people-roles.md.
+  Frozen old DeepWalk128D shared-table vectors; selected64 role coordinates
+  independently catalogue-normalized and zero-padded to original128D schema;
+  loss only on selected64, all active modality weights1. Control omitspeople.
+  Same otherfeatures/split/cases/nativepins. AE3500fixed/RQ3000 and full
+  TIGER policy: prefix20val5, verifiedresume, min30/cap100/ES20/valeachnew,
+  unchangedReduceLRfrom21; one finaltest. 2T4,private
+  carasik/rhpr-ml100k-people-roles. No HPO/retries/extraseeds/TPU/Telegram.
+  Prior subgroup audit: same-director fullval .05090->.07763(n54),
+  test .07088->.09863(n57), but earlyval opposite and conditionalCIs cross0.
+  Sharedcast no advantage; groups exploratory. This tests role readout, not
+  typed graph training or a proven DeepWalk advantage over identity.
+  Preserve all previous outputs, controls and paused TPU edits.
+
+- Graph loss weighting pilot COMPLETE, collected 2026-11-02 MSK. Private
+  carasik/rhpr-ml100k-graph-loss-weight v1, two seed42 fits, body46.97min,
+  no failures, both early-stopped. Weight1 vs0.1: valNDCG10 .06786/.06601;
+  testNDCG10 .04554/.04202 (-7.7%); Recall10 .09226/.08590. Best27/20,
+  stop47/40. Conditional paired-user delta95%CI[-.01534,+.00757],63better/
+  64worse/816same; excludes training variance. One paired seed, no stable
+  benefit/harm established. Both AE3500fixed/RQ3000, identical initial pins,
+  zeroAMPskips. Text/poster/plot raw MSE all improve with weight0.1; graph MSE
+  worsens .79349->.88231. Text-neighbor firstSID4.10->4.74%, graph3.86->1.75%.
+  Representation balance changes but no downstream gain. Both1273unique tuples.
+  IMPORTANTfresh weight1 control exactly reproduces old graph42 AE neural
+  state/codes/fullSID/reconstruction and generator initial neural hash, but
+  generator train loss differs already epoch1 (9.2839231 vs9.2836568); test
+  .04075historical -> .04554fresh. Numerical/runtimecauseunidentified. Use
+  fresh pairedcontrol, not historical substitution; generator repeat variation
+  exceeds treatment gap. Independentlyrescored57prediction files, same943cases,
+  verified losses/features/AEtransfer/index/prefix/resume, replayed LR/ES.
+  TestinvalidSID0control/1weak among18860slots; no duplicates. Tests941OK87skips.
+  Report docs/gr-movielens100k-graph-loss-weight-results.md; artifacts/
+  movielens100k-graph-loss-weight/analysis hasplots/CSV/ranks/replay. Full20.1MB
+  evidenceZIP in/tmp; largeweights stay private Kaggle. No pendingGPUwork;
+  do not autoextend/tune/addweights/seeds/TPU/Telegram. Preserve oldstudies,
+  controls and paused TPU edits.
+
+- Graph loss weighting pilot submitted ONCE, v1 RUNNING, 2026-11-02 MSK.
+  Private carasik/rhpr-ml100k-graph-loss-weight; two fresh seed42 pipelines,
+  people-reconstruction weights1/.1 in AE+RQ, all other weights1. Two T4s.
+  Executable35b75d22360eada2053f59177acd18f928fbd867; Actions41427695618
+  success submit-only. Exactconfig/all192embedded source files verified,
+  packageSHA e9f19fc5da5d2ea2940af7128a7fdda181ff9e8e3b7327bef463334098002502.
+  Receipt docs/gr-movielens100k-graph-loss-weight-submission.json;
+  artifacts/movielens100k-graph-loss-weight has preflight and submission audits.
+  Both fixed3500AE/nativeRQ3000, same frozenfeatures and native initial pins;
+  TIGER prefix20val5 then verified resume, min30/cap100/ES20, unchanged LRpolicy.
+  Single finaltest; raw perheadMSE+weighted totals logged. Tests941OK87skips,
+  2new native+9legacy native checks passed. No results yet; wait for user,
+  collect existing run. Do not resubmit/extend/tune/addweights/seeds/TPU/Telegram.
+  Preserve all previous notebooks/results and paused TPU edits.
+
+- User authorized graph reconstruction weighting pilot, 2026-11-02 MSK.
+  One private2T4 session, two fresh seed42 pipelines, people-loss coefficient1
+  versus0.1; other3reconstruction weights1. Apply in both continuous AE and RQ;
+  no input scaling, changed graph/features/split or quantization auxiliary.
+  Config movielens100k_graph_loss_weight_2t4.json; doc
+  gr-movielens100k-graph-loss-weight.md. Both fixed3500AE updates (old42actual
+  length), nativeRQ3000, same neural initialization/hash-pinned frozen inputs.
+  Fresh control avoids adaptive warm-up duration confound; one-seed pilot only.
+  TIGER full policy: first20epochs val5/10/15/20, verified last/Adam/scaler/RNG
+  resume in-place at20, then val each epoch, min30/cap100/ES20 and same LR
+  schedule from21. No test at boundary, one selected test. Preserve raw and
+  weighted head losses, codes/books, CE, curves, prefix/resume provenance.
+  Tests941OK87skips; new native2 and legacy multimodal9 all passed; exact
+  decoder graph gradient0.1 scaling/text unchanged, all native init pins match.
+  Private target carasik/rhpr-ml100k-graph-loss-weight; ~45–75min+setup/queue
+  if similar stopping, near-cap ~1.5–2h. One trial per GPU. No weight sweep,
+  extra seeds/retries/extensions/TPU/Telegram; preserve all prior studies and
+  paused TPU edits. CPU diagnostic evidence from preceding turn is local at
+  artifacts/movielens100k-people-graph-audit/followup-2026-11-02: case hashes
+  reconstructed exactly; graph-neighbor firstSID agreement1.86->3.92%, text
+  5.31->4.54%; text/poster recon worsens3/3. Observational, not causal proof.
+
+- Full-training replication COMPLETE, collected 2026-11-02 MSK. Extra seeds101/202
+  private carasik/rhpr-ml100k-full-training-extra-seeds v1: all8fits successful,
+  body109.43min. Combined with retained42 pilot:12fits, all early-stopped,
+  none capped. Mean testNDCG10±sampleSD: nopeople .04672±.00631;
+  graph .04260±.00380; names .04469±.00046; SASRec .05214±.00343.
+  SASRec beats each TIGER on3/3; nopeople mean-10.4% vsSAS. Relative change
+  from selected20epoch baselines: nopeople+8.9%(2/3),graph-1.5%(1/3),
+  names+18.5%(3/3),SAS-.9%(two unchanged). Graph vsnopeople -23.3/-1.1/+1.1%
+  across42/101/202: negative mean driven by42, no stable graph advantage.
+  Graph selectedVAL beats nopeople3/3 despite opposite mean TEST ordering;
+  943target holdouts and3pipeline seeds limit conclusions. Seed42near-tie
+  withSAS not replicated. Best TIGERepochs25–41; stop45–61; SASbest10/5/25,
+  stop30/30/45. Four new TIGER selections follow LR drop; do not generalize
+  seed42's pre-drop peak. TrainCE falls/valCE rises afterselectedpoint.
+  Independentlyrescored396prediction files, matching cases/indices/prefix
+  hashes/resumeAdam-scaler-RNG and replayed all LR/ES decisions. AMPskips:
+  nopeople101=1/nopeople202=3, others0; counts verified, no fallback.
+  Report docs/gr-movielens100k-full-training-extra-seeds-results.md and
+  three-seed-metrics.csv; artifacts/movielens100k-full-training-extra-seeds/
+  analysis has metrics/curves/verification/replay. Full50.8MBnumericalZIP in/tmp,
+  largeweights remain private Kaggle. Tests939OK86skips. No pendingGPUwork,
+  do not autoextend/tune/addseeds/retrain indices/TPU/Telegram; preserve prior
+  studies, seed42 outputs and paused TPU edits.
+
+- Extra-seed full-training replication submitted ONCE, v1 RUNNING, 2026-11-02.
+  Private carasik/rhpr-ml100k-full-training-extra-seeds; eight continuations,
+  seeds101/202, 2T4. Executable8e1819a6137aaae30e43a4115cb6a4c2aae1b819;
+  Actions41406980487 success submit-only; exact config and all191 embedded
+  source files verified, package SHA256
+  bf97caa8609ff46e0e76099c87c65f5fa743384b1f783852b40c7764a961ae30.
+  Receipt docs/gr-movielens100k-full-training-extra-seeds-submission.json;
+  artifacts/movielens100k-full-training-extra-seeds has source/initialization/
+  submission audits. All939 tests OK86skips;4 targeted/native passed.
+  Frozen original epoch20/6680 checkpoints, min30/cap100/ES20, val each new
+  epoch and unchanged pilot scheduler. No results yet. Wait for user completion;
+  collect existing run, do not resubmit/extend/tune/addseeds/retrainindices/
+  TPU/Telegram. Preserve seed42 output, all parent studies and paused TPU edits.
+
+- User authorized full-training replication on existing seeds101/202, 2026-11-02.
+  Eight frozen-index continuations: nopeople/graph/names TIGER + SASRec per seed.
+  Config movielens100k_full_training_extra_seeds_2t4.json; doc
+  gr-movielens100k-full-training-extra-seeds.md. Resume original epoch20/6680
+  checkpoints with Adam/scaler/RNG/prior best/history; no encoder/AE/RQ/index
+  retraining. Same seed42 pilot policy: min30/cap100, val every new epoch,
+  ES20, LR halve after5 bad checks from21, floor1e-5/threshold1e-4.
+  Same data/cases/architectures/batches/precision; 2T4, 3TIGER+1SAS per worker.
+  Source120files/642053025bytes verified; per-trial seed/lineage and constructor
+  initialization checked. Compare init within predictor+seed, not across seeds.
+  Private target carasik/rhpr-ml100k-full-training-extra-seeds, one new session,
+  ~1.5–2h plus setup/queue if similar stopping; later bests may take longer.
+  Combine with fixed seed42 results for three-seed report, not test-selected
+  epochs/seeds. No HPO/retries/additional seeds/TPU/Telegram; preserve old runs
+  and paused TPU changes. Submission receipt will record exact commit/status.
+
+- Full-training pilot COMPLETE, collected 2026-11-02 MSK. Private
+  carasik/rhpr-ml100k-full-training-seed42 v1; executable ce0efd6d6816a24d5710d5baeda706abc3d8e8cb.
+  Four frozen-index continuations, seed42 only, body48.23min, all early-stopped.
+  Test NDCG10 old-selected -> new-selected: nopeople .03940 -> .05315 (+34.9%);
+  graph .03605 -> .04075 (+13.0%); names .03891 -> .04520 (+16.2%);
+  SASRec .05411 unchanged. All TIGER best27/stop47; SAS best10/stop30.
+  TIGER peak27 PRECEDES first LR drop after32; longer training and denser
+  validation changed together. Later train CE falls while val CE rises.
+  Nopeople remains best TIGER on this seed, 1.8% below SAS; NOT a multi-seed
+  equivalence claim or evidence graphs are generally harmful. Val/test rank
+  differently. Independently rescored115 prediction files, same943cases;
+  frozen indices/source prefix hashes/resume Adam-scaler-RNG verified;
+  scheduler/ES replayed, zeroAMPskips. Report
+  docs/gr-movielens100k-full-training-results.md; local artifacts/
+  movielens100k-full-training-seed42/analysis has curves/CSV/ranks/replay.
+  Numerical evidence ZIP in/tmp; large weights remain private Kaggle.
+  No pendingGPUwork. Do not autoextend/tune/addseeds/retrain indices/TPU/Telegram;
+  preserve prior results and paused TPU edits.
+
+- Fulltrainingpilot submittedONCE,v1RUNNING,2026-11-02MSK. Private
+  carasik/rhpr-ml100k-full-training-seed42;4continuations/seed42/2T4,
+  nopeople/graph/namesTIGER+SASRec. Resumeepoch20/6680updates,frozenindices.
+  Executablece0efd6d6816a24d5710d5baeda706abc3d8e8cb;Actions41363415397success;
+  exactconfig/all191embeddedfiles matchcommit,packageSHA
+  f961db92e96598f5b7433b7a2a5284a8e52133e5f26e7d348634a4e9ee80bd29.
+  Receipt docs/gr-movielens100k-full-training-submission.json;localartifacts/
+  movielens100k-full-training-seed42/source-audit.json. Min30/cap100,ES20,
+  valeachnewepoch,LRhalveafter5badchecksfrom21,teacherforcedvalCEperlevel.
+  Source64files/321MBverified in/tmp/movie-continuation-input. Noresults yet.
+  Waitforusercompletion/status;collectexistingrun,do notresubmit/extend/tune,
+  changeindices/retrainAE-RQ/addseeds/TPU/Telegram. Preserveoldoutputs/pausedTPU.
+
+- User authorized seed42full-training pilot,2026-11-02MSK. Config
+  movielens100k_full_training_seed42_2t4.json;doc gr-movielens100k-full-training.md.
+  Fourcontinuations:nopeople/graph/namesTIGER+SASRec fromepoch20/6680updates;
+  frozenindices/encoders/RQ,sourceartifactsSHA-pinned(64files,321MB verified).
+  Resume lastmodel/Adam/scaler/CPU-CUDA-Python-NumPyRNG/priorbest/history,
+  neverweights-onlyfallback. Minimum30,totalcap100;valeverynewepoch;LR.5after
+  5failedchecks,start21,min1e-5,absthreshold1e-4;ES20epochs sincebestrawNDCG10.
+  Preservehistorical5/10/15/20validation,lognewCEperSIDlevel+LR;onefinaltest.
+  Newcheckpointskeep scheduler/casehashes. Tests937OK86skips,targeted/native8OK,
+  including bitwiseCPUresume/dropout/Adam/RNG/scheduler andnativeGRID4headCE.
+  Newprivatekernel target carasik/rhpr-ml100k-full-training-seed42,2T4,
+  ~2–2.5h+setup/queue worstcase,ESmaystopsooner. No extra seeds/HPO/retries,
+  indexchanges/AE-RQretraining/TPU/Telegram. Preserveoldoutputs/pausedTPUedits.
+
+- Names/SASRec controls COMPLETE,collected2026-11-02MSK. Private
+  carasik/rhpr-ml100k-names-sasrec-controls v1;source8c9200133eee6473776836e3b5344e02446c05a6;
+  6fits/20epochs/1709400cases/6680updates/zeroAMPskips,body48.29min.
+  Independentlyrescored90savedfiles(30new+60matchedreferences),same943users,
+  targets/split,seedpinnedinitialweights. Realcapacity4.609536M SASRec vs4.590464M
+  TIGER(+.415%);FLOPs .18737G/.42737G,NOTequalcompute.
+  Mean testNDCG10: nopeoplemultimodalTIGER.04292;graphpeople.04326;
+  namesintext.03772±.00357;SASRecID.05261±.00261. Recall10respectively
+  .09084/.08766/.08059/.11099. Namesvsnopeople-12.1%(negative3/3),vsgraph-12.8%
+  (negative2/3). SASRecvsgraph+21.6%(positive3/3),vsnopeople+22.6%(3/3),
+  vsnames+39.5%(3/3),vsplaintextRQ.04143+27.0%(3/3). Meanselectedval
+  SASRec.06463/names.05928;bestSASepochs42:10,101:5,202:10. Untunedbaseline;
+  no universalGRvsdenseclaim. Allconditionalpaired-userintervalsforSASgains
+  positive,butexclude seed/runtimeuncertainty andmultiplicity.
+  EpochsecondsSAS21.45/TIGER50.75. FP32residentinferenceB1meansofseedmedians
+  SAS8.32/TIGER43.51ms;B32 SAS8.86/TIGER69.16ms(perwholebatch). Same32real20item
+  cases,warm10/sample50;SASexhaustive1273itemtop20 vsTIGERbeam20. Tinycatalogue
+  makesdensescoringcheap;notaproduction-sizeefficiencyconclusion.
+  Namesvectorsbitwiseequaloldstage07T5,poster/plot/masks unchanged,graphinactive;
+  all3AEtransfer/freshoptimizer/initiallatent auditsverified. UniqueSIDtriples
+  1272–1273/firstcodes240–254,sooccupancydoesnotguaranteeNDCG.
+  Report docs/gr-movielens100k-names-sasrec-controls-results.md;artifacts/
+  movielens100k-names-sasrec-controls/analysis hasCSV/plots/ranks/verification.
+  Rawoutputs /tmp/movie-controls-completed;17MBbundle
+  /tmp/movielens100k-names-sasrec-controls-numerical-evidence.zip;
+  largecheckpointsstayprivateKaggle. No pendingGPUwork;noautotuning/extensions,
+  extraseeds/TPU/Telegram;preserveoldoutputsandpausedTPUedits.
+
+- Names/SASRec controls submitted ONCE,v1RUNNING,2026-11-01. Private
+  carasik/rhpr-ml100k-names-sasrec-controls,6freshfits/3seeds/2T4.
+  Executable8c9200133eee6473776836e3b5344e02446c05a6;Actions41350345747success,
+  exactconfig/all189embeddedfiles verified;packageSHA
+  b4063d809c548c84d2df8e08fc0ae56d469c520d9b960e11a948f8d721d6e9bb.
+  Receipt docs/gr-movielens100k-names-sasrec-controls-submission.json;
+  localartifacts/movielens100k-names-sasrec-controls contains sourceaudit and
+  capacitypreflight. NamesembeddedinT5text,poster/plotretained,graphinactive;
+  SASRecIDonly4.609536MactiveweightsvsTIGER4.590464M(+.415%),NOTequalFLOPs.
+  20epochs,val5/10/15/20,fullcataloguecasesmatched. No results collected yet.
+  Waitforusercompletion/status,collectexistingrun;do notresubmit/extend/tune,
+  addseeds/TPU/Telegram. Preserveoldoutputs andpausedTPUedits.
+
+- User authorized names-in-text multimodal TIGER + item-ID SASRec controls,
+  2026-11-01. Config movielens100k_names_sasrec_controls_2t4.json;see doc.
+  Six freshfits42/101/202×2predictors,balanced2T4. TIGERtextincludescast/directors
+  viaexactpriorstage07T5vectors(max1587/no truncation),poster+MPNetplot unchanged;
+  graphpeople inactive. Mount oldprivatetextladder+multimodaloutputs,hash+order
+  verified,no newencoding/upload. SameAEup-to5000/nativeRQ3000/TIGER20epochs.
+  SASRec existingmodel7layers/d256/heads4/FFN768/dropout.1,IDonly,tieditemmatrix,
+  fullcatalogCE/noPADlogit/no samplednegatives. Same20itemstrictpastcases,
+  85470targets/epoch,20epochs,batch256/128,Adam.001,FP16train/FP32eval,
+  val5/10/15/20,one selectedtest. Preserve oldmodels andruntimepolicy.
+  Realbackwardcapacity(nonembeddingactive) TIGER4590464/SASRec4609536(+.415%);
+  total4977920/4940800. Gatewithin1%. ProfileB1forward20validitems inclheads:
+  .42737G/.18737G supportedFLOPs;PARAMETERcapacitymatched,NOTequalFLOPs/time.
+  Save B1/B32 servinglatency(10warm/50samples),samefullhistorytraincases;
+  commontrainerhooksforfullcatalogSASRec,IDpredictionfilesdistinctfromSIDfiles.
+  Groupinitializationbypredictor+seed,notacrossdifferentarchitectures.
+  Tests932OK85skips;3targeted/nativeOKinclboth20epochcontrols,capacity,masks,
+  causalityandnamesreplacement. Real1273film replacementarrays verified.
+  Newprivatekernel target carasik/rhpr-ml100k-names-sasrec-controls,
+  ~40–60min+setup/queue. No extraHPO/seeds/retries/TPU/Telegram.
+
+- MultimodalAE ladder COMPLETE,collected2026-11-01. Private
+  carasik/rhpr-ml100k-multimodal-ae v1;sourceba160aac3155831e06286b6e6924eb720b82dfc2,
+  all12fits/20epochs/6680updates/1709400cases/zeroAMPskips;body121.16min.
+  Independentlyrescored140predictionfiles(60new+60direct+15plain+5pilot),same943
+  users/targets/split/normalization/frozenvectors/initialRQ+generatorweights.
+  Direct->AE mean testNDCG10: text.03388->.04016(+18.5%,3/3positive),
+  poster.03982->.04127(+3.6%,2/3),description.03760->.04292(+14.1%,2/3),
+  people.03773->.04326(+14.7%,2/3). AEall vstext+7.7%(2/3),vsplain.04143+4.4%(2/3),
+  no stablemodalitysuperiority;conditionalCIs exclude seed/runtimevariation,
+  most cross0. AEvalmeans.05684/.06171/.05925/.05676(bestposter),oppositetesttrend.
+  FullmeanRecall10.08766 equalsplain;description.09084 highest. Firstbook228–256,
+  semantictriples1270–1273;allfullSIDsstillidentify1273. AE3500–5000/56–105sec,
+  all spectralplateau;RQ92–115sec;TIGERmean49.87–50.71sec/epoch.
+  IMPORTANTrepeattext42:AEneuralstate/latents/RQcurves/books/SIDs bitwiseidentical
+  topilot,andgeneratorinitialweights/config same,buttraininglossdiffersbyepoch1;
+  selectedepoch15->20,test.04210->.03762. Divergencelocalized togeneratortraining,
+  exactnumerical/runtimecauseunknown;seeddoesnotensurebitwisedeterminism.
+  Do not substitute betterpilotortreatitas4thseed. All12transfer/freshoptimizer/
+  initiallatent audits pass. ExtraAEcompute/init/stagemodesconfounded.
+  See docs/gr-movielens100k-multimodal-ae-results.md;artifacts/
+  movielens100k-multimodal-ae/analysis hasreports/CSV/plots/ranks/replayscript.
+  Rawdownloadsin/tmp/ml100k-modal-ae-completed;14MBnumericalbundlein
+  /tmp/movielens100k-multimodal-ae-numerical-evidence.zip (workspace4MBfree).
+  LargeweightsremainprivateKaggle. No pendingGPUwork;noautoextensions/tuning,
+  extraseeds/TPU/Telegram;preservepriorresultsandpausedTPUedits.
+
+- MultimodalAE ladder submitted ONCE,v1RUNNING,2026-11-01. Private
+  carasik/rhpr-ml100k-multimodal-ae;12freshfits/42,101,202×4stages;2T4.
+  Executableba160aac3155831e06286b6e6924eb720b82dfc2;Actions41331992852success,
+  exactconfig+all187embeddedfiles verified. PackageSHA
+  2b8f7d428c7162a00a638597e435ac6738af579cff1155e3078aefa5b3b91ca8.
+  Receipt docs/gr-movielens100k-multimodal-ae-submission.json;localartifacts/
+  movielens100k-multimodal-ae/source-audit.json. No qualityresults yet.
+  Waitforusercompletion/status,collectexistingrun;do notresubmit/extend/tune,
+  addseeds,TPUorTelegram. Keepdirectladder/pilotoutputs/pausedTPUedits intact.
+
+- User authorized full multimodal ladder with two-stage quantizers,2026-11-01.
+  Config movielens100k_multimodal_ae_2t4.json; see corresponding doc. Twelvefresh
+  fits42/101/202×4cumulative(text/poster/MPNetdescription/DeepWalkpeople),2T4,
+  sixfits/worker. Seed42text repeated inuniformsuite;priorpilot keptintact.
+  Exactoldfrozenvectors/masks/order/split/cases/generator+quantizerinitialweights;
+  hashverifiedoldprivatenotebookoutputmounted,noembeddingrecompute/upload.
+  SameAErecipe as pilot:cap5000/probe500/min2000/patience4spectralplateau,
+  full neural+BNtransfer/nativeKMeans/freshAdagradRQ3000;TIGER20epochs,
+  val5/10/15/20,one selectedtest. Per-seed initialQhashes explicitly pinned.
+  Tests929OK84skips,native9OKinclall12tiny stagedquantizers,3realinitialQhashes,
+  missingplotmask,transfer/freshoptimizer/latents andtiny20epochTIGER.
+  Newprivatekernel target carasik/rhpr-ml100k-multimodal-ae,~2–2.5h+setup/queue.
+  No retries/tuning/extraseeds/TPU/Telegram;oldnotebooks/pausedTPU preserved.
+
+- Text AE warm-up COMPLETE,collected2026-11-01. Privatecarasik/rhpr-ml100k-text-ae-warmup
+  v1/source444ba8238b2e244b498c4bb23ada89c769723b63;body20.25min. One seed42,
+  text-only,sameheadedarchitecture/frozenvectors/normalization/initialRQ+generator,
+  same943users/targets/split;all15predictionfiles(3models×5) independentlyrescored.
+  All20epochs/1709400examples/6680updates/zeroAMPskips. AE4500steps/69.64sec,
+  spectralplateau;nativeRQ3000Adagrad91.49sec;TIGERmean50.73sec/epoch vs50.95direct.
+  SelectedvalNDCG10 direct.05402 -> AE.06102(+13.0%),plain.06900. Selectedtest
+  .03438 -> .04210(+22.5%),plain.04341(-3.0%vsplain). Recall10.06999 -> .09014.
+  Bestepoch15. Firstbook15 ->252codes;semantictriples1025 ->1273(no collisions),
+  finalused[252,238,231],textMSE.83511 ->.72496. AEbooksuntouched/neural+BNtransfer,
+  freshRQoptimizer andinitiallatents(all1273,maxdiff0) verified. ExtraAEcompute/
+  initialization/stagemodesconfounded;not proofparametercountoroccupancycausedgain.
+  One seed,conditionalpaireduser95%CI delta[-.00235,.01794]crosses0.
+  See docs/gr-movielens100k-text-ae-warmup-results.md;localartifacts/
+  movielens100k-text-ae-warmup/analysis(report/CSV/plots/numerical-evidence.zip).
+  LargeweightsstayprivateKaggle. No pendingGPUwork,do notresubmit/extend/tune,
+  addseeds,TPUorTelegramwithoutnewscope;preservepriorresultsandpausedTPUedits.
+
+- Text AE warm-up submitted ONCE, KaggleRUNNING,2026-11-01. Private
+  carasik/rhpr-ml100k-text-ae-warmup v1;source444ba8238b2e244b498c4bb23ada89c769723b63,
+  Actions41328218657successsubmit-only;exactconfig/all187embeddedfiles verified.
+  One text-only seed42 AE->RQ->20epochTIGER,oldprivate notebook outputs reused.
+  Receipt docs/gr-movielens100k-text-ae-warmup-submission.json;local audit in
+  artifacts/movielens100k-text-ae-warmup. No quality results yet. Waitforuser,
+  collectexistingrun;do notresubmit/extend/tune/addseeds/TPU/Telegram.
+
+- Text-only seed42 continuous-AE experiment authorized and implemented,2026-11-01.
+  Config movielens100k_text_ae_warmup.json; native continuous AE->RQ-VAE->TIGER.
+  One cuda:0 worker/trial, frozen prior notebook output (hash verified), no new
+  feature upload. See docs/gr-movielens100k-text-ae-warmup.md. Source
+  444ba8238b2e244b498c4bb23ada89c769723b63; Actions41328218657 dispatched once.
+  Do not duplicate; pending submission/status receipt. No retries/tuning/extra
+  seeds/TPU/Telegram. Tests927OK83skips plus native7OK. Preserve paused TPU edits.
+
+
+
+- MultimodalMPNetv2 COMPLETE,2026-11-01;12/12fits20epochs,no failures,
+  sourceaddd3c326dbc55ddf18d2dad2c832bf43000a8e0,117.50minbody. Collected
+  rawreports/sharedfeatures;60predictionfiles+3plaincontrols independently
+  rescored,same943cases/split,1709400examples/6680updates/zeroAMPskips each.
+  Generatorinitialhashpinned;RQinitialparams matchacrossstages withinseed;
+  fixedfeatures+normalizationidentical;base text exactlyoldstage5T5vectors.
+  Mean testNDCG10±SD:plainRQsame text.04143±.00335;headedtext.03388±.00264;
+  +poster.03982±.00163;+MPNetdescription.03760±.00599;+people.03773±.00171.
+  Posterincrement+17.5%positive3/3;plot-5.6%positive1/3;people+0.3%positive1/3.
+  Headedtext-18.2%vsplain3/3negative;allmodalities-8.9%vsplain3/3negative.
+  Valmeans4stages.05704/.05602/.05598/.05412;not a stableval/testgain.
+  NewRQsemantictriples:headed1025–1088,poster888–953,plot825–889,
+  people652–756;plain1271–1273. Firstbookheaded14–15/full10–14vsplain98–140.
+  All1273fullSIDs remainunique via suffix. Diversitystillgrows500–3000;
+  textMSE~.81–.84vsconstant1,worse~.87–.88withallheads. Do notdeclarecausal
+  bookoccupancy rule or modalitiesuseless:weakheadedcontrol/trainingconfounds.
+  Plotprep1272descriptions/1285chunks/max657tokens/no truncation,21.3sec.
+  See docs/gr-movielens100k-multimodal-results.md and localartifacts/
+  movielens100k-multimodal/mpnet-replacement/analysis (reports/plots/ZIP/ranks).
+  No pending GPUwork,noautoextensions,tuning,extraseeds,TPUorTelegram.
+
+
+
+- MPNet replacement submitted ONCE,v2RUNNING,2026-11-01. Sameprivatekernel
+  carasik/rhpr-ml100k-multimodal,oldv1CANCEL_ACKNOWLEDGED. Newexecutable
+  addd3c326dbc55ddf18d2dad2c832bf43000a8e0,Actions41313214797successsubmit-only.
+  Actualconfig+all186embeddedfiles matchcommit,packageSHA
+  c18600490f3f8b805312a891e4061eeabfee3672ac93e154a6fa25b0a0bfc596.
+  Onlyplotencoderchanges toMPNet description-only;headedtextcontrol remains
+  priorSentenceT5vectors. Frozeninputv2manifest75a4eb4e…verified. Receipt:
+  docs/gr-movielens100k-multimodal-mpnet-submission.json. Localartifacts
+  artifacts/movielens100k-multimodal/mpnet-replacement. Waitforusercompletion,
+  collectexistingv2;noresubmission/continuouspoll/tuning/extraseeds/TPU/Telegram.
+
+
+
+- User corrected plot channel,2026-11-01: use MPNET on DESCRIPTION ONLY.
+  CachedZenodoall-mpnetvectors mixdescription+genres+tags+reviews perauthors'
+  script;notused. Sourcecounts1273genres/1253tags/776reviews. Base text STILL
+  exactstage5SentenceT5;onlyplotencoderchanges. Pinnedall-mpnet-base-v2
+  e8c3b32edf5434bc2275fc9bab85f82640a19130,max384,chunk/tokenweightedpool+L2,
+  no truncation,1272plots/1masked. Real7000token/20chunkMPNet smokeOK;
+  native4testsOK,full924OK82skips. Same12fits42/101/202×4stages/20epochs.
+  Originalmultimodalv1(source7986c0c)CANCEL_ACKNOWLEDGED,nonecompleted,
+  firsttwofitslastloggedepoch6. Preserveoldreceipts;do notresumev1.
+  Cancellationoriginnotdetermined;serverstatusverified,no successfulcancel
+  APIcallbyagent. Replacement permitted by user's explicit encoder choice.
+  Privateinputcarasik/rhpr-ml100k-modal-input v2 READY,MPNetassetsincluded,
+  manifest75a4eb4e37ac6909d6c2f68ffe1582bfdc5bde385a6c975adc491ae0c231c0fd.
+  See corrected multimodal doc+cancelled-v1.json. Local replacement artifacts
+  artifacts/movielens100k-multimodal/mpnet-replacement. One replacement session,
+  noextraseeds/tuning/Telegram/TPU. Waitforcompletion aftersubmission.
+
+
+
+- Multimodal ML100K session submitted ONCE,v1RUNNING,2026-11-01.
+  Privatecarasik/rhpr-ml100k-multimodal,12fits/3seeds×4cumulative channels,
+  2T4/offline/noTelegram. Executable7986c0cf1db85610f0878fbe32116a9b311e0b34;
+  Actions41310913553successsubmit-only. Actualconfig+all186embeddedfiles match
+  committedsource,packageSHA0c26fcaacbd14942dcccc60ced38e1804d6b6e081d7f1eda2bee11ed7ca53980.
+  Receipt docs/gr-movielens100k-multimodal-submission.json,localartifacts/
+  movielens100k-multimodal. No outputs/quality results collected yet.
+  Do not resubmit or continuouslypoll;waitforusercompletion/status,collect
+  existingrun. No automatictraining retries/tuning/extraseeds/TPU/Telegram.
+
+
+
+- User authorized cumulative multimodal movie experiment,2026-11-01:
+  text(nopeople) -> +poster -> +plot -> +people,PLUM-like permodality MLP
+  encoder/decoder heads and SUM reconstruction MSE. Config
+  movielens100k_multimodal_2t4.json;see docs/gr-movielens100k-multimodal.md.
+  Twelve fresh fits42/101/202×4stages,20epochs,val5/10/15/20,previousTIGER4+4
+  andsame1273films/943users/split/cases/history20. Textonlyheaded controlfresh.
+  SharedRQVAE3x256/3000steps/latent64,all4heads instantiated uniformly;inactive
+  blocks zero/loss omitted. Fixed catalogue centering/scalarRMS per channel,
+  observed-item dimension-meanMSE summed,noUW. Log perhead/Q losses+occupancy.
+  Frozen text=exactpriorstage5T5(noactor/director names);posterViTCLS1273;
+  plot=rawdescriptionONLY->pinnedT5,full2048-tokenchunks/tokenweightedpool,
+  1272observed/1masked,no cataloguefilter. Frozenpeople=shared64DDeepWalk
+  over16692TMDBpersonIDs,same1273films,normalizedfilmwalks,cast/director
+  separate means->128D. Gensim4.4/seed42/oneCPUworker,not userinteractions.
+  Privateinput carasik/rhpr-ml100k-modal-input READY,manifest
+  5894994424f21c54784e416136d77758b5462d370e2a40016633e08eae141bb4.
+  Newprivatekernel target carasik/rhpr-ml100k-multimodal,2T4,~2–2.5h+queue.
+  Tests924OK82skips,native4OKinclRQ+20epoch tinyTIGER;realT5chunk smokeOK.
+  NoextraGPUjobs/tuning/retries/Telegram/TPU. Preserve old evidence/pausedTPU.
+
+
+
+- ML100K extra seeds collected,2026-11-01. All14fits completed20epochs;
+  rawKaggleERROR is ONLY final aggregation comparing initial NNhash globally
+  across101/202. No rootmetrics/summary/runmanifest were emitted. Preserve raw
+  failed-run evidence;explicit local recovered-metrics.json is verified,not a
+  rewritten successful run. No GPUretry needed/authorized. Config now sets
+  compare_initialization_by_seed=true;validator requires it and regression test
+  accepts different seeds/rejects withinseed mismatches. Tests920OK81skips.
+  Across42/101/202,mean testNDCG10 title.04522±.00173,genres.04149±.00512,
+  year.04093±.00616,runtime.04585±.00528,keywords.04143±.00335,
+  cast.03839±.00215,directors.04003±.00216. Fulltextloses title3/3(-11.5%).
+  Addingcast loses2/3(mean-7.3%);addingdirectors helps2/3(mean+4.3%);
+  combinedpeople versuskeywords-3.4%,mixedsigns. Fulltextmeanval.05989>
+  title.05613,oppositetestordering. No causalrare-nameencoding failure proven.
+  All105savedpredictions rescored;943cases same;everyfit1709400examples/
+  6680updates/zeroAMPskips. FrozenT5embeddings bitwiseequal across seeds/stage.
+  See docs/gr-movielens100k-seeds-results.md;local evidence/plots/ranks/ZIP in
+  artifacts/movielens100k-text-ladder-seeds/analysis. No newGPUruns;graphpeople
+  embeddings discussed/audited only,not trained or dispatched.
+
+
+
+- Extra ML100K seed session submitted v1 and RUNNING,2026-11-01.
+  Private`carasik/rhpr-ml100k-text-ladder-seeds`,14fits/101+202,no repeat42.
+  Executable60612f5968131745c23b88b8443bca028a93fdf9,successfulActions41293053201;
+  all182embeddedfiles+config independently matchcommit,packageSHA
+  d9f16d46a386fe1eb5703ee5da3dda9de22660542f2de2070b6d51704ac6e3f5.
+  FirstActions41292795661failed import before submission(missing six in
+  KaggleCLI2.2.5);workflow now installs six and smoke-checksCLI. OnlyONE
+  actual Kaggle version/run created;no GPUretry. Tests919OK81skips,native4OK.
+  Receipt`docs/gr-movielens100k-seeds-submission.json`;localevidence
+  `artifacts/movielens100k-text-ladder-seeds`. Do not resubmit or continuously
+  poll;waitforusercompletion/status andcollect thisexistingrun. NoTelegram,
+  TPU,tuning,extra seeds,automatictraining retries,orolder-studyrevival.
+
+
+
+- User authorized TWO EXTRA pipeline seeds per ML100K text stage,2026-11-01.
+  Config`movielens100k_text_ladder_seeds_2t4.json`;see
+  `docs/gr-movielens100k-seeds.md`. Fourteen fresh fits101/202×7stages,
+  one new private`carasik/rhpr-ml100k-text-ladder-seeds`2T4session,seven fits/card.
+  Same fixed data/split/case digests/history20/seed-matched20epochs/val5/10/15/20,
+  frozenSentenceT5/max2048,RQ-VAE3x256/3000,TIGER4+4/d128/FP16,selectedtest.
+  Pipeline seed varies RQ,NN/dropout,epochorder together;withinseed allstages
+  matched. Do not rerun42 or tune;no extra seeds/retries/Telegram/TPU.
+  Original100KrunCOMPLETE:all7×20epochs,zeroAMPskips,35predictionfiles rescored.
+  Title testNDCG10.0471667;keywords bestval.0690003/test.0434149;
+  fulltexttest.0394417. One realization,no established richtext benefit/harm.
+  Local reports/evidence:`artifacts/movielens100k-text-ladder/analysis`.
+  This authorization supersedes the old no-extra-seeds note for this job only.
+
+- Active direction switched to MovieLens100K by user,2026-10-31. ML1M run was
+  stopped by user;serverCANCEL_ACKNOWLEDGED,do not resume/relaunch it.
+  Newconfig`movielens100k_text_ladder_2t4.json`,same7fields/year-in-title,
+  Sentence-T5max2048,RQ-VAE3x256/3000steps/initbuffer1273,previousTIGER4+4/d128,
+  20epochs,val5/10/15/20,sameGPU2T4/seed42/history20/strict-past/group-holdouts.
+  OfficialML100K100000ratings/943users/1682rawIDs. IDs differ fromML1M.
+  Exact title/year aliases and explicit IMDb IDs bridge to previous verified
+  metadata;1667matched/13unmatched/2ambiguousrawIDs. No fuzzy/raw-IDjoin.
+  CommonTMDBrich4+ViTcoverage1288rawIDs,91767events;15same-film aliases merged
+  to1273movies,298duplicateuser-filmratings removed(latesttime,sourceIDtie).
+  Final91469ratings,943users,noexcludedusers,2042heldoutgroup embargo events,
+  87541train events,85470strict-past train targets/epoch. Dataset preparation
+  `scripts/prepare_movielens100k_text_ladder.py`;samecase/modelinit preflight
+  passes,NNhash5f4a24fa…unchanged. All7models fresh;noML1Mweights reused.
+  Privateinput`carasik/rhpr-ml100k-text-ladder-input`,manifest
+  52fa57696f77bc0d137b1d042684afb83e4d17c068fe78c9c5502d573cf84028.
+  Newkernel target`carasik/rhpr-ml100k-text-ladder`,not the stopped ML1Mslug.
+  About1.5–2hwall estimate,vsold600sec/892574targetsper epoch;quota29.27hleft.
+  Tests917passed(81skips),plus3targeted native/config tests. InputREADY.
+  Submittedonce:private`carasik/rhpr-ml100k-text-ladder`v1RUNNING,
+  executable6537df769c7755a601c7e91672039701c519685d,Actions41235282704success
+  submit-only. Actualconfig+all182embeddedfiles matchcommit,packageSHA
+  680290105a27db0e88b7e22e82faa006092794f26f9d1940a4725e354fdf8b61.
+  Receipts:/workspace/artifacts/movielens100k-text-ladder. Do not resubmit
+  or continuouslypoll;waitforusercompletion/status andcollectexistingrun. NoTelegram,TPU,tuning,
+  retries,extra seeds,oroldexperiment revival. Keep stopped1Moutputs intact.
+
+
+- Active authorized MovieLens text ladder,2026-10-31. See
+  `docs/gr-movielens-text-ladder.md`,config`movielens_text_ladder_2t4.json`.
+  Seven cumulative fields:original title INCLUDING year,genres,explicit Year,
+  runtime,TMDBkeywords,all cast,all directors. Stage3 repeats year information,
+  per user correction;no overview/user tags/reviews/poster inputs. Frozen pinned
+  Sentence-T5,max2048allvariants;actual max1587,no truncation. RQ-VAE3x256,
+  3000steps,FP32,initbuffer2875(full smaller catalogue);previous TIGER4+4/d128,
+  4977920params,FP16,20epochs,val5/10/15/20,one selected-checkpoint test.
+  User approved distinct timestamp-group val/test:one SHA-selected target/group,
+  embargo other group ratings11004,exclude user5258(two groups,15events).
+  Common2875movies/6039users/906679train events/892574strict-past targets per
+  epoch. Simultaneous TRAIN targets share earlier history;no same-time peeking.
+  All ratings1..5,history20,fullcatalogue/freebeam20/no seenmask as prior control.
+  Private input`carasik/rhpr-ml1m-text-ladder-input`created andready;manifest
+  53178c2446d359d00aa864675042cb82fdb98ced421b04a5d86b59046e3bc204.
+  Case train/val/test hashes and source identities verified;native initialNNhash
+  5f4a24fa…matches previous TIGER. Native real-encoder/RQ/tiny20epoch smoke passed.
+  New builder is optional trainer argument;historical defaults remain intact.
+  Historical stopped run:private`carasik/rhpr-ml1m-text-ladder`v1CANCEL_ACKNOWLEDGED,2T4
+  independent4/3fit workers. Executablec4d31fb32146376fb65f4e043787d2ecbb62c609.
+  Actions41230771384successsubmit-only;PR41attached. Actual182embeddedfiles and
+  config matchcommittedsource;packageSHA6f7e96b2ee38787d4961fb29139bb7a57c8612598ce80165d13cc77f8c2626f4.
+  Receipts/sourceaudit/split/config/tests saved in/workspace/artifacts/movielens-text-ladder.
+  Quota30GPUh,estimated~19GPUh/~10–11hwall before launch. Publication/dispatch
+  complete;912fulltests passed(12skips),plus2native movie-suite tests.
+  Initial PR CI missingSciPy/safetensors from historicalSIDtests;addsid-analysis CIextra,
+  no change to already submitted Kaggle executable and no resubmission.
+  Prelaunch input statusREADY;kernel searchNotFound. Do not submit duplicates.
+  No automatic tuning,retries,extra
+  seeds,earlier experiments,TPU or Telegram. Preserve paused TPU edits.
+
+
+- New direction2026-10-29:rich movie semantics forGR vscontent-aware dense.
+  Branch`codex/movielens-rich-semantics`frombd4ba5752d79ef480bf572fdeefbdc129e4dea08.
+  See`docs/gr-movielens-rich-semantics.md`,script`audit_movielens_semantics.py`.
+  CPU/publicdata audit only,noGPUtraining/embeddinggeneration/Kagglesubmission.
+  ML1M6040users/1000209ratings/3883catalogue/3706ratedmovies. TMDBsnapshot
+  confirmedIDs metadata3658rated;overview3648,keywords3256,cast3617,director3644,
+  posterPATH3649(all/3706). Complete4richtextfields3237. Median5keywords,14cast,
+  52overviewwords;not100IMDbtags.10conflictingIMDb/TMDBjoinswithheld,214title/year
+  reviewflags,3badmetadatarows,29dupIDs. No fuzzyjoins orinteractionfiltering.
+  Posterprobe20fixedseedonly1image/19HTTP404;needcachedmultimodalfeatures orfresh
+  images,notoldURLs. Zenodo15403972claims3667plots/3197posters;ML1M-onlyNPY91MB,
+  plots24MB,mapping0.7MB,APIinventoryretrieved,contentsnotyetverified. IMDbpublic
+  TSVschemaNOplots/keywords/posters. Rawdata/tmp/rhpr-movie-audit,aggregates/
+  gzipcatalogueaudit/sourcehashes/workspace/artifacts/movielens-semantics.
+  Importantprior:LIGER2411.18814sameiteminformationdensebeatsimplementedGRincl
+  cold;MMGRec2404.16555alreadymultimodalGR(notourcontrolledtask). Donotclaim
+  literatureempty orGRcoldautomaticallybetter;originalTIGERcoldusesprefixexpansion
+  andepsiloncap,currentexactSIDadapterdoesnotimplementit.
+  Proposed5fits:SASRecIDcontrol,SASReccontentbasic/rich,TIGERbasic/rich;shared
+  encoder/features,comparewithin-familyrich-basic;densecontentbothinput/output.
+  Imageslaterafteralignmentaudit. Coldrequiresseparateprotocol,rare!=cold.
+  MLratingtimeordercaveat:77.3866%eventsintieduser/secondgroups,53.2149%adjacent
+  ties,last2samesec2544users. Holdtimestampgroupstogether;notwatchingorder.
+  Oneuseronly2timegroups;3-waygroupsplitneedsdecision. Taskclarificationpending:
+  personalizednext-itemvsactualitem2item(userworkmotivateslatter,modelsformer).
+  Do not launchtraining before sharedprotocol/caseadapter is concrete.
+
 - Completed teacher-age screen2026-10-28,no pending GPU work. See
   `docs/gr-sid-generator-age-results.md`;private`carasik/rhpr-generator-age-screen`
   v1 COMPLETE,source316c1093a0a76ccf408562c5bce0a8640d72f322.

@@ -76,6 +76,53 @@ def run_experiment(
     """Dispatch a versioned experiment while keeping heavyweight imports optional."""
 
     kind = str(config.get("kind", "synthetic"))
+    if kind in {'gr_shared_codebooks','gr_codebook_adaptation'}:
+        if output_dir is None:
+            raise ValueError('shared codebooks require output directory')
+        from rhpr.gr.shared_codebooks import run
+        return run(config, output_dir)
+    if kind == 'gr_mini_tiger':
+        if output_dir is None:
+            raise ValueError('mini TIGER requires output directory')
+        from rhpr.gr.mini_tiger import run_mini_tiger
+        return run_mini_tiger(config, output_dir)
+    if kind == 'gr_ml1m_stability':
+        if output_dir is None:
+            raise ValueError('ML1M stability experiment requires output directory')
+        from rhpr.gr.ml1m_stability_suite import run_stability
+        return run_stability(config, output_dir)
+    if kind == 'gr_ml1m_clean_mtl':
+        if output_dir is None:
+            raise ValueError('clean ML1M MTL requires output directory')
+        from rhpr.gr.ml1m_clean_mtl import run_clean_mtl
+        return run_clean_mtl(config, output_dir)
+    if kind == 'gr_t5_batch_pilot':
+        if output_dir is None:
+            raise ValueError('batch pilot requires an output directory')
+        from rhpr.gr.batch_pilot import run_batch_pilot
+        return run_batch_pilot(config, output_dir)
+    if kind == 'gr_sdpa_pilot':
+        if output_dir is None:
+            raise ValueError('SDPA pilot requires an output directory')
+        from rhpr.gr.sdpa_pilot import run_pilot
+        return run_pilot(config, output_dir)
+    if kind == 'gr_movie_context_training':
+        if output_dir is None:raise ValueError('context training requires output directory')
+        from rhpr.gr.movie_context_training import run_context_training
+        return run_context_training(config, output_dir)
+    if kind == 'gr_movie_seen_serving':
+        if output_dir is None:raise ValueError('serving evaluation requires output directory')
+        from rhpr.gr.movie_seen_serving import run_serving
+        return run_serving(config, output_dir)
+    if kind == 'gr_movie_continuation':
+        if output_dir is None:raise ValueError('movie continuation requires an output directory')
+        from rhpr.gr.movie_continuation import run_continuation
+        return run_continuation(config, output_dir)
+    if kind in {'gr_movie_text_ladder', 'gr_movie_multimodal', 'gr_movie_multimodal_ae', 'gr_movie_multimodal_ae_ladder', 'gr_movie_controls', 'gr_movie_graph_loss', 'gr_movie_people_roles', 'gr_movie_actor_screen', 'gr_movie_actor_full', 'gr_movie_mtl'}:
+        if output_dir is None:
+            raise ValueError('movie suite requires an output directory')
+        from rhpr.gr.movie_suite import run_movie_suite
+        return run_movie_suite(config, output_dir)
     if kind == 'gr_generator_age_screen':
         if output_dir is None:
             raise ValueError('output_dir is required for gr_generator_age_screen')

@@ -1,0 +1,26 @@
+{
+  "initialization_pins": {
+    "full": {
+      "161803": "4cfe16ae1433c48e8d7aad7531c82af7da3d370f7f5baf25b8d7259d12d39dc6"
+    }
+  },
+  "parameters": {
+    "sum_seed42": 4977920,
+    "gradnorm_seed42": 4977920,
+    "sum_seed101": 4977920,
+    "gradnorm_seed101": 4977920,
+    "sum_seed202": 4977920,
+    "gradnorm_seed202": 4977920
+  },
+  "all_six_same_initialization": true,
+  "staged_indexes": 6,
+  "verified_train_validation_cases": true,
+  "native_probes": 2,
+  "epochs": 30,
+  "validation_checks": 6,
+  "worker_jobs": [
+    3,
+    3
+  ],
+  "proxy_reference_sha256": "6e487d9c94bef76cdfab52eef45261811e70d6156531e5c4451b0f698c95c89f"
+}

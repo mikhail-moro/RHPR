@@ -1,0 +1,64 @@
+{
+  "kernel_id": "carasik/rhpr-ml100k-actor-screen",
+  "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-ml100k-actor-screen",
+  "version": 1,
+  "status": "QUEUED",
+  "status_note": "Empty MCP status maps to the SDK default KernelWorkerStatus.QUEUED=0.",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41481526966",
+  "workflow_result": "success;submit_only=true",
+  "executable_git_sha": "5858df9f4682a15fdc740d3717469c8d4c6e22c5",
+  "package_sha256": "be2b6eb81133a895d200f9cc363d9eb48e1058fabaf362e553b86c66d07f72eb",
+  "embedded_source_files_verified": 194,
+  "exact_config": true,
+  "private": true,
+  "accelerator": "NvidiaTeslaT4",
+  "workers": [
+    "cuda:0",
+    "cuda:1"
+  ],
+  "seeds": [
+    42,
+    101
+  ],
+  "trials": 10,
+  "candidates": [
+    "none",
+    "shared_cast_weight1",
+    "actor_graph_weight1",
+    "actor_graph_weight0.3",
+    "actor_graph_weight0.1"
+  ],
+  "epochs": 30,
+  "validation_epochs": [
+    5,
+    10,
+    15,
+    20,
+    25,
+    30
+  ],
+  "early_stopping": false,
+  "lr_scheduler": false,
+  "selection": "mean validation NDCG10 across two seeds; no test-based weight selection",
+  "actor_dataset": "carasik/rhpr-ml100k-actor-deepwalk",
+  "actor_dataset_private": true,
+  "actor_dataset_ready": true,
+  "actor_nodes": 15998,
+  "graph_seed": 42,
+  "graph_inputs": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-ml100k-actor-deepwalk",
+    "people_sha256": "93fadcb9eda245b4c34562d237555b0851037b46d84f793ea05d4a1965a8758f",
+    "source_ids_sha256": "9c4a806b3ed1aa818e9fcdbfd92fd20d6adbbe05c522c4086a8d463f17e0f136",
+    "provenance_sha256": "65b13bdfe86a7ea8f15020c79187eb868efd17e22f96de920e13e1334a32fbee"
+  },
+  "ae_steps": 3500,
+  "rq_steps": 3000,
+  "weight_applied_to": [
+    "AE",
+    "RQ-VAE"
+  ],
+  "tests": "947OK89skips;3native actor checks and3legacy role checks passed",
+  "notify_telegram": false,
+  "no_results_yet": true,
+  "no_resubmission": true
+}

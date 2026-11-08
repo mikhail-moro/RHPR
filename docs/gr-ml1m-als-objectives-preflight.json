@@ -1,0 +1,14 @@
+{
+  "status": "preflight_passed",
+  "regression_tests": 1000,
+  "optional_skips": 91,
+  "failed": 0,
+  "native_pipelines": 2,
+  "native_epochs_each": 30,
+  "native_val_checks_each": 6,
+  "live_CF_input_gradient_verified": true,
+  "zero_CF_decoder_reconstruction_gradient_verified": true,
+  "loss_equals_content_losses_verified": true,
+  "unchanged_non_objective_config_verified": true,
+  "regression_log_sha256": "b12f4e4c61adbe6e432fa0de3cfd7cf7d7caa5bb8f4966cc7f5f48910c7e4962"
+}

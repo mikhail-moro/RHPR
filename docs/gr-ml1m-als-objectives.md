@@ -1,0 +1,16 @@
+# ALS input: GradNorm versus no CF reconstruction
+
+Authorized2026-11-05: two fresh seed42fits on2T4, private `carasik/rhpr-ml1m-als-objectives`, config `experiments/ml1m_als_objectives_2t4.json`.
+
+1. `als_gradnorm_seed42`: same frozen metadata/poster/plot/ALS inputs as previous ALS run; GradNorm over all four observed-item reconstruction tasks, existing LibMTL adaptation, alpha1.5, weights sum4. Applied during AE warm-up and RQ; phase reference reset at RQ, learned weights retained.
+2. `als_no_cf_reconstruction_seed42`: identical four active inputs and model architecture, fixed reconstruction weights1/1/1/0 (metadata/poster/plot/ALS). ALS input is observed and enters the encoder; its reconstruction target is logged but contributes zero to loss. Its input head can learn from the other three reconstruction losses and the RQ objective. This is not the content-only control, whose fourth input is zero.
+
+The existing MTL adapter overrides fixed reconstruction weights. Therefore the zero-CF arm uses the pre-existing fixed-weight native reconstruction path without the MTL adapter, ensuring lambda0 is actually respected in both continuous AE and RQ. No shared MTL/native loss implementation changes are required. This arm retains per-head raw MSE, AE/codebook/training curves and normalization/provenance; adapter-specific `mtl-learning-curves.json` is absent and `mtl_final_weights` is null. The explicit gradient preflight verifies nonzero ALS encoder-head gradient through content losses, zero ALS decoder-head reconstruction gradient and exact equality of loss to the three content losses.
+
+Reuse original content-only sum_seed42 and trueALS sum_seed42 results from private versions `carasik/rhpr-ml1m-clean-mtl/1` and `carasik/rhpr-ml1m-als-channel/1`. No controls are retrained. Prior VAL/TEST NDCG10: content .066660/.061652,ALSsum .064178/.055118. Test values are references only; new checkpoints selected solely by validation. No extra seed/HPO/PCGrad/UW/shuffled retraining.
+
+All other settings unchanged: raw clean20+val+test,2786users/2874films/151166TRAIN; same five pinned dataset sources and frozen train-only ALS128vectors. Unsupported97films remain masked; internal128Dpeople slot contains ALS, no people data. AE3500/RQ3000FP32, same neural initial pins; TIGER4+4d128,FP16/nativeSDPA,batch512/512,LR0.001,fixed30epochs,val5,FP32freebeam20test at validation-selected checkpoint, no seen mask. GradNorm operates on reconstruction tasks; quantization objective retains its original weight. Both new models start from scratch.
+
+Comparison to ALSsum isolates changes in reconstruction training with inputs fixed. Zero-CF also lowers fixed coefficient sum4→3 and thus changes reconstruction relative to quantization. GradNorm keeps coefficient sum4 but changes relative weights. These limitations and one pipeline seed prevent definitive attribution of NDCG differences to dominance or conflict.
+
+Expected about40minutes plus modest GradNorm tokenizer overhead, one fit per T4,workflow ceiling180minutes. Config/source/gradient tests and submission receipt saved. No new dataset publication, runtime dependency changes, automatic retries/hardware fallback/Colab/Telegram. Once submitted, monitor the exact version and do not duplicate it.

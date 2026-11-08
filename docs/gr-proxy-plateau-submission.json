@@ -1,0 +1,48 @@
+{
+  "source_code_sha": "64500ca852e7bc478df3127e3421d661f36bfa12",
+  "kernel_metadata_sha256": "ec4188d0f3cfa739eadc30bc2d54de48b27b1698b5a4a9885eec6444a8da543f",
+  "runner_sha256": "6e989572b4a68c89b7d0fc2c66138e024c85ecd310ca3f19ff5a0f8ff2016136",
+  "kernel_id": "carasik/rhpr-ml1m-proxy-plateau",
+  "kernel_version": 1,
+  "versioned_kernel_id": "carasik/rhpr-ml1m-proxy-plateau/1",
+  "status": "submitted",
+  "quality_complete": false,
+  "worker_timeout_seconds": 16200,
+  "submitted_at_utc": "2026-11-07T11:04:28.336457+00:00",
+  "workflow_id": 42366590879,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/42366590879",
+  "artifact_id": 13571766260,
+  "observed_status": "ERROR",
+  "source_audit": {
+    "embedded_files": 210,
+    "source_code_sha": "64500ca852e7bc478df3127e3421d661f36bfa12",
+    "runner_sha256": "6e989572b4a68c89b7d0fc2c66138e024c85ecd310ca3f19ff5a0f8ff2016136",
+    "exact_config": true,
+    "private": true,
+    "offline": true,
+    "machine_shape": "NvidiaTeslaT4",
+    "datasets": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml1m-clean-mtl-input",
+      "carasik/rhpr-t5-sdpa-runtime"
+    ],
+    "parents": [
+      "carasik/rhpr-ml1m-clean-mtl",
+      "carasik/rhpr-ml1m-clean-mtl-replicates",
+      "carasik/rhpr-ml1m-proxy-target"
+    ]
+  },
+  "preflight": {
+    "tests": 1027,
+    "optional_skips": 91,
+    "failures": 0,
+    "targeted_checks": 18,
+    "actual_epoch30_optimizer_restore": true,
+    "native30_to60_resume": true,
+    "all_six_checkpoint_metadata_verified": true
+  },
+  "recoverable_completed_models": 4,
+  "not_started_models": 2,
+  "failure_reason": "Post-fit guard omitted AMP skipped updates from attempted batch accounting",
+  "failure_report": "docs/gr-proxy-plateau-recovery.md"
+}

@@ -1,0 +1,69 @@
+{
+  "commit": "addd3c326dbc55ddf18d2dad2c832bf43000a8e0",
+  "exact_config": true,
+  "embedded_source_files": 186,
+  "package_sha256": "c18600490f3f8b805312a891e4061eeabfee3672ac93e154a6fa25b0a0bfc596",
+  "metadata": {
+    "id": "carasik/rhpr-ml100k-multimodal",
+    "id_no": 142116979,
+    "title": "Rhpr Ml100K Multimodal",
+    "code_file": "rhpr-ml100k-multimodal.py",
+    "language": "python",
+    "kernel_type": "script",
+    "is_private": true,
+    "enable_gpu": true,
+    "enable_tpu": false,
+    "enable_internet": false,
+    "keywords": [],
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml100k-modal-input",
+      "carasik/rhpr-ml100k-text-ladder-input"
+    ],
+    "kernel_sources": [],
+    "competition_sources": [],
+    "model_sources": [],
+    "docker_image": "gcr.io/kaggle-private-byod/python@sha256:9a6bcfda6d03b2cd9aa347ee8c1bae62043328ed0f4afe9bda014e4f8bbf9435",
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/41313214797",
+  "all_embedded_files_match_commit": true,
+  "kernel_version": 2,
+  "observed_status": "RUNNING",
+  "quality_complete": false,
+  "previous_version": {
+    "version": 1,
+    "status": "CANCEL_ACKNOWLEDGED",
+    "completed_fits": 0
+  },
+  "trials": 12,
+  "seeds": [
+    42,
+    101,
+    202
+  ],
+  "epochs_per_trial": 20,
+  "validation_epochs": [
+    5,
+    10,
+    15,
+    20
+  ],
+  "plot_encoder": {
+    "model": "sentence-transformers/all-mpnet-base-v2",
+    "revision": "e8c3b32edf5434bc2275fc9bab85f82640a19130",
+    "max_length": 384,
+    "input": "description only",
+    "long_documents": "token-weighted chunk pooling, no truncation"
+  },
+  "base_text_encoder": "unchanged Sentence-T5 stage5",
+  "modality_input_version": 2,
+  "modality_input_manifest_sha256": "75a4eb4e37ac6909d6c2f68ffe1582bfdc5bde385a6c975adc491ae0c231c0fd",
+  "replacement_submitted_exactly_once": true,
+  "tests": {
+    "repository": 924,
+    "skipped": 82,
+    "native": 4,
+    "mpnet_chunk_smoke": true
+  }
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "candidate": "none",
+    "seed": 42,
+    "quantizer_training_config_same_except_pin_map": true,
+    "initial_neural_state_same": true,
+    "ae_final_state_same": false,
+    "codes_same": false,
+    "first_level_ari": 0.2627167833567286,
+    "generator_initial_same": true,
+    "first_generator_train_ce_difference": 1,
+    "old_test_ndcg10": 0.041356672566528606,
+    "new_test_ndcg10": 0.04529847261500736,
+    "note": "Fresh end-to-end fits: AE final states and codes differ despite same initial states/config/inputs. Exact numerical/runtime cause unidentified; not an isolated longer-training ablation."
+  },
+  {
+    "candidate": "none",
+    "seed": 101,
+    "quantizer_training_config_same_except_pin_map": true,
+    "initial_neural_state_same": true,
+    "ae_final_state_same": false,
+    "codes_same": false,
+    "first_level_ari": 0.23473261770698314,
+    "generator_initial_same": true,
+    "first_generator_train_ce_difference": 1,
+    "old_test_ndcg10": 0.04309986564991039,
+    "new_test_ndcg10": 0.05070897694640573,
+    "note": "Fresh end-to-end fits: AE final states and codes differ despite same initial states/config/inputs. Exact numerical/runtime cause unidentified; not an isolated longer-training ablation."
+  },
+  {
+    "candidate": "actor_w01",
+    "seed": 42,
+    "quantizer_training_config_same_except_pin_map": true,
+    "initial_neural_state_same": true,
+    "ae_final_state_same": false,
+    "codes_same": false,
+    "first_level_ari": 0.30976709015542697,
+    "generator_initial_same": true,
+    "first_generator_train_ce_difference": 1,
+    "old_test_ndcg10": 0.047014670546611716,
+    "new_test_ndcg10": 0.045934902569186385,
+    "note": "Fresh end-to-end fits: AE final states and codes differ despite same initial states/config/inputs. Exact numerical/runtime cause unidentified; not an isolated longer-training ablation."
+  },
+  {
+    "candidate": "actor_w01",
+    "seed": 101,
+    "quantizer_training_config_same_except_pin_map": true,
+    "initial_neural_state_same": true,
+    "ae_final_state_same": false,
+    "codes_same": false,
+    "first_level_ari": 0.2676242346003865,
+    "generator_initial_same": true,
+    "first_generator_train_ce_difference": 1,
+    "old_test_ndcg10": 0.04369054913028912,
+    "new_test_ndcg10": 0.04297999096625973,
+    "note": "Fresh end-to-end fits: AE final states and codes differ despite same initial states/config/inputs. Exact numerical/runtime cause unidentified; not an isolated longer-training ablation."
+  }
+]

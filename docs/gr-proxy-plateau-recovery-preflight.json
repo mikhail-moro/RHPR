@@ -1,0 +1,27 @@
+{
+  "real_recovered_epoch": 65,
+  "amp_skips": 2,
+  "new_training_updates": 0,
+  "all_pinned_files_preserved": true,
+  "verified_prediction_files": 57,
+  "four_completed_checkpoints_verified": true,
+  "external_completed_results": 4,
+  "external_model_construction_forbidden": true,
+  "only_pending_202_train": true,
+  "first_finish_workflow": 42376103455,
+  "first_finish_submission_rejected_http": 400,
+  "first_finish_gpu_started": false,
+  "rejected_workflows": [
+    42376103455,
+    42376580202
+  ],
+  "confirmed_savekernel_error": "The kernel source must be less than 1 megabytes in size.",
+  "oversized_runner_bytes": 1226614,
+  "packed_runner_bytes": 941484,
+  "source_limit_bytes": 1048576,
+  "embedded_source_files": 210,
+  "all_source_bytes_preserved": true,
+  "config_values_preserved": true,
+  "local_size_guard": true,
+  "no_gpu_started_by_rejected_requests": true
+}

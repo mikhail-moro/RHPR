@@ -1,0 +1,19 @@
+{
+  "kernel": "carasik/rhpr-ml1m-text-ladder",
+  "version": 1,
+  "status": "RUNNING",
+  "execution_commit": "c4d31fb32146376fb65f4e043787d2ecbb62c609",
+  "workflow_id": 41230771384,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/41230771384",
+  "pull_request": "https://github.com/mikhail-moro/RHPR/pull/41",
+  "submission_utc": "2026-10-31T18:43:28Z",
+  "gpu": "2xT4 enforced by worker allocation",
+  "telegram": false,
+  "tests": {
+    "full": 912,
+    "skipped": 12,
+    "additional_native_suite": 2
+  },
+  "actual_embedded_sources_verified": 182,
+  "resubmissions": 0
+}
