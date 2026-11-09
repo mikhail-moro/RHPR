@@ -326,6 +326,10 @@ def execute(
                   "--timeout", str(timeout_minutes * 60)])
     print(pushed.stdout, end="")
     version_match = PUSH_VERSION_PATTERN.search(pushed.stdout)
+    # Some Kaggle CLI failures print "Kernel push error" but exit with code 0.
+    # Do not create a false submission receipt when no version was confirmed.
+    if re.search(r"kernel\s+push\s+error", pushed.stdout + "\n" + pushed.stderr, re.IGNORECASE):
+        raise RuntimeError("Kaggle did not confirm a kernel version; inspect push output and server state")
     kernel_version = int(version_match.group(1)) if version_match else None
 
     if submit_only:

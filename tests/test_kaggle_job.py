@@ -104,6 +104,18 @@ class KaggleJobTest(unittest.TestCase):
                 self.assertEqual(manifest["kernel_version"], 7)
                 self.assertEqual(manifest["versioned_kernel_id"], "owner/kernel/7")
 
+    def test_zero_exit_push_error_does_not_write_submitted_receipt(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); bundle = root / 'bundle'; bundle.mkdir()
+            (bundle / 'kernel-metadata.json').write_text('{"id":"owner/kernel"}')
+            (bundle / 'run.py').write_text('print(1)')
+            failure = subprocess.CompletedProcess([], 0,
+                stdout='Kernel push error: Maximum batch GPU session count of 2 reached.\n', stderr='')
+            with patch('scripts.kaggle_job.run', return_value=failure):
+                with self.assertRaisesRegex(RuntimeError, 'did not confirm'):
+                    execute(bundle, 'owner/kernel', root / 'output', 1, submit_only=True)
+            self.assertFalse((root / 'output' / 'submission.json').exists())
+
     def test_invalid_output_pattern_does_not_submit_kernel(self) -> None:
         with tempfile.TemporaryDirectory() as temporary, patch("scripts.kaggle_job.run") as run:
             with self.assertRaises(re.error):
