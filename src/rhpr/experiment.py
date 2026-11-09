@@ -121,6 +121,11 @@ def run_experiment(
             raise ValueError('ML1M pair test requires output directory')
         from rhpr.gr.pair_test import run
         return run(config, output_dir)
+    if kind == 'gr_ml1m_pair_alignment':
+        if output_dir is None:
+            raise ValueError('ML1M pair-alignment study requires output directory')
+        from rhpr.gr.pair_alignment import run
+        return run(config, output_dir)
     if kind == 'gr_ml1m_clean_mtl':
         if output_dir is None:
             raise ValueError('clean ML1M MTL requires output directory')
