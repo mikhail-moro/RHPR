@@ -1,0 +1,263 @@
+{
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-ml1m-field-learning"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 64,
+    "d_ff": 512,
+    "d_kv": 32,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false,
+    "attn_implementation": "sdpa"
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 1,
+    "batch_size": 512,
+    "physical_batch_size": 512,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 100,
+    "min_epochs": 30,
+    "patience": 5,
+    "validation_interval": 10,
+    "evaluation_batch_size": 32,
+    "max_seconds": 5100,
+    "sampling": "precomputed_raw_clean_windows",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 30
+  },
+  "data": {
+    "split": "raw_contiguous_20_val_test",
+    "items": 2874,
+    "users": 2786,
+    "train_examples": 151166,
+    "case_sha256": {
+      "train": "28339b91f7d22ee78d3eed6e3c00cbd393ecc62e487fe63f74da65fac3937e5b",
+      "validation": "ee9cf5402dbfeae46f669c731fa795939d67e4b9779481102cd30802add27009",
+      "test": "daac961764086cc8966df2afdf1596c8a06774e032b05fade715a10cb94e8fed"
+    },
+    "version": "ML1M-TMDB-Zenodo-clean-original-timeline",
+    "history_items": 20
+  },
+  "movie_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-ml1m-clean-mtl-input",
+    "manifest_sha256": "023d2b52dd8a12553d1dcf24a8a3e9a59f22983ad3cd0b768c7da6318aa98c16"
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "evaluation": {
+    "test_after_selection": false,
+    "save_validation_predictions": true,
+    "selection_metric": "validation item NDCG@10",
+    "save_validation_losses": true
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-ml1m-clean-mtl-input",
+      "carasik/rhpr-t5-sdpa-runtime"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "modern_runtime": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-t5-sdpa-runtime",
+    "manifest_sha256": "18f4688aab798d792d9204d1c018d8aba7da80bc97f5aadcdd181b34f6f0b9f6"
+  },
+  "initialization_pins": {
+    "narrow": {
+      "31415": "43f3f9aa900f7e522f68f4f5006e532f1f789694cb07683573c256cd0fb34e5d",
+      "27182": "39c83ab2667f65b7eb18ad76e53ceb6485f29464b9723733fd9eba37c6329aac",
+      "161803": "b5fa87cd49b21d9d4a44d706d3005d997ce0522eef954eb31658637d08c2c85d"
+    }
+  },
+  "kind": "gr_ml1m_field_learning",
+  "name": "ml1m-field-index-learning-curves",
+  "seed": 31415,
+  "tokenizer_seeds": [
+    42,
+    101,
+    202
+  ],
+  "generator_seeds": [
+    31415,
+    27182,
+    161803
+  ],
+  "shuffle_seed": 20261109,
+  "metadata_texts_sha256": "fda9f11b0b559ca6b125b217c918ce561e636cd6431ecbe8bd350b710cb50099",
+  "compare_initialization_by_seed": true,
+  "suite_deadline_seconds": 39000,
+  "trials": [
+    {
+      "id": "title_q42_g31415",
+      "field": "title",
+      "tokenizer_seed": 42,
+      "seed": 31415,
+      "index_id": "title_q42",
+      "architecture": "narrow"
+    },
+    {
+      "id": "genres_q42_g31415",
+      "field": "genres",
+      "tokenizer_seed": 42,
+      "seed": 31415,
+      "index_id": "genres_q42",
+      "architecture": "narrow"
+    },
+    {
+      "id": "duration_q42_g31415",
+      "field": "duration",
+      "tokenizer_seed": 42,
+      "seed": 31415,
+      "index_id": "duration_q42",
+      "architecture": "narrow"
+    },
+    {
+      "id": "shuffled_duration_q42_g31415",
+      "field": "shuffled_duration",
+      "tokenizer_seed": 42,
+      "seed": 31415,
+      "index_id": "shuffled_duration_q42",
+      "architecture": "narrow"
+    },
+    {
+      "id": "title_q101_g31415",
+      "field": "title",
+      "tokenizer_seed": 101,
+      "seed": 31415,
+      "index_id": "title_q101",
+      "architecture": "narrow"
+    },
+    {
+      "id": "genres_q101_g31415",
+      "field": "genres",
+      "tokenizer_seed": 101,
+      "seed": 31415,
+      "index_id": "genres_q101",
+      "architecture": "narrow"
+    },
+    {
+      "id": "duration_q101_g31415",
+      "field": "duration",
+      "tokenizer_seed": 101,
+      "seed": 31415,
+      "index_id": "duration_q101",
+      "architecture": "narrow"
+    },
+    {
+      "id": "shuffled_duration_q101_g31415",
+      "field": "shuffled_duration",
+      "tokenizer_seed": 101,
+      "seed": 31415,
+      "index_id": "shuffled_duration_q101",
+      "architecture": "narrow"
+    },
+    {
+      "id": "title_q202_g31415",
+      "field": "title",
+      "tokenizer_seed": 202,
+      "seed": 31415,
+      "index_id": "title_q202",
+      "architecture": "narrow"
+    },
+    {
+      "id": "genres_q202_g31415",
+      "field": "genres",
+      "tokenizer_seed": 202,
+      "seed": 31415,
+      "index_id": "genres_q202",
+      "architecture": "narrow"
+    },
+    {
+      "id": "duration_q202_g31415",
+      "field": "duration",
+      "tokenizer_seed": 202,
+      "seed": 31415,
+      "index_id": "duration_q202",
+      "architecture": "narrow"
+    },
+    {
+      "id": "shuffled_duration_q202_g31415",
+      "field": "shuffled_duration",
+      "tokenizer_seed": 202,
+      "seed": 31415,
+      "index_id": "shuffled_duration_q202",
+      "architecture": "narrow"
+    },
+    {
+      "id": "title_q42_g27182",
+      "field": "title",
+      "tokenizer_seed": 42,
+      "seed": 27182,
+      "index_id": "title_q42",
+      "architecture": "narrow"
+    },
+    {
+      "id": "genres_q42_g27182",
+      "field": "genres",
+      "tokenizer_seed": 42,
+      "seed": 27182,
+      "index_id": "genres_q42",
+      "architecture": "narrow"
+    },
+    {
+      "id": "title_q42_g161803",
+      "field": "title",
+      "tokenizer_seed": 42,
+      "seed": 161803,
+      "index_id": "title_q42",
+      "architecture": "narrow"
+    },
+    {
+      "id": "genres_q42_g161803",
+      "field": "genres",
+      "tokenizer_seed": 42,
+      "seed": 161803,
+      "index_id": "genres_q42",
+      "architecture": "narrow"
+    }
+  ],
+  "quantizer": {
+    "kind": "grid_rqvae",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "max_steps": 3000,
+    "batch_size": 2048,
+    "init_buffer_size": 2874,
+    "initialization_steps": 1000,
+    "distance_backend": "torch_cdist"
+  }
+}
