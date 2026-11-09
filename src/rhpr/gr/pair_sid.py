@@ -95,6 +95,8 @@ def encode_pairs(encoder, texts, keys, dest):
 def predict_rq(embeddings, centers, device, batch_size=2048):
     import torch
     import torch.nn.functional as F
+    from rhpr.gr.distances import TorchCdistSquaredEuclideanDistance
+    distance = TorchCdistSquaredEuclideanDistance()
     result=[]; centers=torch.as_tensor(centers,dtype=torch.float32,device=device)
     with torch.no_grad():
         for begin in range(0,len(embeddings),batch_size):
@@ -102,7 +104,9 @@ def predict_rq(embeddings, centers, device, batch_size=2048):
             levels=[]
             for center in centers:
                 x=F.normalize(x,dim=-1)
-                ids=torch.cdist(x,center).argmin(1); levels.append(ids); x=x-center[ids]
+                # Match GRID fitting exactly: direct squared cdist in chunks,
+                # avoiding the default GEMM path's cancellation on near ties.
+                ids=distance.compute(x,center).argmin(1); levels.append(ids); x=x-center[ids]
             result.append(torch.stack(levels,dim=1).cpu().numpy())
     return np.concatenate(result)
 

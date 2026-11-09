@@ -1,4 +1,4 @@
-import copy,json,unittest
+import copy,importlib.util,json,unittest
 from pathlib import Path
 from rhpr.gr.pair_sid_50 import validate,TRIALS
 from rhpr.gr.ae_suite import assignments
@@ -23,5 +23,23 @@ class PairSid50Protocol(unittest.TestCase):
             if edit=='test':c['evaluation']['test_after_selection']=True
             if edit=='quantizer':c['quantizer']['passes_per_level']=11
             with self.subTest(edit=edit),self.assertRaises(ValueError):validate(c)
+
+    @unittest.skipUnless(importlib.util.find_spec('torch'), 'PyTorch required')
+    def test_prediction_uses_same_direct_cdist_backend_as_fitting(self):
+        import numpy as np
+        import torch
+        from unittest.mock import patch
+        from rhpr.gr.pair_sid import predict_rq
+        original = torch.cdist
+        calls = []
+        def checked(*args, **kwargs):
+            calls.append(kwargs.get('compute_mode'))
+            return original(*args, **kwargs)
+        values = np.array([[1., 0.], [0., 1.]], dtype=np.float32)
+        centers = np.tile(np.array([[[1., 0.], [0., 1.]]], dtype=np.float32), (3, 1, 1))
+        with patch.object(torch, 'cdist', side_effect=checked):
+            result = predict_rq(values, centers, 'cpu', batch_size=2)
+        self.assertEqual(result.shape, (2, 3))
+        self.assertEqual(calls, ['donot_use_mm_for_euclid_dist'] * 3)
 
 if __name__=='__main__':unittest.main()
