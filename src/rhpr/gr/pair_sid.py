@@ -195,6 +195,10 @@ def run(c,output):
         _write(index_root/f'index-{seed}.json',dict(item=item_report,pair=pair_report,item_diagnostics=idx.diagnostics(),
             pair_unique_sids=len(np.unique(all_codes[trainmask],axis=0)),pair_total=len(pair_train)))
         _event('pair_index_complete',seed=seed,train_pairs=len(pair_train),unique_pair_sids=len(np.unique(pair_train,axis=0)))
+    # Parent and workers share physical devices. KMeans can leave a large CUDA
+    # allocator cache in the parent; return it before starting GPU workers.
+    del pairs, vec, pair_train, pair_centers, item_centers, all_codes
+    gc.collect();torch.cuda.synchronize();torch.cuda.empty_cache()
     overlay=scratch/'modern-site';overlay.mkdir(parents=True,exist_ok=True)
     command=[sys.executable,'-m','pip','install','--no-index','--no-deps','--no-cache-dir','--no-compile','--require-hashes','--only-binary=:all:',
         '--target',str(overlay),'--find-links',str(roots['modern_runtime']),'-r',str(roots['modern_runtime']/'requirements-lock.txt')]

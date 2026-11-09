@@ -24,3 +24,17 @@ class PairInputs(unittest.TestCase):
         with self.assertRaises(ValueError):preencode(r,np.zeros((8,4),dtype='i'),np.array([NITEMS+2]),np.zeros((1,3),dtype='i'))
 
 if __name__=='__main__':unittest.main()
+
+class RecoveryProtocol(unittest.TestCase):
+    def test_recovery_runs_only_missing_seed_and_keeps_original_schedule(self):
+        import copy,json
+        from pathlib import Path
+        from rhpr.gr.pair_sid_recovery import validate
+        path=Path(__file__).resolve().parents[1]/'experiments/ml1m_pair_sid_recovery_2t4.json'
+        c=json.loads(path.read_text());validate(c)
+        bad=copy.deepcopy(c);bad['trials'].append(dict(id='pair_101',mode='pair',seed=101))
+        with self.assertRaises(ValueError):validate(bad)
+        bad=copy.deepcopy(c);bad['training']['max_epochs']=20
+        with self.assertRaises(ValueError):validate(bad)
+        bad=copy.deepcopy(c);bad['recovery_input']['source_commit']='different'
+        with self.assertRaises(ValueError):validate(bad)
