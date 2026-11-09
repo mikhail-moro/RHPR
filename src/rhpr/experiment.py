@@ -111,6 +111,11 @@ def run_experiment(
             raise ValueError('ML1M pair SID 50-epoch study requires output directory')
         from rhpr.gr.pair_sid_50 import run
         return run(config, output_dir)
+    if kind == 'gr_ml1m_pair_recent10':
+        if output_dir is None:
+            raise ValueError('ML1M recent-only control requires output directory')
+        from rhpr.gr.pair_recent10 import run
+        return run(config, output_dir)
     if kind == 'gr_ml1m_clean_mtl':
         if output_dir is None:
             raise ValueError('clean ML1M MTL requires output directory')
