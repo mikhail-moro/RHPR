@@ -14,6 +14,7 @@ class UniquePairTest(unittest.TestCase):
  def test_protocol(self):
   c=json.loads((Path(__file__).resolve().parents[1]/'experiments/ml1m_pair_unique4_2t4.json').read_text());validate(c);self.assertEqual(len(TRIALS),9)
   d=copy.deepcopy(c);d['suffix_policy']='untrusted';self.assertRaises(ValueError,validate,d)
+  d=copy.deepcopy(c);d['parents']['recent']=d['parents'].pop('test_cache');self.assertRaises(ValueError,validate,d)
  @unittest.skipUnless(importlib.util.find_spec('torch'), 'PyTorch required')
  def test_fourth_pair_level_has_its_own_embedding(self):
   import torch
