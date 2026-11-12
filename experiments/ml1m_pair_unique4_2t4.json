@@ -289,41 +289,33 @@
         }
       }
     },
-    "recent": {
-      "kernel": "carasik/rhpr-ml1m-recent10",
-      "git_sha": "95b59cfe7758eb356b26ab28d3de9cb0b61744e4",
+    "test_cache": {
+      "kernel": "carasik/rhpr-ml1m-pair-test",
+      "git_sha": "f51594d982daefd62ec8bcbbf1758043b4381470",
       "files": {
         "run-manifest.json": {
-          "size_bytes": 5833,
-          "sha256": "209ba450c2bd6c0f4f514110c9f6029c283930d40992fe5789954c17691b1548"
+          "size_bytes": 13213,
+          "sha256": "87859a972bf990a69c66322a50c4c07df76578a9f358c068b8f06e08c973040d"
         },
         "study-summary.json": {
-          "size_bytes": 3442,
-          "sha256": "02fdd67743f96eae710b7ae8e65f2d957bdbe9f556c64d9c330cc728e530f975"
+          "size_bytes": 23146,
+          "sha256": "eea5aa4f18a22d87aefbcaa3f80e1f1c666cd5680c90eb23bb77ab58ec1933b8"
         },
-        "trials/recent10_42/generator-last.pt": {
-          "size_bytes": 17249779,
-          "sha256": "9e151f6a57cdc4271acb03a908f4c9f4e48fe1e9784a78c3333a5db6da625fb3"
+        "pair-cache/pair-keys.npy": {
+          "size_bytes": 1026184,
+          "sha256": "905e5c00de06560e5b669889e26c457e53f9624a8d81ac1fd897a7c005d05807"
         },
-        "trials/recent10_42/generator-best.pt": {
-          "size_bytes": 5759821,
-          "sha256": "c0cab416f36cd1aff6fb3a6071e5203657a2b3d0371da09bb884a02b7d76a580"
+        "pair-cache/pairs-42.npy": {
+          "size_bytes": 3078296,
+          "sha256": "5e81a5c87aa6a79999a8453eca3e029393ad345371f09a9349c1b16d3d578929"
         },
-        "trials/recent10_101/generator-last.pt": {
-          "size_bytes": 17249779,
-          "sha256": "89a5e99d9014408357b2aceb12a984dc93b2460b247a9669c5abf16c8839baf4"
+        "pair-cache/pairs-101.npy": {
+          "size_bytes": 3078296,
+          "sha256": "3a28c495a2eb02c2306c200487a3b9e9abdc5435e405ab32bd220a3dd4d25b4d"
         },
-        "trials/recent10_101/generator-best.pt": {
-          "size_bytes": 5759821,
-          "sha256": "dd332a3c92a5a2ffe321b9f48036db8c4fe6b1cc9d2b24421ef9e32dd70dc6b2"
-        },
-        "trials/recent10_202/generator-last.pt": {
-          "size_bytes": 17249779,
-          "sha256": "3e65ff39893bace26ff7845440038eb8a3edee4a288be5cd11cbfa6f574d253a"
-        },
-        "trials/recent10_202/generator-best.pt": {
-          "size_bytes": 5759821,
-          "sha256": "62faaf3bb2f7bb82faa1538c60e73690763c3d493a3dbf6f7ab5774a7e7b52eb"
+        "pair-cache/pairs-202.npy": {
+          "size_bytes": 3078296,
+          "sha256": "7093a56d05939667b75da6dd71d73827261d495ab1d3f1e2e87c08b7f1ea475d"
         }
       }
     }

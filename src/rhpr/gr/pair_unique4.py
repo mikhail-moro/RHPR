@@ -22,7 +22,9 @@ def validate(c):
         or t['batch_size']!=512 or t['physical_batch_size']!=512 or t['precision']!='fp16' or t['evaluation_precision']!='fp32'
         or t['learning_rate']!=.001 or t['weight_decay']!=.0001 or t['patience_epochs']!=30 or 'scheduler' in t
         or g['d_model']!=64 or g['encoder_layers']!=4 or g['decoder_layers']!=4 or g['attn_implementation']!='sdpa'
-        or not c['evaluation']['test_after_selection'] or c['suffix_policy']!='train_then_val_then_test_sorted_pair_keys'):
+        or not c['evaluation']['test_after_selection'] or c['suffix_policy']!='train_then_val_then_test_sorted_pair_keys'
+        or set(c['parents'])!={'pair','test_cache'}
+        or {v['kernel'] for v in c['parents'].values()}!=set(c['kaggle']['kernel_sources'])):
         raise ValueError('unique pair study differs from declared protocol')
 
 
