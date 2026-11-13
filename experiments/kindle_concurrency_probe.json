@@ -1,0 +1,135 @@
+{
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-kindle-concurrency"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 64,
+    "d_ff": 512,
+    "d_kv": 32,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false,
+    "attn_implementation": "sdpa"
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 1,
+    "batch_size": 512,
+    "physical_batch_size": 512,
+    "learning_rate": 0.003,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 60,
+    "min_epochs": 60,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 32,
+    "max_seconds": 3300,
+    "sampling": "precomputed_positive_leave_last_two_prefix_windows",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 30
+  },
+  "data": {
+    "history_items": 20,
+    "users": 2625,
+    "items": 4969,
+    "train_examples": 92133,
+    "split": "positive4plus_popular_catalogue_active_users_leave_last_two_timestamp_asin"
+  },
+  "movie_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-kindle-dense100k-pair-input",
+    "sha256": {
+      "catalog.json": "a966fdd75400ef2fef5b8b9ae0e37437ebebc1969630a513cb1a2728f5ba8fe0",
+      "data-report.json": "a9eda231510a2b5e81537b25d14fa44c6e32ffd26132e47ebff8300b109e4127",
+      "source-ids.json": "5d908cd29d9772a6394ae0a1015becf25b0bddb987e138afb0c24b8df3eb5870",
+      "source-provenance.json": "27fe4331da0fa1be8356e745fdf1cfb911d40697ea95cd5dd52800060b99b6d3",
+      "test-cases.npz": "6f8d90d5b1c3d3b8e3a7c09104664c1148f14bfe0fbf266fdbfe39034247add0",
+      "texts.json": "466bdd17529ab11a9a3f1a161ee4dbf89f2135e66a73dc29f94585ea2d1a9185",
+      "train-cases.npz": "889fe11b807f17628e2cabfa1086e1ea4a18de4adadc76a515d8f107a6c450ee",
+      "user-audit.json": "9fcb9490867206eff7226f4ff64ea10984f6be8280f149f1b91ed835b3264cfa",
+      "validation-cases.npz": "4ac3992b260eb4e29e9596d49ae65f423a2fc23e17d2e9419cf8b83d8ae53eff"
+    }
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "evaluation": {
+    "test_after_selection": false,
+    "save_validation_predictions": true,
+    "selection_metric": "validation item NDCG@10",
+    "save_validation_losses": false
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-t5-sdpa-runtime",
+      "carasik/rhpr-kindle-dense100k-pair-input"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-kindle-recent20-lr-pilot"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "modern_runtime": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-t5-sdpa-runtime",
+    "manifest_sha256": "18f4688aab798d792d9204d1c018d8aba7da80bc97f5aadcdd181b34f6f0b9f6"
+  },
+  "compare_initialization_by_seed": true,
+  "kind": "gr_kindle_concurrency",
+  "name": "kindle_compiled_one_vs_two_same_gpu",
+  "seed": 42,
+  "suite_deadline_seconds": 600,
+  "expected_initial_state_sha256": "145019d618c46a5a0455496d44a0d517eaf82e8c234651551a15b64019d21277",
+  "trials": [],
+  "parent": {
+    "kernel": "carasik/rhpr-kindle-recent20-lr-pilot",
+    "git_sha": "ac7fc6a3aa587aa0366de504182d9c831f0c00ff",
+    "files": {
+      "run-manifest.json": {
+        "sha256": "82a77f679c725a56c76bf682ef0e85307028ca9f84b2ecc5df55671731925e55",
+        "size_bytes": 5604
+      },
+      "frozen-indexes/items-42.npy": {
+        "sha256": "3c220532d374279a68b53019094250d336f3871eb8a13b0d96f17a9d535b58ea",
+        "size_bytes": 159136
+      },
+      "trials/cosine_003/generator-best.pt": {
+        "sha256": "35da013f3aa607ba03a3563059625e534decce786e97baa3ca2cf5b239ee0eba",
+        "size_bytes": 5825293
+      }
+    }
+  },
+  "profile": {
+    "max_seconds": 600,
+    "steps": 100,
+    "repeats": 3
+  }
+}
