@@ -188,11 +188,12 @@ def _step(model, provider, effective: int, physical: int, optimizer, scaler,
 
 def benchmark_training(model, examples, sids, indices, physical: int, precision: str,
                        mode: str, training: dict, specification: dict,
-                       deadline: ProfileDeadline, device: str) -> dict:
+                       deadline: ProfileDeadline, device: str, *, batch_builder=None) -> dict:
     """Measure real updates, restoring weights, RNG and training mode on exit."""
     import numpy as np
     import torch
     from rhpr.gr.experiment import _model_batch
+    if batch_builder is not None:_model_batch=batch_builder
 
     if mode not in {"full_pipeline", "gpu_resident"}:
         raise ValueError("unknown training profile mode")
@@ -260,10 +261,11 @@ def benchmark_training(model, examples, sids, indices, physical: int, precision:
 
 def detailed_training_profile(model, examples, sids, indices, physical: int,
                               precision: str, training: dict, device: str,
-                              output: Path) -> dict:
+                              output: Path, *, batch_builder=None, export_trace=False) -> dict:
     """One instrumented step: synchronizing stage boundaries changes timing."""
     import torch
     from rhpr.gr.experiment import _loss, _model_batch
+    if batch_builder is not None:_model_batch=batch_builder
 
     initial = {name: value.detach().cpu().clone() for name, value in model.state_dict().items()}
     was_training = model.training
@@ -317,6 +319,7 @@ def detailed_training_profile(model, examples, sids, indices, physical: int,
             _step(model, lambda start, end: {key: value[start:end] for key, value in batch.items()},
                   physical, physical, optimizer, scaler, precision, device, training["grad_clip_norm"])
             _synchronize(device)
+        if export_trace:profile.export_chrome_trace(str(output / 'training-profile-trace.json'))
         events = []
         for event in profile.key_averages():
             events.append({"operator": event.key, "calls": event.count,
@@ -360,10 +363,11 @@ def prediction_agreement(reference, candidate) -> dict:
 
 
 def benchmark_evaluation(model, examples, sid_index, batch_size: int, precision: str,
-                         device: str, deadline: ProfileDeadline, warmup: int = 1):
+                         device: str, deadline: ProfileDeadline, warmup: int = 1, *, batch_builder=None):
     import numpy as np
     import torch
     from rhpr.gr.experiment import _model_batch
+    if batch_builder is not None:_model_batch=batch_builder
     from rhpr.gr.sid import evaluate_ranked_sids
 
     contexts, users, targets = examples
