@@ -1,0 +1,25 @@
+{
+  "kernel": "carasik/rhpr-kindle-recent20-lr-pilot",
+  "version": 1,
+  "url": "https://www.kaggle.com/code/carasik/rhpr-kindle-recent20-lr-pilot",
+  "status_at_submission_check": "RUNNING",
+  "submitted_at_utc": "2026-11-13T22:12:16Z",
+  "source_commit": "ac7fc6a3aa587aa0366de504182d9c831f0c00ff",
+  "workflow_id": 43517280237,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/43517280237",
+  "workflow_submission_success": true,
+  "artifact_id": 14080224724,
+  "config": "experiments/kindle_recent20_lr_pilot_2t4.json",
+  "config_sha256": "5648f8311c70119a7251674ba2bfb2530217d528c618621fc23bb42219a4b430",
+  "deployed_source_files_verified": 203,
+  "deployed_config_matches": true,
+  "deployed_runner_sha256": "d51a8cd455ddc7728b5331121c0ba46d8010182128e94359d3b7d66cb3bd361e",
+  "private_offline_two_t4": true,
+  "test_evaluated": false,
+  "tests": {
+    "run": 1082,
+    "skipped": 152,
+    "failed": 0
+  },
+  "scope": "Exactly two fresh VAL-only Recent20 seed42 fits, 60epochs each; frozen parent item index and initializer. No encoder/quantizer fitting, new seeds, TEST or automatic reruns."
+}

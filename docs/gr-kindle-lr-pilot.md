@@ -51,3 +51,10 @@ parent artifacts passed byte/size pins. Native CPU mini-TIGER forward/backward
 on prepared Kindle TRAIN cases produced finite loss/gradients, matched initial
 weights for both arms, and the expected first scheduler steps. GPU initializer
 matching remains an enforced precondition in each worker. No TEST cases built.
+
+Submitted once as private carasik/rhpr-kindle-recent20-lr-pilot/version1,
+RUNNING at server check. GitHub workflow43517280237success, executable
+ac7fc6a3aa587aa0366de504182d9c831f0c00ff. Pulled source/config/private/offline/
+T4/dataset/parent metadata verified. Receipt:gr-kindle-lr-pilot-submission.json.
+Submission is not training completion; collect two completed VAL trajectories
+and verify LR/updates/pins before comparing. No additional runs authorized.
