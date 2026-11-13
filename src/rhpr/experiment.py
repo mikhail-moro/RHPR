@@ -96,6 +96,11 @@ def run_experiment(
             raise ValueError('ML1M field-learning experiment requires output directory')
         from rhpr.gr.field_learning import run
         return run(config, output_dir)
+    if kind == 'gr_ml100k_pair_raw':
+        if output_dir is None:
+            raise ValueError('ML100K pair study requires output directory')
+        from rhpr.gr.ml100k_pair_raw import run
+        return run(config, output_dir)
     if kind == 'gr_ml1m_pair_sid':
         if output_dir is None:
             raise ValueError('ML1M pair SID experiment requires output directory')

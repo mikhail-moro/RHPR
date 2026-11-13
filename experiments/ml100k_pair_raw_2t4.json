@@ -1,0 +1,198 @@
+{
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-ml100k-pair-raw"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 64,
+    "d_ff": 512,
+    "d_kv": 32,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false,
+    "attn_implementation": "sdpa"
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 1,
+    "batch_size": 512,
+    "physical_batch_size": 512,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 120,
+    "min_epochs": 50,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 32,
+    "max_seconds": 10000,
+    "sampling": "precomputed_raw_clean_windows",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 30
+  },
+  "data": {
+    "history_items": 20,
+    "users": 943,
+    "items": 1682,
+    "train_examples": 97171,
+    "split": "leave_last_two_out_all_ratings_timestamp_item_id"
+  },
+  "movie_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-ml100k-pair-raw-input",
+    "sha256": {
+      "train-cases.npz": "5b4330086708368b8720e4ed5b1edd4595e48c1f1b34cd646d87b26a3cf2b636",
+      "validation-cases.npz": "1e09dc64359c195306245815eb729dc5a8eb16c340545a67f90025c48ce934d6",
+      "test-cases.npz": "b4c18c3cf3f3eabe4848887058a5aef1c680e74272759b5634f6aa02939c68fb",
+      "texts.json": "f2cd1e9cfe67051d340856d8cc245b52bd998a3d3babb698fa5e0d35029fe3f5",
+      "data-report.json": "d5879c61a6f14b4ad754185a42123448c6bbc0ee4573fe33c67c9d729410337e"
+    }
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "evaluation": {
+    "test_after_selection": true,
+    "save_validation_predictions": true,
+    "selection_metric": "validation item NDCG@10",
+    "save_validation_losses": false
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-t5-sdpa-runtime",
+      "carasik/rhpr-ml100k-pair-raw-input"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "modern_runtime": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-t5-sdpa-runtime",
+    "manifest_sha256": "18f4688aab798d792d9204d1c018d8aba7da80bc97f5aadcdd181b34f6f0b9f6"
+  },
+  "initialization_pins": {
+    "narrow": {
+      "31415": "43f3f9aa900f7e522f68f4f5006e532f1f789694cb07683573c256cd0fb34e5d",
+      "27182": "39c83ab2667f65b7eb18ad76e53ceb6485f29464b9723733fd9eba37c6329aac",
+      "161803": "b5fa87cd49b21d9d4a44d706d3005d997ce0522eef954eb31658637d08c2c85d"
+    }
+  },
+  "kind": "gr_ml100k_pair_raw",
+  "name": "ml100k_pair_raw_3plus1",
+  "seed": 42,
+  "tokenizer_seeds": [
+    42,
+    101,
+    202
+  ],
+  "generator_seeds": [
+    31415,
+    27182,
+    161803
+  ],
+  "shuffle_seed": 20261109,
+  "metadata_texts_sha256": "fda9f11b0b559ca6b125b217c918ce561e636cd6431ecbe8bd350b710cb50099",
+  "compare_initialization_by_seed": true,
+  "suite_deadline_seconds": 28000,
+  "trials": [
+    {
+      "id": "control_42",
+      "mode": "control",
+      "seed": 42
+    },
+    {
+      "id": "recent15_42",
+      "mode": "recent15",
+      "seed": 42
+    },
+    {
+      "id": "pair_42",
+      "mode": "pair",
+      "seed": 42
+    },
+    {
+      "id": "control_101",
+      "mode": "control",
+      "seed": 101
+    },
+    {
+      "id": "recent15_101",
+      "mode": "recent15",
+      "seed": 101
+    },
+    {
+      "id": "pair_101",
+      "mode": "pair",
+      "seed": 101
+    },
+    {
+      "id": "control_202",
+      "mode": "control",
+      "seed": 202
+    },
+    {
+      "id": "recent15_202",
+      "mode": "recent15",
+      "seed": 202
+    },
+    {
+      "id": "pair_202",
+      "mode": "pair",
+      "seed": 202
+    }
+  ],
+  "quantizer": {
+    "kind": "grid_rkmeans",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "passes_per_level": 10,
+    "batch_size": 2048,
+    "init_buffer_size": 3072,
+    "normalize_residuals": true,
+    "distance_backend": "torch_cdist"
+  },
+  "seeds": [
+    42,
+    101,
+    202
+  ],
+  "recent_items": 10,
+  "selection_policy": "validation_ndcg10_or_fixed_epoch50",
+  "test_training_forbidden": true,
+  "centroids": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-ml1m-pair-test-centroids",
+    "manifest_sha256": "2a5fe2d45b046687ae5cf81aea6e8fe35e42b8612a32b73c86186b5f9fe3df87"
+  },
+  "suffix_policy": "train_then_val_then_test_sorted_pair_keys",
+  "continuation_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-ml1m-pair-sid-50-input",
+    "manifest_sha256": "e11280f1c9a23d3e63d6083014e6d40d6095339771fdf43a7aec8eddf1e777d2",
+    "source_commit": "22d06b2d528291de0cabcd7a9c2f6e8c8ff5356d"
+  }
+}
