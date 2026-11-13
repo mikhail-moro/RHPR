@@ -201,6 +201,12 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
         state=resume_state.get('scheduler') if resume_state else None,best_metric=best_metric,epoch=completed_epoch,
         steps_per_epoch=(len(targets)+batch_size-1)//batch_size)
     step_scheduler=bool(scheduler_spec and scheduler_spec['kind']=='warmup_cosine')
+    ema_stopping=None
+    if specification.get('early_stopping'):
+        from rhpr.gr.generator_resume import EMAStopping
+        saved=resume_state.get('early_stopping_state') if resume_state else None
+        if resume_state is not None and saved is None:raise ValueError('missing EMA state on resume')
+        ema_stopping=EMAStopping(specification['early_stopping'],saved)
     initial_updates=updates;initial_training_seconds=training_seconds
     case_hashes={}
     if scheduler is not None or resume_from is not None:
@@ -212,6 +218,12 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
         verification=json.loads((output/'resume-verification.json').read_text());verification['rng_restored_and_verified']=True
         _write(output/'resume-verification.json',verification)
         _event('gr_training_resumed',epoch=completed_epoch,updates=updates,best_epoch=best_epoch)
+    forward_model=model
+    if specification.get('compile_training'):
+        if hasattr(model,'rhpr_loss'):raise ValueError('compile_training requires the standard forward loss path')
+        _event('gr_compile_training_enabled',policy=specification['compile_training'],
+               note='Compilation is lazy; first and last batch shapes can incur cold cost. Checkpoints remain unwrapped.')
+        forward_model=torch.compile(model,**specification['compile_training'])
     for epoch in range(completed_epoch+1, specification["max_epochs"] + 1):
         # Budget exits only at an epoch boundary, preserving an interpretable
         # full pass. Save selected and last checkpoints for later continuation.
@@ -232,7 +244,7 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                 part = chosen[position:position + physical]
                 batch = _index_model_batch(contexts[part], user_ids[part], targets[part], sid_index, device)
                 with _autocast(precision, device):
-                    loss = _loss(model, batch)
+                    loss = _loss(forward_model, batch)
                 if not torch.isfinite(loss):
                     raise FloatingPointError("nonfinite GR training loss")
                 total_loss += loss.detach().float().item() * len(part)
@@ -291,6 +303,10 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                     specification['evaluation_batch_size'],device,evaluation_precision)
                 validation_seconds+=time.monotonic()-before_loss
             score = last_validation["ndcg@10"]
+            if ema_stopping is not None:
+                state=ema_stopping.observe(score,epoch)
+                row.update(validation_ema_ndcg10=state['ema'],ema_reference_ndcg10=state['reference'],
+                           ema_last_improvement_epoch=state['last_improvement_epoch'])
             previous_best_metric=best_metric
             if score > best_metric:
                 best_metric, best_epoch, stale = score, epoch, 0
@@ -315,6 +331,7 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
         continuation_state={} if scheduler is None and resume_from is None else {
             'scheduler':scheduler.state_dict() if scheduler else None,
             'optimizer_training_seconds':training_seconds,'validation_seconds':validation_seconds,**case_hashes}
+        if ema_stopping is not None:continuation_state['early_stopping_state']=ema_stopping.state
         torch.save({"model": model.state_dict(), "optimizer": optimizer.state_dict(),
                     "scaler": scaler.state_dict(), "epoch": epoch, "updates": updates,
                     "torch_rng": torch.get_rng_state(),
@@ -331,6 +348,8 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
             epoch - best_epoch >= specification["patience_epochs"]
             if "patience_epochs" in specification else stale >= specification["patience"]
         )
+        if ema_stopping is not None and ema_stopping.state is not None:
+            patience_exhausted=epoch-ema_stopping.state['last_improvement_epoch']>=specification['patience_epochs']
         eligible_check = "validation" in row if "patience_epochs" in specification else True
         if epoch >= specification["min_epochs"] and eligible_check and patience_exhausted:
             stop_reason = "early_stopping"
@@ -355,6 +374,8 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
         values.update(resumed_from_epoch=completed_epoch,continuation_epochs=len(curves)-completed_epoch,
             continuation_optimizer_updates=updates-initial_updates,
             continuation_optimizer_training_seconds=training_seconds-initial_training_seconds)
+    if ema_stopping is not None:
+        values.update(early_stopping=specification['early_stopping'],final_early_stopping_state=ema_stopping.state)
     _write(output / "training-selection.json", {**values, "criterion": "validation_item_ndcg@10",
                                                 "selected_validation": checkpoint["validation"]})
     return values

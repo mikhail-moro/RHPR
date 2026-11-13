@@ -101,7 +101,7 @@ def run_experiment(
             raise ValueError('Kindle runtime profile requires output directory')
         from rhpr.gr.kindle_profile import run
         return run(config, output_dir)
-    if kind == 'gr_kindle_lr_pilot':
+    if kind in ('gr_kindle_lr_pilot','gr_kindle_lr_ema_pilot'):
         if output_dir is None:
             raise ValueError('Kindle LR pilot requires output directory')
         from rhpr.gr.kindle_lr_pilot import run

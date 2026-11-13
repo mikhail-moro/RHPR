@@ -21,6 +21,10 @@ def restore_training(model,optimizer,scaler,index,config,train,validation,source
         if previous.get(key)!=config.get(key):raise ValueError(f'resume changes {key}')
     for key in ['learning_rate','weight_decay','batch_size','physical_batch_size','precision','evaluation_precision','grad_clip_norm','sampling','loss_log_key']:
         if previous['training'].get(key)!=config['training'].get(key):raise ValueError(f'resume changes training.{key}')
+    if previous['training'].get('early_stopping')!=config['training'].get('early_stopping'):
+        raise ValueError('resume changes early stopping signal')
+    if previous['training'].get('compile_training')!=config['training'].get('compile_training'):
+        raise ValueError('resume changes training compiler policy')
     if epoch>=config['training']['max_epochs']:raise ValueError('resume budget must extend the saved epoch')
     if state['sid_matrix_sha256']!=hashlib.sha256(index.sids.tobytes()).hexdigest():raise ValueError('resume SID/item map changed')
     for name,examples in [('train',train),('validation',validation)]:
@@ -106,6 +110,28 @@ def build_scheduler(optimizer,spec,state=None,best_metric=-1.,epoch=0,steps_per_
     elif epoch:
         scheduler.best=best_metric;scheduler.last_epoch=epoch
     return scheduler
+
+
+class EMAStopping:
+    """Causal stopping signal, independent of raw-metric checkpoint selection."""
+    def __init__(self,spec,state=None):
+        import math
+        if (spec.get('kind')!='ema' or not math.isfinite(spec['alpha']) or not 0<spec['alpha']<=1
+                or not math.isfinite(spec['min_delta']) or spec['min_delta']<0):
+            raise ValueError('invalid EMA stopping policy')
+        self.spec=spec;self.state=dict(state)if state is not None else None
+
+    def observe(self,score,epoch):
+        import math
+        if not math.isfinite(score):raise FloatingPointError('nonfinite EMA stopping score')
+        if self.state is None:
+            self.state=dict(ema=score,reference=score,last_improvement_epoch=epoch)
+        else:
+            value=self.spec['alpha']*score+(1-self.spec['alpha'])*self.state['ema']
+            self.state['ema']=value
+            if value>self.state['reference']+self.spec['min_delta']:
+                self.state.update(reference=value,last_improvement_epoch=epoch)
+        return self.state
 
 
 def validation_losses(model,examples,index,batch_size,device,precision):
