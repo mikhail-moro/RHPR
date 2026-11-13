@@ -49,3 +49,10 @@ GRID CPU forward/backward, validation and EMA-checkpoint training passed, includ
 epochs before the first validation. EMA uninterrupted/resumed trajectories and
 raw-best selection match. A compiled-forward CPU test confirms optimizer updates
 reach original parameters and checkpoints contain no _orig_mod wrapper prefix.
+
+Submitted once, private carasik/rhpr-kindle-lr003-floor001-ema/version1, RUNNING
+at check. Workflow43526813106success; executable6b9e4c6277b80f3fe8b40ae66f532bb6f5a4add1.
+Pulled source/config/private/offline/T4/input/parent metadata verified. Receipt
+gr-kindle-lr-floor001-ema-submission.json. No duplicate or automatic follow-ups.
+Collect actual cold/steady timings, both weights, complete VAL curves/EMA/LR
+and predictions before judging quality or end-to-end speedup.

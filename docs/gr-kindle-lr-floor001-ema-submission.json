@@ -1,0 +1,31 @@
+{
+  "kernel": "carasik/rhpr-kindle-lr003-floor001-ema",
+  "version": 1,
+  "url": "https://www.kaggle.com/code/carasik/rhpr-kindle-lr003-floor001-ema",
+  "status_at_submission_check": "RUNNING",
+  "source_commit": "6b9e4c6277b80f3fe8b40ae66f532bb6f5a4add1",
+  "workflow_id": 43526813106,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/43526813106",
+  "workflow_submission_success": true,
+  "config": "experiments/kindle_lr003_floor001_ema.json",
+  "config_sha256": "87dd5cb7072b66f9aa8ba7a6fe6074b5bbc8296d59aba7593358f2047f3384c6",
+  "deployed_source_files_verified": 204,
+  "deployed_config_matches": true,
+  "deployed_runner_sha256": "2e08eae64907b47937f6a49a5d3b2a28385c64a0b615b42d1aaa4fcaa236f123",
+  "private_offline_t4": true,
+  "test_evaluated": false,
+  "tests": {
+    "run": 1087,
+    "skipped": 152,
+    "failed": 0
+  },
+  "scope": "One fresh Recent20 seed42 fit, min40/max60/EMA0.5/pat15/delta0.0005; LR0.003\u21920.001 with warmup2; train512, VAL256, compiled forward; no TEST.",
+  "preceding_profile": {
+    "kernel": "carasik/rhpr-kindle-runtime-profile",
+    "workflow_id": 43525147702,
+    "source": "298137f4657c8cbcaaa88878a5ef5db73bcdff05",
+    "status": "COMPLETE",
+    "seconds": 154.291847,
+    "all_4_val_batches_exact_parent_rankings": true
+  }
+}
