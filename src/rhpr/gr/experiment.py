@@ -198,7 +198,9 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
     from rhpr.gr.generator_resume import build_scheduler
     scheduler_spec=specification.get('scheduler')
     scheduler=build_scheduler(optimizer,scheduler_spec,
-        state=resume_state.get('scheduler') if resume_state else None,best_metric=best_metric,epoch=completed_epoch)
+        state=resume_state.get('scheduler') if resume_state else None,best_metric=best_metric,epoch=completed_epoch,
+        steps_per_epoch=(len(targets)+batch_size-1)//batch_size)
+    step_scheduler=bool(scheduler_spec and scheduler_spec['kind']=='warmup_cosine')
     initial_updates=updates;initial_training_seconds=training_seconds
     case_hashes={}
     if scheduler is not None or resume_from is not None:
@@ -223,6 +225,7 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
         epoch_lr=float(optimizer.param_groups[0]['lr'])
         epoch_started, total_loss = time.monotonic(), 0.0
         for begin in range(0, len(order), batch_size):
+            batch_lr=float(optimizer.param_groups[0]['lr'])
             chosen = order[begin:begin + batch_size]
             optimizer.zero_grad(set_to_none=True)
             for position in range(0, len(chosen), physical):
@@ -246,6 +249,7 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
             scaler.update()
             if finite_gradients:
                 updates += 1
+                if step_scheduler:scheduler.step()
             else:
                 skipped_updates += 1
                 _event("gr_amp_update_skipped", epoch=epoch, scale=scaler.get_scale(),
@@ -294,12 +298,13 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                             "config": config, "validation": last_validation}, best_path)
             else:
                 stale += 1
-            if scheduler is not None and epoch>=scheduler_spec['start_epoch']:
+            if scheduler is not None and not step_scheduler and epoch>=scheduler_spec['start_epoch']:
                 if scheduler.last_epoch<epoch-1:
                     scheduler.best=previous_best_metric;scheduler.last_epoch=epoch-1
                 scheduler.step(score)
         if scheduler is not None or resume_from is not None:
             row.update(learning_rate=epoch_lr,next_learning_rate=float(optimizer.param_groups[0]['lr']))
+        if step_scheduler:row['learning_rate_last_batch']=batch_lr
         curves.append(row)
         _write(output / "training-curves.json", curves)
         _event("gr_epoch_complete", **row)

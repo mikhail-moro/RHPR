@@ -71,9 +71,33 @@ def restore_rng(state,device):
         raise RuntimeError('CUDA RNG restoration mismatch')
 
 
-def build_scheduler(optimizer,spec,state=None,best_metric=-1.,epoch=0):
+def build_scheduler(optimizer,spec,state=None,best_metric=-1.,epoch=0,steps_per_epoch=None):
     if not spec:return None
     import torch
+    if spec['kind']=='warmup_cosine':
+        import math
+        warm=spec['warmup_epochs'];total=spec['total_epochs'];minimum=spec['min_lr']
+        if (type(steps_per_epoch)is not int or steps_per_epoch<1 or type(warm)is not int
+                or type(total)is not int or not 0<warm<total
+                or not math.isfinite(minimum)or minimum<=0
+                or any(minimum>=g.get('initial_lr',g['lr'])for g in optimizer.param_groups)):
+            raise ValueError('invalid warmup/cosine schedule')
+        warm_steps=warm*steps_per_epoch;total_steps=total*steps_per_epoch
+        def multiplier(step,base):
+            if step<warm_steps:return (step+1)/warm_steps
+            progress=min(1.,(step-warm_steps+1)/(total_steps-warm_steps))
+            floor=minimum/base
+            return floor+(1-floor)*.5*(1+math.cos(math.pi*progress))
+        functions=[lambda step,base=g.get('initial_lr',g['lr']):multiplier(step,base)
+                   for g in optimizer.param_groups]
+        scheduler=torch.optim.lr_scheduler.LambdaLR(optimizer,functions)
+        if state is not None:
+            scheduler.load_state_dict(state)
+            # LambdaLR construction changes optimizer LR; load_state_dict does
+            # not undo that. Restore the actual next-update LR on exact resume.
+            for group,lr in zip(optimizer.param_groups,state['_last_lr']):group['lr']=lr
+        elif epoch:raise ValueError('step scheduler resume requires its saved state')
+        return scheduler
     if spec['kind']!='reduce_on_plateau':raise ValueError('unsupported generator scheduler')
     # User-facing patience5 means reduce on the fifth failed check; Torch uses >patience.
     scheduler=torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,mode='max',factor=spec['factor'],

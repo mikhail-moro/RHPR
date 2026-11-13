@@ -96,6 +96,11 @@ def run_experiment(
             raise ValueError('ML1M field-learning experiment requires output directory')
         from rhpr.gr.field_learning import run
         return run(config, output_dir)
+    if kind == 'gr_kindle_lr_pilot':
+        if output_dir is None:
+            raise ValueError('Kindle LR pilot requires output directory')
+        from rhpr.gr.kindle_lr_pilot import run
+        return run(config, output_dir)
     if kind in ('gr_ml100k_pair_raw','gr_catalog_pair_pilot'):
         if output_dir is None:
             raise ValueError('ML100K pair study requires output directory')
