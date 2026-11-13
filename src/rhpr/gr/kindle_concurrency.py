@@ -148,7 +148,7 @@ def mode(p,name,environment,deadline,binary=None):
         peers.append(Peer(p,0,environment));wait_files(peers,[Path(p['ipc'])/'ready-0.json'],deadline,90)
         for i in range(3):
             prepare(peers,i,deadline);row=measure(peers,'train',f'single-{i}',deadline);report['single'].append(row);_write(path,report)
-            _event('concurrency_round_complete',mode=name,phase='single',repeat=i,updates_per_second=row['updates_per_second'])
+            _event('concurrency_round_complete',mode=name,round_kind='single',repeat=i,updates_per_second=row['updates_per_second'])
         if binary:
             report['mps_single_verification']=mps_clients(binary,environment,peers)
             if not report['mps_single_verification']['verified']:raise RuntimeError('MPS client registration unverified')
@@ -159,10 +159,10 @@ def mode(p,name,environment,deadline,binary=None):
                 report['mps_pair_verification']=mps_clients(binary,environment,peers)
                 if not report['mps_pair_verification']['verified']:raise RuntimeError('two MPS clients unverified')
             row=measure(peers,'train',f'pair-{i}',deadline);report['paired'].append(row);_write(path,report)
-            _event('concurrency_round_complete',mode=name,phase='paired',repeat=i,updates_per_second=row['updates_per_second'])
+            _event('concurrency_round_complete',mode=name,round_kind='paired',repeat=i,updates_per_second=row['updates_per_second'])
         for i in range(3):
             prepare(peers[:1],i+20,deadline);row=measure(peers[:1],'train',f'after-{i}',deadline);report['single_after'].append(row);_write(path,report)
-            _event('concurrency_round_complete',mode=name,phase='single_after',repeat=i,updates_per_second=row['updates_per_second'])
+            _event('concurrency_round_complete',mode=name,round_kind='single_after',repeat=i,updates_per_second=row['updates_per_second'])
         report['concurrent_validation']=measure(peers,'validation','validation',deadline)
         base=float(np.median([x['updates_per_second']for x in report['single']]))
         paired=float(np.median([x['updates_per_second']for x in report['paired']]))

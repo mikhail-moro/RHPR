@@ -41,3 +41,11 @@ Bound600s after setup; per-command/startup deadlines and process-group cleanup.
 Server15min including environment startup. Expected3–7min actual GPU session,
 not a guarantee. Preserve partial results on failure. No long training or
 follow-up deployment is automatic from this probe.
+
+Initial version1(c083bc3)failed after its first solo measurement because the
+new progress event used phase both positionally and as a keyword. GPU execution
+completed100updates, but no paired measurements were reached; there is no
+concurrency conclusion from v1. All failure artifacts are saved, including a
+local evidenceZIP. Repair changes the logging payload key to round_kind and
+adds a complete parent-mode test exercising the actual logger. One corrective
+repeat of the same fixed benchmark is required to complete the authorized test.

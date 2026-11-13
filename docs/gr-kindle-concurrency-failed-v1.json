@@ -1,0 +1,13 @@
+{
+  "kernel": "carasik/rhpr-kindle-concurrency-probe",
+  "version": 1,
+  "source": "c083bc3aae9ad786a2f516c13927ef9addb23796",
+  "workflow_id": 43530143981,
+  "status": "ERROR",
+  "reason": "Parent progress logger passed phase both positionally and by keyword after first measured solo round. No pair rounds reached.",
+  "ordinary_completed_single_rounds": 1,
+  "mps_completed_single_rounds": 1,
+  "mps_verified": false,
+  "evidence_zip_sha256": "f3240a12a6cd947b8c3cc229d1bfd6d57108a69115b83e3dfa1ff97b5d05ed87",
+  "repair": "Rename progress payload field to round_kind; add complete mode regression with real logger. One corrected repeat, no expanded scope."
+}

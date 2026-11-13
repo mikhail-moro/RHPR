@@ -1,0 +1,32 @@
+{
+  "source": "6b9e4c6277b80f3fe8b40ae66f532bb6f5a4add1",
+  "best_val": 0.05133097256011143,
+  "best_epoch": 50,
+  "stop_epoch": 60,
+  "stop_reason": "epoch_limit",
+  "validation_files_replayed": 12,
+  "ema_replayed_exactly": true,
+  "lr_replayed_exactly": true,
+  "test_evaluated": false,
+  "first_epoch_seconds": 92.32610821200001,
+  "steady_epoch_median_seconds": 13.879396657999905,
+  "fit_seconds": 979.334154184,
+  "session_seconds": 1020.209646,
+  "versus_previous_floor0003": {
+    "best_val": 0.050254957657713976,
+    "relative_val_change": 0.021411119470564177,
+    "per_fit_speedup": 1.5250604885320775
+  },
+  "versus_fixed001": {
+    "best_val60": 0.04939494852347878,
+    "best_val120": 0.0560534571315023,
+    "relative_vs60": 0.0391947778974282,
+    "relative_vs120": -0.08424965761365699
+  },
+  "limits": [
+    "One paired index/seed and previously examined VAL.",
+    "LR floor, compile, VAL batch and stopping policy change together; no isolated causal LR effect.",
+    "EMA did not trigger early exit; epoch60 cap reached.",
+    "Training-forward compile can change FP16/dropout numerics; no TEST comparison."
+  ]
+}
