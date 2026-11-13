@@ -65,3 +65,11 @@ items, IDs/ranges/counts are valid, and the book pair template is verified.
 54310 unique TRAIN pairs, 60128 pairs across all splits; heldout pairs never
 enter centroid fitting. Full local regression:1078 tests,152 optional skips,
 zero failures. Private input status ready before submission.
+
+Submitted once as private kernel carasik/rhpr-kindle-dense100k-pair/version1,
+RUNNING at the server check. GitHub Actions43481734588 submitted executable
+8b575bbe21ea3e477cf78539fad92f9488c08719 successfully. Pulled deployed source
+was independently checked against every local src/rhpr Python file and the
+exact configuration, plus private/offline/T4/input metadata. See the adjacent
+gr-kindle-dense-pair-submission.json receipt. Submission success is not
+training completion; collect outputs and verify all nine fits before analysis.
