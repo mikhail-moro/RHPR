@@ -79,12 +79,12 @@ def attach_pair_encoder(model):
     model.encoder_forward_pass=MethodType(_encode,model)
     return model
 
-def encode_pairs(encoder, texts, keys, dest):
+def encode_pairs(encoder, texts, keys, dest, labels=('First movie','Second movie')):
     start=time.monotonic(); n=len(keys)
     result=np.lib.format.open_memmap(dest,mode='w+',dtype='float32',shape=(n,768))
     for i in range(0,n,2048):
         chunk=keys[i:i+2048]
-        rows=[f'First movie: {texts[int(k)//NITEMS]} Second movie: {texts[int(k)%NITEMS]}' for k in chunk]
+        rows=[f'{labels[0]}: {texts[int(k)//NITEMS]} {labels[1]}: {texts[int(k)%NITEMS]}' for k in chunk]
         values=np.asarray(encoder.encode(rows,batch_size=32,convert_to_numpy=True,show_progress_bar=False),dtype=np.float32)
         if values.shape!=(len(chunk),768) or not np.isfinite(values).all(): raise ValueError('invalid pair embeddings')
         result[i:i+len(chunk)]=values; result.flush()

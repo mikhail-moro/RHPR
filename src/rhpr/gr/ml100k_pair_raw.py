@@ -25,6 +25,7 @@ def run_trial(trial,p):
     from rhpr.gr.sid import SidIndex
     from rhpr.gr.sid_study import state_digest
     seed=trial['seed'];mode=trial['mode'];c=copy.deepcopy(p['config']);c['seed']=seed
+    pair_sid.NITEMS=c['data']['items'];pair_unique4.NITEMS=c['data']['items']
     out=Path(p['output'])/'trials'/trial['id'];out.mkdir(parents=True,exist_ok=True)
     root=Path(p['indexes']);idx=SidIndex.from_full_sids(np.load(root/f'items-{seed}.npy'),width=256)
     keys=np.load(root/'pair-keys.npy');pairs=np.load(root/f'pairs-{seed}.npy')
@@ -63,6 +64,7 @@ def run(c,output):
     from rhpr.gr.sid import SidIndex
     from rhpr.offline_runtime import resolve_dataset_directory
     if c['data']['history_items']!=20 or c['seeds']!=[42,101,202] or not c['evaluation']['test_after_selection']:raise ValueError('invalid experiment')
+    nitems=c['data']['items'];pair_sid.NITEMS=nitems;pair_unique4.NITEMS=nitems
     output=Path(output).resolve();output.mkdir(parents=True,exist_ok=True);(output/'workers').mkdir(exist_ok=True)
     if torch.cuda.device_count()!=2 or any(torch.cuda.get_device_capability(i)!=(7,5)for i in (0,1)):raise RuntimeError('requires two T4s')
     torch.set_num_threads(1)
@@ -71,7 +73,7 @@ def run(c,output):
     data=resolve_dataset_directory(c['movie_input']['path']);report=json.loads((data/'data-report.json').read_text())
     for name,digest in c['movie_input']['sha256'].items():
         if file_sha256(data/name)!=digest:raise ValueError('input digest mismatch: '+name)
-    if (report['users'],report['items'],report['train_examples'])!=(943,N,97171):raise ValueError('unexpected dataset')
+    if (report['users'],report['items'],report['train_examples'])!=(c['data']['users'],nitems,c['data']['train_examples']):raise ValueError('unexpected dataset')
     texts=json.loads((data/'texts.json').read_text());splits={s:cases(data,s)for s in ('train','validation','test')}
     sets={s:pair_sid.collect_pairs(splits[s][0])for s in splits};keys=np.array(sorted(set.union(*sets.values())),dtype=np.int64)
     trainkeys=np.array(sorted(sets['train']),dtype=np.int64);oldkeys=np.array(sorted(sets['train']|sets['validation']),dtype=np.int64);trainmask=np.isin(keys,trainkeys)
@@ -80,7 +82,11 @@ def run(c,output):
     source=prepare_grid_source(unpack_grid(resources/'grid-source.bin',scratch/'original'),scratch/'grid')
     model=SentenceTransformer(str(resources/'sentence-t5-base'),device='cuda:0',local_files_only=True);model.max_seq_length=2048;model.eval()
     vec=np.asarray(model.encode(texts,batch_size=32,convert_to_numpy=True,show_progress_bar=False),np.float32)
-    np.save(cache/'item-embeddings.npy',vec);pair_sid.encode_pairs(model,texts,keys,cache/'pair-embeddings.npy')
+    np.save(cache/'item-embeddings.npy',vec)
+    if c.get('pair_text_labels'):
+        pair_sid.encode_pairs(model,texts,keys,cache/'pair-embeddings.npy',labels=tuple(c['pair_text_labels']))
+    else:
+        pair_sid.encode_pairs(model,texts,keys,cache/'pair-embeddings.npy')
     del model;gc.collect();torch.cuda.empty_cache()
     pairvec=np.load(cache/'pair-embeddings.npy',mmap_mode='r');indexes=output/'frozen-indexes';indexes.mkdir();np.save(indexes/'pair-keys.npy',keys)
     for seed in c['seeds']:
@@ -102,7 +108,7 @@ def run(c,output):
     if set(records)!={t['id'] for t in c['trials']}:raise RuntimeError('missing trials')
     for seed in c['seeds']:
         if len({records[f'{m}_{seed}']['initial_state_sha256']for m in ('control','recent15','pair')})!=1:raise RuntimeError('unmatched initialization')
-    _write(output/'study-summary.json',dict(results=records,data=report));return dict(experiment=c['name'],models=len(records),users=943,test_evaluated=True)
+    _write(output/'study-summary.json',dict(results=records,data=report));return dict(experiment=c['name'],models=len(records),users=report['users'],test_evaluated=True)
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--plan',required=True);p.add_argument('--slot',type=int,required=True);a=p.parse_args();worker(a.plan,a.slot)
