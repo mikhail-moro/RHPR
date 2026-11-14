@@ -28,6 +28,14 @@
   only,do not depend on CANCELLEDkernel mount.15exactmembers/hashchecks and
   real nativeCPUrestore verified. Originalfailedresume isterminal,not active.
   Correctedarchive full1119tests/152skips pass;no numerical/training changes.
+  Correctedresume SUBMITTEDONCE asprivate kernelversion2,RUNNING,source
+  88722e9081aa,workflow43651883595SUCCESS(submission only),job132621951876,
+  artifact14136601644. Confirmedactualpush --timeout10800;all211deployedpyfiles,
+  exactconfig/private/offline/fourdatasets/completedparentmount verified.
+  Livestream confirmsoriginalcodeandworkerstarted;receipt
+  gr-kindle-mixed-resume-submission.json. Resumeepoch30→31,totalcap60.
+  ActualGPU liveevent gr_training_resumed confirms epoch30/updates8280/best30;
+  originaloptimizer/LR/weights resumed,not a fresh epoch1 fit. Results pending.
 
 - Authorized2026-11-15:one new seed42 Full32/Pair32 training-mixture fit,
   not within-history stochastic pairing. Configkindle_mixed_views.json,
