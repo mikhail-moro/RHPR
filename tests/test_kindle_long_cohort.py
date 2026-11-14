@@ -1,11 +1,34 @@
 import itertools
 import unittest
 import numpy as np
+import importlib.util
 from rhpr.gr.kindle_cohort import core_mask, candidate_users, prefix_cases
 from rhpr.gr.kindle_windows import encode_window, WINDOWS
 
 
 class LongCohortTest(unittest.TestCase):
+    @unittest.skipUnless(importlib.util.find_spec('torch') and importlib.util.find_spec('transformers'), 'requires torch and transformers')
+    def test_worker_events_obey_the_real_parent_trial_contract(self):
+        import contextlib,io,json,tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+        from rhpr.gr.kindle_windows import worker
+        with tempfile.TemporaryDirectory()as tmp:
+            root=Path(tmp);(root/'workers').mkdir();trial=dict(id='recent64_42',seed=42,history_items=64)
+            plan=root/'plan.json';plan.write_text(json.dumps(dict(output=tmp,assignments=[dict(trials=[trial])])))
+            stream=io.StringIO();row=dict(trial=trial['id'],seed=42,initial_state_sha256='fixture')
+            with patch('torch.cuda.device_count',return_value=1),patch('torch.cuda.get_device_capability',return_value=(7,5)),patch('torch.cuda.empty_cache'),patch('torch._dynamo.reset'),patch('transformers.__version__','5.22.1'),patch('rhpr.gr.kindle_windows.run_trial',return_value=row),contextlib.redirect_stdout(stream):
+                worker(plan,0)
+            current={}
+            for line in stream.getvalue().splitlines():
+                event=json.loads(line)
+                # Same consumption rule as ae_suite.launch_workers.
+                if event['phase']=='kindle_windows_trial_start':current[0]=event['trial']
+            self.assertEqual(current[0],trial['id'])
+            status=json.loads((root/'workers/worker-0.json').read_text())
+            self.assertEqual(status['failures'],[])
+            self.assertEqual(status['results'][trial['id']],row)
+
     def test_core_is_the_maximal_feasible_subgraph_not_one_pass(self):
         u=np.array([0,0,1,1,2,2,3]);i=np.array([0,1,0,1,1,2,2])
         selected,steps=core_mask(u,i,min_events=2,min_item_users=2)

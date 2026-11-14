@@ -1,0 +1,90 @@
+{
+  "kernel": "carasik/rhpr-kindle-long-windows",
+  "version": 1,
+  "status": "ERROR",
+  "source_sha": "df745fa7039cf54d0d206aee60bad2b7de8a16b5",
+  "workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/43537280898",
+  "failure": "KeyError: 'trial' in parent worker event forwarding",
+  "failure_seconds": 143.031123133,
+  "completed_generator_fits": 0,
+  "fix": "Emit trial ID under the shared parent event contract; add test executing the actual worker entry point and consuming its start events",
+  "full_regression": {
+    "tests": 1099,
+    "skipped": 152,
+    "failed": 0
+  },
+  "preserved_files": {
+    "rhpr-kindle-long-windows.log": {
+      "sha256": "dca18f7a1da0e1afc106f1753894485c64e95fd33b6921311dca4eb6d7432e9f",
+      "size_bytes": 5391
+    },
+    "runtime-bootstrap.json": {
+      "sha256": "419d89b5ae694b0446fc68667aa298f4261c6eb83a3437cea8d45bb047ffb761",
+      "size_bytes": 489
+    },
+    "plan.json": {
+      "sha256": "9c896555bd379b0f91abc0ea6b7364456201714d24f56ec9985823a62b328daa",
+      "size_bytes": 7058
+    },
+    "experiment.json": {
+      "sha256": "d44a17a002011032104efccd4fa383fc4a52d9a7f411598165914ab4988049bf",
+      "size_bytes": 4188
+    },
+    "modern-install.log": {
+      "sha256": "44ae1c2ebd92329943a6096aa2fcf95097dd7f8b4689c9c94ac5710a26b12a7d",
+      "size_bytes": 6224
+    },
+    "runtime-install.log": {
+      "sha256": "416984c09a6d12a78d27ece3db82b4408605d3cf14a215503676478d9fa3d91a",
+      "size_bytes": 10112
+    },
+    "workers/worker-1.log": {
+      "sha256": "1debff3599bc2f11f563f843fedd0ca9d9ec09b5e11cbc408ec6c7e9de335bf4",
+      "size_bytes": 96
+    },
+    "workers/worker-0.log": {
+      "sha256": "24f6f548e7a86de7043e71549ced662d082788bc2e9681327cf0c0bfa55a760b",
+      "size_bytes": 94
+    },
+    "item-cache/item-embeddings.npy": {
+      "sha256": "082b1117e6b51185d4932d0de304ea3b1cdb310101e62393702602beb82908f0",
+      "size_bytes": 49695872
+    },
+    "frozen-indexes/index-42.json": {
+      "sha256": "0a56e9b87f326a7f7a90f87bff66251ccd7d9ac3c129e7b2bfa2d79ad0170a36",
+      "size_bytes": 3332
+    },
+    "frozen-indexes/item-centroids-42.npy": {
+      "sha256": "6a435ba3b65d43f13994ff14e078e2ffcab2e3735d6ae37678259648dcc956d3",
+      "size_bytes": 2359424
+    },
+    "frozen-indexes/items-42.npy": {
+      "sha256": "2be8989780320e9d812814f6ab1fcb647e2482b3ff86585b10115a6507954fa6",
+      "size_bytes": 517792
+    },
+    "frozen-indexes/item-centroids-202.npy": {
+      "sha256": "2bcca29bcd294d25273ac06467d4a69955511093c83b9d2effd83bbf25bfc8df",
+      "size_bytes": 2359424
+    },
+    "frozen-indexes/index-202.json": {
+      "sha256": "36958d156bfc7245995855fa65318333d91fb8d9d21f24a6772c2ca76d360651",
+      "size_bytes": 3333
+    },
+    "frozen-indexes/items-101.npy": {
+      "sha256": "018470dfbac7afcf2a77042286346a486c1bacad11518f001735b5436cbe74f4",
+      "size_bytes": 517792
+    },
+    "frozen-indexes/item-centroids-101.npy": {
+      "sha256": "31ca72d306c260fad09d0c7d583882853084947e20127b7fd696dc79177ae2f2",
+      "size_bytes": 2359424
+    },
+    "frozen-indexes/index-101.json": {
+      "sha256": "602672f464f20893972bac704e9fffa957f39f01ef43e4f9dd02ff3c5e43b3b2",
+      "size_bytes": 3336
+    },
+    "frozen-indexes/items-202.npy": {
+      "sha256": "00e64ac316d04724b08bb0f96e82b5e5becf92b90d8475a35927fd21407ed6d4",
+      "size_bytes": 517792
+    }
+  }
+}

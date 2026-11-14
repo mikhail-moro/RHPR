@@ -95,7 +95,7 @@ def worker(plan_path,slot):
     if torch.cuda.device_count()!=1 or torch.cuda.get_device_capability()!=(7,5)or transformers.__version__!='5.22.1':raise RuntimeError('requires isolated T4/HF5.22.1')
     state=dict(results={},failures=[])
     for trial in p['assignments'][slot]['trials']:
-        _event('kindle_windows_trial_start',**trial)
+        _event('kindle_windows_trial_start',trial=trial['id'],seed=trial['seed'],history_items=trial['history_items'])
         try:
             row=run_trial(trial,p);state['results'][trial['id']]=row;_event('kindle_windows_trial_complete',**row)
         except Exception as error:
