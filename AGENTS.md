@@ -2,6 +2,25 @@
 
 ## Research status
 
+- Kindle capacity pilot SUBMITTED2026-11-14, private
+  carasik/rhpr-kindle-capacity-pilot/version1, source6d2919a15589,
+  workflow43585038652 SUCCESS(submission only), Kaggle QUEUED at last check.
+  TWO new fits only:wide Recent20/32,seed42,one perT4. Reuse exact frozen
+  parent long-window seed42 SID and two completed narrow baselines;32 parent
+  artifacts pinned,including20VAL prediction files. No ST5/KMeans refit.
+  Widen4+4 generator d64/FF512/dkv32 ->d128/FF1024/dkv64,heads6 unchanged;
+  total params1.440576M->5.108992M(includes unused pair table). New CPU B1
+  supported forward GF.427088/.704770. Everything else equals parent:
+  same958users/16177books/141137prefixes,FP16/SDPA/compile,512train,
+ 64VAL/every5,LR.003->.001/warmup2/cosine60,EMA.5/delta.0005/pat15/min40/
+  max60. TEST CLOSED. Save weights/curves/predictions/FLOPs/timing/memory.
+  Compare fixed40/common budgets and selected checkpoints across four cells;
+  overall wide gain alone does not prove better use of longer history.
+  Actual CPU forward/backward and matching wide initializer verified;
+  full1102tests/152skips pass,208deployed Python files/config/private/offline
+  checked. See docs/gr-kindle-capacity-pilot.md and submission.json.
+  Collect this existing kernel when user reports completion;no duplicate run.
+
 - Kindle long-window screen COMPLETE,collected2026-11-14, private
   carasik/rhpr-kindle-long-windows/version2, source55350fd1a301,
   workflow43537820586 SUCCESS(submission only), Kaggle COMPLETE/version2.

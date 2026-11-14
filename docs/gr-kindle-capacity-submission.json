@@ -1,0 +1,54 @@
+{
+  "kernel": "carasik/rhpr-kindle-capacity-pilot",
+  "url": "https://www.kaggle.com/code/carasik/rhpr-kindle-capacity-pilot",
+  "kernel_version": 1,
+  "status": "QUEUED",
+  "quality_complete": false,
+  "git_sha": "6d2919a155893e4c6bbb859a1fbcc0c800573c6c",
+  "workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/43585038652",
+  "workflow_id": 43585038652,
+  "workflow_job_id": 132417590016,
+  "workflow_conclusion": "success",
+  "submission_only": true,
+  "private": true,
+  "offline": true,
+  "python_files_verified": 208,
+  "configuration_verified": true,
+  "kernel_parent_verified": true,
+  "parent_files_pinned": 32,
+  "prelaunch_gpu_quota_remaining_hours": 41.13,
+  "models": 2,
+  "reused_baselines": 2,
+  "seed": 42,
+  "windows": [
+    20,
+    32
+  ],
+  "parameters": 5108992,
+  "previous_parameters": 1440576,
+  "tokenizer_refitted": false,
+  "test_evaluated": false,
+  "full_regression": {
+    "tests": 1102,
+    "optional_skips": 152,
+    "failures": 0
+  },
+  "native_cpu_forward_backward": [
+    {
+      "window": 20,
+      "parameters": 5108992,
+      "forward_gflops": 0.427087952,
+      "initial_state_sha256": "34e7397ed277c78befd6254cbb736794df4907a011ed032bbd0735d9b7272286",
+      "loss": 22.819421768188477,
+      "finite_backward": true
+    },
+    {
+      "window": 32,
+      "parameters": 5108992,
+      "forward_gflops": 0.704769968,
+      "initial_state_sha256": "34e7397ed277c78befd6254cbb736794df4907a011ed032bbd0735d9b7272286",
+      "loss": 22.289793014526367,
+      "finite_backward": true
+    }
+  ]
+}
