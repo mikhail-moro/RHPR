@@ -78,6 +78,18 @@ lacks `run-manifest.json`; explicit byte pins and original config checks replace
 the completed-parent locator only for this source. The completed long-pair
 parent remains separately pinned and verified.
 
+The first recovery submission (kernel `rhpr-kindle-mixed-resume/1`, source
+38fc463) failed before launching any training worker: Kaggle silently omitted
+the cancelled kernel from mounted sources. Its logs and metadata were preserved.
+Checkpoint bytes are now additionally stored in the private ready dataset
+`carasik/rhpr-kindle-mixed-epoch30-resume/1` (dataset13352852). The corrected
+recovery mounts this dataset plus the completed long-pair parent, not the
+cancelled kernel. The archive is73,708,688bytes, SHA256
+`4e502b6c3063205a8c10bc9cbdc12e0527033835e98ceeeb034842a639d4ed47`.
+Its15 members and each artifact hash are verified before restoration. No weights
+were changed or retrained when copying this private archive.
+Corrected archive-mount regression:1119tests,152optional skips,0failures.
+
 Preflight verifies actual native GRID model/optimizer restoration and the
 original30 view schedules. A dropout/Adam/scheduler CPU test verifies bitwise
 equivalence of resumed and continuous training. CUDA compilation/fused kernels

@@ -18,6 +18,16 @@
   testpasses. Full1118tests/152skips pass;GPUquota37.86h beforecontinuation.
   No newseed/index/fit;VALPair32only and finalselectedTEST unchanged.
   Preserveoriginalfailure+submissionreceipt. Noextraepochs/budgets/HPO/variants.
+  Firstresume carasik/rhpr-kindle-mixed-resume/1source38fc463a2a0 ERRORbefore
+  workers:Kaggle omittedcancelledparentmount.0newtrainingepochs;failurelogs/
+  metadata preservedgr-kindle-mixed-resume-failed-v1.json,workflow43651289574,
+  job132620106350. Correctedresume usesPRIVATE READY dataset
+  carasik/rhpr-kindle-mixed-epoch30-resume/1,id13352852,archive73708688bytes
+  SHA4e502b6c3063205a8c10bc9cbdc12e0527033835e98ceeeb034842a639d4ed47.
+  Configstillkindle_mixed_views_resume.json;mount archive and completedlongpair
+  only,do not depend on CANCELLEDkernel mount.15exactmembers/hashchecks and
+  real nativeCPUrestore verified. Originalfailedresume isterminal,not active.
+  Correctedarchive full1119tests/152skips pass;no numerical/training changes.
 
 - Authorized2026-11-15:one new seed42 Full32/Pair32 training-mixture fit,
   not within-history stochastic pairing. Configkindle_mixed_views.json,

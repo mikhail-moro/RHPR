@@ -21,6 +21,7 @@
   "inference_flops_match_completed_pair32": true,
   "policy": "50/50 whole optimizer batches; independent RNG; Pair32-only evaluation",
   "gpu_used": false,
+  "private_checkpoint_archive_materialization_verified": true,
   "resume_files_verified": 15,
   "source_epoch": 30,
   "source_updates": 8280,

@@ -32,7 +32,12 @@ def validate(c):
             or resume['git_sha'] != '192c6ce879e0135644455e4376fec2d9f7b10ae4'
             or resume['completed_epoch'] != 30):
             raise ValueError('only the saved epoch30 mixture may be resumed')
-        expected_sources.append(resume['kernel'])
+        if resume.get('artifact_dataset'):
+            if (resume['artifact_dataset'] != 'carasik/rhpr-kindle-mixed-epoch30-resume'
+                or resume['artifact_dataset'] not in c['kaggle']['dataset_sources']):
+                raise ValueError('epoch30 checkpoint dataset must be declared')
+        else:
+            expected_sources.append(resume['kernel'])
     if (c['kind'] != 'gr_kindle_mixed_views' or c['trials'] != TRIALS
         or c['seed'] != 42 or c['seeds'] != [42] or c['windows'] != [32]
         or c['mixed_views'] != POLICY
@@ -73,6 +78,25 @@ def locate_resume(c, input_root=Path('/kaggle/input')):
                 raise ValueError('resume changes '+key)
         return root
     raise FileNotFoundError('pinned cancelled mixture artifacts not mounted')
+
+
+def unpack_resume(c, archive, destination):
+    """Extract only the fifteen explicitly pinned checkpoint artifacts."""
+    import zipfile
+    from rhpr.gr.data import file_sha256
+    spec=c['resume_parent']; archive=Path(archive); destination=Path(destination)
+    if archive.stat().st_size!=spec['archive_size_bytes'] or file_sha256(archive)!=spec['archive_sha256']:
+        raise ValueError('resume archive differs')
+    with zipfile.ZipFile(archive) as z:
+        if len(z.namelist())!=len(spec['files']) or set(z.namelist())!=set(spec['files']):
+            raise ValueError('unexpected resume archive members')
+        for rel,expected in spec['files'].items():
+            if Path(rel).is_absolute() or '..' in Path(rel).parts or z.getinfo(rel).file_size!=expected['size_bytes']:
+                raise ValueError('unsafe or inconsistent resume archive member')
+            path=destination/rel; path.parent.mkdir(parents=True,exist_ok=True)
+            with z.open(rel) as source,path.open('wb') as target:
+                shutil.copyfileobj(source,target)
+    return locate_resume(c,destination)
 
 
 class MixedViews:
@@ -245,7 +269,13 @@ def run(c, output):
     if torch.cuda.device_count() < 1 or torch.cuda.get_device_capability(0) != (7,5):
         raise RuntimeError('requires T4; no hardware fallback')
     parent = locate_parent(c['parent'])
-    resume = locate_resume(c) if c.get('resume_parent') else None
+    resume = None
+    if c.get('resume_parent'):
+        if c['resume_parent'].get('artifact_dataset'):
+            mounted=resolve_dataset_directory(c['resume_parent']['path'])
+            resume=unpack_resume(c,mounted/'resume-artifacts.bin',Path(c['resources']['scratch_path'])/'resume')
+        else:
+            resume=locate_resume(c)
     old = json.loads((parent/'run-manifest.json').read_text())['config']
     for key in ('training','generator','data','movie_input','quantizer','evaluation'):
         if c[key] != old[key]:

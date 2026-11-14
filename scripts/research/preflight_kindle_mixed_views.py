@@ -28,6 +28,7 @@ def main():
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--config',type=Path,default=Path('experiments/kindle_mixed_views.json'))
     parser.add_argument('--resume',type=Path)
+    parser.add_argument('--resume-archive',type=Path)
     args = parser.parse_args()
     c = json.loads(args.config.read_text()); validate(c)
     torch.set_num_threads(1)
@@ -94,6 +95,11 @@ def main():
         from rhpr.gr.generator_resume import restore_training
         from rhpr.gr.kindle_mixed_views import locate_resume
         from rhpr.gr.sid import evaluate_ranked_sids
+        if args.resume_archive is not None:
+            from rhpr.gr.kindle_mixed_views import unpack_resume
+            with tempfile.TemporaryDirectory()as tmp:
+                unpack_resume(c,args.resume_archive,Path(tmp))
+            report['private_checkpoint_archive_materialization_verified']=True
         if args.resume is None:
             raise ValueError('--resume required for continuation preflight')
         resumed_root = locate_resume(c,args.resume)

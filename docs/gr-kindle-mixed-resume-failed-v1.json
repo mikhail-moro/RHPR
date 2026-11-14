@@ -1,0 +1,39 @@
+{
+  "kernel": "carasik/rhpr-kindle-mixed-resume",
+  "kernel_version": 1,
+  "status": "ERROR",
+  "quality_complete": false,
+  "git_sha": "38fc463a2a0a68ce7b77b07e75babc2dc5defce2",
+  "workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/43651289574",
+  "workflow_job_id": 132620106350,
+  "submission_artifact_id": 14136381161,
+  "worker_timeout_seconds": 10800,
+  "new_training_epochs": 0,
+  "reason": "Kaggle omitted cancelled kernel from mounted sources; locate_resume failed before launching any workers",
+  "exception": "FileNotFoundError: pinned cancelled mixture artifacts not mounted",
+  "preserved_failure_files": {
+    "runtime-bootstrap.json": {
+      "size_bytes": 489,
+      "sha256": "34a8c4bf2d8e3a4fa43d23a2a5da3fd8d984525f06844d1adb9b1b6f868bd091"
+    },
+    "rhpr-kindle-mixed-resume.log": {
+      "size_bytes": 4472,
+      "sha256": "bbad43e17a7d397e433e338617b70c3ac94ccbd5008cc3562e94a6420d63bd40"
+    },
+    "experiment.json": {
+      "size_bytes": 12678,
+      "sha256": "a3fccab0bb2b8ee4602cd1e42cc90bf6cddae444517d90fbee5dc7c745735be0"
+    },
+    "runtime-install.log": {
+      "size_bytes": 10112,
+      "sha256": "416984c09a6d12a78d27ece3db82b4408605d3cf14a215503676478d9fa3d91a"
+    }
+  },
+  "recovery_artifact_dataset": "carasik/rhpr-kindle-mixed-epoch30-resume",
+  "recovery_dataset_id": 13352852,
+  "recovery_dataset_version": 1,
+  "private_dataset": true,
+  "dataset_status": "ready",
+  "archive_sha256": "4e502b6c3063205a8c10bc9cbdc12e0527033835e98ceeeb034842a639d4ed47",
+  "archive_size_bytes": 73708688
+}

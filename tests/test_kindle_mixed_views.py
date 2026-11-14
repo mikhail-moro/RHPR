@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from rhpr.gr.kindle_mixed_views import MixedViews, POLICY, locate_resume, validate
+from rhpr.gr.kindle_mixed_views import MixedViews, POLICY, locate_resume, unpack_resume, validate
 
 
 class MixedViewsTest(unittest.TestCase):
@@ -77,6 +77,32 @@ class MixedViewsTest(unittest.TestCase):
             (mounted/'experiment.json').write_bytes(content+b' ')
             with self.assertRaisesRegex(ValueError,'resume artifact differs'):
                 locate_resume(c,Path(tmp))
+
+    def test_private_checkpoint_archive_is_hash_checked_before_extracting_pinned_members(self):
+        import hashlib
+        import tempfile
+        import zipfile
+        root=Path(__file__).resolve().parents[1]
+        c=json.loads((root/'experiments/kindle_mixed_views_resume.json').read_text())
+        original=json.loads((root/'experiments/kindle_mixed_views.json').read_text())
+        content=json.dumps(original).encode()
+        c['resume_parent']['files']={'experiment.json':dict(size_bytes=len(content),sha256=hashlib.sha256(content).hexdigest())}
+        with tempfile.TemporaryDirectory()as tmp:
+            tmp=Path(tmp);archive=tmp/'resume.bin'
+            def pack(extra=False):
+                with zipfile.ZipFile(archive,'w')as z:
+                    z.writestr('experiment.json',content)
+                    if extra:z.writestr('../untrusted','bad')
+                c['resume_parent'].update(archive_sha256=hashlib.sha256(archive.read_bytes()).hexdigest(),archive_size_bytes=archive.stat().st_size)
+            pack()
+            self.assertEqual(unpack_resume(c,archive,tmp/'ready'),tmp/'ready')
+            self.assertEqual((tmp/'ready/experiment.json').read_bytes(),content)
+            archive.write_bytes(archive.read_bytes()+b'changed')
+            with self.assertRaisesRegex(ValueError,'archive differs'):unpack_resume(c,archive,tmp/'bad')
+            self.assertFalse((tmp/'bad').exists())
+            pack(extra=True)
+            with self.assertRaisesRegex(ValueError,'archive members'):unpack_resume(c,archive,tmp/'extra')
+            self.assertFalse((tmp/'untrusted').exists())
 
     @unittest.skipUnless(importlib.util.find_spec('torch'),'requires torch')
     def test_training_loop_uses_mixed_inputs_but_unchanged_targets_and_pair_validation(self):

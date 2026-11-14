@@ -105,12 +105,12 @@
     "dataset_sources": [
       "carasik/rhpr-gr-beauty-phase0",
       "carasik/rhpr-t5-sdpa-runtime",
-      "carasik/rhpr-kindle-long-core-input"
+      "carasik/rhpr-kindle-long-core-input",
+      "carasik/rhpr-kindle-mixed-epoch30-resume"
     ],
     "competition_sources": [],
     "kernel_sources": [
-      "carasik/rhpr-kindle-long-pairs",
-      "carasik/rhpr-kindle-mixed-views"
+      "carasik/rhpr-kindle-long-pairs"
     ],
     "model_sources": [],
     "machine_shape": "NvidiaTeslaT4"
@@ -401,6 +401,10 @@
         "sha256": "53d9be998637f8bc3e99aae4764bb03f5b0803ce741a2a95e4f74265b695ede5",
         "size_bytes": 931336
       }
-    }
+    },
+    "artifact_dataset": "carasik/rhpr-kindle-mixed-epoch30-resume",
+    "path": "/kaggle/input/datasets/carasik/rhpr-kindle-mixed-epoch30-resume",
+    "archive_sha256": "4e502b6c3063205a8c10bc9cbdc12e0527033835e98ceeeb034842a639d4ed47",
+    "archive_size_bytes": 73708688
   }
 }
