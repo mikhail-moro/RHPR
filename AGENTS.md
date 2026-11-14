@@ -2,9 +2,9 @@
 
 ## Research status
 
-- Kindle long-window screen SUBMITTED2026-11-14, private
+- Kindle long-window screen COMPLETE,collected2026-11-14, private
   carasik/rhpr-kindle-long-windows/version2, source55350fd1a301,
-  workflow43537820586 SUCCESS(submission only), Kaggle RUNNING at last check.
+  workflow43537820586 SUCCESS(submission only), Kaggle COMPLETE/version2.
   Nine fits: Recent20/32/64 x coupled tokenizer+generator seeds42/101/202.
   Same SID/initializer/targets/shuffle within seed. New static long-reader
   cohort:958users,16177books,144011events,141137train prefixes,958VAL/TEST.
@@ -19,7 +19,22 @@
   Fixed event contract plus actual-worker regression; full1099tests/152skips
   pass. All cases replayed; actual CPU GRID fwd/bwd and207deployed files checked.
   See docs/gr-kindle-long-windows.md, preparation/submission/failed-v1 JSONs.
-  Collect existing kernel when user reports completion; no duplicate launch.
+  All9 fits,3.8157h session,515epochs,10AMP skips;103VAL files independently
+  replayed with metrics/pins/cases/LR/EMA/update accounting.9best+9last weights
+  remain private Kaggle. Selected VAL means20=.00930077,32=.00846542,
+  64=.00871290;winner changes42->64,101->20,202->32. Warm epoch seconds
+  21.36/37.00/83.99;B1 supported forward GF.117744/.203128/.500115.
+  Selected64vs20 -6.32%;conditional shared-user CI delta[-.003705,.002599].
+  Fixed40 64vs20+15.17%,fixed45+2.37%;all comparison CIs cross0.
+  Three42 fits EMAstop45/55/55;six101/202 capped60. All9 lowest observed
+  teacher-forced VAL CE occurs at last epoch;no demonstrated convergence or
+  capacity bottleneck. Only13-24top10 hits per selected model/958users.
+  NewVAL43.1%targets have<=5train positions vsold6.90%;absolute NDCG not
+  comparable across cohorts. TEST CLOSED. Full1099tests/152skips pass.
+  Reports results.md/.json and completion.json; replay
+  scripts/research/analyze_kindle_windows.py, artifacts
+  /workspace/artifacts/kindle-pilot/long-window-results inclPNG/PDF/privateCSV.
+  No pending runs;no new GPU,TEST,extraepochs,HPO or notifications authorized.
 
 - ML1M SID/generator stability COMPLETE, collected2026-11-08, no new GPU.
   Private carasik/rhpr-ml1m-sid-stability, source2e3e56f75121,

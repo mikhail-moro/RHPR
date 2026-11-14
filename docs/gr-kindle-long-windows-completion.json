@@ -1,0 +1,44 @@
+{
+  "kernel": "carasik/rhpr-kindle-long-windows",
+  "kernel_version": 2,
+  "status": "COMPLETE",
+  "quality_complete": true,
+  "source_sha": "55350fd1a3013a2673b1f9795b13c6e9d1efa0c7",
+  "models": 9,
+  "failed_models": 0,
+  "session_seconds": 13736.498813,
+  "validation_prediction_files_replayed": 103,
+  "total_epochs": 515,
+  "amp_skipped_updates": 10,
+  "test_evaluated": false,
+  "early_stopped": 3,
+  "epoch_capped": 6,
+  "checkpoint_inventory": {
+    "best": 9,
+    "last": 9,
+    "weights_remain_private_kaggle": true
+  },
+  "verification": {
+    "source_and_config_pins": true,
+    "input_hashes": true,
+    "index_hashes": true,
+    "matched_initializers_targets_cases": true,
+    "all_ndcg_recall_and_invalid_duplicate_counts": true,
+    "all_lr_ema_and_update_accounting": true
+  },
+  "full_regression": {
+    "tests": 1099,
+    "optional_skips": 152,
+    "failures": 0
+  },
+  "files": {
+    "metrics.json": "c797e3d7a5f0be7a458662402ff6d4a00d8df0e4bdede0b6ecc5c2345ad54bfe",
+    "summary.md": "20979009e77dbd1449870173a73571a3d99d2e802a0d7dfad260e86011edf037",
+    "run-manifest.json": "3c5c80e581a2935759a2ee5fa6726ecee8e5d3f8369db40fd27dedfd141443d2",
+    "experiment.json": "d44a17a002011032104efccd4fa383fc4a52d9a7f411598165914ab4988049bf",
+    "study-summary.json": "ced101a10bad5c05c9d7d3e46ba897feaea473f1c2073e55238a552e5044f667",
+    "suite-results.json": "2c1ac706ab7d0279e72701b21df0de5e4c3df0a984990597f32888edb8921328"
+  },
+  "analysis": "docs/gr-kindle-long-windows-results.json",
+  "replay": "scripts/research/analyze_kindle_windows.py"
+}
