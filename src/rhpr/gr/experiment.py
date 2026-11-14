@@ -153,7 +153,7 @@ def _evaluate(model, examples, sid_index, batch_size: int, device: str, precisio
 
 
 def _train_generator(model, users, sid_index, config: dict, output: Path, device: str,
-                     *, example_builder=None, resume_from=None):
+                     *, example_builder=None, resume_from=None, training_context_selector=None):
     import numpy as np
     import torch
 
@@ -242,7 +242,11 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
             optimizer.zero_grad(set_to_none=True)
             for position in range(0, len(chosen), physical):
                 part = chosen[position:position + physical]
-                batch = _index_model_batch(contexts[part], user_ids[part], targets[part], sid_index, device)
+                selected_contexts = (contexts[part] if training_context_selector is None else
+                                     training_context_selector(epoch, begin // batch_size, part))
+                if len(selected_contexts) != len(part):
+                    raise ValueError('training context selector changed example count')
+                batch = _index_model_batch(selected_contexts, user_ids[part], targets[part], sid_index, device)
                 with _autocast(precision, device):
                     loss = _loss(forward_model, batch)
                 if not torch.isfinite(loss):
@@ -274,6 +278,8 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
         row = {"epoch": epoch, "updates": updates, "amp_skipped_updates": skipped_updates,
                "train_examples": len(targets),
                loss_key: total_loss / len(targets), "train_seconds": train_seconds}
+        if training_context_selector is not None:
+            row['training_views'] = training_context_selector.epoch_summary(epoch)
         if ((epoch == 1 and specification.get("validate_first_epoch", True))
                 or epoch % specification["validation_interval"] == 0
                 or epoch == specification["max_epochs"]):

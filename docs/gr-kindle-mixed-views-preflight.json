@@ -1,0 +1,24 @@
+{
+  "parent_files_verified": 44,
+  "input_files_verified": 10,
+  "train_targets": 141137,
+  "all_60_epoch_schedules_consume_every_example_once": true,
+  "full_examples": 4285310,
+  "pair_examples": 4182910,
+  "native_encoder_positions": {
+    "full32": 129,
+    "pair32": 97
+  },
+  "initial_parameters_match_completed_pair32": true,
+  "cpu_native_forward_backward_finite": {
+    "pair32": 22.635433197021484,
+    "full32": 10.070334434509277
+  },
+  "supported_forward_flops_batch1": {
+    "pair32": 516500848,
+    "full32": 704769968
+  },
+  "inference_flops_match_completed_pair32": true,
+  "policy": "50/50 whole optimizer batches; independent RNG; Pair32-only evaluation",
+  "gpu_used": false
+}

@@ -2,6 +2,27 @@
 
 ## Research status
 
+- Authorized2026-11-15:one new seed42 Full32/Pair32 training-mixture fit,
+  not within-history stochastic pairing. Configkindle_mixed_views.json,
+  modulekindle_mixed_views,docsgr-kindle-mixed-views.md. Choose native Full32
+  or Pair32 with probability.5 for each optimizer batch using independent
+  epoch-addressable RNGstream7301;one originaltarget/example/epoch,unchanged
+  shuffle. Preserve native129/97encoderpositions inclUSER;never pad Pair to
+  Full width. AllVAL and finalselectedTEST use ONLYPair32. Frozen parent
+  long-pairs/1 source33754d70acc0,44pinnedfiles;reuse Pair32/Recent32 outputs,
+  no ST5/RQ refit or control retraining. Existing wide4+4/d128/FF1024/dkv64/H6,
+  FP16/SDPA/compile/512,LR.003->.001/warmup2/cosine60,VAL5,EMA.5/delta.0005/
+  pat15/min40/max60,rawVALselection. One isolatedT4worker;Kaggle T4machine
+  may expose2GPUs but do not duplicate fits just to occupy the second.
+  Save counts/schedulehash/coverage audit everyepoch,curves,predictions,
+  fullbest/lastweights,FLOPs/timing/memory/provenance. CPUpreflight44parent+
+  10inputpins,all60epochs exactlyonce/nativeforwardbackward finite and same
+  initializer;inferenceGF.516500848,FullGF.704769968. GPUquota38.37h before
+  submission. Full1116tests/152skips pass. Private/offline
+  carasik/rhpr-kindle-mixed-views. No additional
+  seeds/HPO/random-within-history mixtures/retries/notifications. Existing
+  TEST already examined;exploratory training fix,not a confirmed mechanism.
+
 - Frozen prefix-mask probe COMPLETE,collected2026-11-15. User authorization:
   run frozen Pair32/Recent32 prefix-mask probe.
   EXACTLY8inferences,2models×VAL/TEST×full/masked_old,epoch55/seed42,958targets,
