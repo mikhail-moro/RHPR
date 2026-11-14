@@ -1,0 +1,137 @@
+{
+  "source": "ab5ac87e30d63739c97a5bccea0f29412ac045d9",
+  "session_seconds": 378.760448,
+  "mps_capability": {
+    "attempted": true,
+    "binary_available": true,
+    "start_message": "",
+    "start_returncode": 0
+  },
+  "modes": {
+    "mps": {
+      "status": "ok",
+      "updates_per_second": {
+        "single": 12.721233405551581,
+        "paired": 12.78608662442727,
+        "single_after": 12.736599966621231
+      },
+      "round_rates": {
+        "single": [
+          12.959492963990453,
+          12.721233405551581,
+          12.413583643361868
+        ],
+        "paired": [
+          12.294080467307685,
+          12.78608662442727,
+          13.48922843860987
+        ],
+        "single_after": [
+          12.87114876281751,
+          12.736599966621231,
+          12.408381659599273
+        ]
+      },
+      "aggregate_speedup_own_baseline": 1.0050980291618097,
+      "solo_after_vs_before": 1.0012079458476835,
+      "telemetry": {
+        "single": {
+          "nvml_peak_gib": 1.5283203125,
+          "gpu_busy_mean": 91.73934997750787
+        },
+        "paired": {
+          "nvml_peak_gib": 3.0263671875,
+          "gpu_busy_mean": 98.45154850856905
+        },
+        "single_after": {
+          "nvml_peak_gib": 3.0263671875,
+          "gpu_busy_mean": 92.25026990553306
+        }
+      },
+      "concurrent_validation": [
+        {
+          "status": "ok",
+          "exact_full_beam_user_fraction": 1.0,
+          "ndcg10": 0.050254957657713976,
+          "seconds": 10.506102561950684
+        },
+        {
+          "status": "ok",
+          "exact_full_beam_user_fraction": 1.0,
+          "ndcg10": 0.050254957657713976,
+          "seconds": 10.500593900680542
+        }
+      ],
+      "concurrent_validation_nvml_peak_gib": 9.5654296875,
+      "paired_vs_solo_after": 1.003885389973441,
+      "paired_speedup_vs_ordinary_solo": 0.9101593764378161
+    },
+    "ordinary": {
+      "status": "ok",
+      "updates_per_second": {
+        "single": 14.048184258090584,
+        "paired": 12.366979103384107,
+        "single_after": 12.473899721338288
+      },
+      "round_rates": {
+        "single": [
+          14.143324959230453,
+          14.048184258090584,
+          13.906538719426607
+        ],
+        "paired": [
+          12.584014863062599,
+          12.366979103384107,
+          11.877821698556051
+        ],
+        "single_after": [
+          12.663879526865376,
+          12.473899721338288,
+          12.309517854638829
+        ]
+      },
+      "aggregate_speedup_own_baseline": 0.8803258041167674,
+      "solo_after_vs_before": 0.8879367961133027,
+      "telemetry": {
+        "single": {
+          "nvml_peak_gib": 1.5048828125,
+          "gpu_busy_mean": 92.28194833488949
+        },
+        "paired": {
+          "nvml_peak_gib": 3.0029296875,
+          "gpu_busy_mean": 99.09120022930999
+        },
+        "single_after": {
+          "nvml_peak_gib": 3.0029296875,
+          "gpu_busy_mean": 91.61196581196582
+        }
+      },
+      "concurrent_validation": [
+        {
+          "status": "ok",
+          "exact_full_beam_user_fraction": 1.0,
+          "ndcg10": 0.050254957657713976,
+          "seconds": 11.802114963531494
+        },
+        {
+          "status": "ok",
+          "exact_full_beam_user_fraction": 1.0,
+          "ndcg10": 0.050254957657713976,
+          "seconds": 11.807491779327393
+        }
+      ],
+      "concurrent_validation_nvml_peak_gib": 9.5400390625,
+      "paired_vs_solo_after": 0.9914284529824079,
+      "paired_speedup_vs_ordinary_solo": 0.8803258041167674
+    }
+  },
+  "limits": [
+    "One T4, one fixed Recent20 model/batch512/full token width, three short warmed repeats.",
+    "Disposable fixed-batch updates; not training-quality or complete HPO wall-clock comparison.",
+    "Compilation/warmup excluded from timed rates; session wall time includes startup/cold costs.",
+    "NVML busy is not SM/TensorCore occupancy.",
+    "Validation feasibility includes cached full512training graphs but not an additional485tail compiled graph or longer contexts.",
+    "First v1 failed after a logger call; all v2 conclusions use corrected same-session measurements.",
+    "Ordinary solo-post is11.2%slower than solo-pre even with the second client idle; exact12%penalty versus initial solo is not causally attributable to concurrency alone."
+  ]
+}

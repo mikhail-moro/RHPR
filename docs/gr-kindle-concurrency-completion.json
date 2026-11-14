@@ -1,0 +1,22 @@
+{
+  "kernel": "carasik/rhpr-kindle-concurrency-probe",
+  "version": 2,
+  "status": "COMPLETE",
+  "source": "ab5ac87e30d63739c97a5bccea0f29412ac045d9",
+  "workflow_id": 43530990541,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/43530990541",
+  "deployed_source_files_verified": 205,
+  "config_matches": true,
+  "deployed_runner_sha256": "8bc846e8b67cccf9a0ed3ae0f4e31762f51c2456460282b62a05eb8f70a45e46",
+  "tests": {
+    "run": 1092,
+    "skipped": 152,
+    "failed": 0
+  },
+  "corrective_repeat": true,
+  "failed_version_preserved": "docs/gr-kindle-concurrency-failed-v1.json",
+  "measurements_verified": true,
+  "mps_both_client_registration_verified": true,
+  "test_evaluated": false,
+  "follow_up_training_launched": false
+}
