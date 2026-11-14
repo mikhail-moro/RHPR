@@ -2,6 +2,26 @@
 
 ## Research status
 
+- User authorization2026-11-14: long-window pair pilot on ONE seed42, exactly
+  two new wide fits Pair32/Pair64, one perT4. Reuse byte-pinned wide Recent20/32
+  from completed capacity source6d2919a15589; do not retrain controls or item
+  tokenizer. Control64 explicitly deferred until results. New shared pair
+  Sentence-T5 cache114727TRAIN/116401union;fit GRID3x256 only TRAIN unique
+  pairs across32/64;separate input namespace,unique3+1 suffixes in split order.
+  Older half pairs/recent half singles;full encoder positions97/193 inclUSER.
+  Keep existing wide4+4/d128/FF1024/dkv64/H6,FP16/SDPA/compile/512,LR.003→.001,
+  VAL5,EMA.5/delta.0005/pat15/min40/max60,raw VAL checkpoint selection.
+  User asked for TEST:now open ONLY final VAL-selected four checkpoints(two
+  new pairs and two existing wide controls),FP32/beam20/batch64,no seen mask.
+  Controls receive inference only;never choose checkpoints or settings by TEST.
+  Keep predictions,curves,losses,best/last,FLOPs,timing,memory.38parent files
+  pinned including both control best weights and full VAL trajectories.
+  Exactly2fits+4TESTs;no narrow/control64 tests,other seeds,HPO,extraepochs,
+  automatic retries or notifications. Private/offline
+  carasik/rhpr-kindle-long-pairs;configkindle_long_pairs_2t4.json;
+  docs/gr-kindle-long-pairs.md. Full1109tests/152skips pass;209packaged source
+  files byte-verified,899501-byte runner before final commit. Not yet launched.
+
 - Kindle capacity pilot COMPLETE,collected2026-11-14, private
   carasik/rhpr-kindle-capacity-pilot/version1, source6d2919a15589,
   workflow43585038652 SUCCESS(submission only), Kaggle COMPLETE/version1.
