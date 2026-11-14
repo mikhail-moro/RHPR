@@ -51,3 +51,41 @@ targets exactly once; initializer and Pair32 inference FLOPs match the completed
 control. Full regression:1116tests,152optional skips,0failures. Embedded source
 and exact configuration/private/offline T4 metadata verified before submission.
 CPU evidence: `docs/gr-kindle-mixed-views-preflight.json`.
+
+## Timeout and epoch30 recovery
+
+The first submission was cancelled by its1800-second worker limit. The agent
+incorrectly dispatched `timeout_minutes=30`, treating it as a CI wait limit;
+`scripts/kaggle_job.py` passes it to `kaggle kernels push --timeout` even in
+submit-only mode. The workflow input description now explicitly calls it the
+worker hard limit including startup and compilation. This was an operational
+mistake, not a numerical training failure or early stopping.
+
+Thirty complete epochs/8280 successful updates/zero AMP skips are preserved.
+The last logged epoch completed at1798.651seconds. Both last and best full
+checkpoints survived; best is epoch30, VAL NDCG@10=0.01325165130971416.
+Six saved validation predictions independently reproduce their metrics.
+There is no final TEST, root metrics or completion manifest.
+
+Recovery uses `experiments/kindle_mixed_views_resume.json`, a separate private
+kernel `carasik/rhpr-kindle-mixed-resume`, and **timeout_minutes=180**. Continue
+the same fit at epoch31 with unchanged min40/max60 and stopping/selection
+protocol. No new generator seed, index, targets or optimizer policy. Restore
+model, Adam, scaler, LR step, EMA and CPU/CUDA/Python/NumPy RNG; the view RNG is
+epoch-addressable. Pin15 cancelled-parent files including best/last, six
+predictions, original config and the three index arrays. The cancelled parent
+lacks `run-manifest.json`; explicit byte pins and original config checks replace
+the completed-parent locator only for this source. The completed long-pair
+parent remains separately pinned and verified.
+
+Preflight verifies actual native GRID model/optimizer restoration and the
+original30 view schedules. A dropout/Adam/scheduler CPU test verifies bitwise
+equivalence of resumed and continuous training. CUDA compilation/fused kernels
+can still prevent bitwise equivalence across sessions. Original runs are
+preserved as failed history; do not call this a fresh independent repeat.
+Recovery regression:1118tests,152optional skips,0failures.
+
+Evidence: `gr-kindle-mixed-views-cancelled.json` and
+`gr-kindle-mixed-resume-preflight.json`. Raw weights/predictions/logs are in
+`/workspace/artifacts/kindle-pilot/mixed-views-results` and the original private
+Kaggle version. The original submission receipt is historical, not live status.

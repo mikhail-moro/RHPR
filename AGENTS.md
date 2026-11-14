@@ -2,6 +2,23 @@
 
 ## Research status
 
+- Mixed-view timeout recovery2026-11-15: user reported CANCELED/Timeout;
+  continuing the same originally authorized60epoch fit,not a fresh retry/HPO.
+  Originalcarasik/rhpr-kindle-mixed-views/1CANCEL_ACKNOWLEDGED at1800s because
+  agent wrongly set workflow timeout_minutes30. scripts/kaggle_job.py forwards
+  this to Kaggle --timeout even submit_only;description now explicit.30epochs/
+  8280updates/0AMPskips saved,all6VAL predictions replayed;best30NDCG.0132516513.
+  Full last/best weights,Adam/scheduler/scaler/RNG/EMA recovered and finite.
+  No TEST/rootmetrics/runmanifest;failureevidencegr-kindle-mixed-views-cancelled
+  .json,privateartifacts/kindle-pilot/mixed-views-results. Prepared exactresume
+  configkindle_mixed_views_resume.json,start31/totalcap60,workerTIMEOUT180min,
+  private/offlinecarasik/rhpr-kindle-mixed-resume.15cancelledparentpins plus
+  original44longpairpins;verify originalconfig/full+paircasehashes/viewRNG.
+  NativeCPUrestoration verified;dropout/Adam/LR/viewsequence exactCPUresume
+  testpasses. Full1118tests/152skips pass;GPUquota37.86h beforecontinuation.
+  No newseed/index/fit;VALPair32only and finalselectedTEST unchanged.
+  Preserveoriginalfailure+submissionreceipt. Noextraepochs/budgets/HPO/variants.
+
 - Authorized2026-11-15:one new seed42 Full32/Pair32 training-mixture fit,
   not within-history stochastic pairing. Configkindle_mixed_views.json,
   modulekindle_mixed_views,docsgr-kindle-mixed-views.md. Choose native Full32

@@ -1,0 +1,33 @@
+{
+  "parent_files_verified": 44,
+  "input_files_verified": 10,
+  "train_targets": 141137,
+  "all_60_epoch_schedules_consume_every_example_once": true,
+  "full_examples": 4285310,
+  "pair_examples": 4182910,
+  "native_encoder_positions": {
+    "full32": 129,
+    "pair32": 97
+  },
+  "initial_parameters_match_completed_pair32": true,
+  "cpu_native_forward_backward_finite": {
+    "pair32": 22.635433197021484,
+    "full32": 10.070334434509277
+  },
+  "supported_forward_flops_batch1": {
+    "pair32": 516500848,
+    "full32": 704769968
+  },
+  "inference_flops_match_completed_pair32": true,
+  "policy": "50/50 whole optimizer batches; independent RNG; Pair32-only evaluation",
+  "gpu_used": false,
+  "resume_files_verified": 15,
+  "source_epoch": 30,
+  "source_updates": 8280,
+  "source_best_epoch": 30,
+  "source_best_ndcg10": 0.01325165130971416,
+  "actual_native_model_and_optimizer_restored": true,
+  "all_30_saved_view_schedules_match": true,
+  "six_validation_predictions_independently_replayed": true,
+  "resume_checkpoint_sha256": "b67a5d1d76693dbaf7449e4c45e3402ef4c5a96e448748bfb44fae6af4698066"
+}

@@ -1,0 +1,100 @@
+{
+  "kernel": "carasik/rhpr-kindle-mixed-views",
+  "kernel_version": 1,
+  "git_sha": "192c6ce879e0135644455e4376fec2d9f7b10ae4",
+  "checked_at": "2026-11-14T23:02:12.375974+00:00",
+  "status": "CANCEL_ACKNOWLEDGED",
+  "quality_complete": false,
+  "cause": "Submitted with timeout_minutes=30; kaggle_job.py forwards --timeout 1800 to the Kaggle worker even in submit-only mode",
+  "dispatch_timeout_minutes": 30,
+  "worker_timeout_seconds": 1800,
+  "last_logged_event_seconds": 1798.651048088,
+  "completed_epochs": 30,
+  "last_epoch": 30,
+  "optimizer_updates": 8280,
+  "amp_skipped_updates": 0,
+  "best_epoch": 30,
+  "best_validation_ndcg10": 0.01325165130971416,
+  "test_evaluated": false,
+  "complete_run_manifest_present": false,
+  "complete_metrics_present": false,
+  "resume_files": {
+    "experiment.json": {
+      "sha256": "846648c3c0c5cd2f7979d1f472c81f7abc9ef02078adaf2b3af294d868dc68dc",
+      "size_bytes": 10382
+    },
+    "trials/mixed32_wide_42/forward-flops.json": {
+      "sha256": "6df63b1dd6ba3ddcfd335b633cf13feff4c46523e7a8873acc51771d3379154a",
+      "size_bytes": 285
+    },
+    "trials/mixed32_wide_42/generator-best.pt": {
+      "sha256": "3f90094d8243ffbbcce23b363cf024545f7fed8b6c5a8867a4fbcbc0d408d2bf",
+      "size_bytes": 20505677
+    },
+    "trials/mixed32_wide_42/generator-last.pt": {
+      "sha256": "b67a5d1d76693dbaf7449e4c45e3402ef4c5a96e448748bfb44fae6af4698066",
+      "size_bytes": 61474867
+    },
+    "trials/mixed32_wide_42/training-curves.json": {
+      "sha256": "ed1025dd7553eadd8379f4b8d4f192f794db852de3116c5e77feb9ba61a65a80",
+      "size_bytes": 27597
+    },
+    "trials/mixed32_wide_42/training-view-provenance.json": {
+      "sha256": "962854f6b4fc4113f91df0bd2ac9f63923faef3b6d173def13c37deb36207451",
+      "size_bytes": 459
+    },
+    "trials/mixed32_wide_42/validation-epoch-005.npz": {
+      "sha256": "cde897290f0dbfeefa5761cc5732c12360b2aba693b59d6a1944ab47d5e859c0",
+      "size_bytes": 124245
+    },
+    "trials/mixed32_wide_42/validation-epoch-010.npz": {
+      "sha256": "dc14eb829aa5902e2845fcad4c46f048aa9cc57a17699196bf942980637c2b89",
+      "size_bytes": 131295
+    },
+    "trials/mixed32_wide_42/validation-epoch-015.npz": {
+      "sha256": "71a6b1c311eed45decef8706e4a38a6397322551e7f67914e70d1e6748e3fb22",
+      "size_bytes": 137788
+    },
+    "trials/mixed32_wide_42/validation-epoch-020.npz": {
+      "sha256": "d3ec36ba91f18055fa5e1958dfb8b24f4be1330ea684bbaf1787bf3b2bbd054c",
+      "size_bytes": 140587
+    },
+    "trials/mixed32_wide_42/validation-epoch-025.npz": {
+      "sha256": "77aed2dafddf82a52921b51fea3e9afd07bc7dfd96b0831ec659a729b9ddaafc",
+      "size_bytes": 142918
+    },
+    "trials/mixed32_wide_42/validation-epoch-030.npz": {
+      "sha256": "1e4c94f2497527c1e587f30c0c7e714dbd3ad9476c5b40ff474489892d05db3c",
+      "size_bytes": 146237
+    },
+    "frozen-indexes/items-42.npy": {
+      "sha256": "2be8989780320e9d812814f6ab1fcb647e2482b3ff86585b10115a6507954fa6",
+      "size_bytes": 517792
+    },
+    "frozen-indexes/pairs-42.npy": {
+      "sha256": "78ede6a86a6f0789c051ab92068fbfb5f79d1b333209c83e285ed92c6b886e74",
+      "size_bytes": 1862544
+    },
+    "frozen-indexes/pair-keys.npy": {
+      "sha256": "53d9be998637f8bc3e99aae4764bb03f5b0803ce741a2a95e4f74265b695ede5",
+      "size_bytes": 931336
+    }
+  },
+  "checkpoint_includes": [
+    "model",
+    "optimizer",
+    "scheduler",
+    "scaler",
+    "torch_rng",
+    "cuda_rng",
+    "python_rng",
+    "numpy_rng",
+    "early_stopping_state"
+  ],
+  "saved_validation_files_replayed": 6,
+  "resume_native_model_optimizer_verified": true,
+  "recovery_config": "experiments/kindle_mixed_views_resume.json",
+  "recovery_worker_timeout_minutes": 180,
+  "recovery_total_epoch_cap": 60,
+  "recovery_start_epoch": 31
+}

@@ -25,6 +25,14 @@ POLICY = dict(full_probability=.5, unit='optimizer_batch', inference='pair32',
 
 def validate(c):
     from rhpr.gr import kindle_capacity, kindle_windows
+    expected_sources = [c['parent']['kernel']]
+    if c.get('resume_parent'):
+        resume = c['resume_parent']
+        if (resume['kernel'] != 'carasik/rhpr-kindle-mixed-views'
+            or resume['git_sha'] != '192c6ce879e0135644455e4376fec2d9f7b10ae4'
+            or resume['completed_epoch'] != 30):
+            raise ValueError('only the saved epoch30 mixture may be resumed')
+        expected_sources.append(resume['kernel'])
     if (c['kind'] != 'gr_kindle_mixed_views' or c['trials'] != TRIALS
         or c['seed'] != 42 or c['seeds'] != [42] or c['windows'] != [32]
         or c['mixed_views'] != POLICY
@@ -32,7 +40,7 @@ def validate(c):
         or not c['evaluation']['test_after_selection']
         or c['parent']['kernel'] != 'carasik/rhpr-kindle-long-pairs'
         or c['parent']['git_sha'] != '33754d70acc0e4cf826f139202632bf0ffe6ac5b'
-        or c['kaggle']['kernel_sources'] != [c['parent']['kernel']]
+        or c['kaggle']['kernel_sources'] != expected_sources
         or any(c['generator'][k] != v for k, v in kindle_capacity.WIDE.items())):
         raise ValueError('expected one seed42 native-length Full32/Pair32 mixture fit')
     normalized = copy.deepcopy(c)
@@ -42,6 +50,29 @@ def validate(c):
     normalized['execution']['worker_devices'] = ['cuda:0', 'cuda:1']
     normalized['evaluation']['test_after_selection'] = False
     kindle_windows.validate(normalized)
+
+
+def locate_resume(c, input_root=Path('/kaggle/input')):
+    """Cancelled kernels lack a completion manifest; verify their pinned bytes."""
+    from rhpr.gr.data import file_sha256
+    spec = c['resume_parent']; owner,slug = spec['kernel'].split('/')
+    candidates = [input_root,input_root/slug,input_root/owner/slug,input_root/'notebooks'/owner/slug,
+                  input_root/'kernels'/owner/slug]
+    if input_root.exists():
+        candidates.extend(p.parent for p in input_root.rglob('experiment.json') if slug in p.parts)
+    for root in candidates:
+        if not all((root/f).is_file() for f in spec['files']):
+            continue
+        for name,expected in spec['files'].items():
+            path = root/name
+            if path.stat().st_size != expected['size_bytes'] or file_sha256(path) != expected['sha256']:
+                raise ValueError('resume artifact differs: '+name)
+        old = json.loads((root/'experiment.json').read_text())
+        for key in ('training','generator','data','movie_input','quantizer','evaluation','mixed_views','seed','parent'):
+            if old[key] != c[key]:
+                raise ValueError('resume changes '+key)
+        return root
+    raise FileNotFoundError('pinned cancelled mixture artifacts not mounted')
 
 
 class MixedViews:
@@ -131,16 +162,27 @@ def run_trial(trial, p):
     if forward != baseline['forward'] or initial != state_digest(dict(model.named_parameters())):
         raise RuntimeError('mixture inference cost or initializer differs from Pair32')
     _write(out/'forward-flops.json', forward)
-    _write(out/'training-view-provenance.json', dict(policy=POLICY,
+    provenance = dict(policy=POLICY,
         pair_case_sha256=case_digest(encoded['train']), full_case_sha256=case_digest((full,*raw['train'][1:])),
-        target_count=len(raw['train'][2]), examples_doubled=False, checkpoint_resume_rng='seed/epoch-addressable'))
+        target_count=len(raw['train'][2]), examples_doubled=False, checkpoint_resume_rng='seed/epoch-addressable')
+    resume_from = None
+    if p.get('resume'):
+        resume_from = Path(p['resume'])/'trials'/trial['id']
+        if json.loads((resume_from/'training-view-provenance.json').read_text()) != provenance:
+            raise ValueError('resume changes full/pair representations or mixture RNG')
+        state = torch.load(resume_from/'generator-last.pt',map_location='cpu',weights_only=False)
+        if (state['epoch'] != c['resume_parent']['completed_epoch']
+            or state['config']['mixed_views'] != POLICY):
+            raise ValueError('resume checkpoint epoch/policy differs')
+        del state
+    _write(out/'training-view-provenance.json', provenance)
     model.to('cuda:0'); torch.cuda.reset_peak_memory_stats(); started = time.monotonic()
     def builder(root, ignored, split):
         if split not in encoded:
             raise ValueError('TEST forbidden during training')
         return encoded[split]
     selection = _train_generator(model, p['data'], wrapped, c, out, 'cuda:0',
-                                 example_builder=builder, training_context_selector=views)
+                                 example_builder=builder, training_context_selector=views, resume_from=resume_from)
     epochs = selection['training_epochs']
     if (not 40 <= epochs <= 60 or selection['validation_checks'] != epochs//5
         or selection['stopping_reason'] not in ('epoch_limit','early_stopping')
@@ -151,6 +193,8 @@ def run_trial(trial, p):
         warm_epoch_training_median_seconds=float(np.median([r['train_seconds'] for r in curves[1:]])),
         cuda_peak_allocated_bytes=int(torch.cuda.max_memory_allocated()),
         cuda_peak_reserved_bytes=int(torch.cuda.max_memory_reserved()))
+    if resume_from is not None:
+        timing['wall_seconds_scope'] = 'continuation session only; curve median includes both sessions'
     h,u,t = cases(p['data'], 'test')
     test = test_selected(model, (encode(h,idx.sids,keys,pairs,32),u,t), wrapped, out,
                          out/'generator-best.pt', selection['best_epoch'])
@@ -201,6 +245,7 @@ def run(c, output):
     if torch.cuda.device_count() < 1 or torch.cuda.get_device_capability(0) != (7,5):
         raise RuntimeError('requires T4; no hardware fallback')
     parent = locate_parent(c['parent'])
+    resume = locate_resume(c) if c.get('resume_parent') else None
     old = json.loads((parent/'run-manifest.json').read_text())['config']
     for key in ('training','generator','data','movie_input','quantizer','evaluation'):
         if c[key] != old[key]:
@@ -227,9 +272,12 @@ def run(c, output):
         subprocess.run(command,stdout=log,stderr=subprocess.STDOUT,check=True,timeout=180)
     plan = dict(config=c,output=str(output),source=str(source),data=str(data),indexes=str(indexes),parent=str(parent),
                 assignments=[dict(slot=0,device='cuda:0',trials=TRIALS)])
+    if resume is not None:
+        plan['resume'] = str(resume)
     _write(output/'plan.json',plan); sys.path.insert(0,str(overlay))
     summary = launch_workers(output/'plan.json',worker_module='rhpr.gr.kindle_mixed_views',event_prefix='mixed_views')
-    _write(output/'study-summary.json',dict(results=summary['results'],new_generator_fits=1,tokenizer_refitted=False,
+    _write(output/'study-summary.json',dict(results=summary['results'],new_generator_fits=0 if resume else 1,
+        resumed_generator_fits=1 if resume else 0,tokenizer_refitted=False,
         inference_format='pair32',training_policy=POLICY,reused_baselines=['pair32_wide_42','recent32_wide_42']))
     row = summary['results'][TRIALS[0]['id']]
     return dict(experiment=c['name'],models=1,seed=42,test_evaluated=True,

@@ -1,6 +1,8 @@
 """CPU-only preflight on pinned real inputs and the native GRID generator."""
 import argparse
+import copy
 import json
+import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -24,8 +26,10 @@ def main():
     parser.add_argument('--parent',type=Path,required=True)
     parser.add_argument('--source',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--config',type=Path,default=Path('experiments/kindle_mixed_views.json'))
+    parser.add_argument('--resume',type=Path)
     args = parser.parse_args()
-    c = json.loads(Path('experiments/kindle_mixed_views.json').read_text()); validate(c)
+    c = json.loads(args.config.read_text()); validate(c)
     torch.set_num_threads(1)
     for name,expected in c['parent']['files'].items():
         path = args.parent/name
@@ -41,6 +45,7 @@ def main():
     full = encode_window(h,idx.sids,32)
     pair = encode(h,idx.sids,np.load(root/'pair-keys.npy'),np.load(root/'pairs-42.npy'),32)
     views = MixedViews(full,pair)
+    training_examples = (pair,u,t)
     exposure = []
     for epoch in range(1,61):
         order = np.random.default_rng(42+epoch).permutation(len(t))
@@ -85,6 +90,37 @@ def main():
         cpu_native_forward_backward_finite=losses,supported_forward_flops_batch1=costs,
         inference_flops_match_completed_pair32=True,policy='50/50 whole optimizer batches; independent RNG; Pair32-only evaluation',
         gpu_used=False)
+    if c.get('resume_parent'):
+        from rhpr.gr.generator_resume import restore_training
+        from rhpr.gr.kindle_mixed_views import locate_resume
+        from rhpr.gr.sid import evaluate_ranked_sids
+        if args.resume is None:
+            raise ValueError('--resume required for continuation preflight')
+        resumed_root = locate_resume(c,args.resume)
+        source = resumed_root/'trials/mixed32_wide_42'
+        state = torch.load(source/'generator-last.pt',map_location='cpu',weights_only=False)
+        trial_config = copy.deepcopy(c); trial_config['data']['history_items']=32
+        validation_examples=(encode(h,idx.sids,np.load(root/'pair-keys.npy'),np.load(root/'pairs-42.npy'),32),u,t)
+        with tempfile.TemporaryDirectory() as tmp:
+            restored = restore_training(model,optimizer,torch.amp.GradScaler('cuda',enabled=False),wrapped,trial_config,
+                training_examples,validation_examples,source,Path(tmp),'cpu')
+            assert state_digest(model.state_dict())==state_digest(state['model'])
+        assert restored['epoch']==30 and restored['updates']==8280 and restored['skipped']==0
+        curves=json.loads((source/'training-curves.json').read_text())
+        for row in curves:
+            assert row['training_views']['schedule_sha256']==exposure[row['epoch']-1]['schedule_sha256']
+        for row in curves:
+            if 'validation' not in row: continue
+            with np.load(source/f"validation-epoch-{row['epoch']:03d}.npz") as z:
+                np.testing.assert_array_equal(z['user_ids'],u)
+                np.testing.assert_array_equal(z['target_item_ids'],t)
+                metrics=evaluate_ranked_sids(idx,z['semantic_ids'],t,cutoffs=(5,10))
+                for name,value in metrics.items(): assert abs(value-row['validation'][name])<1e-12
+        report.update(resume_files_verified=len(c['resume_parent']['files']),source_epoch=30,source_updates=8280,
+            source_best_epoch=restored['best_epoch'],source_best_ndcg10=restored['best_metric'],
+            actual_native_model_and_optimizer_restored=True,all_30_saved_view_schedules_match=True,
+            six_validation_predictions_independently_replayed=True,
+            resume_checkpoint_sha256=file_sha256(source/'generator-last.pt'))
     args.output.write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps(report,indent=2))
 

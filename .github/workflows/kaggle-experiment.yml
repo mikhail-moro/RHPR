@@ -28,7 +28,7 @@ on:
         default: true
         type: boolean
       timeout_minutes:
-        description: Cancel after this many minutes
+        description: Kaggle worker hard runtime limit, including startup and compilation (also in submit-only mode)
         required: true
         default: "360"
         type: string
