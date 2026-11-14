@@ -1,0 +1,194 @@
+{
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-kindle-prefix-mask"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false,
+    "attn_implementation": "sdpa"
+  },
+  "data": {
+    "history_items": 64,
+    "users": 958,
+    "items": 16177,
+    "train_examples": 141137,
+    "split": "positive4plus_static_user66_item5_core_leave_last_two_timestamp_asin"
+  },
+  "movie_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-kindle-long-core-input",
+    "sha256": {
+      "catalog.json": "a2d937569da8f26c728c935809a0d9c9155208444c75de50d9635a8aa038ffd1",
+      "data-report.json": "3fbf61bc7735be041843eade4219b0c890ba3a39d16aa173a48bdd9a1ebbbae2",
+      "histories.npz": "85abce635632cd4fa4b070498e9d2f3b1008ac738a59302fdd9a70bb03c29658",
+      "source-ids.json": "b517015d9ea508bfcce45ead1ba45f6dc8fde41b03d0a2f16cbeb110d0338f7d",
+      "source-provenance.json": "9be9970f9a9ffdbe463f7d222f51236e33685a5b37a01f2651221e629b62056a",
+      "test-cases.npz": "a3bc98abf61d6b9ec818c9574191383d45bd50aa8a9d388b8c0eebc5183fb41b",
+      "texts.json": "3e7a07e3a3467f4317d400ae0707afeb8ad8cca9d0b9a203930559b52975aac2",
+      "train-cases.npz": "7ef0237afb1121f0424f24c2b323fbff14f2d7523a172af4cd8188beec406760",
+      "user-audit.json": "0b6b267d1ab451f4cdbb513fb10fec4220e6b429fb79e5076e88d9944191b3cc",
+      "validation-cases.npz": "6bf91d084d0fa1c027bd0d613284a10284118f840965e162e8fad1d679eac566"
+    }
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-t5-sdpa-runtime",
+      "carasik/rhpr-kindle-long-core-input"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-kindle-long-pairs",
+      "carasik/rhpr-kindle-capacity-pilot"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "modern_runtime": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-t5-sdpa-runtime",
+    "manifest_sha256": "18f4688aab798d792d9204d1c018d8aba7da80bc97f5aadcdd181b34f6f0b9f6"
+  },
+  "kind": "gr_kindle_prefix_mask",
+  "name": "kindle_frozen_pair32_recent32_prefix_mask",
+  "seed": 42,
+  "trials": [
+    {
+      "id": "pair32",
+      "model": "pair32",
+      "seed": 42
+    },
+    {
+      "id": "recent32",
+      "model": "recent32",
+      "seed": 42
+    }
+  ],
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 1,
+    "evaluation_batch_size": 64,
+    "evaluation_precision": "fp32"
+  },
+  "evaluation": {
+    "splits": [
+      "validation",
+      "test"
+    ],
+    "variants": [
+      "full",
+      "masked_old"
+    ],
+    "selected_epoch": 55,
+    "seen_items_filtered": false,
+    "training_forbidden": true,
+    "recent_popularity_cutoff": 2.300820444821813
+  },
+  "suite_deadline_seconds": 1200,
+  "parents": {
+    "pair": {
+      "kernel": "carasik/rhpr-kindle-long-pairs",
+      "git_sha": "33754d70acc0e4cf826f139202632bf0ffe6ac5b",
+      "files": {
+        "run-manifest.json": {
+          "sha256": "37b60361ae949ebcb176aa199a53cbfcd8787dc9c2db84d8c74260f2d5659b99",
+          "size_bytes": 12752
+        },
+        "experiment.json": {
+          "sha256": "b1534b6c8236eb506da1efdc20b4e4dc7f84a5b7591f74826c1f1b641e1cd03f",
+          "size_bytes": 9584
+        },
+        "frozen-indexes/items-42.npy": {
+          "sha256": "2be8989780320e9d812814f6ab1fcb647e2482b3ff86585b10115a6507954fa6",
+          "size_bytes": 517792
+        },
+        "frozen-indexes/pair-keys.npy": {
+          "sha256": "53d9be998637f8bc3e99aae4764bb03f5b0803ce741a2a95e4f74265b695ede5",
+          "size_bytes": 931336
+        },
+        "frozen-indexes/pairs-42.npy": {
+          "sha256": "78ede6a86a6f0789c051ab92068fbfb5f79d1b333209c83e285ed92c6b886e74",
+          "size_bytes": 1862544
+        },
+        "trials/pair32_wide_42/generator-best.pt": {
+          "sha256": "c1e4ccdec7d18f97a96b81dcf83a8468a807268d5de7d512b5538bc2ea8f6064",
+          "size_bytes": 20504845
+        },
+        "trials/pair32_wide_42/trial-result.json": {
+          "sha256": "ec183da999263906d9fb487b3aeb323d50e6d682fb7b034a8636b58f62ad2f89",
+          "size_bytes": 2855
+        },
+        "trials/pair32_wide_42/validation-epoch-055.npz": {
+          "sha256": "9ddd5a8abb12a95a2c7941e83c38e819c7979e41756ac5481791bfa95d2deda6",
+          "size_bytes": 152293
+        },
+        "trials/pair32_wide_42/test-best-predictions.npz": {
+          "sha256": "b4a27c19a52926dd31c7765e13281ec8b88c2b1524ca0c3a59b5479cbc4f595c",
+          "size_bytes": 152277
+        },
+        "baselines/recent32_wide_42/validation-epoch-055.npz": {
+          "sha256": "afabaeeadf1ae3e7158152fd5b7c7481c778b4c5f87516e746dd65f7bd85f62a",
+          "size_bytes": 154230
+        },
+        "control-tests/recent32_wide_42/test-best-predictions.npz": {
+          "sha256": "d432b265b6a854435915b3d88c870167ac8be3f42daee58407549b8dba33acd2",
+          "size_bytes": 153766
+        }
+      }
+    },
+    "control": {
+      "kernel": "carasik/rhpr-kindle-capacity-pilot",
+      "git_sha": "6d2919a155893e4c6bbb859a1fbcc0c800573c6c",
+      "files": {
+        "run-manifest.json": {
+          "sha256": "36f3a31460d74fbce2d166822795d65577ec86ef58abaacc12a655b586becf0a",
+          "size_bytes": 11296
+        },
+        "experiment.json": {
+          "sha256": "84b1e531d6239bb0f4fca73a4d881322a24370c0f03c445c69a072b2ae824b40",
+          "size_bytes": 8442
+        },
+        "frozen-indexes/items-42.npy": {
+          "sha256": "2be8989780320e9d812814f6ab1fcb647e2482b3ff86585b10115a6507954fa6",
+          "size_bytes": 517792
+        },
+        "trials/recent32_wide_42/generator-best.pt": {
+          "sha256": "ddcc2bc1982b8b6b08121e8a771ddffecb534a36413c97180884efcaed9caa00",
+          "size_bytes": 20503629
+        },
+        "trials/recent32_wide_42/trial-result.json": {
+          "sha256": "5929bcd892c85003357de250242a2e548d1700b1357e3bb31799386c0b38d763",
+          "size_bytes": 1993
+        }
+      }
+    }
+  }
+}

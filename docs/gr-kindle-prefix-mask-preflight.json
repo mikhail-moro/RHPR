@@ -1,0 +1,29 @@
+{
+  "parent_files_verified": 16,
+  "models": [
+    {
+      "model": "pair32",
+      "epoch": 55,
+      "cpu_baseline_cases": 8,
+      "all_ranked_sids_match_saved_gpu": true,
+      "encoder_positions": 97,
+      "masked_sid_positions": 32,
+      "visible_recent_sid_positions": 64,
+      "user_and_tail_positions_preserved": true,
+      "changing_masked_ids_leaves_visible_encoder_states_and_beams_bit_identical": true,
+      "weights_unchanged": true
+    },
+    {
+      "model": "recent32",
+      "epoch": 55,
+      "cpu_baseline_cases": 8,
+      "all_ranked_sids_match_saved_gpu": true,
+      "encoder_positions": 129,
+      "masked_sid_positions": 64,
+      "visible_recent_sid_positions": 64,
+      "user_and_tail_positions_preserved": true,
+      "changing_masked_ids_leaves_visible_encoder_states_and_beams_bit_identical": true,
+      "weights_unchanged": true
+    }
+  ]
+}

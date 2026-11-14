@@ -2,6 +2,23 @@
 
 ## Research status
 
+- User authorization2026-11-15: run frozen Pair32/Recent32 prefix-mask probe.
+  EXACTLY8inferences,2models×VAL/TEST×full/masked_old,epoch55/seed42,958targets,
+  FP32SDPA/beam20/batch64,no seen mask. No training/optimizer/ST5/RQ/newseeds.
+  MaskPairold32SIDpositions,Recentold64;retain USER and recent64SIDpositions,
+  fixed97/129encoder lengths. Real no-leak test mutates maskedIDs:visible
+  encoder states and beams/scores stayBITIDENTICAL.8CPU originalVALcases/model
+  replay savedGPU;16parent artifacts inclbothweights pinned;1112tests/152skips
+  pass.210packaged sourcefiles byteverified. Parents private long-pairs/1
+  source33754d70acc0 and capacity/1 source6d2919a15589. Use same data,generator,
+  previous popularity cutoff2.300820444821813. Require full baseline ranks
+  match all4saved predictionfiles before interpretation;weights unchanged.
+  Compare conditional mask response/groups/recovered original lost hits,
+  not independently validated quality or proof of a training fix. Already
+  examined TEST/OOD masking;no extra variants/retraining/Control64/notifications.
+  Configkindle_prefix_mask_2t4.json,docsgr-kindle-prefix-mask.md. Private/offline
+  carasik/rhpr-kindle-prefix-mask. Ready to submit ONCE;not yet launched.
+
 - Pair32 error diagnosis2026-11-14 COMPLETE,saved arrays/embeddings only;
   no training,new model inference or GPU. VALPair beatsRecent32at10/12checks,
   selected31vs30hits;TEST21vs28(loses16/adds9).Two controlrank1→outsidebeam20
