@@ -2,6 +2,27 @@
 
 ## Research status
 
+- Pair32 error diagnosis2026-11-14 COMPLETE,saved arrays/embeddings only;
+  no training,new model inference or GPU. VALPair beatsRecent32at10/12checks,
+  selected31vs30hits;TEST21vs28(loses16/adds9).Two controlrank1→outsidebeam20
+  cases account55%ofnet TEST gap;not justification to remove cases. Strongest
+  exploratory lead:less-popular last16UNCOMPRESSED books,VAL.00989vs.01605,
+  TEST.00421vs.01179(Pair/Recent32),opposite halfVAL+.00430/TEST+.00037.
+  Low-popularity context loses all5VALchecks40–60. Feature chosen after many
+  inspected groups,one examined seed;sparse hits,uncorrected subgroup CIs,
+  no causal/popularity-bias claim. Recommendation popular(>20TRAINpositions)
+  shareTEST23.57→26.31%,VAL23.46→27.60%;seen-item echoes do not increase.
+  Two largest losses have same-series clue in preserved recent16;one predicts
+  wrongvolume sharing first2SIDtokens,other leavesbranch. No single proven
+  semantic-loss mechanism. New-pair/length/first-second-role patterns unstable.
+  Olddense vsnewcoreTEST<=5TRAINpositions292/2625(11.1%)vs464/958(48.4%);
+  catalog4969→16177,supervision92133→141137,TEST2625→958;not isolated causal
+  explanation across different protocols. Reportsgr-kindle-pair32-diagnosis
+  .md/.json;replay scripts/research/diagnose_kindle_pair32.py. Private raw
+  user-features/groups/extreme-examples/plots in
+  /workspace/artifacts/kindle-pilot/pair32-diagnosis.1109tests/152skips pass.
+  Summary-mask mechanism probe only proposed,NOT run. No followup GPU.
+
 - Kindle long-pair pilot COMPLETE,collected2026-11-14. User authorization:
   long-window pair pilot on ONE seed42, exactly
   two new wide fits Pair32/Pair64, one perT4. Reuse byte-pinned wide Recent20/32
