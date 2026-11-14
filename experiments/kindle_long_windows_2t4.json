@@ -1,0 +1,192 @@
+{
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-kindle-long-windows"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 64,
+    "d_ff": 512,
+    "d_kv": 32,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false,
+    "attn_implementation": "sdpa"
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 1,
+    "batch_size": 512,
+    "physical_batch_size": 512,
+    "learning_rate": 0.003,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 60,
+    "min_epochs": 40,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 64,
+    "max_seconds": 7200,
+    "sampling": "precomputed_positive_leave_last_two_prefix_windows",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 15,
+    "scheduler": {
+      "kind": "warmup_cosine",
+      "warmup_epochs": 2,
+      "total_epochs": 60,
+      "min_lr": 0.001
+    },
+    "early_stopping": {
+      "kind": "ema",
+      "alpha": 0.5,
+      "min_delta": 0.0005
+    },
+    "compile_training": {
+      "mode": "reduce-overhead",
+      "fullgraph": false,
+      "dynamic": false
+    }
+  },
+  "data": {
+    "history_items": 64,
+    "users": 958,
+    "items": 16177,
+    "train_examples": 141137,
+    "split": "positive4plus_static_user66_item5_core_leave_last_two_timestamp_asin"
+  },
+  "movie_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-kindle-long-core-input",
+    "sha256": {
+      "catalog.json": "a2d937569da8f26c728c935809a0d9c9155208444c75de50d9635a8aa038ffd1",
+      "data-report.json": "3fbf61bc7735be041843eade4219b0c890ba3a39d16aa173a48bdd9a1ebbbae2",
+      "histories.npz": "85abce635632cd4fa4b070498e9d2f3b1008ac738a59302fdd9a70bb03c29658",
+      "source-ids.json": "b517015d9ea508bfcce45ead1ba45f6dc8fde41b03d0a2f16cbeb110d0338f7d",
+      "source-provenance.json": "9be9970f9a9ffdbe463f7d222f51236e33685a5b37a01f2651221e629b62056a",
+      "test-cases.npz": "a3bc98abf61d6b9ec818c9574191383d45bd50aa8a9d388b8c0eebc5183fb41b",
+      "texts.json": "3e7a07e3a3467f4317d400ae0707afeb8ad8cca9d0b9a203930559b52975aac2",
+      "train-cases.npz": "7ef0237afb1121f0424f24c2b323fbff14f2d7523a172af4cd8188beec406760",
+      "user-audit.json": "0b6b267d1ab451f4cdbb513fb10fec4220e6b429fb79e5076e88d9944191b3cc",
+      "validation-cases.npz": "6bf91d084d0fa1c027bd0d613284a10284118f840965e162e8fad1d679eac566"
+    }
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "evaluation": {
+    "test_after_selection": false,
+    "save_validation_predictions": true,
+    "selection_metric": "validation item NDCG@10",
+    "save_validation_losses": true
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-t5-sdpa-runtime",
+      "carasik/rhpr-kindle-long-core-input"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "modern_runtime": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-t5-sdpa-runtime",
+    "manifest_sha256": "18f4688aab798d792d9204d1c018d8aba7da80bc97f5aadcdd181b34f6f0b9f6"
+  },
+  "compare_initialization_by_seed": true,
+  "kind": "gr_kindle_windows",
+  "name": "kindle_long_cohort_windows_20_32_64",
+  "seed": 42,
+  "suite_deadline_seconds": 28800,
+  "trials": [
+    {
+      "id": "recent64_42",
+      "seed": 42,
+      "history_items": 64
+    },
+    {
+      "id": "recent64_101",
+      "seed": 101,
+      "history_items": 64
+    },
+    {
+      "id": "recent64_202",
+      "seed": 202,
+      "history_items": 64
+    },
+    {
+      "id": "recent32_42",
+      "seed": 42,
+      "history_items": 32
+    },
+    {
+      "id": "recent20_101",
+      "seed": 101,
+      "history_items": 20
+    },
+    {
+      "id": "recent32_101",
+      "seed": 101,
+      "history_items": 32
+    },
+    {
+      "id": "recent20_202",
+      "seed": 202,
+      "history_items": 20
+    },
+    {
+      "id": "recent32_202",
+      "seed": 202,
+      "history_items": 32
+    },
+    {
+      "id": "recent20_42",
+      "seed": 42,
+      "history_items": 20
+    }
+  ],
+  "seeds": [
+    42,
+    101,
+    202
+  ],
+  "windows": [
+    20,
+    32,
+    64
+  ],
+  "quantizer": {
+    "kind": "grid_rkmeans",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "passes_per_level": 10,
+    "batch_size": 2048,
+    "init_buffer_size": 3072,
+    "normalize_residuals": true,
+    "distance_backend": "torch_cdist"
+  }
+}

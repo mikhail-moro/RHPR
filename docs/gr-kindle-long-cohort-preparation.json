@@ -1,0 +1,57 @@
+{
+  "report": {
+    "users": 958,
+    "items": 16177,
+    "events": 144011,
+    "train_examples": 141137,
+    "history_items": 64,
+    "positive_rating_min": 4,
+    "min_user_events": 66,
+    "min_item_distinct_users": 5,
+    "observed_min_item_users": 5,
+    "source": "Amazon Reviews2023 official5core rating_only Kindle_Store",
+    "candidate_sample": {
+      "users": 4788,
+      "events": 799952,
+      "items": 258507,
+      "seed": 42,
+      "event_budget": 800000
+    },
+    "initial_core_iterations": 20,
+    "post_metadata_core_iterations": 1,
+    "missing_title_items": 0,
+    "missing_title_events": 0,
+    "validation_cold_targets": 11,
+    "test_cold_targets": 39,
+    "validation_no_train_target": 11,
+    "test_no_train_target": 39,
+    "val_test_same_timestamp": 0,
+    "lengths_quantiles": [
+      66.0,
+      84.0,
+      115.0,
+      177.0,
+      262.0,
+      349.44999999999993,
+      571.7199999999998,
+      1087.0
+    ],
+    "split": "leave-last-two timestamp then parent_asin; test includes observed validation item",
+    "filtering": "Unique maximal (user_events>=66,item_distinct_users>=5) induced subgraph of the fixed candidate sample, intersect title-present catalogue, repeat maximal core",
+    "catalogue_and_core_use_static_full_histories": true,
+    "not_population_representative": true,
+    "metadata_rows": 1591371
+  },
+  "input_sha256": {
+    "catalog.json": "a2d937569da8f26c728c935809a0d9c9155208444c75de50d9635a8aa038ffd1",
+    "data-report.json": "3fbf61bc7735be041843eade4219b0c890ba3a39d16aa173a48bdd9a1ebbbae2",
+    "histories.npz": "85abce635632cd4fa4b070498e9d2f3b1008ac738a59302fdd9a70bb03c29658",
+    "source-ids.json": "b517015d9ea508bfcce45ead1ba45f6dc8fde41b03d0a2f16cbeb110d0338f7d",
+    "source-provenance.json": "9be9970f9a9ffdbe463f7d222f51236e33685a5b37a01f2651221e629b62056a",
+    "test-cases.npz": "a3bc98abf61d6b9ec818c9574191383d45bd50aa8a9d388b8c0eebc5183fb41b",
+    "texts.json": "3e7a07e3a3467f4317d400ae0707afeb8ad8cca9d0b9a203930559b52975aac2",
+    "train-cases.npz": "7ef0237afb1121f0424f24c2b323fbff14f2d7523a172af4cd8188beec406760",
+    "user-audit.json": "0b6b267d1ab451f4cdbb513fb10fec4220e6b429fb79e5076e88d9944191b3cc",
+    "validation-cases.npz": "6bf91d084d0fa1c027bd0d613284a10284118f840965e162e8fad1d679eac566"
+  }
+}

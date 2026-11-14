@@ -96,6 +96,11 @@ def run_experiment(
             raise ValueError('ML1M field-learning experiment requires output directory')
         from rhpr.gr.field_learning import run
         return run(config, output_dir)
+    if kind == 'gr_kindle_windows':
+        if output_dir is None:
+            raise ValueError('Kindle windows require an output directory')
+        from rhpr.gr.kindle_windows import run
+        return run(config, output_dir)
     if kind == 'gr_kindle_concurrency':
         if output_dir is None:
             raise ValueError('Kindle concurrency probe requires output directory')
