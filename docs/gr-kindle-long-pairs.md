@@ -54,6 +54,16 @@ four-code prediction including output heads,excluding beam/backward/text
 encoding. Pair encoding/KMeans preparation time and storage are additional,
 cached offline costs,not zero-cost deployment claims.
 
+Preflight full-shaped CPU forwards with synthetic pair-code fixtures give
+Pair32=.516500848GF and Pair64=1.119081520GF;runtime profiles repeat this on
+the actually fitted pair SIDs. Matched initializer and finite backward verified.
+All38 parent pins verified. Eight actual VAL examples per old control replay
+the entire beam20 SID ranking exactly versus saved GPU predictions;weights
+unchanged. Full CPU replay was stopped for cost,not a failed numerical check;
+all44 parent trajectory prediction files had already been replayed numerically
+in the capacity analysis. Full1109tests/152optional skips pass. See
+`gr-kindle-long-pairs-preflight.json`.
+
 Open TEST for exactly four predeclared checkpoints:the new VAL-selected Pair32/
 Pair64 and already VAL-selected wide Recent20/32. Controls receive inference
 only,no extra updates,epochs or reselection. FP32 beam20,batch64,original ranks,

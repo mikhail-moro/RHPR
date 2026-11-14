@@ -20,7 +20,11 @@
   automatic retries or notifications. Private/offline
   carasik/rhpr-kindle-long-pairs;configkindle_long_pairs_2t4.json;
   docs/gr-kindle-long-pairs.md. Full1109tests/152skips pass;209packaged source
-  files byte-verified,899501-byte runner before final commit. Not yet launched.
+  files byte-verified,899501-byte runner before final commit. Native full-shape
+  CPU fwd/bwd finite with synthetic pair IDs;GF.516501/1.119082,initial weights
+  match controls. Eight actual VAL beam20 rankings/control exactly replay GPU;
+  full CPU replay stopped for cost,not numerical failure. See preflight.json.
+  Ready to submit once;not yet launched.
 
 - Kindle capacity pilot COMPLETE,collected2026-11-14, private
   carasik/rhpr-kindle-capacity-pilot/version1, source6d2919a15589,

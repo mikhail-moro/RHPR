@@ -1,0 +1,51 @@
+{
+  "parent_files_verified": 38,
+  "pair_counts": {
+    "train": 114727,
+    "validation": 22403,
+    "test": 22397
+  },
+  "pair_union": 116401,
+  "native": [
+    {
+      "window": 32,
+      "encoder_positions": 97,
+      "forward_gflops": 0.516500848,
+      "initial_state_sha256": "34e7397ed277c78befd6254cbb736794df4907a011ed032bbd0735d9b7272286",
+      "loss": 25.12703514099121,
+      "finite_backward": true,
+      "synthetic_pair_sid_fixture": true
+    },
+    {
+      "window": 64,
+      "encoder_positions": 193,
+      "forward_gflops": 1.11908152,
+      "initial_state_sha256": "34e7397ed277c78befd6254cbb736794df4907a011ed032bbd0735d9b7272286",
+      "loss": 23.858001708984375,
+      "finite_backward": true,
+      "synthetic_pair_sid_fixture": true
+    }
+  ],
+  "full_regression": {
+    "tests": 1109,
+    "skips": 152,
+    "failures": 0
+  },
+  "full_cpu_validation_replay": "stopped deliberately due CPU cost; replaced by eight-case exact beam replay per control",
+  "control_cpu_val_replay": [
+    {
+      "window": 20,
+      "cases": 8,
+      "all_ranked_sids_match_gpu": true,
+      "epoch": 55,
+      "weights_changed": false
+    },
+    {
+      "window": 32,
+      "cases": 8,
+      "all_ranked_sids_match_gpu": true,
+      "epoch": 55,
+      "weights_changed": false
+    }
+  ]
+}
