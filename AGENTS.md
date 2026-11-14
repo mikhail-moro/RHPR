@@ -2,6 +2,25 @@
 
 ## Research status
 
+- Kindle long-window screen SUBMITTED2026-11-14, private
+  carasik/rhpr-kindle-long-windows/version2, source55350fd1a301,
+  workflow43537820586 SUCCESS(submission only), Kaggle RUNNING at last check.
+  Nine fits: Recent20/32/64 x coupled tokenizer+generator seeds42/101/202.
+  Same SID/initializer/targets/shuffle within seed. New static long-reader
+  cohort:958users,16177books,144011events,141137train prefixes,958VAL/TEST.
+  Ratings>=4, fixed random800K-event candidate sample, unique maximal core
+  user>=66events/book>=5distinctusers, titles present; no top-K catalogue.
+  Full retained histories saved; metadata join removes0. Cold VAL11,TEST39.
+  Mini4+4/d64/FF512,FP16/SDPA/compile,train512,VAL64/every5,LR.003->.001
+  warmup2/cosine60,EMAalpha.5/delta.0005/pat15/min40/max60. RAW best VAL
+  selects checkpoint; TEST CLOSED. TwoT4, one fit/GPU. Save curves/predictions,
+  full best/last weights,FLOPs and timings. Do not claim plateau at epoch cap.
+  V1ERRORafter143s: parent event lacked trial key;0 generator fits completed.
+  Fixed event contract plus actual-worker regression; full1099tests/152skips
+  pass. All cases replayed; actual CPU GRID fwd/bwd and207deployed files checked.
+  See docs/gr-kindle-long-windows.md, preparation/submission/failed-v1 JSONs.
+  Collect existing kernel when user reports completion; no duplicate launch.
+
 - ML1M SID/generator stability COMPLETE, collected2026-11-08, no new GPU.
   Private carasik/rhpr-ml1m-sid-stability, source2e3e56f75121,
   workflow42419138870; 18/18 fits, 6.26h on2T4, 0failed, TEST closed.

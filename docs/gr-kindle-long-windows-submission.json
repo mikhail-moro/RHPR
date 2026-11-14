@@ -1,0 +1,47 @@
+{
+  "kernel": "carasik/rhpr-kindle-long-windows",
+  "url": "https://www.kaggle.com/code/carasik/rhpr-kindle-long-windows",
+  "kernel_version": 2,
+  "status": "RUNNING",
+  "quality_complete": false,
+  "git_sha": "55350fd1a3013a2673b1f9795b13c6e9d1efa0c7",
+  "workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/43537820586",
+  "workflow_id": 43537820586,
+  "workflow_job_id": 132270985027,
+  "workflow_conclusion": "success",
+  "submission_only": true,
+  "private": true,
+  "offline": true,
+  "python_files_verified": 207,
+  "configuration_verified": true,
+  "data_sources_verified": true,
+  "prelaunch_gpu_quota_remaining_hours": 44.96,
+  "experiment": "experiments/kindle_long_windows_2t4.json",
+  "models": 9,
+  "windows": [
+    20,
+    32,
+    64
+  ],
+  "pipeline_seeds": [
+    42,
+    101,
+    202
+  ],
+  "test_evaluation": false,
+  "local_checks": {
+    "full_regression_tests": 1099,
+    "optional_skips": 152,
+    "failures": 0,
+    "all_prepared_cases_replayed": true,
+    "core_constraints_verified": true,
+    "actual_cpu_grid_forward_backward_all_windows": true
+  },
+  "failed_attempt": {
+    "kernel_version": 1,
+    "git_sha": "df745fa7039cf54d0d206aee60bad2b7de8a16b5",
+    "status": "ERROR",
+    "completed_generator_fits": 0,
+    "reference": "docs/gr-kindle-long-windows-failed-v1.json"
+  }
+}
