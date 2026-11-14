@@ -1,0 +1,37 @@
+{
+  "kernel": "carasik/rhpr-kindle-long-pairs",
+  "url": "https://www.kaggle.com/code/carasik/rhpr-kindle-long-pairs",
+  "kernel_version": 1,
+  "status": "QUEUED",
+  "quality_complete": false,
+  "git_sha": "33754d70acc0e4cf826f139202632bf0ffe6ac5b",
+  "workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/43608405996",
+  "workflow_id": 43608405996,
+  "workflow_job_id": 132487902999,
+  "workflow_conclusion": "success",
+  "submission_only": true,
+  "private": true,
+  "offline": true,
+  "python_files_verified": 209,
+  "configuration_verified": true,
+  "parent_files_pinned": 38,
+  "prelaunch_gpu_quota_remaining_hours": 40.12,
+  "new_generator_fits": 2,
+  "seed": 42,
+  "windows": [
+    32,
+    64
+  ],
+  "read_only_control_tests": [
+    20,
+    32
+  ],
+  "test_after_val_selection": true,
+  "test_results_pending": true,
+  "control64_trained": false,
+  "full_regression": {
+    "tests": 1109,
+    "optional_skips": 152,
+    "failures": 0
+  }
+}

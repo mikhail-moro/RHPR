@@ -24,7 +24,11 @@
   CPU fwd/bwd finite with synthetic pair IDs;GF.516501/1.119082,initial weights
   match controls. Eight actual VAL beam20 rankings/control exactly replay GPU;
   full CPU replay stopped for cost,not numerical failure. See preflight.json.
-  Ready to submit once;not yet launched.
+  SUBMITTED ONCE private version1 QUEUED,executable33754d70acc0,
+  workflow43608405996 SUCCESS(submission only),job132487902999. All209deployed
+  source files/exact config/private/offline/parent source verified. Receipt
+  docs/gr-kindle-long-pairs-submission.json. Results/TEST still pending;
+  observe this version instead of starting duplicates. No followup GPU.
 
 - Kindle capacity pilot COMPLETE,collected2026-11-14, private
   carasik/rhpr-kindle-capacity-pilot/version1, source6d2919a15589,
