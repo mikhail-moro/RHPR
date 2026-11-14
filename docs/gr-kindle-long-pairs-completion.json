@@ -1,0 +1,29 @@
+{
+  "kernel": "carasik/rhpr-kindle-long-pairs",
+  "version": 1,
+  "status": "COMPLETE",
+  "quality_complete": true,
+  "git_sha": "33754d70acc0e4cf826f139202632bf0ffe6ac5b",
+  "workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/43608405996",
+  "new_models": 2,
+  "reused_control_tests": 2,
+  "seed": 42,
+  "duration_seconds": 6149.679688,
+  "all_new_fits_epochs": 60,
+  "all_four_best_epoch": 55,
+  "new_fit_amp_skips": 4,
+  "failed_models": 0,
+  "prediction_files_replayed": 52,
+  "parent_files_verified": 38,
+  "new_best_checkpoints_confirmed": 2,
+  "new_last_checkpoints_confirmed": 2,
+  "test_evaluated": true,
+  "no_followup_compute": true,
+  "report": "docs/gr-kindle-long-pairs-results.md",
+  "replay": "scripts/research/analyze_kindle_pairs.py",
+  "full_regression": {
+    "tests": 1109,
+    "optional_skips": 152,
+    "failures": 0
+  }
+}

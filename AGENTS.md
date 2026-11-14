@@ -2,7 +2,8 @@
 
 ## Research status
 
-- User authorization2026-11-14: long-window pair pilot on ONE seed42, exactly
+- Kindle long-pair pilot COMPLETE,collected2026-11-14. User authorization:
+  long-window pair pilot on ONE seed42, exactly
   two new wide fits Pair32/Pair64, one perT4. Reuse byte-pinned wide Recent20/32
   from completed capacity source6d2919a15589; do not retrain controls or item
   tokenizer. Control64 explicitly deferred until results. New shared pair
@@ -24,11 +25,31 @@
   CPU fwd/bwd finite with synthetic pair IDs;GF.516501/1.119082,initial weights
   match controls. Eight actual VAL beam20 rankings/control exactly replay GPU;
   full CPU replay stopped for cost,not numerical failure. See preflight.json.
-  SUBMITTED ONCE private version1 QUEUED,executable33754d70acc0,
+  SUBMITTED ONCE private version1 now COMPLETE,executable33754d70acc0,
   workflow43608405996 SUCCESS(submission only),job132487902999. All209deployed
   source files/exact config/private/offline/parent source verified. Receipt
-  docs/gr-kindle-long-pairs-submission.json. Results/TEST still pending;
-  observe this version instead of starting duplicates. No followup GPU.
+  docs/gr-kindle-long-pairs-submission.json is historical QUEUED receipt.
+  COMPLETE2/2new fits+2read-only control TESTs,102.495min,zero failures,
+  four new-fit AMP skips. Allfourselected55/capped60,no plateau proof.
+  VAL/TEST NDCG:Recent20 .020492/.014722,Recent32 .016899/.014447,
+  Pair32 .015966/.010651,Pair64 .018043/.014054. Pair32vsRecent32 saves26.71%
+  FLOPs butTEST−26.27%;Pair64vsRecent32 TEST−2.72%,FLOPs+58.79%. No observed
+  Pareto gain. Pair64TEST Recall10 .03340(32hits)vscontrols.02505/.02923,
+  butNDCGdoesnotimprove. All selectedVAL/TEST conditional paired-user CIs
+  cross0;29/30descriptive comparisons cross0,onlyfixed40Pair64−Recent32
+  negative withoutmultiplicity correction. One examined seed,no robust
+  benefit/harm or equivalence proven. Pair64vsPair32 also changes recent
+  uncompressed tail16→32;not proof compressed old history helps.
+  Independently52prediction files replayed48VAL+4TEST,996320paths,1866invalid,
+  zero duplicates.38parent pins,cases,SID/initializer,LR/EMA/update accounting
+  and TRAIN-only fit/split suffixes checked. Pair116401unique3+1IDs,maxsuffix31,
+  all256codes used/level,no obvious collapse. New2best+2lastweights private
+  Kaggle. Reportsgr-kindle-long-pairs-results.md/.json,completion.json;
+  replay scripts/research/analyze_kindle_pairs.py;private artifacts
+  /workspace/artifacts/kindle-pilot/long-pairs-results inclPNG/PDF/CSV/rawdata.
+  Full1109tests/152skips pass. No pending results,no followup GPU/Control64/
+  extraepochs/seeds/TEST variants/notifications launched. TEST now examined;
+  future optimization on this cohort is exploratory.
 
 - Kindle capacity pilot COMPLETE,collected2026-11-14, private
   carasik/rhpr-kindle-capacity-pilot/version1, source6d2919a15589,
