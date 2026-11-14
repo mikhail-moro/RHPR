@@ -2,9 +2,9 @@
 
 ## Research status
 
-- Kindle capacity pilot SUBMITTED2026-11-14, private
+- Kindle capacity pilot COMPLETE,collected2026-11-14, private
   carasik/rhpr-kindle-capacity-pilot/version1, source6d2919a15589,
-  workflow43585038652 SUCCESS(submission only), Kaggle QUEUED at last check.
+  workflow43585038652 SUCCESS(submission only), Kaggle COMPLETE/version1.
   TWO new fits only:wide Recent20/32,seed42,one perT4. Reuse exact frozen
   parent long-window seed42 SID and two completed narrow baselines;32 parent
   artifacts pinned,including20VAL prediction files. No ST5/KMeans refit.
@@ -19,7 +19,20 @@
   Actual CPU forward/backward and matching wide initializer verified;
   full1102tests/152skips pass,208deployed Python files/config/private/offline
   checked. See docs/gr-kindle-capacity-pilot.md and submission.json.
-  Collect this existing kernel when user reports completion;no duplicate run.
+  Both wide fits60epochs/selected55,59m38s session,3AMP skips,0failed.
+  Selected VAL20 .007464->.020492(+174.54%),32 .006786->.016899(+149.05%).
+  Fixed40 wide gains+150.94%/+143.09%,conditional user CIs exclude0;
+  one fixed examined seed/index,not seed-robust significance. Wide context
+  gap32vs20 -17.53%selected,+14.25%fixed40,-29.11%fixed45;all context and
+  capacity x context interaction CIs cross0. No confirmed longer-history gain.
+  Warm epoch21.42->31.25s/37.05->55.84s;params3.55x,forward3.63x/3.47x.
+  Lowest wide VAL CE at55,small rise60;do not claim converged optimum.
+  All44prediction files24new+20baseline replayed;32parent hashes,all metrics/
+  cases/SID/init/LR/EMA/update accounting verified.2best+2last weights private
+  Kaggle. Reports docs/gr-kindle-capacity-results.md/.json,completion.json;
+  replay scripts/research/analyze_kindle_capacity.py;artifacts
+  /workspace/artifacts/kindle-pilot/capacity-results inclPNG/PDF/fullcurves.
+  TEST CLOSED. No new runs/extraepochs/seeds/TEST/notifications authorized.
 
 - Kindle long-window screen COMPLETE,collected2026-11-14, private
   carasik/rhpr-kindle-long-windows/version2, source55350fd1a301,

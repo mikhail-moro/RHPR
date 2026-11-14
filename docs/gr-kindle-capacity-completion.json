@@ -1,0 +1,49 @@
+{
+  "kernel": "carasik/rhpr-kindle-capacity-pilot",
+  "version": 1,
+  "status": "COMPLETE",
+  "quality_complete": true,
+  "source_sha": "6d2919a155893e4c6bbb859a1fbcc0c800573c6c",
+  "new_models": 2,
+  "reused_baselines": 2,
+  "failed_models": 0,
+  "seed": 42,
+  "session_seconds": 3578.199409,
+  "validation_prediction_files_replayed": 44,
+  "parent_files_verified": 32,
+  "new_model_epochs": 120,
+  "new_model_amp_skips": 3,
+  "wide_best_epochs": [
+    55,
+    55
+  ],
+  "wide_stop_epochs": [
+    60,
+    60
+  ],
+  "test_evaluated": false,
+  "tokenizer_refitted": false,
+  "weights_inventory": {
+    "best": 2,
+    "last": 2,
+    "weights_remain_private_kaggle": true
+  },
+  "verification": {
+    "all_metrics_cases_pins_lr_ema_updates": true
+  },
+  "files": {
+    "metrics.json": "00c7cc5445bbe78745a214ce2217ba42af7ff3ad07327d93c7093c839d689a36",
+    "summary.md": "438b5ff6396958667a1d9c284855c620db03002638a0683c250f79e3bfa5f120",
+    "run-manifest.json": "36f3a31460d74fbce2d166822795d65577ec86ef58abaacc12a655b586becf0a",
+    "experiment.json": "84b1e531d6239bb0f4fca73a4d881322a24370c0f03c445c69a072b2ae824b40",
+    "study-summary.json": "6c5d1cd88bc3ff22b5cb8a943d259053dd8d1f8da073ae3bc5a26aee8ff2b46f",
+    "suite-results.json": "95388b3eba36309ef4a9e62ebb4c8e3a14173055d4b8b1becda774523db1e262"
+  },
+  "analysis": "docs/gr-kindle-capacity-results.json",
+  "replay": "scripts/research/analyze_kindle_capacity.py",
+  "full_regression": {
+    "tests": 1102,
+    "optional_skips": 152,
+    "failures": 0
+  }
+}
