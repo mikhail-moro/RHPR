@@ -1,0 +1,27 @@
+{
+  "kernel": "carasik/rhpr-kindle-prefix-mask",
+  "kernel_version": 1,
+  "url": "https://www.kaggle.com/code/carasik/rhpr-kindle-prefix-mask",
+  "git_sha": "fdb04d44caa03b16f8a08482fffff4b8d4cac864",
+  "status": "QUEUED",
+  "quality_complete": false,
+  "workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/43641717116",
+  "workflow_id": 43641717116,
+  "workflow_job_id": 132590529637,
+  "workflow_conclusion": "success",
+  "submission_only": true,
+  "private": true,
+  "offline": true,
+  "python_files_verified": 210,
+  "configuration_verified": true,
+  "parent_files_pinned": 16,
+  "prelaunch_gpu_quota_remaining_hours": 38.4,
+  "models": 2,
+  "evaluations": 8,
+  "training_performed": false,
+  "full_regression": {
+    "tests": 1112,
+    "optional_skips": 152,
+    "failures": 0
+  }
+}

@@ -17,7 +17,13 @@
   not independently validated quality or proof of a training fix. Already
   examined TEST/OOD masking;no extra variants/retraining/Control64/notifications.
   Configkindle_prefix_mask_2t4.json,docsgr-kindle-prefix-mask.md. Private/offline
-  carasik/rhpr-kindle-prefix-mask. Ready to submit ONCE;not yet launched.
+  carasik/rhpr-kindle-prefix-mask. SUBMITTED ONCE privateversion1QUEUED,
+  executablefdb04d44caa0,workflow43641717116SUCCESS(submission only),
+  job132590529637. All210deployedfiles/exactconfig/private/offline/2parents
+  verified;Kaggle canonicalizes kernel source order,compare assets. Receipt
+  docs/gr-kindle-prefix-mask-submission.json. Results pending;observe this
+  kernel,do not duplicate. CPUreplaytool prepared:
+  scripts/research/analyze_kindle_prefix_mask.py. No followup compute.
 
 - Pair32 error diagnosis2026-11-14 COMPLETE,saved arrays/embeddings only;
   no training,new model inference or GPU. VALPair beatsRecent32at10/12checks,
