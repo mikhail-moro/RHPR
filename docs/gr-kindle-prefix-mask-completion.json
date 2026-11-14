@@ -1,0 +1,25 @@
+{
+  "kernel": "carasik/rhpr-kindle-prefix-mask",
+  "version": 1,
+  "status": "COMPLETE",
+  "quality_complete": true,
+  "git_sha": "fdb04d44caa03b16f8a08482fffff4b8d4cac864",
+  "workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/43641717116",
+  "models": 2,
+  "evaluations": 8,
+  "training_performed": false,
+  "duration_seconds": 71.260019,
+  "prediction_files_replayed": 8,
+  "parent_files_verified": 16,
+  "full_baseline_rank_and_score_replays": 4,
+  "weights_unchanged": true,
+  "failed_evaluations": 0,
+  "no_followup_compute": true,
+  "report": "docs/gr-kindle-prefix-mask-results.md",
+  "replay": "scripts/research/analyze_kindle_prefix_mask.py",
+  "full_regression": {
+    "tests": 1112,
+    "optional_skips": 152,
+    "failures": 0
+  }
+}

@@ -2,7 +2,8 @@
 
 ## Research status
 
-- User authorization2026-11-15: run frozen Pair32/Recent32 prefix-mask probe.
+- Frozen prefix-mask probe COMPLETE,collected2026-11-15. User authorization:
+  run frozen Pair32/Recent32 prefix-mask probe.
   EXACTLY8inferences,2models×VAL/TEST×full/masked_old,epoch55/seed42,958targets,
   FP32SDPA/beam20/batch64,no seen mask. No training/optimizer/ST5/RQ/newseeds.
   MaskPairold32SIDpositions,Recentold64;retain USER and recent64SIDpositions,
@@ -17,13 +18,30 @@
   not independently validated quality or proof of a training fix. Already
   examined TEST/OOD masking;no extra variants/retraining/Control64/notifications.
   Configkindle_prefix_mask_2t4.json,docsgr-kindle-prefix-mask.md. Private/offline
-  carasik/rhpr-kindle-prefix-mask. SUBMITTED ONCE privateversion1QUEUED,
+  carasik/rhpr-kindle-prefix-mask. SUBMITTED ONCE privateversion1nowCOMPLETE,
   executablefdb04d44caa0,workflow43641717116SUCCESS(submission only),
   job132590529637. All210deployedfiles/exactconfig/private/offline/2parents
   verified;Kaggle canonicalizes kernel source order,compare assets. Receipt
-  docs/gr-kindle-prefix-mask-submission.json. Results pending;observe this
-  kernel,do not duplicate. CPUreplaytool prepared:
-  scripts/research/analyze_kindle_prefix_mask.py. No followup compute.
+  docs/gr-kindle-prefix-mask-submission.json is historical QUEUED receipt.
+  COMPLETE8/8inferences in71.260s,no failures/training/weight updates.
+  Pair32VAL .015966→.007811(−51.1%),TEST .010651→.002602(−75.6%);
+  Recent32VAL .016899→.016775(−.7%),TEST .014447→.012434(−13.9%).
+  All4full baseline rankedSIDs AND scores exactly match originals;8saved
+  files independently replayed,16parent pins,data/cases/checkpoints verified.
+ 135invalid/153280paths,0duplicates;PairTESTinvalid18→17,not invalid-ID failure.
+  PairTESThits21→7:loses16original hits,adds2;only1/16lost controlhits restored.
+  EarlierBook56case recoversrank6,otherworstcase remainsoutsidebeam20.
+  Less-popularcontextTESTPair .004209→.001914,morepopular.017742→.003360;
+  bothVALgroupsalso decline. ConditionalPairmask and interaction global CIs
+  exclude0,but one examined seed/TEST,uncorrected multiple comparisons.
+  Deletion doesnotrescue Pair;conditional reliance on prefix presence under
+  theseweights,NOT proof personalized long-history content is useful:OOD
+  mask/attention normalization differ. Shuffled-other-user prefix control
+  only proposed,NOT run. Full1112tests/152skips pass. Reports
+  gr-kindle-prefix-mask-results.md/.json,completion.json;CPUreplay
+  scripts/research/analyze_kindle_prefix_mask.py. Private artifacts
+  /workspace/artifacts/kindle-pilot/prefix-mask-results incl8predictions,
+  user-ranks.npz,analysis,logs. No pending results or followup compute.
 
 - Pair32 error diagnosis2026-11-14 COMPLETE,saved arrays/embeddings only;
   no training,new model inference or GPU. VALPair beatsRecent32at10/12checks,
@@ -44,7 +62,7 @@
   .md/.json;replay scripts/research/diagnose_kindle_pair32.py. Private raw
   user-features/groups/extreme-examples/plots in
   /workspace/artifacts/kindle-pilot/pair32-diagnosis.1109tests/152skips pass.
-  Summary-mask mechanism probe only proposed,NOT run. No followup GPU.
+  Summary-mask mechanism probe subsequently completed;see entry above.
 
 - Kindle long-pair pilot COMPLETE,collected2026-11-14. User authorization:
   long-window pair pilot on ONE seed42, exactly
