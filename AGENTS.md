@@ -2,6 +2,30 @@
 
 ## Research status
 
+- Mixed-view study COMPLETE,collected2026-11-15,no newGPU. Private
+  carasik/rhpr-kindle-mixed-resume/2,source88722e9081aa,workflow43651883595,
+  originalfirst30epochscurves/6predictionsbytepreserved;actualweights/Adam/LR/
+  scaler/RNG/EMArestoration verified.60totalepochs/best55/capped60,16558updates+
+  2AMPskips=60x276. One pipeline42seed,958VAL/TESTtargets. MixedVAL.01893747
+  vsPair.01596563(+18.61%),TEST.00987375vs.01065088(−7.30%),20vs21hits;
+  TESTconditionalshare-userdeltaCI[−.005460,+.004115]cross0;all6globalVAL/TEST
+  comparisonCIs cross0. No establishedgain/harm. Recent32TEST.01444656,
+  Recent20.01472239;allfourbest55/capped60. EqualPairinferenceGF.516500848,
+  warmtrain49.48svs37.59s(+31.62%);totaloptimizer3247svs2357s includessecond
+  coldcompile,not simultaneous benchmark. Recovery session28.00min.
+  Full50.604%of8,468,220TRAINexamples,oneoriginaltargetperepoch,all60schedules
+  audited. Priorless-popularrecent502TESTusers Mixed.004994vsPair.004209,
+  more-popular456 .015246vs.017742;rare-target425users(1–5TRAINpositions)
+  4vs1hits,small leadnotmechanismproof. Recovers4/16originallostRecent32TEST
+  hits,butloses13Pairhits/adds12overall.52predictionfiles/996320pathsreplayed,
+  1921invalid/0duplicates;44parent+15resume+10inputpins/archiveverified.
+  Bothfinalbest/lastdownloadedandchecked;1119tests/152skips pass. Reports
+  gr-kindle-mixed-views-results.md/.json,completion.json;CPUreplay
+  scripts/research/analyze_kindle_mixed_views.py. Private artifacts
+  /workspace/artifacts/kindle-pilot/mixed-resume-results inclweights/CSV/ranks/
+  PNG/PDF. No runs pending;no extraepochs/seeds/within-history mixtures or
+  notifications launched. TESTpreviouslyexamined,followupsexploratory.
+
 - Mixed-view timeout recovery2026-11-15: user reported CANCELED/Timeout;
   continuing the same originally authorized60epoch fit,not a fresh retry/HPO.
   Originalcarasik/rhpr-kindle-mixed-views/1CANCEL_ACKNOWLEDGED at1800s because

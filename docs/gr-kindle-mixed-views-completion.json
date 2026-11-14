@@ -1,0 +1,46 @@
+{
+  "kernel": "carasik/rhpr-kindle-mixed-resume",
+  "kernel_version": 2,
+  "status": "COMPLETE",
+  "quality_complete": true,
+  "collected_at": "2026-11-14T23:49:32.618528+00:00",
+  "git_sha": "88722e9081aae120e9af261f550d50fe74864da6",
+  "workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/43651883595",
+  "resumed_from_epoch": 30,
+  "completed_epochs": 60,
+  "selected_epoch": 55,
+  "successful_updates": 16558,
+  "amp_skipped_updates": 2,
+  "original_30_epochs_preserved_exactly": true,
+  "new_gpu_runs_in_collection": 0,
+  "one_generator_seed": 42,
+  "validation_users": 958,
+  "test_users": 958,
+  "prediction_files_replayed": 52,
+  "prediction_count": 996320,
+  "all_metrics_pins_cases_lr_ema_updates_resume_verified": true,
+  "conditional_global_intervals_all_include_zero": true,
+  "comparison_is_exploratory": true,
+  "best_last_checkpoints": {
+    "generator-best.pt": {
+      "sha256": "ad088139b85501ddc26c5c51df00033a577f31e2cdc54368f43a4139934c7170",
+      "size_bytes": 20508301
+    },
+    "generator-last.pt": {
+      "sha256": "ddf4889c080d9f1fac2d7f049d114aa215006bfb3f38096a13e246f9c22c254e",
+      "size_bytes": 61477491
+    }
+  },
+  "reports": [
+    "docs/gr-kindle-mixed-views-results.md",
+    "docs/gr-kindle-mixed-views-results.json"
+  ],
+  "private_artifacts": "/workspace/artifacts/kindle-pilot/mixed-resume-results",
+  "full_regression": {
+    "tests": 1119,
+    "optional_skips": 152,
+    "failures": 0
+  },
+  "within_history_mixture_launched": false,
+  "pending_runs": false
+}
