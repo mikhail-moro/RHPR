@@ -22,6 +22,11 @@
   carasik/rhpr-kindle-mixed-views. No additional
   seeds/HPO/random-within-history mixtures/retries/notifications. Existing
   TEST already examined;exploratory training fix,not a confirmed mechanism.
+  SUBMITTED ONCE privateversion1,RUNNING,source192c6ce879e0,workflow
+  43646764382SUCCESS(submission only),job132606192920,artifact14134641938.
+  All211deployed Pythonfiles/exactconfig/private/offline/parent source
+  byteverified. Receiptdocs/gr-kindle-mixed-views-submission.json;results
+  pending. Do not launch duplicates or within-history mixtures automatically.
 
 - Frozen prefix-mask probe COMPLETE,collected2026-11-15. User authorization:
   run frozen Pair32/Recent32 prefix-mask probe.

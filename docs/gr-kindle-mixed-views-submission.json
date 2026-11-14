@@ -1,0 +1,40 @@
+{
+  "kernel": "carasik/rhpr-kindle-mixed-views",
+  "url": "https://www.kaggle.com/code/carasik/rhpr-kindle-mixed-views",
+  "kernel_version": 1,
+  "status": "RUNNING",
+  "quality_complete": false,
+  "checked_at": "2026-11-14T22:12:37.011944+00:00",
+  "git_sha": "192c6ce879e0135644455e4376fec2d9f7b10ae4",
+  "workflow": "https://github.com/mikhail-moro/RHPR/actions/runs/43646764382",
+  "workflow_id": 43646764382,
+  "workflow_job_id": 132606192920,
+  "workflow_conclusion": "success",
+  "submission_artifact_id": 14134641938,
+  "submission_only": true,
+  "private": true,
+  "offline": true,
+  "python_files_verified": 211,
+  "configuration_verified": true,
+  "parent_files_pinned": 44,
+  "prelaunch_gpu_quota_remaining_hours": 38.37,
+  "new_generator_fits": 1,
+  "seed": 42,
+  "training_formats": [
+    "full32",
+    "pair32"
+  ],
+  "full_probability": 0.5,
+  "mixture_unit": "optimizer_batch",
+  "evaluation_format": "pair32",
+  "test_after_val_selection": true,
+  "test_results_pending": true,
+  "tokenizer_refitted": false,
+  "control_retraining": false,
+  "within_history_mixture_launched": false,
+  "full_regression": {
+    "tests": 1116,
+    "optional_skips": 152,
+    "failures": 0
+  }
+}
