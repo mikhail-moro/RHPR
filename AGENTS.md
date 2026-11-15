@@ -2,6 +2,24 @@
 
 ## Research status
 
+- Random32 follow-up2026-11-15:CPU saved-data diagnosis only,noGPU/inference.
+  Reportsgr-kindle-random-tokenization-diagnosis.md/.json;reproducer
+  scripts/research/diagnose_kindle_random_tokenization.py;privateartifacts/
+  kindle-pilot/random-tokenization-diagnosis inclallgroups/users/extremes/plots.
+  All10selectedpredictions/ranks/datahashesreplayed;0heldouttargetsinsameuser
+  TRAINtargets/input. RandomTEST26vsRecent3228hits,but6vs3rank1;selectedVAL
+  30vs30hits/7vs6rank1. EachRecent32NDCGmargin<one+1credit;all8conditional
+  userANDtarget-clusterCIs cross0. PairTESTgain96.9%netrank-accountingcomes
+  fromrank1count2->6;notproofuniformgain. Raretargets1–5recovervsPairboth
+  VAL7vs5/TEST5vs1hits. HighrecentpopRandom>Recent32bothsplits,low<both,
+  buthighgroupstilllosesRecent20both. History/paircos/oldertargetsimilarity/
+  novelpairleadsreversesplits. SAME114727potentialTRAINpairsetforfixed/random;
+  exposure/combinationschange,nottheavailablepairidentityset. SIDindexesfixed,
+  randomgroupingonly;currentfixed42runnercannotyetvaryaugmentationseedalone.
+  Futureseparateindex/training/augmentationseeds. ProposedRandom20(older10
+  ->5pairs+recent10singles,61positions)andlater24/28NOTlaunched/authorized.
+  Full1132testsPASS/152optionalskips/0failures81.577s;analyzerendtoendPASS.
+
 - Random-tokenization pilot COMPLETE,collected2026-11-15,no newGPU.
   Privatecarasik/rhpr-kindle-random-tokenization/1,sourcea7f824858572,
   workflow43660261876. Onefitseed42,constantp.5,60epochs/capped60/best55,
