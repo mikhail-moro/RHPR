@@ -1,0 +1,308 @@
+{
+  "uses_future_counts": false,
+  "threshold_selected_without_quality_metrics": 5,
+  "frequency_definition": "unique users in original TRAIN events, including first item, before prefix expansion",
+  "train_support_sha256": "de1a390b6e5efd47fc6e07ddfa7e2237ba179f631c4f4cb49a381604a948b428",
+  "data_sha256": {
+    "histories.npz": "85abce635632cd4fa4b070498e9d2f3b1008ac738a59302fdd9a70bb03c29658",
+    "train-cases.npz": "7ef0237afb1121f0424f24c2b323fbff14f2d7523a172af4cd8188beec406760",
+    "validation-cases.npz": "6bf91d084d0fa1c027bd0d613284a10284118f840965e162e8fad1d679eac566",
+    "test-cases.npz": "a3bc98abf61d6b9ec818c9574191383d45bd50aa8a9d388b8c0eebc5183fb41b"
+  },
+  "catalog_items": 16177,
+  "rare_items": 4327,
+  "rare_catalog_fraction": 0.2674785188848365,
+  "native_flop_quadratic_in_pair_count": [
+    98367.99999997712,
+    -21959751.999999825,
+    427087951.99999994
+  ],
+  "flop_scope": "saved B1 CPU math-SDPA supported forward, teacher-forced4codes, FMA2; no beam/backward/ST5",
+  "strict_rows": [
+    {
+      "split": "train",
+      "eligible_fraction": 0.5,
+      "cases": 141137,
+      "strict_mean_pairs": 3.5502313355108868,
+      "strict_zero_pair_fraction": 0.03126040655533276,
+      "strict_five_pair_feasible_fraction": 0.2613276461877467,
+      "mean_encoder_positions_including_user": 66.79907465795645,
+      "mean_unpadded_forward_gflops": 0.3505308785419559,
+      "native_order_batch64_padded_forward_gflops": 0.402041707698194
+    },
+    {
+      "split": "train",
+      "eligible_fraction": 0.6,
+      "cases": 141137,
+      "strict_mean_pairs": 4.274747231413449,
+      "strict_zero_pair_fraction": 0.0274910193641639,
+      "strict_five_pair_feasible_fraction": 0.5269419075083075,
+      "mean_encoder_positions_including_user": 63.9010110743462,
+      "mean_unpadded_forward_gflops": 0.3352339821284003,
+      "native_order_batch64_padded_forward_gflops": 0.3941301921935141
+    },
+    {
+      "split": "train",
+      "eligible_fraction": 0.7,
+      "cases": 141137,
+      "strict_mean_pairs": 5.0080418316954445,
+      "strict_zero_pair_fraction": 0.020667861723006723,
+      "strict_five_pair_feasible_fraction": 0.6930854418047713,
+      "mean_encoder_positions_including_user": 60.96783267321822,
+      "mean_unpadded_forward_gflops": 0.319858581751915,
+      "native_order_batch64_padded_forward_gflops": 0.38605135805851054
+    },
+    {
+      "split": "train",
+      "eligible_fraction": 0.8,
+      "cases": 141137,
+      "strict_mean_pairs": 5.746452028879741,
+      "strict_zero_pair_fraction": 0.018513926185195945,
+      "strict_five_pair_feasible_fraction": 0.7898070668924521,
+      "mean_encoder_positions_including_user": 58.014191884481036,
+      "mean_unpadded_forward_gflops": 0.30448971066767766,
+      "native_order_batch64_padded_forward_gflops": 0.377754101322318
+    },
+    {
+      "split": "train",
+      "eligible_fraction": 0.9,
+      "cases": 141137,
+      "strict_mean_pairs": 6.476395275512445,
+      "strict_zero_pair_fraction": 0.017869162586706535,
+      "strict_five_pair_feasible_fraction": 0.8447749349922415,
+      "mean_encoder_positions_including_user": 55.09441889795022,
+      "mean_unpadded_forward_gflops": 0.28941463521242483,
+      "native_order_batch64_padded_forward_gflops": 0.36951485603678697
+    },
+    {
+      "split": "train",
+      "eligible_fraction": 1.0,
+      "cases": 141137,
+      "strict_mean_pairs": 7.233439849224513,
+      "strict_zero_pair_fraction": 0.011031834317011132,
+      "strict_five_pair_feasible_fraction": 0.8828372432459242,
+      "mean_encoder_positions_including_user": 52.06624060310195,
+      "mean_unpadded_forward_gflops": 0.27387366781450634,
+      "native_order_batch64_padded_forward_gflops": 0.36099026687034586
+    },
+    {
+      "split": "validation",
+      "eligible_fraction": 0.5,
+      "cases": 958,
+      "strict_mean_pairs": 3.605427974947808,
+      "strict_zero_pair_fraction": 0.006263048016701462,
+      "strict_five_pair_feasible_fraction": 0.2640918580375783,
+      "mean_encoder_positions_including_user": 66.57828810020877,
+      "mean_unpadded_forward_gflops": 0.3493320774112736,
+      "native_order_batch64_padded_forward_gflops": 0.41398937745302716
+    },
+    {
+      "split": "validation",
+      "eligible_fraction": 0.6,
+      "cases": 958,
+      "strict_mean_pairs": 4.338204592901879,
+      "strict_zero_pair_fraction": 0.005219206680584551,
+      "strict_five_pair_feasible_fraction": 0.5125260960334029,
+      "mean_encoder_positions_including_user": 63.64718162839248,
+      "mean_unpadded_forward_gflops": 0.33385348769937384,
+      "native_order_batch64_padded_forward_gflops": 0.412528909210856
+    },
+    {
+      "split": "validation",
+      "eligible_fraction": 0.7,
+      "cases": 958,
+      "strict_mean_pairs": 5.069937369519833,
+      "strict_zero_pair_fraction": 0.0020876826722338203,
+      "strict_five_pair_feasible_fraction": 0.6826722338204593,
+      "mean_encoder_positions_including_user": 60.72025052192067,
+      "mean_unpadded_forward_gflops": 0.31850984500208784,
+      "native_order_batch64_padded_forward_gflops": 0.4009561077578289
+    },
+    {
+      "split": "validation",
+      "eligible_fraction": 0.8,
+      "cases": 958,
+      "strict_mean_pairs": 5.755741127348643,
+      "strict_zero_pair_fraction": 0.0010438413361169101,
+      "strict_five_pair_feasible_fraction": 0.7766179540709812,
+      "mean_encoder_positions_including_user": 57.97703549060543,
+      "mean_unpadded_forward_gflops": 0.30423516835073083,
+      "native_order_batch64_padded_forward_gflops": 0.3922590138789145
+    },
+    {
+      "split": "validation",
+      "eligible_fraction": 0.9,
+      "cases": 958,
+      "strict_mean_pairs": 6.4258872651356995,
+      "strict_zero_pair_fraction": 0.0010438413361169101,
+      "strict_five_pair_feasible_fraction": 0.8350730688935282,
+      "mean_encoder_positions_including_user": 55.2964509394572,
+      "mean_unpadded_forward_gflops": 0.29037938865970775,
+      "native_order_batch64_padded_forward_gflops": 0.38655396090187893
+    },
+    {
+      "split": "validation",
+      "eligible_fraction": 1.0,
+      "cases": 958,
+      "strict_mean_pairs": 7.067849686847599,
+      "strict_zero_pair_fraction": 0.0,
+      "strict_five_pair_feasible_fraction": 0.8747390396659708,
+      "mean_encoder_positions_including_user": 52.7286012526096,
+      "mean_unpadded_forward_gflops": 0.27719827194154484,
+      "native_order_batch64_padded_forward_gflops": 0.3822826792150314
+    },
+    {
+      "split": "test",
+      "eligible_fraction": 0.5,
+      "cases": 958,
+      "strict_mean_pairs": 3.6085594989561587,
+      "strict_zero_pair_fraction": 0.006263048016701462,
+      "strict_five_pair_feasible_fraction": 0.27139874739039666,
+      "mean_encoder_positions_including_user": 66.56576200417537,
+      "mean_unpadded_forward_gflops": 0.34926793054697297,
+      "native_order_batch64_padded_forward_gflops": 0.41398937745302716
+    },
+    {
+      "split": "test",
+      "eligible_fraction": 0.6,
+      "cases": 958,
+      "strict_mean_pairs": 4.32776617954071,
+      "strict_zero_pair_fraction": 0.005219206680584551,
+      "strict_five_pair_feasible_fraction": 0.5135699373695198,
+      "mean_encoder_positions_including_user": 63.68893528183716,
+      "mean_unpadded_forward_gflops": 0.33407757863883103,
+      "native_order_batch64_padded_forward_gflops": 0.40823216273903973
+    },
+    {
+      "split": "test",
+      "eligible_fraction": 0.7,
+      "cases": 958,
+      "strict_mean_pairs": 5.014613778705637,
+      "strict_zero_pair_fraction": 0.003131524008350731,
+      "strict_five_pair_feasible_fraction": 0.6597077244258872,
+      "mean_encoder_positions_including_user": 60.94154488517745,
+      "mean_unpadded_forward_gflops": 0.319677401586639,
+      "native_order_batch64_padded_forward_gflops": 0.4038639011273487
+    },
+    {
+      "split": "test",
+      "eligible_fraction": 0.8,
+      "cases": 958,
+      "strict_mean_pairs": 5.707724425887265,
+      "strict_zero_pair_fraction": 0.0020876826722338203,
+      "strict_five_pair_feasible_fraction": 0.767223382045929,
+      "mean_encoder_positions_including_user": 58.16910229645094,
+      "mean_unpadded_forward_gflops": 0.305236003941545,
+      "native_order_batch64_padded_forward_gflops": 0.3952247685511483
+    },
+    {
+      "split": "test",
+      "eligible_fraction": 0.9,
+      "cases": 958,
+      "strict_mean_pairs": 6.3684759916492695,
+      "strict_zero_pair_fraction": 0.0010438413361169101,
+      "strict_five_pair_feasible_fraction": 0.8413361169102297,
+      "mean_encoder_positions_including_user": 55.52609603340292,
+      "mean_unpadded_forward_gflops": 0.2915660932860125,
+      "native_order_batch64_padded_forward_gflops": 0.38944861115657625
+    },
+    {
+      "split": "test",
+      "eligible_fraction": 1.0,
+      "cases": 958,
+      "strict_mean_pairs": 6.947807933194155,
+      "strict_zero_pair_fraction": 0.0010438413361169101,
+      "strict_five_pair_feasible_fraction": 0.8632567849686847,
+      "mean_encoder_positions_including_user": 53.208768267223384,
+      "mean_unpadded_forward_gflops": 0.27967366396659704,
+      "native_order_batch64_padded_forward_gflops": 0.3837562905720251
+    }
+  ],
+  "fixed_budget_80percent": {
+    "train": {
+      "cases": 141137,
+      "mean_pairs": 4.769217143626405,
+      "mean_rare_items_forced_inside_pairs": 0.24697988479278998,
+      "all_rare_context_items_preserved_fraction": 0.8405804289449259,
+      "mean_native_full_window_forward_gflops": 0.3246694332752434,
+      "pair_counts": [
+        1916,
+        1916,
+        2874,
+        1916,
+        2874,
+        129641
+      ],
+      "forced_rare_histogram": [
+        118637,
+        13852,
+        5875,
+        2042,
+        567,
+        129,
+        30,
+        3,
+        2,
+        0,
+        0
+      ]
+    },
+    "validation": {
+      "cases": 958,
+      "mean_pairs": 5.0,
+      "mean_rare_items_forced_inside_pairs": 0.4144050104384134,
+      "all_rare_context_items_preserved_fraction": 0.7766179540709812,
+      "mean_native_full_window_forward_gflops": 0.3197483920000001,
+      "pair_counts": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        958
+      ],
+      "forced_rare_histogram": [
+        744,
+        102,
+        56,
+        45,
+        7,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "test": {
+      "cases": 958,
+      "mean_pairs": 5.0,
+      "mean_rare_items_forced_inside_pairs": 0.42379958246346555,
+      "all_rare_context_items_preserved_fraction": 0.767223382045929,
+      "mean_native_full_window_forward_gflops": 0.3197483920000001,
+      "pair_counts": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        958
+      ],
+      "forced_rare_histogram": [
+        735,
+        115,
+        53,
+        41,
+        9,
+        4,
+        1,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "note": "Unpadded per-query mean is not batched latency; padding costs reported separately. No NDCG-based policy selection."
+}

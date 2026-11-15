@@ -1,0 +1,188 @@
+{
+  "gpu_used": false,
+  "new_generator_fits": 3,
+  "original_and_cache_pins_verified": 69,
+  "input_pins_verified": 10,
+  "initializer_matches_completed_controls": true,
+  "target_count": 141137,
+  "missing_pair_geometry": "synthetic temporary codes ONLY; actual frozen ST5 vectors and assignments computed on Kaggle",
+  "missing_pairs": 5055,
+  "needed_by_split": {
+    "train": 124788,
+    "validation": 13962,
+    "test": 13951
+  },
+  "original_pair_sids_preserved": true,
+  "all_60_budget5_schedules_match": true,
+  "native_flops_by_pair_count": {
+    "0": 427087952,
+    "1": 405226568,
+    "2": 383561920,
+    "3": 362094008,
+    "4": 340822832,
+    "5": 319748392,
+    "6": 298870688,
+    "7": 278189720,
+    "8": 257705488
+  },
+  "finite_native_forward_backward": {
+    "frequency20_budget5_42_0": 22.819421768188477,
+    "frequency20_budget5_42_1": 22.65833854675293,
+    "frequency20_budget5_42_2": 23.175785064697266,
+    "frequency20_budget5_42_3": 23.321252822875977,
+    "frequency20_budget5_42_4": 22.0732364654541,
+    "frequency20_budget5_42_5": 22.371227264404297,
+    "random20_budget5_42_0": 22.50269889831543,
+    "random20_budget5_42_1": 23.140872955322266,
+    "random20_budget5_42_2": 22.868003845214844,
+    "random20_budget5_42_3": 22.928974151611328,
+    "random20_budget5_42_4": 22.448041915893555,
+    "random20_budget5_42_5": 22.734025955200195,
+    "random20_budget8_42_0": 22.541685104370117,
+    "random20_budget8_42_1": 22.227867126464844,
+    "random20_budget8_42_2": 23.41539192199707,
+    "random20_budget8_42_3": 23.341999053955078,
+    "random20_budget8_42_4": 22.262771606445312,
+    "random20_budget8_42_5": 23.233325958251953,
+    "random20_budget8_42_6": 21.91726303100586,
+    "random20_budget8_42_7": 21.384723663330078,
+    "random20_budget8_42_8": 23.00184440612793
+  },
+  "audits": {
+    "frequency20_budget5_42": {
+      "first_epoch": {
+        "merge_fraction": 0.5,
+        "merge_count_batches": [
+          8,
+          33,
+          82,
+          108,
+          38,
+          7
+        ],
+        "merge_count_examples": [
+          4096,
+          16896,
+          41984,
+          55121,
+          19456,
+          3584
+        ],
+        "pair_summary_occurrences": 344940,
+        "odd_start_pair_occurrences": 152901,
+        "padding_sid_positions": 659956,
+        "native_sid_widths": [
+          80,
+          76,
+          72,
+          68,
+          64,
+          60
+        ],
+        "examples_consumed_once": true,
+        "schedule_sha256": "e2306f39a95d65325c65246bea55323c0aa4eb023b0ac5113309f973179f6eae",
+        "tokenized_epoch_sha256": "fe4eb058357850594378325695761d8c820af1d27c565a94438f5893f123a62a",
+        "mode": "frequency",
+        "rare_context_items_merged": 4553,
+        "eligible_region": "oldest_floor_4n_over_5",
+        "rare_threshold_train_users": 5
+      },
+      "first_epoch_cpu_seconds": 1.394785092008533,
+      "validation_rare_items_merged": 397,
+      "validation_all_rare_preserved_fraction": 0.7766179540709812
+    },
+    "random20_budget5_42": {
+      "first_epoch": {
+        "merge_fraction": 0.5,
+        "merge_count_batches": [
+          8,
+          33,
+          82,
+          108,
+          38,
+          7
+        ],
+        "merge_count_examples": [
+          4096,
+          16896,
+          41984,
+          55121,
+          19456,
+          3584
+        ],
+        "pair_summary_occurrences": 344940,
+        "odd_start_pair_occurrences": 155290,
+        "padding_sid_positions": 659956,
+        "native_sid_widths": [
+          80,
+          76,
+          72,
+          68,
+          64,
+          60
+        ],
+        "examples_consumed_once": true,
+        "schedule_sha256": "e2306f39a95d65325c65246bea55323c0aa4eb023b0ac5113309f973179f6eae",
+        "tokenized_epoch_sha256": "9cb6c375ac9436b88d12e6626b4c85949b5450084c233acf32eaeaa63917215a",
+        "mode": "matched_random",
+        "rare_context_items_merged": 99182,
+        "eligible_region": "oldest_floor_4n_over_5",
+        "rare_threshold_train_users": 5
+      },
+      "first_epoch_cpu_seconds": 1.428795467974851,
+      "validation_rare_items_merged": 1779,
+      "validation_all_rare_preserved_fraction": 0.2599164926931106
+    },
+    "random20_budget8_42": {
+      "first_epoch": {
+        "merge_fraction": 0.5,
+        "merge_count_batches": [
+          3,
+          6,
+          23,
+          60,
+          73,
+          67,
+          38,
+          4,
+          2
+        ],
+        "merge_count_examples": [
+          1536,
+          3072,
+          11776,
+          30720,
+          37201,
+          34304,
+          19456,
+          2048,
+          1024
+        ],
+        "pair_summary_occurrences": 536982,
+        "odd_start_pair_occurrences": 227318,
+        "padding_sid_positions": 562520,
+        "native_sid_widths": [
+          80,
+          76,
+          72,
+          68,
+          64,
+          60,
+          56,
+          52,
+          48
+        ],
+        "examples_consumed_once": true,
+        "schedule_sha256": "72788e3277ac3626f04a76e6f5c1beade66fbaa666fbf99b895e9a20758945aa",
+        "tokenized_epoch_sha256": "596554b6e621b7b279ea4db8b77ccaaba71dfcecd919b177b04931f35fb50b9d",
+        "mode": "matched_random",
+        "rare_context_items_merged": 153981,
+        "eligible_region": "oldest_floor_4n_over_5",
+        "rare_threshold_train_users": 5
+      },
+      "first_epoch_cpu_seconds": 1.6513220809865743,
+      "validation_rare_items_merged": 2810,
+      "validation_all_rare_preserved_fraction": 0.1534446764091858
+    }
+  }
+}

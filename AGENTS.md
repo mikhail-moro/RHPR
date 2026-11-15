@@ -2,6 +2,41 @@
 
 ## Research status
 
+- Authorized2026-11-15:frequency-prioritized context compression,quantify lost
+  merges/FLOPs,and try compressing more of history. Newprivatekernelcarasik/
+  rhpr-kindle-frequency,configkindle_frequency_2t4.json,modulekindle_frequency.
+  EXACTLY3freshseed42fits:frequency20_budget5_42,random20_budget5_42,
+  random20_budget8_42;GPU0first+thirdsequential,GPU1second. First16of20eligible,
+  latest4single,everyevent/suffixpreserved. FirsttwoshareEXACTper-example
+  counts/padding/nativewidths/shuffle/initializer;differonlymatchingplacement.
+  TRAINM~Binomial(trialbudget,.5),sharedvirtualslotsforshortcapacitymin(budget,
+  floor(floor(4n/5)/2));evalfixedbudget5or8,seed8141/noepoch/targetinput.
+  Frequencycost=#rareITEMSinsidepairs,exactpathDP+uniformoptimalties;
+  rare=<=5distinctTRAINusersbeforeprefixexpansion,includingfirstevent,
+  excludingVAL/TEST. Softpriorityatfixedbudget,NOabsoluteprohibition.
+  Hardprotectionold10onVAL3.605pairs(vs5),.3493nativeGF/.4140batch64paddedGF;
+  old16strict5.756pairs,.3042native/.3923padded. Budget5frequencyVAL397rare
+  mergedvs1779random(-77.7%),allrarepreserved77.66%ofcases. Geometryonly,
+  NOqualityclaim/noassumptionrareTARGETerrorcausedbyrareCONTEXTmerging.
+  Budget5both61positions/.319748392GF;budget8has49/.257705488GF(-39.66%R20).
+  Morecompressionisthirdfit,notjustlargereligibleprefix. Samewide4+4/d128/
+  FF1024/dkv64/H6,FP16SDPAcompile512,LR.003->.001warmup2/cosine60,
+  min40max60,VAL5/scoreEMA.5delta.0005pat15/rawVALselect,FP32beam20/64,
+  noseenfilter. Same958users/16177items/141137TRAINtargets;TESTexploratory.
+  Originalparent33754d7pins64+Random20legacykernelmixed20source4026db0pins5,
+  inputpins10. Reuse121412pairs,5055newfrozenST5+savedRQassignments,
+  appendTRAINthenVALthenTESTsuffixes/alloldSIDsunchanged,norefit. CPUpreflight
+  usesEXPLICITsyntheticmissingcodesforgeometry;actualvectors/codesKaggleonly.
+  Reportsgr-kindle-frequency.md,geometry.json,preflight.json;reproducers
+  scripts/research/plan_kindle_frequency.py,preflight_kindle_frequency.py.
+  FirstactualgeometryepochCPU1.40/1.43/1.65s;budget5both344940pairs,
+  rareexposure4553vs99182. Allnative0..8realmodelfwd/bwdfinite,initializer
+  exact. Full1145testsPASS/152optionalskips/0failures80.667s. Quota35.55GPUh;
+  estimated60–90minafterbootstrap,suite10800s/server180min/fit7200s.
+  Noadditionalfits/seeds/HPO/notifications/automaticretries. Submitonce,
+  thenreturnandcollectlater. Noresultsobservedyet.
+
+
 - Mixed20/Recent10pilot COMPLETE,collected2026-11-15,no newGPU/inference.
   Privatecarasik/rhpr-kindle-mixed20/1,source4026db0e4798,execution2651.821s
   afterbootstrap(44.20min). Both60epochs/best60/capped60,notprovenplateau.
