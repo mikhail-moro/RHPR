@@ -1,0 +1,157 @@
+{
+  "parent_pins_verified": 19,
+  "input_files_verified": 10,
+  "training_performed": false,
+  "gpu_used": false,
+  "all_958_users_per_split_have_34_past_events": true,
+  "coverage": {
+    "validation_32_reference": {
+      "unique_pairs": 7589,
+      "missing_pairs": 0
+    },
+    "validation_32_edges": {
+      "unique_pairs": 6643,
+      "missing_pairs": 0
+    },
+    "validation_30_first": {
+      "unique_pairs": 6636,
+      "missing_pairs": 0
+    },
+    "validation_30_last": {
+      "unique_pairs": 6646,
+      "missing_pairs": 0
+    },
+    "validation_34_first": {
+      "unique_pairs": 7581,
+      "missing_pairs": 0
+    },
+    "validation_34_last": {
+      "unique_pairs": 7582,
+      "missing_pairs": 0
+    },
+    "validation_32_single": {
+      "unique_pairs": 0,
+      "missing_pairs": 0
+    },
+    "test_32_reference": {
+      "unique_pairs": 7579,
+      "missing_pairs": 0
+    },
+    "test_32_edges": {
+      "unique_pairs": 6646,
+      "missing_pairs": 0
+    },
+    "test_30_first": {
+      "unique_pairs": 6643,
+      "missing_pairs": 838
+    },
+    "test_30_last": {
+      "unique_pairs": 6636,
+      "missing_pairs": 0
+    },
+    "test_34_first": {
+      "unique_pairs": 7589,
+      "missing_pairs": 0
+    },
+    "test_34_last": {
+      "unique_pairs": 7581,
+      "missing_pairs": 0
+    },
+    "test_32_single": {
+      "unique_pairs": 0,
+      "missing_pairs": 0
+    }
+  },
+  "new_pairs": 838,
+  "reference_and_single_encoders_equal_parents": true,
+  "costs": {
+    "mixed32": {
+      "32_reference": {
+        "encoder_positions": 97,
+        "supported_forward_flops_batch1": 516500848,
+        "probe_loss": 8.732587814331055
+      },
+      "32_edges": {
+        "encoder_positions": 101,
+        "supported_forward_flops_batch1": 539345912,
+        "probe_loss": 8.984501838684082
+      },
+      "30_first": {
+        "encoder_positions": 93,
+        "supported_forward_flops_batch1": 493852520,
+        "probe_loss": 9.162869453430176
+      },
+      "30_last": {
+        "encoder_positions": 93,
+        "supported_forward_flops_batch1": 493852520,
+        "probe_loss": 8.790005683898926
+      },
+      "34_first": {
+        "encoder_positions": 105,
+        "supported_forward_flops_batch1": 562387712,
+        "probe_loss": 8.866626739501953
+      },
+      "34_last": {
+        "encoder_positions": 105,
+        "supported_forward_flops_batch1": 562387712,
+        "probe_loss": 8.711038589477539
+      },
+      "32_single": {
+        "encoder_positions": 129,
+        "supported_forward_flops_batch1": 704769968,
+        "probe_loss": 8.832352638244629
+      }
+    },
+    "pair32": {
+      "32_reference": {
+        "encoder_positions": 97,
+        "supported_forward_flops_batch1": 516500848,
+        "probe_loss": 6.862367630004883
+      },
+      "32_edges": {
+        "encoder_positions": 101,
+        "supported_forward_flops_batch1": 539345912,
+        "probe_loss": 7.353135585784912
+      },
+      "30_first": {
+        "encoder_positions": 93,
+        "supported_forward_flops_batch1": 493852520,
+        "probe_loss": 7.404422760009766
+      },
+      "30_last": {
+        "encoder_positions": 93,
+        "supported_forward_flops_batch1": 493852520,
+        "probe_loss": 6.801601886749268
+      },
+      "34_first": {
+        "encoder_positions": 105,
+        "supported_forward_flops_batch1": 562387712,
+        "probe_loss": 7.228340148925781
+      },
+      "34_last": {
+        "encoder_positions": 105,
+        "supported_forward_flops_batch1": 562387712,
+        "probe_loss": 6.903069496154785
+      },
+      "32_single": {
+        "encoder_positions": 129,
+        "supported_forward_flops_batch1": 704769968,
+        "probe_loss": 8.386256217956543
+      }
+    }
+  },
+  "native_checkpoint_replay": {
+    "mixed32": {
+      "eight_reference_rankings_identical": true,
+      "max_abs_score_difference": 6.146728992462158e-08,
+      "loaded_state_sha256": "bda644b3933db93cc3d4593fbfdd9403b053e23fbacbc86ad18bbac023a6452d",
+      "model_unchanged": true
+    },
+    "pair32": {
+      "eight_reference_rankings_identical": true,
+      "max_abs_score_difference": 1.0803341865539551e-07,
+      "loaded_state_sha256": "a57dd8fe4c96e0f9466847bf729974696af9388611143819c61609162051c400",
+      "model_unchanged": true
+    }
+  }
+}

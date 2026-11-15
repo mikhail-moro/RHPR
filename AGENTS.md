@@ -2,6 +2,26 @@
 
 ## Research status
 
+- Authorized2026-11-15:repeat frozen pair-alignment inference on Kindle Mixed32
+  and originalPair32,plus Full32withoutPairSID. EXACTLY28inferences:two saved
+  epoch55models xVAL/TEST x32_reference/32_edges/30_first/30_last/34_first/
+  34_last/32_single. Same958users/targets,FP32SDPA/beam20/batch64,no seenfilter.
+  Everyitem ANDpair keeps3+1SID. Native encoder lengths97/101/93/93/105/105/129;
+  never padtoFull. No training,newseed,checkpointselection,tokenizerrefit,
+  notifications or automaticextra variants. CPUpreflight19parent+10inputpins,
+  nativefrozen8VALrankings/model exactlyreplay,GPUscoretol1.1e-7,all7native
+  FLOP/lossprobesfinite.838missingpairs,onlyTEST30_first;encodewithfrozenST5
+  and savednormalizedresidualcentroids,appendunique suffixafterexistingmax;
+  originalSIDsunchanged. Saveembeddings/newkeys/codes/all28predictions/hashes/
+  metrics/FLOPs. Configkindle_alignment_2t4.json,modulekindle_alignment,
+  docsgr-kindle-alignment.md/preflight.json. Private/offlinekernel
+  carasik/rhpr-kindle-alignment,parentlong-pairs/1 andmixed-resume/2.
+  TwoT4onefrozenmodel/worker;quota37.36hchecked;hardservertimeout60min,
+  suitedeadline1800s. VALreference->TESTedges shares7orderedoldpairs,
+  ->TEST34_first shares8,->TEST30_first shares6;reference->reference0.
+  Alllayouts/crosscontrasts exploratory:30/34changerecenttail/context,
+  Full32isOODforPair-only. Do not selectwinneronpreviouslyexaminedTEST.
+
 - Mixed32 format follow-up COMPLETE,CPU saved-data audit only,no inference/GPU.
   User askedwhetherTESTwasPair-only andwhytestlost. BothVAL/TESTarePair32:
   8oldpairSIDs+16singles=96SIDpositions+USER,all958fullwindows,nopadding,
