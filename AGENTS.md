@@ -32,6 +32,12 @@
   checkpoints/optimizer/scaler/RNG/LR,curves,predictions/FLOPs/timing/memory.
   Quota37.32hbeforelaunch,expect~1–1.5h,cold9shapecompileuncertain. Hardserver
   timeout180min,suite10800s. Docsgr-kindle-random-tokenization.md/preflight.json.
+  Full1132testsPASS/152skips/0failures87.093s. SUBMITTEDONCEprivateversion1,
+  RUNNING,sourcea7f824858572,workflow43660261876SUCCESS(submissiononly),
+  job132647792099,artifact14139887130. Actualpush --timeout10800verified;
+  all213deployedPythonfiles/exactconfig/private/offline/3datasets/completed
+  parentmountverified. Receiptdocs/gr-kindle-random-tokenization-submission
+  .json;results pending. Do not dispatch anotherfit orannealingschedule.
 
 - Kindle alignment probe COMPLETE,collected2026-11-15,no newGPU/fit.
   Privatecarasik/rhpr-kindle-alignment/1,sourcea2de37f0d0a3,28/28inferences,

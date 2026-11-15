@@ -85,3 +85,9 @@ and all60epoch schedules. Actual60epoch pair presentations30,063,740(50.166%
 ofPair-only59,928,480;oldMixed29,604,042). Firstepoch CPUtokenization4.29s,
 215755odd-startpairs. Full1132tests pass,152optional skips,0failures87.093s.
 See`gr-kindle-random-tokenization-preflight.json`.
+
+Submitted once:privateversion1RUNNING,executablea7f824858572,
+workflow43660261876SUCCESS(submissiononly),job132647792099,
+artifact14139887130. Actualpush --timeout10800verified;all213deployedPython
+files/exactconfig/private/offline/3datasets/completedparentmountverified.
+Receipt:`gr-kindle-random-tokenization-submission.json`. Results pending.

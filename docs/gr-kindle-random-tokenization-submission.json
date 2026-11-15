@@ -1,0 +1,21 @@
+{
+  "kernel": "carasik/rhpr-kindle-random-tokenization",
+  "version": 1,
+  "status": "RUNNING",
+  "source_code_sha": "a7f82485857265d0cb704d54cbb9be892d076519",
+  "workflow_run_id": 43660261876,
+  "workflow_job_id": 132647792099,
+  "artifact_id": 14139887130,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/43660261876",
+  "hard_timeout_seconds": 10800,
+  "private": true,
+  "internet": false,
+  "packaged_python_files_verified": 213,
+  "config_identical": true,
+  "parent_sources_verified": true,
+  "planned_new_generator_fits": 1,
+  "probability_schedule": "constant .5",
+  "inference_format": "original Pair32 only",
+  "submission_only": true,
+  "notify_telegram": false
+}
