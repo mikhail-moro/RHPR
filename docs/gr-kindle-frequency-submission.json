@@ -1,0 +1,58 @@
+{
+  "kernel": "carasik/rhpr-kindle-frequency",
+  "version": 1,
+  "status": "RUNNING",
+  "source_git_sha": "7a9a7bd430362777eeecbb058a9cebf339f9a2cd",
+  "workflow_run_id": 43722240271,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/43722240271",
+  "job_id": 132836528058,
+  "artifact_id": 14165150220,
+  "workflow_conclusion": "success",
+  "workflow_success_means": "submission only; no training results yet",
+  "submitted_at_utc": "2026-11-15T14:03:41Z",
+  "checked_at_utc": "2026-11-15T14:04:46.561196+00:00",
+  "exactly_one_submission": true,
+  "server_hard_timeout_seconds": 10800,
+  "notify_telegram": false,
+  "deployed_python_files_verified": 215,
+  "deployed_config_verified": true,
+  "deployed_private_offline_metadata_verified": true,
+  "new_generator_fits": 3,
+  "seed": 42,
+  "quota_before_submission_gpu_hours": 35.55,
+  "trials": [
+    {
+      "id": "frequency20_budget5_42",
+      "seed": 42,
+      "history_items": 20,
+      "mode": "frequency",
+      "max_pairs": 5
+    },
+    {
+      "id": "random20_budget5_42",
+      "seed": 42,
+      "history_items": 20,
+      "mode": "matched_random",
+      "max_pairs": 5
+    },
+    {
+      "id": "random20_budget8_42",
+      "seed": 42,
+      "history_items": 20,
+      "mode": "matched_random",
+      "max_pairs": 8
+    }
+  ],
+  "forward_gflops": {
+    "frequency20_budget5_42": 0.319748392,
+    "random20_budget5_42": 0.319748392,
+    "random20_budget8_42": 0.257705488
+  },
+  "cpu_regression": {
+    "tests": 1145,
+    "skipped": 152,
+    "failures": 0,
+    "seconds": 80.667
+  },
+  "deployed_runner_sha256": "d612cb8b0eed3caa42ca99bd6a9ffc63dc62bf9a407bcbff91b526eb494d5208"
+}

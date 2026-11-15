@@ -34,7 +34,11 @@
   exact. Full1145testsPASS/152optionalskips/0failures80.667s. Quota35.55GPUh;
   estimated60–90minafterbootstrap,suite10800s/server180min/fit7200s.
   Noadditionalfits/seeds/HPO/notifications/automaticretries. Submitonce,
-  thenreturnandcollectlater. Noresultsobservedyet.
+  thenreturnandcollectlater. SUBMITTEDONCEprivateversion1/source7a9a7bd43036,
+  workflow43722240271/job132836528058SUCCESS(submissiononly),artifact14165150220.
+  RUNNINGat14:04:46UTC,actualtimeout10800sverified/all215deployedPythonbytes/
+  exactconfig/privateoffline/3datasets/2completedparentmountsverified.
+  Receiptdocs/gr-kindle-frequency-submission.json. Noresultsobservedyet.
 
 
 - Mixed20/Recent10pilot COMPLETE,collected2026-11-15,no newGPU/inference.

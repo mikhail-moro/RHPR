@@ -41,7 +41,8 @@ padding cost but changes execution and is not included in this pilot.
 ## Three predeclared fits
 
 All keep the latest20raw events, preserve chronological order and every event,
-and keep the latest4events single. Every single AND pair uses complete3+1SID;
+and keep the latest4events single in full20event windows (short prefixes keep
+ceil(n/5)recent events single). Every single AND pair uses complete3+1SID;
 targets are always single-item SID. No future target affects pair placement.
 
 | Fit | Inference placement | Pairs | Encoder positions incl.USER | B1 forward GFLOPs |
@@ -129,3 +130,13 @@ collect when the user reports completion. No duplicate retries or additional
 models. Preserve raw predictions for paired-user uncertainty and split-specific
 rare-target/context diagnostics. Primary comparison is frequency5vsrandom5;
 random8is the more aggressive point. Reuse Random20,Recent20,Recent10results.
+
+
+## Submission receipt
+
+Submitted once as private version1,source`7a9a7bd430362777eeecbb058a9cebf339f9a2cd`,
+2026-11-15T14:03:41Z. Workflow43722240271/job132836528058SUCCESS means
+submission only;artifact14165150220. KaggleRUNNING checked14:04:46UTC.
+Actualserverpush`--timeout10800`verified,all215deployedPythonfiles/exactconfig/
+privateoffline/three datasets/two completedparentmounts verified. Receipt
+`gr-kindle-frequency-submission.json`. No training metrics/results claimed.
