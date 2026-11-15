@@ -2,6 +2,42 @@
 
 ## Research status
 
+- Random-tokenization pilot COMPLETE,collected2026-11-15,no newGPU.
+  Privatecarasik/rhpr-kindle-random-tokenization/1,sourcea7f824858572,
+  workflow43660261876. Onefitseed42,constantp.5,60epochs/capped60/best55,
+  16558updates+2AMPskips(56/58),3629.208s measuredexperimentafterbootstrap.
+  SamePair32VAL/TESTonly,958targets,FP32SDPAbeam20batch64no seenfilter.
+  RandomVAL.01730845/TEST.01496055,30/26hits,GF.516500848;
+  Pair.01596563/.01065088,31/21hits;Mixed.01893747/.00987375,35/20;
+  Recent32.01689914/.01444656,30/28,GF.704769968;
+  Recent20.02049218/.01472239,38/24,GF.427087952. ALLfivebest55/capped60.
+  TESTRandom+40.46%vsPair,+51.52%vsMixed,+3.56%vsRecent32at-26.71%GF,
+  butRecall26vs28andall8selectedVAL/TESTconditionalCIs cross0. No established
+  noninferiority/seed-robustPareto. Random-PairTESTdelta+.004310CI[-.001834,
+  .010421];vsMixed+.005087CI[-.000744,.011141];vsRecent32+.000514CI
+  [-.006225,.007349]. Pairhits17gained12lost,shared9;recovers5/16previous
+  Pair-lostRecent32TESThits(3/14VAL). RandomwinsPaironly4/12VALchecks.
+  Previouslyfixedlow-recentpopTEST502users.004209->.010416,5->10hits,
+  VAL.009888->.010120,10->12;raretargetTEST425users1->5hits,VAL402users5->7.
+  Sparseposthocgroupobservations,notproofPopBiasmechanism. Warm48.63s vsPair
+  37.59/Mixed49.48/Recent3255.84;totaloptimizer3501.87svsPair2357.15(+48.56%),
+  Mixed3247.00. Firstepoch388.63spluslatercoldshapespikes;no compile-limit
+  fallback. Peakallocated3344786944/reserved7572815872bytes.
+  ALL60sampledTRAINepochhashes/coverage/counts exactlyreplayedCPU.30,063,740
+  pairpresentations,12,743,061odd-start;oldMixed29,604,042(near exposure).
+  All44parent+10inputpins/indexes/initializer/cases/LR/EMA/selectionchecked.
+  65predictionfiles/1245400pathsreplayed,2465invalid/0duplicates. Newbest+last
+  weightsdownloaded/finite/epoch/config/schedulercountersverified;bestSHA
+  474dc2d80189d465ebe70dba0069692badb3bac5632fd0318dea25b30d9d56bf,
+  lastda1b6233a5f24ea1fb3c23726a47dc99f2cf122afb381672c16abf6e6bb86071.
+  Reportsgr-kindle-random-tokenization-results.md/.json/completion.json;
+  CPUreplayscripts/research/analyze_kindle_random_tokenization.py;private
+  artifacts/kindle-pilot/random-tokenization-results inclweights/CSV/ranks/
+  PNG/PDF/allrawoutputs.1132testsPASS/152skips/0failures84.895s. No pending
+  runs/no additionalseeds/annealing/inferencevariants/notificationslaunched.
+  TESTalreadyexamined,onegenerator/indexseed,conditionalCIsnotseed/selection
+  uncertainty. DensitydistributionANDpairplacementschanged,notisolatedcausal.
+
 - Authorized2026-11-15:ONEnew seed42fit with stochastic pair/single tiling of
   olderhalf,NOT another whole-batchFull/Pairview switch. Config
   kindle_random_tokenization.json,modulekindle_random_tokenization,private

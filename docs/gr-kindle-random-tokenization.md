@@ -91,3 +91,7 @@ workflow43660261876SUCCESS(submissiononly),job132647792099,
 artifact14139887130. Actualpush --timeout10800verified;all213deployedPython
 files/exactconfig/private/offline/3datasets/completedparentmountverified.
 Receipt:`gr-kindle-random-tokenization-submission.json`. Results pending.
+
+Collected COMPLETE2026-11-15:one60epochfit,best55. See
+`gr-kindle-random-tokenization-results.md/.json` and completionJSON.
+Original submission receipt retains its historicalRUNNINGstate;no runs pending.

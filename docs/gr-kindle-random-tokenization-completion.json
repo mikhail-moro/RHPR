@@ -1,0 +1,38 @@
+{
+  "kernel": "carasik/rhpr-kindle-random-tokenization",
+  "version": 1,
+  "status": "COMPLETE",
+  "source_code_sha": "a7f82485857265d0cb704d54cbb9be892d076519",
+  "workflow_run_id": 43660261876,
+  "session_seconds": 3629.208219,
+  "new_fits": 1,
+  "completed_epochs": 60,
+  "best_epoch": 55,
+  "all_sampled_epoch_inputs_verified": 60,
+  "parent_pins_verified": 44,
+  "input_files_verified": 10,
+  "prediction_files_replayed": 65,
+  "prediction_count": 1245400,
+  "invalid_predictions": 2465,
+  "duplicate_predictions": 0,
+  "new_gpu_during_collection": false,
+  "tokenizer_refitted": false,
+  "checkpoints": {
+    "best": {
+      "sha256": "474dc2d80189d465ebe70dba0069692badb3bac5632fd0318dea25b30d9d56bf",
+      "size_bytes": 20506061
+    },
+    "last": {
+      "sha256": "da1b6233a5f24ea1fb3c23726a47dc99f2cf122afb381672c16abf6e6bb86071",
+      "size_bytes": 61475251
+    }
+  },
+  "artifacts": "/workspace/artifacts/kindle-pilot/random-tokenization-results",
+  "pending_runs": false,
+  "regression": {
+    "tests": 1132,
+    "skipped": 152,
+    "failures": 0,
+    "seconds": 84.895
+  }
+}
