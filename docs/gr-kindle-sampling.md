@@ -131,3 +131,13 @@ remains zlib939083bytes. A new test executes the fallback and verifies the same
 output contract;existing source-byte integrity/size-limit tests pass. No GPUrun
 was submitted before resolving this regression. The initial failed regression
 log is retained privately as sampling-regression-initial.log.
+
+
+## Verified submission
+
+Submitted once as privateversion1,source`e239144016df6d98c8f6a7759dc0315e92bcaf0b`,
+2026-11-15T15:49:29UTC. Workflow43731988909/job132866253241SUCCESS means
+submission only;artifact14169176191. KaggleRUNNING checked15:50:14UTC.
+Actualpush`--timeout10800`verified. All216deployedPythonbytes/exactconfig/
+privateoffline/three datasets/two completedparentmounts verified;zlibpackage.
+Receipt`gr-kindle-sampling-submission.json`. No training results observed yet.

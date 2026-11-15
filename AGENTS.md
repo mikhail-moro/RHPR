@@ -32,7 +32,12 @@
   Reportsgr-kindle-sampling.md/preflight.json;CPUreproducerpreflight_kindle_sampling.py.
   Quota34.37GPUh;estimated70–100minafterbootstrap,fit7200/suite10800/server180min.
   Noadditionalseeds/schedules/controls/HPO/retries/notifications. Submitonce,
-  returnafterverifiedsubmission,collectlater;notrainingresultsobservedyet.
+  returnafterverifiedsubmission,collectlater. SUBMITTEDONCEprivateversion1,
+  sourcee239144016df,workflow43731988909/job132866253241SUCCESS(submissiononly),
+  artifact14169176191. RUNNING15:50:14UTC,actualhardtimeout10800sverified,
+  all216deployedPythonbytes/exactconfig/privateoffline/3datasets/2completed
+  parentmountsverified. Receiptdocs/gr-kindle-sampling-submission.json;
+  notrainingresultsobservedyet.
 
 
 - Frequencycompressionpilot COMPLETE,collected2026-11-15,no newGPU/inference.

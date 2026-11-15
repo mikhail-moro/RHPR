@@ -1,0 +1,74 @@
+{
+  "kernel": "carasik/rhpr-kindle-sampling",
+  "version": 1,
+  "status": "RUNNING",
+  "source_git_sha": "e239144016df6d98c8f6a7759dc0315e92bcaf0b",
+  "workflow_run_id": 43731988909,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/43731988909",
+  "job_id": 132866253241,
+  "artifact_id": 14169176191,
+  "workflow_conclusion": "success",
+  "workflow_success_means": "submission only; no training results yet",
+  "submitted_at_utc": "2026-11-15T15:49:29Z",
+  "checked_at_utc": "2026-11-15T15:50:14.750477+00:00",
+  "exactly_one_submission": true,
+  "server_hard_timeout_seconds": 10800,
+  "notify_telegram": false,
+  "deployed_python_files_verified": 216,
+  "deployed_config_verified": true,
+  "deployed_private_offline_metadata_verified": true,
+  "package_compression": "zlib",
+  "new_generator_fits": 3,
+  "seed_roles": {
+    "index_seed": 42,
+    "training_seed": 42,
+    "augmentation_seed": 42
+  },
+  "quota_before_submission_gpu_hours": 34.37,
+  "trials": [
+    {
+      "id": "random20_p25_42",
+      "seed": 42,
+      "history_items": 20,
+      "mode": "random",
+      "sampling": {
+        "kind": "constant",
+        "probability": 0.25
+      }
+    },
+    {
+      "id": "random20_ramp01_42",
+      "seed": 42,
+      "history_items": 20,
+      "mode": "random",
+      "sampling": {
+        "kind": "linear",
+        "start_probability": 0.0,
+        "end_probability": 1.0,
+        "start_epoch": 1,
+        "end_epoch": 60
+      }
+    },
+    {
+      "id": "random20_p75_42",
+      "seed": 42,
+      "history_items": 20,
+      "mode": "random",
+      "sampling": {
+        "kind": "constant",
+        "probability": 0.75
+      }
+    }
+  ],
+  "inference_encoder_positions": 61,
+  "inference_forward_flops": 319748392,
+  "original_pair_sid_cache_preserved": true,
+  "new_pair_embeddings_or_quantizer_fits": 0,
+  "cpu_regression": {
+    "tests": 1153,
+    "skipped": 152,
+    "failures": 0,
+    "seconds": 78.177
+  },
+  "deployed_runner_sha256": "7ac5620ea360c64ce0ab0db29c5b7fe0b57ec32eff58352ae5566e427ff2bbfc"
+}
