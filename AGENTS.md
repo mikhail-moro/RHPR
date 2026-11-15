@@ -2,6 +2,43 @@
 
 ## Research status
 
+- Frequencycompressionpilot COMPLETE,collected2026-11-15,no newGPU/inference.
+  Privatecarasik/rhpr-kindle-frequency/1,source7a9a7bd43036,execution4202.054s
+  (70.03minafterinitialbootstrap). All3fits60epochs/capped60,notprovenplateau.
+  frequency5best55VAL.01224297/TEST.00990408,20/21hits,.319748392GF;
+  random5best60.01393129/.01021903,30/23hits,sameGF;random8best55
+  .01293205/.00770203,25/14hits,.257705488GF. Frequencyvsrandom5VAL-12.12%/
+  TEST-3.08%,bothconditionaluserCIs cross0. Random8vsrandom5TEST-24.63%/
+  GF-19.40%,NDCG/GF-6.49%;VALratio+15.18%,splitinconsistency. ExistingRecent10
+  .01493143/.01462330/.217327232GFdominatesall3newpointestimatesbothsplits;
+  noestablishedParetoadvantage. PreviousRandom20old10only.01479621/.01564287
+  at.319748392GF;newrandom5TEST-34.68%. BroadereligibleprefixANDtrain/eval
+  layoutdistributionchanged;notisolatedcausalrecencytest.
+  Manipulationworked:raremergedVAL397vs1779,TEST406vs1814(~-77.7%);
+  TRAIN287246vs5820476(-95.06%),bothEXACT20273000pairpresentations/counts/
+  padding/shuffle/nativewidths. RaretargetsTRAINusers1-5VAL400:2vs2hits,
+  TEST425:1vs3,noraretargetrecovery. Weakposthocold16>=3rare subgroup
+  frequency>random5bothVALn479.011950vs.009760(12vs8hits),TESTn482
+  .007252vs.004845(7vs6);bothconditionalCIs cross0,stilltrailsoldRandom20/
+  Recent10onTEST. No validated frequencygate/routerorundertrainedoutputbranch
+  mechanism. PolicychangedBOTHtrainandeval,nottraining-onlytemperaturetest.
+  All3minimumVALCE55;NDCGbudget8.012932at55->.007485at60,TESTusescorrect55.
+  Warmepochs29.55/30.37/26.10s;first369.49/369.46/122.80s(thirdsecondinworker,
+  cacheconditionsdiffer). Updates16558+2AMPskipsall;frequency52/59,others51/59.
+  Noprecision/LR/compiler-cachefallback. ALL180actualTRAINinputepochhashes/
+  exposurecountersreplayedCPU;69parent/cache+10inputpins/cases/initializer/
+  LR/EMA/selectionverified. Actual5055vectors->RQcodesCPUexact,TRAINthenVAL
+  thenTESTsuffixextensionexact,all121412oldSIDsunchanged,total126467,max31.
+  ActualVAL/TESTinputs/startmasks/rarecountsreplayed.91predictionfiles/
+  1743560paths,2882invalid/0duplicates,metricsreplayed. All6fullbest/last
+  weightsdownloaded/finite/epochs/SHA/schedulercountersverified.
+  Reportsgr-kindle-frequency-results.md/.json/completion.json;reproducer
+  scripts/research/analyze_kindle_frequency.py;privateartifacts/kindle-pilot/
+  frequency-resultsincludesrawoutputs/weights/analysis/CSV/ranks/PNG/PDF.
+  Full1145testsPASS/152optionalskips/0failures109.228s. No pendingruns,
+  noadditionalfits/temperature/HPO/inferencevariants/notificationsauthorized.
+
+
 - Authorized2026-11-15:frequency-prioritized context compression,quantify lost
   merges/FLOPs,and try compressing more of history. Newprivatekernelcarasik/
   rhpr-kindle-frequency,configkindle_frequency_2t4.json,modulekindle_frequency.

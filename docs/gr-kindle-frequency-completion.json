@@ -1,0 +1,140 @@
+{
+  "kernel": "carasik/rhpr-kindle-frequency",
+  "version": 1,
+  "status": "COMPLETE",
+  "source_git_sha": "7a9a7bd430362777eeecbb058a9cebf339f9a2cd",
+  "collected_at_utc": "2026-11-15T15:27:34.315026+00:00",
+  "new_gpu_fits_or_inference": false,
+  "manifest_duration_seconds": 4202.054043,
+  "requested_fits": 3,
+  "completed_fits": 3,
+  "actual_train_epoch_hashes_replayed": {
+    "frequency5": 60,
+    "random5": 60,
+    "random8": 60
+  },
+  "prediction_files_replayed": 91,
+  "prediction_paths_replayed": 1743560,
+  "original_and_cache_parent_pins_verified": 69,
+  "input_pins_verified": 10,
+  "original_pair_sids_preserved": true,
+  "new_pair_vectors_and_rq_assignments_replayed": 5055,
+  "initializer_cases_lr_ema_selection_verified": true,
+  "all_budget5_counts_padding_schedules_matched": true,
+  "checkpoints": {
+    "frequency5": {
+      "best": {
+        "epoch": 55,
+        "sha256": "6e71ee09183dff1cbab956f140fb8f4dd9f1ddf3c9ecc1515495f92425d2f81e",
+        "size_bytes": 20510541
+      },
+      "last": {
+        "epoch": 60,
+        "sha256": "5c1226f34793cf4a61a6b7564726e6b9bcf30596debce4f1d5fe72962bd35ee2",
+        "size_bytes": 61479731
+      }
+    },
+    "random5": {
+      "best": {
+        "epoch": 60,
+        "sha256": "638e556e48e02d016f695afbaec51dbefc4dcb74da6aa117d7b76e618326b75f",
+        "size_bytes": 20510541
+      },
+      "last": {
+        "epoch": 60,
+        "sha256": "c763cb4a7ff8f57b759881eae8fb268c6cee485289a5969de4ea361c7a414b57",
+        "size_bytes": 61479731
+      }
+    },
+    "random8": {
+      "best": {
+        "epoch": 55,
+        "sha256": "730660b0df71528b1c4050e79652a5993635ab35824466c5a6789e5e8afc787e",
+        "size_bytes": 20510541
+      },
+      "last": {
+        "epoch": 60,
+        "sha256": "e326f6cf491e77a0c5aed4e310f1aa45633fd967decffd588f81d1475383ce2c",
+        "size_bytes": 61479795
+      }
+    }
+  },
+  "metrics": [
+    {
+      "model": "frequency5",
+      "best_epoch": 55,
+      "completed_epochs": 60,
+      "stopping_reason": "epoch_limit",
+      "validation_ndcg10": 0.01224296566263555,
+      "validation_hits10": 20,
+      "test_ndcg10": 0.009904075792874452,
+      "test_hits10": 21,
+      "test_hits1": 1,
+      "test_ndcg5": 0.007614173251004871,
+      "forward_gflops": 0.319748392,
+      "parameters": 5108992,
+      "warm_epoch_seconds": 29.554966353000054,
+      "optimizer_training_seconds": 2308.5709127570008,
+      "min_validation_ce": 9.191579611575335,
+      "min_validation_ce_epoch": 55,
+      "amp_skips": 2
+    },
+    {
+      "model": "random5",
+      "best_epoch": 60,
+      "completed_epochs": 60,
+      "stopping_reason": "epoch_limit",
+      "validation_ndcg10": 0.013931285344041734,
+      "validation_hits10": 30,
+      "test_ndcg10": 0.010219029268273297,
+      "test_hits10": 23,
+      "test_hits1": 1,
+      "test_ndcg5": 0.0063378619438090745,
+      "forward_gflops": 0.319748392,
+      "parameters": 5108992,
+      "warm_epoch_seconds": 30.36636958700001,
+      "optimizer_training_seconds": 2328.3466916380007,
+      "min_validation_ce": 9.18985387460486,
+      "min_validation_ce_epoch": 55,
+      "amp_skips": 2
+    },
+    {
+      "model": "random8",
+      "best_epoch": 55,
+      "completed_epochs": 60,
+      "stopping_reason": "epoch_limit",
+      "validation_ndcg10": 0.012932054801053318,
+      "validation_hits10": 25,
+      "test_ndcg10": 0.007702028288768217,
+      "test_hits10": 14,
+      "test_hits1": 3,
+      "test_ndcg5": 0.005823996735334917,
+      "forward_gflops": 0.257705488,
+      "parameters": 5108992,
+      "warm_epoch_seconds": 26.09570292599983,
+      "optimizer_training_seconds": 1727.7485167960008,
+      "min_validation_ce": 9.247453341287773,
+      "min_validation_ce_epoch": 55,
+      "amp_skips": 2
+    }
+  ],
+  "private_artifacts_path": "/workspace/artifacts/kindle-pilot/frequency-results",
+  "plots": [
+    "frequency-curves.png",
+    "frequency-curves.pdf"
+  ],
+  "reproducer": "scripts/research/analyze_kindle_frequency.py",
+  "regression": {
+    "tests": 1145,
+    "optional_skips": 152,
+    "failures": 0,
+    "seconds": 109.228
+  },
+  "limits": [
+    "One examined seed/index/cohort; conditional paired-user CIs omit seed/index/item clustering and model selection uncertainty.",
+    "No multiple-comparison correction; TEST previously examined,followup exploratory.",
+    "All new fits reach the60epoch cap;best55/60/55,not established convergence.",
+    "Recent10is a cheaper recent-only control,not a FLOP-matched control. Historical timings are not simultaneous benchmarks.",
+    "Forward FLOPs exclude beam/backward/offline text encoding;not serving latency."
+  ]
+}
