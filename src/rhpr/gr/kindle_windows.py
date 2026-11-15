@@ -33,7 +33,7 @@ def validate(c):
 def encode_window(contexts, sids, width):
     """Keep the latest items, four codes/item, preserve left padding and order."""
     h=np.asarray(contexts)
-    if width not in WINDOWS or h.ndim!=2 or h.shape[1]!=64 or sids.ndim!=2 or sids.shape[1]!=4:
+    if width not in (10, *WINDOWS) or h.ndim!=2 or h.shape[1]!=64 or sids.ndim!=2 or sids.shape[1]!=4:
         raise ValueError('expected 64-item histories and unique 3+1 SIDs')
     h=h[:,-width:]
     if np.any(h < -1) or np.any(h>=len(sids)):raise ValueError('invalid item ID')

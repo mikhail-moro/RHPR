@@ -1,0 +1,834 @@
+{
+  "parent_pins_verified": 64,
+  "input_files_verified": 10,
+  "new_generator_fits": 2,
+  "gpu_used": false,
+  "policy": {
+    "merge_fraction": 0.5,
+    "schedule": "constant",
+    "count_unit": "optimizer_batch",
+    "positions_unit": "individual_history",
+    "tiling": "uniform_matching_given_count",
+    "short_history_count": "binomial_at_available_capacity",
+    "inference": "pair20",
+    "count_rng_stream": 7401,
+    "tiling_rng_stream": 7402,
+    "preserve_native_positions": true,
+    "force_original_pair_endpoint": true,
+    "compiler_recompile_limit": 32
+  },
+  "seed_roles": {
+    "index_seed": 42,
+    "training_seed": 42,
+    "augmentation_seed": 42
+  },
+  "train_targets": 141137,
+  "new_pairs": 5011,
+  "needed_by_split": {
+    "train": 119744,
+    "validation": 4739,
+    "test": 4734
+  },
+  "original_pair_sids_unchanged": true,
+  "missing_pair_semantic_encoding": "runtime only; CPU geometry checks use explicitly synthetic temporary input codes",
+  "first_epoch_geometry": {
+    "merge_fraction": 0.5,
+    "merge_count_batches": [
+      8,
+      33,
+      82,
+      108,
+      38,
+      7
+    ],
+    "merge_count_examples": [
+      4096,
+      16896,
+      41984,
+      55121,
+      19456,
+      3584
+    ],
+    "pair_summary_occurrences": 334505,
+    "odd_start_pair_occurrences": 125102,
+    "padding_sid_positions": 618216,
+    "native_sid_widths": [
+      80,
+      76,
+      72,
+      68,
+      64,
+      60
+    ],
+    "examples_consumed_once": true,
+    "schedule_sha256": "e2306f39a95d65325c65246bea55323c0aa4eb023b0ac5113309f973179f6eae",
+    "tokenized_epoch_sha256": "2debbbb82029414eba32246bebaea1285afc6e97f483574ec02e2a9291eedbeb"
+  },
+  "first_epoch_cpu_seconds": 4.159828864998417,
+  "sixty_epoch_pair_occurrences": 19665207,
+  "all_60_schedules": [
+    {
+      "epoch": 1,
+      "merge_count_examples": [
+        4096,
+        16896,
+        41984,
+        55121,
+        19456,
+        3584
+      ],
+      "pair_occurrences": 334505
+    },
+    {
+      "epoch": 2,
+      "merge_count_examples": [
+        4096,
+        17920,
+        44369,
+        53248,
+        18944,
+        2560
+      ],
+      "pair_occurrences": 328288
+    },
+    {
+      "epoch": 3,
+      "merge_count_examples": [
+        4608,
+        22528,
+        41809,
+        44544,
+        22016,
+        5632
+      ],
+      "pair_occurrences": 329060
+    },
+    {
+      "epoch": 4,
+      "merge_count_examples": [
+        6144,
+        18944,
+        43345,
+        43008,
+        25600,
+        4096
+      ],
+      "pair_occurrences": 330881
+    },
+    {
+      "epoch": 5,
+      "merge_count_examples": [
+        3072,
+        20480,
+        43857,
+        41984,
+        27136,
+        4608
+      ],
+      "pair_occurrences": 338308
+    },
+    {
+      "epoch": 6,
+      "merge_count_examples": [
+        4096,
+        16721,
+        45056,
+        47616,
+        24064,
+        3584
+      ],
+      "pair_occurrences": 336867
+    },
+    {
+      "epoch": 7,
+      "merge_count_examples": [
+        4096,
+        23040,
+        43008,
+        44032,
+        22353,
+        4608
+      ],
+      "pair_occurrences": 327886
+    },
+    {
+      "epoch": 8,
+      "merge_count_examples": [
+        5120,
+        24576,
+        46929,
+        43520,
+        15872,
+        5120
+      ],
+      "pair_occurrences": 312677
+    },
+    {
+      "epoch": 9,
+      "merge_count_examples": [
+        2560,
+        24576,
+        45568,
+        41297,
+        20480,
+        6656
+      ],
+      "pair_occurrences": 328779
+    },
+    {
+      "epoch": 10,
+      "merge_count_examples": [
+        3072,
+        23040,
+        48465,
+        41984,
+        22528,
+        2048
+      ],
+      "pair_occurrences": 320089
+    },
+    {
+      "epoch": 11,
+      "merge_count_examples": [
+        5120,
+        24064,
+        39936,
+        41472,
+        26112,
+        4433
+      ],
+      "pair_occurrences": 327791
+    },
+    {
+      "epoch": 12,
+      "merge_count_examples": [
+        3072,
+        23552,
+        41472,
+        44881,
+        23552,
+        4608
+      ],
+      "pair_occurrences": 331425
+    },
+    {
+      "epoch": 13,
+      "merge_count_examples": [
+        4608,
+        21329,
+        40960,
+        46080,
+        25600,
+        2560
+      ],
+      "pair_occurrences": 329660
+    },
+    {
+      "epoch": 14,
+      "merge_count_examples": [
+        4608,
+        20480,
+        51537,
+        37888,
+        24064,
+        2560
+      ],
+      "pair_occurrences": 320370
+    },
+    {
+      "epoch": 15,
+      "merge_count_examples": [
+        3584,
+        20480,
+        46592,
+        45905,
+        16384,
+        8192
+      ],
+      "pair_occurrences": 331658
+    },
+    {
+      "epoch": 16,
+      "merge_count_examples": [
+        5120,
+        23040,
+        43857,
+        41984,
+        20480,
+        6656
+      ],
+      "pair_occurrences": 325496
+    },
+    {
+      "epoch": 17,
+      "merge_count_examples": [
+        3072,
+        25088,
+        40960,
+        45568,
+        22865,
+        3584
+      ],
+      "pair_occurrences": 326559
+    },
+    {
+      "epoch": 18,
+      "merge_count_examples": [
+        5632,
+        19968,
+        49152,
+        38912,
+        22353,
+        5120
+      ],
+      "pair_occurrences": 323502
+    },
+    {
+      "epoch": 19,
+      "merge_count_examples": [
+        4096,
+        24064,
+        42321,
+        40960,
+        26112,
+        3584
+      ],
+      "pair_occurrences": 327617
+    },
+    {
+      "epoch": 20,
+      "merge_count_examples": [
+        3584,
+        19968,
+        48128,
+        42833,
+        23040,
+        3584
+      ],
+      "pair_occurrences": 328469
+    },
+    {
+      "epoch": 21,
+      "merge_count_examples": [
+        4096,
+        20992,
+        48640,
+        41809,
+        22528,
+        3072
+      ],
+      "pair_occurrences": 323341
+    },
+    {
+      "epoch": 22,
+      "merge_count_examples": [
+        4096,
+        16384,
+        45568,
+        47616,
+        21841,
+        5632
+      ],
+      "pair_occurrences": 338250
+    },
+    {
+      "epoch": 23,
+      "merge_count_examples": [
+        3072,
+        19456,
+        41984,
+        48128,
+        24913,
+        3584
+      ],
+      "pair_occurrences": 337976
+    },
+    {
+      "epoch": 24,
+      "merge_count_examples": [
+        3072,
+        20480,
+        48128,
+        42321,
+        23552,
+        3584
+      ],
+      "pair_occurrences": 329421
+    },
+    {
+      "epoch": 25,
+      "merge_count_examples": [
+        3072,
+        21504,
+        41984,
+        52049,
+        17920,
+        4608
+      ],
+      "pair_occurrences": 330214
+    },
+    {
+      "epoch": 26,
+      "merge_count_examples": [
+        3072,
+        16896,
+        41297,
+        51712,
+        21504,
+        6656
+      ],
+      "pair_occurrences": 345705
+    },
+    {
+      "epoch": 27,
+      "merge_count_examples": [
+        7168,
+        30033,
+        38912,
+        43520,
+        16896,
+        4608
+      ],
+      "pair_occurrences": 305114
+    },
+    {
+      "epoch": 28,
+      "merge_count_examples": [
+        3072,
+        15872,
+        47616,
+        45905,
+        23040,
+        5632
+      ],
+      "pair_occurrences": 340880
+    },
+    {
+      "epoch": 29,
+      "merge_count_examples": [
+        3584,
+        19456,
+        46417,
+        44032,
+        21504,
+        6144
+      ],
+      "pair_occurrences": 334338
+    },
+    {
+      "epoch": 30,
+      "merge_count_examples": [
+        4608,
+        20992,
+        45393,
+        45056,
+        24576,
+        512
+      ],
+      "pair_occurrences": 321053
+    },
+    {
+      "epoch": 31,
+      "merge_count_examples": [
+        2048,
+        24064,
+        49489,
+        39936,
+        22016,
+        3584
+      ],
+      "pair_occurrences": 323029
+    },
+    {
+      "epoch": 32,
+      "merge_count_examples": [
+        3072,
+        22353,
+        44544,
+        40448,
+        23552,
+        7168
+      ],
+      "pair_occurrences": 335948
+    },
+    {
+      "epoch": 33,
+      "merge_count_examples": [
+        5120,
+        16721,
+        43520,
+        47104,
+        24064,
+        4608
+      ],
+      "pair_occurrences": 337137
+    },
+    {
+      "epoch": 34,
+      "merge_count_examples": [
+        2048,
+        19456,
+        44032,
+        43008,
+        27136,
+        5457
+      ],
+      "pair_occurrences": 344966
+    },
+    {
+      "epoch": 35,
+      "merge_count_examples": [
+        5120,
+        18432,
+        45568,
+        50001,
+        18432,
+        3584
+      ],
+      "pair_occurrences": 324719
+    },
+    {
+      "epoch": 36,
+      "merge_count_examples": [
+        5120,
+        19456,
+        44544,
+        50176,
+        18257,
+        3584
+      ],
+      "pair_occurrences": 324304
+    },
+    {
+      "epoch": 37,
+      "merge_count_examples": [
+        4945,
+        32768,
+        39424,
+        38912,
+        20480,
+        4608
+      ],
+      "pair_occurrences": 308077
+    },
+    {
+      "epoch": 38,
+      "merge_count_examples": [
+        2560,
+        22865,
+        40448,
+        45568,
+        26112,
+        3584
+      ],
+      "pair_occurrences": 335796
+    },
+    {
+      "epoch": 39,
+      "merge_count_examples": [
+        2560,
+        20480,
+        51712,
+        42496,
+        20305,
+        3584
+      ],
+      "pair_occurrences": 324428
+    },
+    {
+      "epoch": 40,
+      "merge_count_examples": [
+        5120,
+        18432,
+        49664,
+        40448,
+        24401,
+        3072
+      ],
+      "pair_occurrences": 325589
+    },
+    {
+      "epoch": 41,
+      "merge_count_examples": [
+        2560,
+        18769,
+        50688,
+        40448,
+        23040,
+        5632
+      ],
+      "pair_occurrences": 334398
+    },
+    {
+      "epoch": 42,
+      "merge_count_examples": [
+        5120,
+        19968,
+        44881,
+        46592,
+        19968,
+        4608
+      ],
+      "pair_occurrences": 325847
+    },
+    {
+      "epoch": 43,
+      "merge_count_examples": [
+        5969,
+        23552,
+        37888,
+        49152,
+        22016,
+        2560
+      ],
+      "pair_occurrences": 321170
+    },
+    {
+      "epoch": 44,
+      "merge_count_examples": [
+        5120,
+        22865,
+        41984,
+        39424,
+        23040,
+        8704
+      ],
+      "pair_occurrences": 333899
+    },
+    {
+      "epoch": 45,
+      "merge_count_examples": [
+        4945,
+        23040,
+        39424,
+        45056,
+        23552,
+        5120
+      ],
+      "pair_occurrences": 330110
+    },
+    {
+      "epoch": 46,
+      "merge_count_examples": [
+        4945,
+        18944,
+        51712,
+        43520,
+        18432,
+        3584
+      ],
+      "pair_occurrences": 318897
+    },
+    {
+      "epoch": 47,
+      "merge_count_examples": [
+        4608,
+        19456,
+        37888,
+        43008,
+        29521,
+        6656
+      ],
+      "pair_occurrences": 347725
+    },
+    {
+      "epoch": 48,
+      "merge_count_examples": [
+        3072,
+        17920,
+        44369,
+        49152,
+        23040,
+        3584
+      ],
+      "pair_occurrences": 337332
+    },
+    {
+      "epoch": 49,
+      "merge_count_examples": [
+        2048,
+        23552,
+        46592,
+        40273,
+        23040,
+        5632
+      ],
+      "pair_occurrences": 330556
+    },
+    {
+      "epoch": 50,
+      "merge_count_examples": [
+        5632,
+        26624,
+        41984,
+        39424,
+        24913,
+        2560
+      ],
+      "pair_occurrences": 315594
+    },
+    {
+      "epoch": 51,
+      "merge_count_examples": [
+        5120,
+        19968,
+        52224,
+        37713,
+        19456,
+        6656
+      ],
+      "pair_occurrences": 322627
+    },
+    {
+      "epoch": 52,
+      "merge_count_examples": [
+        3584,
+        22865,
+        47616,
+        45568,
+        17920,
+        3584
+      ],
+      "pair_occurrences": 318768
+    },
+    {
+      "epoch": 53,
+      "merge_count_examples": [
+        1536,
+        22528,
+        51712,
+        41297,
+        16896,
+        7168
+      ],
+      "pair_occurrences": 327134
+    },
+    {
+      "epoch": 54,
+      "merge_count_examples": [
+        2048,
+        22016,
+        51200,
+        45905,
+        18432,
+        1536
+      ],
+      "pair_occurrences": 316213
+    },
+    {
+      "epoch": 55,
+      "merge_count_examples": [
+        5632,
+        20992,
+        41297,
+        42496,
+        27136,
+        3584
+      ],
+      "pair_occurrences": 331023
+    },
+    {
+      "epoch": 56,
+      "merge_count_examples": [
+        7168,
+        29184,
+        43520,
+        33617,
+        23040,
+        4608
+      ],
+      "pair_occurrences": 307376
+    },
+    {
+      "epoch": 57,
+      "merge_count_examples": [
+        7680,
+        24576,
+        40785,
+        33792,
+        26112,
+        8192
+      ],
+      "pair_occurrences": 326733
+    },
+    {
+      "epoch": 58,
+      "merge_count_examples": [
+        7168,
+        22528,
+        47616,
+        35328,
+        23889,
+        4608
+      ],
+      "pair_occurrences": 316738
+    },
+    {
+      "epoch": 59,
+      "merge_count_examples": [
+        5120,
+        24064,
+        46080,
+        45393,
+        17920,
+        2560
+      ],
+      "pair_occurrences": 312611
+    },
+    {
+      "epoch": 60,
+      "merge_count_examples": [
+        3072,
+        16896,
+        48128,
+        44544,
+        21841,
+        6656
+      ],
+      "pair_occurrences": 340284
+    }
+  ],
+  "old32_first_epoch_byte_replay_verified": true,
+  "full_and_pair20_endpoints_verified": true,
+  "recent10_is_exact_latest_half": true,
+  "initial_state_matches_completed_controls": true,
+  "native_costs": {
+    "0": {
+      "encoder_positions": 81,
+      "supported_forward_flops_batch1": 427087952
+    },
+    "1": {
+      "encoder_positions": 77,
+      "supported_forward_flops_batch1": 405226568
+    },
+    "2": {
+      "encoder_positions": 73,
+      "supported_forward_flops_batch1": 383561920
+    },
+    "3": {
+      "encoder_positions": 69,
+      "supported_forward_flops_batch1": 362094008
+    },
+    "4": {
+      "encoder_positions": 65,
+      "supported_forward_flops_batch1": 340822832
+    },
+    "5": {
+      "encoder_positions": 61,
+      "supported_forward_flops_batch1": 319748392
+    },
+    "recent10": {
+      "encoder_positions": 41,
+      "supported_forward_flops_batch1": 217327232
+    }
+  },
+  "finite_forward_backward_losses": {
+    "0": 22.819421768188477,
+    "1": 22.550626754760742,
+    "2": 22.985401153564453,
+    "3": 23.505762100219727,
+    "4": 22.389976501464844,
+    "5": 22.22530174255371,
+    "recent10": 21.517364501953125
+  }
+}

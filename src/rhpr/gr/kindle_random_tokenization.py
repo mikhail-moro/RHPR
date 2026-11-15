@@ -44,22 +44,27 @@ def matching_starts(length, count, rng):
 
 
 class RandomTokenization:
-    def __init__(self, contexts, item_sids, keys, pair_sids, batch_size=512, seed=42, merge_fraction=.5):
+    def __init__(self, contexts, item_sids, keys, pair_sids, batch_size=512, seed=42, merge_fraction=.5,
+                 history_items=32, augmentation_seed=None):
         h = np.asarray(contexts)
         if (h.ndim != 2 or h.shape[1] != 64 or item_sids.ndim != 2 or item_sids.shape[1] != 4
             or pair_sids.shape != (len(keys), 4) or batch_size <= 0 or not 0 <= merge_fraction <= 1
+            or history_items not in (20, 32)
             or np.any(h < -1) or np.any(h >= len(item_sids)) or np.any(keys[1:] <= keys[:-1])):
             raise ValueError('expected original64-item cases and frozen unique3+1SID indexes')
-        h = h[:, -32:]; self.lengths = (h >= 0).sum(1)
-        if np.any((np.arange(32)[None, :] < (32-self.lengths)[:, None]) != (h < 0)):
+        self.width = history_items; self.capacity = history_items//4
+        self.augmentation_seed = seed if augmentation_seed is None else augmentation_seed
+        h = h[:, -self.width:]; self.lengths = (h >= 0).sum(1)
+        if np.any((np.arange(self.width)[None, :] < (self.width-self.lengths)[:, None]) != (h < 0)):
             raise ValueError('histories must use contiguous left padding')
         self.n, self.batch_size, self.seed, self.probability = len(h), batch_size, seed, merge_fraction
-        positions = np.minimum((32-self.lengths)[:, None]+np.arange(32), 31)
+        positions = np.minimum((self.width-self.lengths)[:, None]+np.arange(self.width), self.width-1)
         compact = np.take_along_axis(h, positions, axis=1)
         self.singles = (item_sids[np.maximum(compact, 0)] + np.arange(4)*256).astype(np.int32)
-        self.pairs = np.zeros((self.n, 15, 4), dtype=np.int32)
-        valid = np.arange(15)[None, :]+1 < (self.lengths//2)[:, None]
-        query = compact[:, :15].astype(np.int64)*len(item_sids)+compact[:, 1:16]
+        edges = self.width//2-1
+        self.pairs = np.zeros((self.n, edges, 4), dtype=np.int32)
+        valid = np.arange(edges)[None, :]+1 < (self.lengths//2)[:, None]
+        query = compact[:, :edges].astype(np.int64)*len(item_sids)+compact[:, 1:edges+1]
         needed = query[valid]; at = np.searchsorted(keys, needed)
         if np.any(at >= len(keys)) or not np.array_equal(keys[at], needed):
             raise ValueError('random adjacent pair missing from frozen index; never silently drop it')
@@ -68,8 +73,8 @@ class RandomTokenization:
         self.epoch = None
 
     def schedule(self, epoch):
-        rng = np.random.default_rng(np.random.SeedSequence([self.seed, epoch, POLICY['count_rng_stream']]))
-        return (rng.random(((self.n+self.batch_size-1)//self.batch_size, 8)) < self.probability).sum(1).astype(np.int8)
+        rng = np.random.default_rng(np.random.SeedSequence([self.augmentation_seed, epoch, POLICY['count_rng_stream']]))
+        return (rng.random(((self.n+self.batch_size-1)//self.batch_size, self.capacity)) < self.probability).sum(1).astype(np.int8)
 
     def merge_slots(self, count, epoch, batch):
         """Shared conditional subset gives every short history its own Binomial(cap,p).
@@ -77,20 +82,20 @@ class RandomTokenization:
         It preserves native32-count width:missing merges<=8-cap<=32-length.
         Slots govern only counts;actual chronological matching is sampled separately.
         """
-        rng = np.random.default_rng(np.random.SeedSequence([self.seed, epoch, batch, POLICY['count_rng_stream'], 1]))
-        slots = np.zeros(8, dtype=bool); slots[rng.choice(8, size=count, replace=False)] = True
+        rng = np.random.default_rng(np.random.SeedSequence([self.augmentation_seed, epoch, batch, POLICY['count_rng_stream'], 1]))
+        slots = np.zeros(self.capacity, dtype=bool); slots[rng.choice(self.capacity, size=count, replace=False)] = True
         return slots
 
     def encode_batch(self, part, count, epoch, batch):
         """Exact native max-width; only short original histories receive padding."""
-        part = np.asarray(part); out = np.full((len(part), 4*(32-count)), -1, dtype=np.int32)
-        rng = np.random.default_rng(np.random.SeedSequence([self.seed, epoch, batch, POLICY['tiling_rng_stream']]))
+        part = np.asarray(part); out = np.full((len(part), 4*(self.width-count)), -1, dtype=np.int32)
+        rng = np.random.default_rng(np.random.SeedSequence([self.augmentation_seed, epoch, batch, POLICY['tiling_rng_stream']]))
         slot_counts = np.r_[0, self.merge_slots(count, epoch, batch).cumsum()]
         pair_count = odd_starts = 0
         for row, index in enumerate(part):
             n = int(self.lengths[index]); old = n//2; k = int(slot_counts[old//2])
             # Endpoints replay Full32 and originalPair32 exactly,including short windows.
-            starts = np.arange(0, 2*k, 2) if count == 8 else matching_starts(old, k, rng)
+            starts = np.arange(0, 2*k, 2) if count == self.capacity else matching_starts(old, k, rng)
             merge = set(starts.tolist()); tokens = []; j = 0
             while j < n:
                 if j in merge:
@@ -110,7 +115,7 @@ class RandomTokenization:
             self.epoch = epoch; self.choices = self.schedule(epoch)
             self.order = np.random.default_rng(self.seed+epoch).permutation(self.n)
             self.inverse = np.argsort(self.order); self.counts = np.zeros(self.n, dtype=np.int32)
-            self.batch_counts = np.zeros(9, dtype=np.int64); self.example_counts = np.zeros(9, dtype=np.int64)
+            self.batch_counts = np.zeros(self.capacity+1, dtype=np.int64); self.example_counts = np.zeros(self.capacity+1, dtype=np.int64)
             self.pair_occurrences = self.odd_pair_occurrences = self.padding_positions = 0
             self.digest = hashlib.sha256(); self.generated = set(); self.cached_batch = None
         part = np.asarray(part)
@@ -139,7 +144,7 @@ class RandomTokenization:
         return dict(merge_fraction=self.probability, merge_count_batches=self.batch_counts.tolist(),
             merge_count_examples=self.example_counts.tolist(), pair_summary_occurrences=int(self.pair_occurrences),
             odd_start_pair_occurrences=int(self.odd_pair_occurrences), padding_sid_positions=self.padding_positions,
-            native_sid_widths=[4*(32-i) for i in range(9)], examples_consumed_once=True,
+            native_sid_widths=[4*(self.width-i) for i in range(self.capacity+1)], examples_consumed_once=True,
             schedule_sha256=hashlib.sha256(self.choices.tobytes()).hexdigest(), tokenized_epoch_sha256=self.digest.hexdigest())
 
 

@@ -2,6 +2,30 @@
 
 ## Research status
 
+- Authorized2026-11-15:Mixed20 stochasticwithin-historytraining+Recent10,
+  exactlytwofreshseed42fits,oneperT4;reuseRecent20/32andPair32outputs.
+  Configkindle_mixed20_2t4.json,modulekindle_mixed20,kernelcarasik/
+  rhpr-kindle-mixed20private/offline. MixedTRAINM~Binomial(5,.5)perbatch,
+  individualold10matchings/recent10single;shortcountsrestrict5virtualslots.
+  VAL/finalselectedTESTdeterministicPair20,5pairs+10singles=61positions,
+  .319748392GF;Recent10same10events/41positions/.217327232GF.
+  ReusedR20.427087952GF;Mixedsaves25.13%. Everyinput/target3+1,noeventloss.
+  Samewide4+4/d128/FF1024/dkv64/H6,FP16SDPAcompile512,LR.003->.001warmup2/
+  cosine60,min40max60,VAL5/scoreEMA.5delta.0005pat15/rawVALselect,beam20
+  FP32/64/noseenfilter. Same958users/16177items/141137TRAINtargets.
+  Seedrolesindex42/training42/augmentation42nowexplicit;sampleraugmentation
+  RNGindependentofunchangedshuffle.32defaultfirstepochbyte-replayverified.
+  5011missingpairsencodefrozenST5max2048+savedRQcentroids;appendsuffixTRAIN
+  thenVALthenTEST,all116401oldSIDsunchanged,norefit.64parent+10inputpins
+  CPUverified;all6nativeMixedwidthsandR10forward/backwardfinite,sameinitializer.
+  PreflightusesexplicitlysyntheticmissinginputcodesforgeometryONLY;actual
+  missingvectors/codesproducedandretainedonKaggle. Quota36.30GPUh;estimate
+  45–75min,serverhard180min/suite10800s/fit7200s. Nonewseeds/schedules/lengths/
+  controls/HPO/retries/notifications. Docsgr-kindle-mixed20.md/preflight.json.
+  Submissionpending;do notduplicatefits. TESTalreadyexamined,exploratory.
+  Full1138testsPASS/152optionalskips/0failures75.973s. Privateofflinebundle
+  all214Pythonfiles/exactconfigverified;926204bytesbeforefinalcommit.
+
 - Random32 follow-up2026-11-15:CPU saved-data diagnosis only,noGPU/inference.
   Reportsgr-kindle-random-tokenization-diagnosis.md/.json;reproducer
   scripts/research/diagnose_kindle_random_tokenization.py;privateartifacts/

@@ -53,7 +53,7 @@ def check_parent(c, old):
 def collect_keys(contexts, width, nitems):
     """Ordered nonoverlapping pairs of the older half of each valid window."""
     h = np.asarray(contexts)[:, -width:]
-    if width not in (32, 64) or np.any(h < -1) or np.any(h >= nitems):
+    if width not in (20, 32, 64) or np.any(h < -1) or np.any(h >= nitems):
         raise ValueError('invalid item history')
     lengths = (h >= 0).sum(1)
     rows = np.arange(len(h))
@@ -68,8 +68,8 @@ def collect_keys(contexts, width, nitems):
 
 def encode(contexts, item_sids, keys, pair_sids, width):
     """Each pair AND each single uses 3+1; padding never enters a pair."""
-    if width not in (32, 64) or item_sids.shape[1] != 4 or pair_sids.shape != (len(keys), 4):
-        raise ValueError('expected 32/64 items and unique four-code SIDs')
+    if width not in (20, 32, 64) or item_sids.shape[1] != 4 or pair_sids.shape != (len(keys), 4):
+        raise ValueError('expected 20/32/64 items and unique four-code SIDs')
     nitems = len(item_sids)
     ncols = 4 * max(n - n//4 for n in range(width+1))
     out = np.full((len(contexts), ncols), -1, dtype=np.int32)
