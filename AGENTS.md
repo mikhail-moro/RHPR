@@ -2,6 +2,37 @@
 
 ## Research status
 
+
+- Authorized2026-11-15:original Amazon2014Beauty/P5 TIGER-style compression
+  pilot,not long-user Kindle. EXACTLY4freshseed42fits:Recent20,Recent3,
+  Random20protected-tail3,Random20protected-tail5;2isolatedT4workers.
+  Configbeauty_pairs_2t4.json;modulebeauty_pairs;docsgr-beauty-pairs.md.
+  Preserve22363users/12101items/131413allTRAINprefixes;minTRAINinput1,
+  VAL3/TEST4;last2targets,TESTobservesVAL;cap20,no extra filters.
+  Tailrmeanslastmin(n,r)rawitemsalwayssingle;old=max(n-r,0),paircapacity
+  floor(old/2). TRAINglobalbatchBinomial(capacity,.5),uniformconditional
+  virtualslotsforshorthistories,individualuniformmatchings;VAL/TESTfixed
+  oldestpairs,oddsinglebeforetail. All events/order/3+1suffixespreserved,
+  targetsalwayssingle. Recent3NOTcompute-matched;no equal-budgetPareto claim.
+  OriginalGRIDcataloguetext;frozenST5single256/pair2048tokens,ordered
+  Firstitem/Seconditemlabels. NativeGRIDRQKMeans3x256,itemallstaticcatalogue,
+  pairTRAINcandidatesONLY;frozenheldoutassignments/appendsuffixTRAIN->VAL->TEST.
+  PaircountsTRAIN51400/VAL28944/TEST36736,union65080;saveallvectors/centroids/
+  SIDs. Tail3eligibleTRAIN60506/VAL10980/TEST15201;tail545717/6489/8300.
+  Samewide4+4/d128/FF1024/dkv64/H6/USER2000/noSEP/SDPA,5108992parameters,
+  initializer34e7397ed277CPUverified/actualruntimeasserted. FP16compiled512,
+  Adam.003->.001warmup2/cosine60thenfloor,min40max120,VAL5,EMA.5delta.0005
+  patience20,rawVALNDCGbest;FP32beam20/batch64/fullcatalogue/noseenfilter.
+  Savefullbest/last optimizer/scaler/LR/RNG;cap120doesnotproveplateau.
+  CPUpreflightusesEXPLICITLYSYNTHETICindexesforgeometry/finiteactualbackbone,
+  not fitted-indexqualityclaim;actualRQfits/suffixcheckedruntime.
+  SupportedpaddedforwardGFRecent20.427088/Tail3.257706/Tail5.278190/R3.082201;
+  not servinglatency,exclude beam/backward/cachebuild. NoexactTIGERreproduction
+  claim. Fitwall10000s/suite21600s/server360min;estimate2-4hafterbootstrap.
+  BeautyVAL23.3xKindle;notguaranteedfaster. Full1160testsPASS/152skips/0fails
+  102.646s. Privateofflinecarasik/rhpr-beauty-pairs;2datasets/no parentmount;
+  noadditionalseeds/HPO/retries/notifications. Submitonce,thenreturn.
+
 - Authorized2026-11-15:TRAINsamplingratios/curriculumonoriginalRandom20,
   EXACTLY3freshseed42fits,privateofflinecarasik/rhpr-kindle-sampling,
   configkindle_sampling_2t4.json,modulekindle_sampling. Trialsrandom20_p25_42

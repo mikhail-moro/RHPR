@@ -1,0 +1,265 @@
+{
+  "gpu_used": false,
+  "warning": "Synthetic unique3+1SIDs ONLY for geometry/backbone,not real fitted indexes or quality claims",
+  "data_sha256_verified": {
+    "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+    "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+  },
+  "data": {
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "full_length_median": 6.0,
+    "splits": {
+      "train": {
+        "examples": 131413,
+        "context_length_counts": [
+          0,
+          22363,
+          22363,
+          15201,
+          10980,
+          8300,
+          6489,
+          5123,
+          4242,
+          3547,
+          2989,
+          2550,
+          2189,
+          1927,
+          1720,
+          1507,
+          1366,
+          1248,
+          1136,
+          1019,
+          15154
+        ],
+        "tails": {
+          "3": {
+            "compressible_examples": 60506,
+            "fixed_pair_occurrences": 253628
+          },
+          "5": {
+            "compressible_examples": 45717,
+            "fixed_pair_occurrences": 193122
+          }
+        }
+      },
+      "validation": {
+        "examples": 22363,
+        "context_length_counts": [
+          0,
+          0,
+          0,
+          7162,
+          4221,
+          2680,
+          1811,
+          1366,
+          881,
+          695,
+          558,
+          439,
+          361,
+          262,
+          207,
+          213,
+          141,
+          118,
+          112,
+          117,
+          1019
+        ],
+        "tails": {
+          "3": {
+            "compressible_examples": 10980,
+            "fixed_pair_occurrences": 31111
+          },
+          "5": {
+            "compressible_examples": 6489,
+            "fixed_pair_occurrences": 20131
+          }
+        }
+      },
+      "test": {
+        "examples": 22363,
+        "context_length_counts": [
+          0,
+          0,
+          0,
+          0,
+          7162,
+          4221,
+          2680,
+          1811,
+          1366,
+          881,
+          695,
+          558,
+          439,
+          361,
+          262,
+          207,
+          213,
+          141,
+          118,
+          112,
+          1136
+        ],
+        "tails": {
+          "3": {
+            "compressible_examples": 15201,
+            "fixed_pair_occurrences": 39403
+          },
+          "5": {
+            "compressible_examples": 8300,
+            "fixed_pair_occurrences": 24202
+          }
+        }
+      }
+    }
+  },
+  "pair_counts": {
+    "train": 51400,
+    "validation": 28944,
+    "test": 36736
+  },
+  "all_pairs": 65080,
+  "expected_initial_state_sha256": "34e7397ed277c78befd6254cbb736794df4907a011ed032bbd0735d9b7272286",
+  "parameters": 5108992,
+  "raw_case_sha256": {
+    "train": "6f7ba06c70a6a218d4e620ac77ce41142baf762f7e62902c9fc9b6f7b45d847f",
+    "validation": "23c72dac8826529d7fbdc471570e9a4197083ec53b635b44afbb71b56ea83a45",
+    "test": "0d20a12cfc213c4f7134b7c78be3fef6ab3170c9417d3a3ff1a99521373bc356"
+  },
+  "first_epochs_synthetic": {
+    "3": {
+      "merge_fraction": 0.5,
+      "merge_count_batches": [
+        3,
+        5,
+        21,
+        55,
+        69,
+        63,
+        35,
+        4,
+        2
+      ],
+      "merge_count_examples": [
+        1536,
+        2560,
+        10752,
+        27989,
+        35328,
+        32256,
+        17920,
+        2048,
+        1024
+      ],
+      "pair_summary_occurrences": 130026,
+      "odd_start_pair_occurrences": 56358,
+      "padding_sid_positions": 5347776,
+      "native_sid_widths": [
+        80,
+        76,
+        72,
+        68,
+        64,
+        60,
+        56,
+        52,
+        48
+      ],
+      "examples_consumed_once": true,
+      "schedule_sha256": "1490aa55a886f4fb1132a468286e85e6bf264f272a4257be59b3646900d6db3b",
+      "tokenized_epoch_sha256": "777d08b198c8e1be47cb1188c4fb5ac9ffff9dbdeeb03a9232bdcba27be1dede",
+      "protected_tail_items": 3
+    },
+    "5": {
+      "merge_fraction": 0.5,
+      "merge_count_batches": [
+        3,
+        6,
+        37,
+        72,
+        83,
+        44,
+        9,
+        3
+      ],
+      "merge_count_examples": [
+        1536,
+        3072,
+        18944,
+        36864,
+        42496,
+        22357,
+        4608,
+        1536
+      ],
+      "pair_summary_occurrences": 99882,
+      "odd_start_pair_occurrences": 43342,
+      "padding_sid_positions": 5503000,
+      "native_sid_widths": [
+        80,
+        76,
+        72,
+        68,
+        64,
+        60,
+        56,
+        52
+      ],
+      "examples_consumed_once": true,
+      "schedule_sha256": "15792cb0ebcc27ec5b91daf9f8492f60d967c755fa073a8e2ae958714be33ecb",
+      "tokenized_epoch_sha256": "d517480c1982bedcafa680dafdb28cbae8e91c58678aa552934aa6bdf60210b0",
+      "protected_tail_items": 5
+    }
+  },
+  "native_costs": {
+    "12": {
+      "encoder_positions": 13,
+      "supported_forward_flops_batch1": 82200564
+    },
+    "48": {
+      "encoder_positions": 49,
+      "supported_forward_flops_batch1": 257705640
+    },
+    "52": {
+      "encoder_positions": 53,
+      "supported_forward_flops_batch1": 278189884
+    },
+    "56": {
+      "encoder_positions": 57,
+      "supported_forward_flops_batch1": 298870864
+    },
+    "60": {
+      "encoder_positions": 61,
+      "supported_forward_flops_batch1": 319748580
+    },
+    "64": {
+      "encoder_positions": 65,
+      "supported_forward_flops_batch1": 340823032
+    },
+    "68": {
+      "encoder_positions": 69,
+      "supported_forward_flops_batch1": 362094220
+    },
+    "72": {
+      "encoder_positions": 73,
+      "supported_forward_flops_batch1": 383562144
+    },
+    "76": {
+      "encoder_positions": 77,
+      "supported_forward_flops_batch1": 405226804
+    },
+    "80": {
+      "encoder_positions": 81,
+      "supported_forward_flops_batch1": 427088200
+    }
+  }
+}

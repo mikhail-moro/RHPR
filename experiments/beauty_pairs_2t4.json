@@ -1,0 +1,187 @@
+{
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-beauty-pairs"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false,
+    "attn_implementation": "sdpa"
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 1,
+    "batch_size": 512,
+    "physical_batch_size": 512,
+    "learning_rate": 0.003,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 120,
+    "min_epochs": 40,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 64,
+    "max_seconds": 10000,
+    "sampling": "precomputed_positive_leave_last_two_prefix_windows",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 20,
+    "scheduler": {
+      "kind": "warmup_cosine",
+      "warmup_epochs": 2,
+      "total_epochs": 60,
+      "min_lr": 0.001
+    },
+    "early_stopping": {
+      "kind": "ema",
+      "alpha": 0.5,
+      "min_delta": 0.0005
+    },
+    "compile_training": {
+      "mode": "reduce-overhead",
+      "fullgraph": false,
+      "dynamic": false
+    }
+  },
+  "quantizer": {
+    "kind": "grid_rkmeans",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "passes_per_level": 10,
+    "batch_size": 2048,
+    "init_buffer_size": 3072,
+    "normalize_residuals": true,
+    "distance_backend": "torch_cdist"
+  },
+  "modern_runtime": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-t5-sdpa-runtime",
+    "manifest_sha256": "18f4688aab798d792d9204d1c018d8aba7da80bc97f5aadcdd181b34f6f0b9f6"
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "evaluation": {
+    "test_after_selection": true,
+    "save_validation_predictions": true,
+    "selection_metric": "validation item NDCG@10",
+    "save_validation_losses": true,
+    "candidate_universe": "all12101items,no sampled negatives,no seen-item filtering"
+  },
+  "kind": "gr_beauty_pairs",
+  "name": "beauty_tiger_protocol_random20_tail3_tail5",
+  "seed": 42,
+  "seeds": [
+    42
+  ],
+  "policy": {
+    "history_items": 20,
+    "merge_probability": 0.5,
+    "protected_tails": [
+      3,
+      5
+    ],
+    "training": "batch_binomial_then_uniform_individual_prefix_matching",
+    "short_counts": "conditional_uniform_virtual_slots_not_clipping",
+    "inference": "fixed_oldest_adjacent_pairs_then_odd_single_then_protected_tail",
+    "count_rng_stream": 7401,
+    "tiling_rng_stream": 7402,
+    "compiler_recompile_limit": 32,
+    "suffix_policy": "train_then_validation_then_test",
+    "all_targets_single": true
+  },
+  "trials": [
+    {
+      "id": "recent20_42",
+      "mode": "recent",
+      "recent": 20,
+      "seed": 42
+    },
+    {
+      "id": "recent3_42",
+      "mode": "recent",
+      "recent": 3,
+      "seed": 42
+    },
+    {
+      "id": "random20_tail3_42",
+      "mode": "random",
+      "recent": 3,
+      "seed": 42
+    },
+    {
+      "id": "random20_tail5_42",
+      "mode": "random",
+      "recent": 5,
+      "seed": 42
+    }
+  ],
+  "suite_deadline_seconds": 21600,
+  "compare_initialization_by_seed": true,
+  "data": {
+    "version": "GRID-P5-Amazon2014-Beauty",
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "history_items": 20,
+    "sha256": {
+      "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+      "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+    },
+    "protocol": "all original users;leave-last-two;all TRAIN next-item prefixes;latest20;TEST observes VAL"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-t5-sdpa-runtime"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "representation": {
+    "model": "sentence-transformers/sentence-t5-base",
+    "item_max_tokens": 256,
+    "pair_max_tokens": 2048,
+    "pair_labels": [
+      "First item",
+      "Second item"
+    ],
+    "text": "unchanged GRID catalogue text for each item; no IDs/interaction statistics"
+  },
+  "expected_pair_counts": {
+    "train": 51400,
+    "validation": 28944,
+    "test": 36736
+  },
+  "expected_initial_state_sha256": "34e7397ed277c78befd6254cbb736794df4907a011ed032bbd0735d9b7272286"
+}
