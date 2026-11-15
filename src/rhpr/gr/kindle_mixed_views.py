@@ -148,7 +148,7 @@ class MixedViews:
                     examples_consumed_once=True, native_sid_widths=dict(full32=128, pair32=96))
 
 
-def run_trial(trial, p):
+def run_trial(trial, p, *, view_factory=None, policy=POLICY, mode='mixed_full_pair'):
     import torch
     from rhpr.gr.data import file_sha256
     from rhpr.gr.grid import build_grid_generator
@@ -176,7 +176,8 @@ def run_trial(trial, p):
     raw = {s:cases(p['data'], s) for s in ('train', 'validation')}
     encoded = {s:(encode(h, idx.sids, keys, pairs, 32), u, t) for s,(h,u,t) in raw.items()}
     full = encode_window(raw['train'][0], idx.sids, 32)
-    views = MixedViews(full, encoded['train'][0])
+    views = (MixedViews(full, encoded['train'][0]) if view_factory is None else
+             view_factory(raw['train'][0], idx.sids, keys, pairs))
     model.eval()
     probe = tuple(a[:1] for a in encoded['validation'])
     with torch.inference_mode(), torch.nn.attention.sdpa_kernel(torch.nn.attention.SDPBackend.MATH), torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU], with_flops=True) as prof:
@@ -186,7 +187,7 @@ def run_trial(trial, p):
     if forward != baseline['forward'] or initial != state_digest(dict(model.named_parameters())):
         raise RuntimeError('mixture inference cost or initializer differs from Pair32')
     _write(out/'forward-flops.json', forward)
-    provenance = dict(policy=POLICY,
+    provenance = dict(policy=policy,
         pair_case_sha256=case_digest(encoded['train']), full_case_sha256=case_digest((full,*raw['train'][1:])),
         target_count=len(raw['train'][2]), examples_doubled=False, checkpoint_resume_rng='seed/epoch-addressable')
     resume_from = None
@@ -222,12 +223,13 @@ def run_trial(trial, p):
     h,u,t = cases(p['data'], 'test')
     test = test_selected(model, (encode(h,idx.sids,keys,pairs,32),u,t), wrapped, out,
                          out/'generator-best.pt', selection['best_epoch'])
-    row = dict(trial=trial['id'], seed=42, history_items=32, mode='mixed_full_pair', mixed_views=POLICY,
+    row = dict(trial=trial['id'], seed=42, history_items=32, mode=mode,
         initial_state_sha256=initial, sid_file_sha256=file_sha256(root/'items-42.npy'),
         pair_sid_file_sha256=file_sha256(root/'pairs-42.npy'), selection=selection, forward=forward,
         raw_case_sha256={s:case_digest(a) for s,a in raw.items()},
         case_targets_sha256={s:case_digest(a[1:]) for s,a in raw.items()},
         test_case_sha256=case_digest((h,u,t)), timing=timing, test=test, test_evaluated=True)
+    row['mixed_views' if view_factory is None else 'random_tokenization'] = policy
     for key in ('sid_file_sha256','pair_sid_file_sha256','raw_case_sha256','case_targets_sha256','test_case_sha256'):
         if row[key] != baseline[key]:
             raise RuntimeError('mixture vs completed Pair32 differs: '+key)
@@ -255,7 +257,8 @@ def worker(plan_path, slot):
         gc.collect(); torch.cuda.empty_cache()
 
 
-def run(c, output):
+def run(c, output, *, validator=validate, trials=TRIALS,
+        worker_module='rhpr.gr.kindle_mixed_views', event_prefix='mixed_views', policy=POLICY):
     import torch
     from rhpr.gr.ae_suite import launch_workers
     from rhpr.gr.data import file_sha256
@@ -264,7 +267,7 @@ def run(c, output):
     from rhpr.gr.resources import unpack_grid, verify_resources
     from rhpr.offline_runtime import resolve_dataset_directory
 
-    validate(c); output=Path(output).resolve(); output.mkdir(parents=True,exist_ok=True)
+    validator(c); output=Path(output).resolve(); output.mkdir(parents=True,exist_ok=True)
     (output/'workers').mkdir(exist_ok=True); torch.set_num_threads(1)
     if torch.cuda.device_count() < 1 or torch.cuda.get_device_capability(0) != (7,5):
         raise RuntimeError('requires T4; no hardware fallback')
@@ -301,15 +304,15 @@ def run(c, output):
     with (output/'modern-install.log').open('w') as log:
         subprocess.run(command,stdout=log,stderr=subprocess.STDOUT,check=True,timeout=180)
     plan = dict(config=c,output=str(output),source=str(source),data=str(data),indexes=str(indexes),parent=str(parent),
-                assignments=[dict(slot=0,device='cuda:0',trials=TRIALS)])
+                assignments=[dict(slot=0,device='cuda:0',trials=trials)])
     if resume is not None:
         plan['resume'] = str(resume)
     _write(output/'plan.json',plan); sys.path.insert(0,str(overlay))
-    summary = launch_workers(output/'plan.json',worker_module='rhpr.gr.kindle_mixed_views',event_prefix='mixed_views')
+    summary = launch_workers(output/'plan.json',worker_module=worker_module,event_prefix=event_prefix)
     _write(output/'study-summary.json',dict(results=summary['results'],new_generator_fits=0 if resume else 1,
         resumed_generator_fits=1 if resume else 0,tokenizer_refitted=False,
-        inference_format='pair32',training_policy=POLICY,reused_baselines=['pair32_wide_42','recent32_wide_42']))
-    row = summary['results'][TRIALS[0]['id']]
+        inference_format='pair32',training_policy=policy,reused_baselines=['pair32_wide_42','recent32_wide_42']))
+    row = summary['results'][trials[0]['id']]
     return dict(experiment=c['name'],models=1,seed=42,test_evaluated=True,
                 validation_ndcg10=row['selection']['validation_ndcg10'],test_ndcg10=row['test']['metrics']['ndcg@10'])
 

@@ -1,0 +1,1030 @@
+{
+  "parent_pins_verified": 44,
+  "input_files_verified": 10,
+  "gpu_used": false,
+  "new_generator_fits": 1,
+  "policy": {
+    "merge_fraction": 0.5,
+    "schedule": "constant",
+    "count_unit": "optimizer_batch",
+    "positions_unit": "individual_history",
+    "tiling": "uniform_matching_given_count",
+    "short_history_count": "binomial_at_available_capacity",
+    "inference": "pair32",
+    "count_rng_stream": 7401,
+    "tiling_rng_stream": 7402,
+    "preserve_native_positions": true,
+    "force_original_pair_endpoint": true,
+    "compiler_recompile_limit": 32
+  },
+  "train_targets": 141137,
+  "unique_train_adjacent_candidates": 114727,
+  "missing_cached_pairs": 0,
+  "first_epoch": {
+    "merge_fraction": 0.5,
+    "merge_count_batches": [
+      3,
+      6,
+      23,
+      60,
+      73,
+      67,
+      38,
+      4,
+      2
+    ],
+    "merge_count_examples": [
+      1536,
+      3072,
+      11776,
+      30720,
+      37201,
+      34304,
+      19456,
+      2048,
+      1024
+    ],
+    "pair_summary_occurrences": 511464,
+    "odd_start_pair_occurrences": 215755,
+    "padding_sid_positions": 1633040,
+    "native_sid_widths": [
+      128,
+      124,
+      120,
+      116,
+      112,
+      108,
+      104,
+      100,
+      96
+    ],
+    "examples_consumed_once": true,
+    "schedule_sha256": "72788e3277ac3626f04a76e6f5c1beade66fbaa666fbf99b895e9a20758945aa",
+    "tokenized_epoch_sha256": "2f773d143adfa31928ddd081af7e395dbbf9fb30e3df16ad1acac3f1d8545858"
+  },
+  "first_epoch_cpu_tokenization_seconds": 4.294396371988114,
+  "all_60_schedules_same_original_target_count": true,
+  "sixty_epoch_pair_occurrences": 30063740,
+  "original_pair_sixty_epoch_occurrences": 59928480,
+  "expected_schedule_audit": [
+    {
+      "epoch": 1,
+      "merge_count_examples": [
+        1536,
+        3072,
+        11776,
+        30720,
+        37201,
+        34304,
+        19456,
+        2048,
+        1024
+      ],
+      "expected_actual_pairs": 511464
+    },
+    {
+      "epoch": 2,
+      "merge_count_examples": [
+        0,
+        5632,
+        15360,
+        32081,
+        34816,
+        32768,
+        13824,
+        6144,
+        512
+      ],
+      "expected_actual_pairs": 500425
+    },
+    {
+      "epoch": 3,
+      "merge_count_examples": [
+        1024,
+        4608,
+        15185,
+        25088,
+        45568,
+        28160,
+        13824,
+        6656,
+        1024
+      ],
+      "expected_actual_pairs": 504358
+    },
+    {
+      "epoch": 4,
+      "merge_count_examples": [
+        512,
+        4096,
+        16209,
+        27136,
+        41472,
+        29696,
+        16384,
+        5120,
+        512
+      ],
+      "expected_actual_pairs": 504933
+    },
+    {
+      "epoch": 5,
+      "merge_count_examples": [
+        1024,
+        2048,
+        13824,
+        32768,
+        39761,
+        32768,
+        14336,
+        4608,
+        0
+      ],
+      "expected_actual_pairs": 503615
+    },
+    {
+      "epoch": 6,
+      "merge_count_examples": [
+        1024,
+        4096,
+        12288,
+        29696,
+        41984,
+        30033,
+        15360,
+        6144,
+        512
+      ],
+      "expected_actual_pairs": 508902
+    },
+    {
+      "epoch": 7,
+      "merge_count_examples": [
+        0,
+        3072,
+        15360,
+        32256,
+        32081,
+        40448,
+        15360,
+        2560,
+        0
+      ],
+      "expected_actual_pairs": 506398
+    },
+    {
+      "epoch": 8,
+      "merge_count_examples": [
+        512,
+        5632,
+        18432,
+        31744,
+        37888,
+        32081,
+        10752,
+        3072,
+        1024
+      ],
+      "expected_actual_pairs": 481157
+    },
+    {
+      "epoch": 9,
+      "merge_count_examples": [
+        512,
+        2560,
+        18432,
+        31232,
+        46080,
+        22528,
+        14673,
+        3072,
+        2048
+      ],
+      "expected_actual_pairs": 493253
+    },
+    {
+      "epoch": 10,
+      "merge_count_examples": [
+        0,
+        6656,
+        17408,
+        34304,
+        36177,
+        29696,
+        12800,
+        3072,
+        1024
+      ],
+      "expected_actual_pairs": 481886
+    },
+    {
+      "epoch": 11,
+      "merge_count_examples": [
+        512,
+        6656,
+        11776,
+        32768,
+        38225,
+        30720,
+        14848,
+        5120,
+        512
+      ],
+      "expected_actual_pairs": 499397
+    },
+    {
+      "epoch": 12,
+      "merge_count_examples": [
+        0,
+        3584,
+        15360,
+        30208,
+        38737,
+        31232,
+        17408,
+        3584,
+        1024
+      ],
+      "expected_actual_pairs": 508604
+    },
+    {
+      "epoch": 13,
+      "merge_count_examples": [
+        0,
+        5120,
+        16384,
+        27136,
+        41809,
+        34304,
+        13824,
+        2560,
+        0
+      ],
+      "expected_actual_pairs": 494175
+    },
+    {
+      "epoch": 14,
+      "merge_count_examples": [
+        512,
+        6656,
+        20992,
+        26624,
+        33105,
+        32256,
+        17920,
+        3072,
+        0
+      ],
+      "expected_actual_pairs": 487634
+    },
+    {
+      "epoch": 15,
+      "merge_count_examples": [
+        1024,
+        3584,
+        16384,
+        30720,
+        36177,
+        29696,
+        16896,
+        5632,
+        1024
+      ],
+      "expected_actual_pairs": 506067
+    },
+    {
+      "epoch": 16,
+      "merge_count_examples": [
+        512,
+        4096,
+        14848,
+        32768,
+        39761,
+        27136,
+        15872,
+        6144,
+        0
+      ],
+      "expected_actual_pairs": 499309
+    },
+    {
+      "epoch": 17,
+      "merge_count_examples": [
+        512,
+        4945,
+        13312,
+        32768,
+        40448,
+        26624,
+        14848,
+        7680,
+        0
+      ],
+      "expected_actual_pairs": 502695
+    },
+    {
+      "epoch": 18,
+      "merge_count_examples": [
+        0,
+        3072,
+        17233,
+        33280,
+        37888,
+        29184,
+        15872,
+        4096,
+        512
+      ],
+      "expected_actual_pairs": 497110
+    },
+    {
+      "epoch": 19,
+      "merge_count_examples": [
+        1024,
+        3584,
+        15360,
+        33280,
+        34129,
+        28160,
+        17920,
+        7680,
+        0
+      ],
+      "expected_actual_pairs": 506833
+    },
+    {
+      "epoch": 20,
+      "merge_count_examples": [
+        1024,
+        2560,
+        12800,
+        33792,
+        37713,
+        36864,
+        11264,
+        4608,
+        512
+      ],
+      "expected_actual_pairs": 502349
+    },
+    {
+      "epoch": 21,
+      "merge_count_examples": [
+        1024,
+        3584,
+        17408,
+        25425,
+        38400,
+        31744,
+        18944,
+        4608,
+        0
+      ],
+      "expected_actual_pairs": 507940
+    },
+    {
+      "epoch": 22,
+      "merge_count_examples": [
+        0,
+        5632,
+        14848,
+        27473,
+        32256,
+        37376,
+        17408,
+        5120,
+        1024
+      ],
+      "expected_actual_pairs": 515112
+    },
+    {
+      "epoch": 23,
+      "merge_count_examples": [
+        512,
+        2560,
+        16896,
+        24913,
+        39424,
+        33280,
+        18944,
+        3584,
+        1024
+      ],
+      "expected_actual_pairs": 514188
+    },
+    {
+      "epoch": 24,
+      "merge_count_examples": [
+        0,
+        4096,
+        11776,
+        29184,
+        47441,
+        27648,
+        14848,
+        6144,
+        0
+      ],
+      "expected_actual_pairs": 509284
+    },
+    {
+      "epoch": 25,
+      "merge_count_examples": [
+        0,
+        4096,
+        15360,
+        28160,
+        39424,
+        30720,
+        17745,
+        4096,
+        1536
+      ],
+      "expected_actual_pairs": 511017
+    },
+    {
+      "epoch": 26,
+      "merge_count_examples": [
+        512,
+        5632,
+        12113,
+        23552,
+        31744,
+        36864,
+        20992,
+        6144,
+        3584
+      ],
+      "expected_actual_pairs": 539364
+    },
+    {
+      "epoch": 27,
+      "merge_count_examples": [
+        0,
+        8704,
+        18432,
+        31232,
+        35328,
+        28497,
+        12288,
+        5120,
+        1536
+      ],
+      "expected_actual_pairs": 482379
+    },
+    {
+      "epoch": 28,
+      "merge_count_examples": [
+        337,
+        2560,
+        12800,
+        29696,
+        34816,
+        36352,
+        16384,
+        7168,
+        1024
+      ],
+      "expected_actual_pairs": 525516
+    },
+    {
+      "epoch": 29,
+      "merge_count_examples": [
+        512,
+        4096,
+        15360,
+        28672,
+        37888,
+        35153,
+        15360,
+        3584,
+        512
+      ],
+      "expected_actual_pairs": 505417
+    },
+    {
+      "epoch": 30,
+      "merge_count_examples": [
+        512,
+        3072,
+        15872,
+        31744,
+        40960,
+        30208,
+        15872,
+        2897,
+        0
+      ],
+      "expected_actual_pairs": 495294
+    },
+    {
+      "epoch": 31,
+      "merge_count_examples": [
+        512,
+        3072,
+        14848,
+        29696,
+        40448,
+        32768,
+        17233,
+        2560,
+        0
+      ],
+      "expected_actual_pairs": 503716
+    },
+    {
+      "epoch": 32,
+      "merge_count_examples": [
+        512,
+        2560,
+        14673,
+        34816,
+        35840,
+        31232,
+        12288,
+        8192,
+        1024
+      ],
+      "expected_actual_pairs": 508856
+    },
+    {
+      "epoch": 33,
+      "merge_count_examples": [
+        1024,
+        5632,
+        16896,
+        21504,
+        36864,
+        37888,
+        14336,
+        6481,
+        512
+      ],
+      "expected_actual_pairs": 508891
+    },
+    {
+      "epoch": 34,
+      "merge_count_examples": [
+        1024,
+        1536,
+        16384,
+        26961,
+        36352,
+        34816,
+        17408,
+        5632,
+        1024
+      ],
+      "expected_actual_pairs": 518650
+    },
+    {
+      "epoch": 35,
+      "merge_count_examples": [
+        1024,
+        5632,
+        13824,
+        33105,
+        33792,
+        32256,
+        17920,
+        2560,
+        1024
+      ],
+      "expected_actual_pairs": 496889
+    },
+    {
+      "epoch": 36,
+      "merge_count_examples": [
+        512,
+        4608,
+        17920,
+        31232,
+        34641,
+        33792,
+        13824,
+        4608,
+        0
+      ],
+      "expected_actual_pairs": 491477
+    },
+    {
+      "epoch": 37,
+      "merge_count_examples": [
+        1024,
+        4608,
+        19968,
+        32768,
+        40448,
+        28672,
+        8529,
+        5120,
+        0
+      ],
+      "expected_actual_pairs": 473305
+    },
+    {
+      "epoch": 38,
+      "merge_count_examples": [
+        0,
+        3072,
+        12800,
+        34304,
+        42833,
+        26112,
+        15872,
+        4608,
+        1536
+      ],
+      "expected_actual_pairs": 506904
+    },
+    {
+      "epoch": 39,
+      "merge_count_examples": [
+        1024,
+        3072,
+        15872,
+        29009,
+        41984,
+        32768,
+        10752,
+        6144,
+        512
+      ],
+      "expected_actual_pairs": 500627
+    },
+    {
+      "epoch": 40,
+      "merge_count_examples": [
+        1024,
+        3584,
+        15872,
+        32256,
+        41297,
+        29696,
+        15360,
+        2048,
+        0
+      ],
+      "expected_actual_pairs": 488749
+    },
+    {
+      "epoch": 41,
+      "merge_count_examples": [
+        0,
+        3072,
+        15872,
+        28497,
+        43008,
+        29184,
+        15872,
+        4096,
+        1536
+      ],
+      "expected_actual_pairs": 507953
+    },
+    {
+      "epoch": 42,
+      "merge_count_examples": [
+        512,
+        6656,
+        13824,
+        30720,
+        40785,
+        26624,
+        14336,
+        7168,
+        512
+      ],
+      "expected_actual_pairs": 497967
+    },
+    {
+      "epoch": 43,
+      "merge_count_examples": [
+        1536,
+        6144,
+        18432,
+        28160,
+        35153,
+        32768,
+        15872,
+        3072,
+        0
+      ],
+      "expected_actual_pairs": 484728
+    },
+    {
+      "epoch": 44,
+      "merge_count_examples": [
+        512,
+        5120,
+        13312,
+        33105,
+        35840,
+        29696,
+        16896,
+        5120,
+        1536
+      ],
+      "expected_actual_pairs": 506094
+    },
+    {
+      "epoch": 45,
+      "merge_count_examples": [
+        512,
+        3584,
+        17920,
+        27136,
+        39936,
+        32081,
+        14848,
+        5120,
+        0
+      ],
+      "expected_actual_pairs": 501072
+    },
+    {
+      "epoch": 46,
+      "merge_count_examples": [
+        512,
+        3584,
+        15185,
+        33280,
+        35840,
+        31232,
+        13312,
+        7680,
+        512
+      ],
+      "expected_actual_pairs": 505208
+    },
+    {
+      "epoch": 47,
+      "merge_count_examples": [
+        512,
+        5120,
+        10752,
+        34304,
+        32256,
+        33105,
+        17408,
+        6144,
+        1536
+      ],
+      "expected_actual_pairs": 516171
+    },
+    {
+      "epoch": 48,
+      "merge_count_examples": [
+        512,
+        4096,
+        15872,
+        25600,
+        40785,
+        34304,
+        16384,
+        3072,
+        512
+      ],
+      "expected_actual_pairs": 505583
+    },
+    {
+      "epoch": 49,
+      "merge_count_examples": [
+        0,
+        4096,
+        13312,
+        35665,
+        40960,
+        19968,
+        18432,
+        8192,
+        512
+      ],
+      "expected_actual_pairs": 507298
+    },
+    {
+      "epoch": 50,
+      "merge_count_examples": [
+        0,
+        7168,
+        17920,
+        27136,
+        42833,
+        27648,
+        12288,
+        5632,
+        512
+      ],
+      "expected_actual_pairs": 488506
+    },
+    {
+      "epoch": 51,
+      "merge_count_examples": [
+        1024,
+        4608,
+        13312,
+        30720,
+        48640,
+        22353,
+        13312,
+        6144,
+        1024
+      ],
+      "expected_actual_pairs": 495899
+    },
+    {
+      "epoch": 52,
+      "merge_count_examples": [
+        1024,
+        4096,
+        18432,
+        33792,
+        38400,
+        25425,
+        12800,
+        6656,
+        512
+      ],
+      "expected_actual_pairs": 487252
+    },
+    {
+      "epoch": 53,
+      "merge_count_examples": [
+        0,
+        4096,
+        14848,
+        32256,
+        38912,
+        32593,
+        14336,
+        3584,
+        512
+      ],
+      "expected_actual_pairs": 500041
+    },
+    {
+      "epoch": 54,
+      "merge_count_examples": [
+        0,
+        6144,
+        17920,
+        32081,
+        37888,
+        29184,
+        13824,
+        4096,
+        0
+      ],
+      "expected_actual_pairs": 483764
+    },
+    {
+      "epoch": 55,
+      "merge_count_examples": [
+        1024,
+        4096,
+        14848,
+        29184,
+        37713,
+        36352,
+        14336,
+        3072,
+        512
+      ],
+      "expected_actual_pairs": 498961
+    },
+    {
+      "epoch": 56,
+      "merge_count_examples": [
+        512,
+        3584,
+        19793,
+        33792,
+        41984,
+        24576,
+        13312,
+        3072,
+        512
+      ],
+      "expected_actual_pairs": 479066
+    },
+    {
+      "epoch": 57,
+      "merge_count_examples": [
+        1024,
+        4608,
+        19456,
+        27648,
+        32081,
+        28672,
+        17920,
+        8704,
+        1024
+      ],
+      "expected_actual_pairs": 509034
+    },
+    {
+      "epoch": 58,
+      "merge_count_examples": [
+        512,
+        4608,
+        18432,
+        31057,
+        37376,
+        28160,
+        14848,
+        4608,
+        1536
+      ],
+      "expected_actual_pairs": 493975
+    },
+    {
+      "epoch": 59,
+      "merge_count_examples": [
+        0,
+        3584,
+        20480,
+        34304,
+        36864,
+        25937,
+        15872,
+        4096,
+        0
+      ],
+      "expected_actual_pairs": 485944
+    },
+    {
+      "epoch": 60,
+      "merge_count_examples": [
+        512,
+        3072,
+        14336,
+        32768,
+        40960,
+        27473,
+        15872,
+        5120,
+        1024
+      ],
+      "expected_actual_pairs": 505085
+    }
+  ],
+  "same_case_new_epoch_changes_tiling": true,
+  "endpoint_inputs_equal_original_full_and_pair": true,
+  "initial_state_matches_completed_pair32": true,
+  "native_forward_backward_losses": {
+    "0": 22.289793014526367,
+    "1": 22.743261337280273,
+    "2": 22.724811553955078,
+    "3": 21.96248435974121,
+    "4": 22.279094696044922,
+    "5": 23.030529022216797,
+    "6": 21.546802520751953,
+    "7": 22.035118103027344,
+    "8": 22.104225158691406
+  },
+  "supported_forward_costs": {
+    "0": {
+      "encoder_positions": 129,
+      "supported_forward_flops_batch1": 704769968
+    },
+    "1": {
+      "encoder_positions": 125,
+      "supported_forward_flops_batch1": 680547752
+    },
+    "2": {
+      "encoder_positions": 121,
+      "supported_forward_flops_batch1": 656522272
+    },
+    "3": {
+      "encoder_positions": 117,
+      "supported_forward_flops_batch1": 632693528
+    },
+    "4": {
+      "encoder_positions": 113,
+      "supported_forward_flops_batch1": 609061520
+    },
+    "5": {
+      "encoder_positions": 109,
+      "supported_forward_flops_batch1": 585626248
+    },
+    "6": {
+      "encoder_positions": 105,
+      "supported_forward_flops_batch1": 562387712
+    },
+    "7": {
+      "encoder_positions": 101,
+      "supported_forward_flops_batch1": 539345912
+    },
+    "8": {
+      "encoder_positions": 97,
+      "supported_forward_flops_batch1": 516500848
+    }
+  },
+  "regression": {
+    "tests": 1132,
+    "skipped": 152,
+    "failures": 0,
+    "seconds": 87.093,
+    "log": "/workspace/artifacts/kindle-pilot/random-tokenization-regression.log"
+  }
+}

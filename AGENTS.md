@@ -2,6 +2,37 @@
 
 ## Research status
 
+- Authorized2026-11-15:ONEnew seed42fit with stochastic pair/single tiling of
+  olderhalf,NOT another whole-batchFull/Pairview switch. Config
+  kindle_random_tokenization.json,modulekindle_random_tokenization,private
+  offlinekernelcarasik/rhpr-kindle-random-tokenization. Constantp=.5ONLY;
+  epochprobabilityschedule discussedbutdeferred,notauthorizedforautolaunch.
+  M~Binomial(8,p)peroptimizerbatch;individualfull32historiesgetuniformrandom
+  nonoverlappingMpairplacementsinolder16,bothparities;recent16alwayssingles.
+  Shortcount uses shareduniformsizeMsubsetof8virtualslots restrictedto
+  floor(valid_length/4),givingmarginalBinomial(cap,p),notmin(M,cap). Allraw
+  eventsinorderexactlyonce,nopaddingpairs/no boundarycrossing/suffixloss.
+  M0exactFull32,M8exactoriginalPair32includingoddshortolderhalf. Native
+  widths128/124/.../96SIDpositions;fullrowsneverpaddedtoFull32. Independent
+  count/tilingstreams7401/7402,originalshuffle/targetsoneperepochunchanged,
+  microbatchsplitandepochboundaryreplayidentical;coverage/schedule/tokenhashes
+  andactualpairs/oddstarts/paddingsaved.9lengths+lastbatchshapes require
+  worker-localDynamorecompile_limit32,mathunchanged. OldMixed runnergets
+  optionalselectorfactory/orchestrationarguments;defaultpolicyunchanged.
+  Samefrozen114727TRAINadjacentcandidatepairsalreadycached,0newST5/RQwork.
+  All44parent+10inputpins,initializer,9nativefwd/bwdfinite,endpointencoders
+  verified. CPU1stfulltrain tokenization4.29s;60schedulepaircount30,063,740
+  vs59,928,480original(50.166%),vsoldMixed29,604,042,notexactmatchedcount.
+  1stepoch215755odd-startpairs,diversitygenuine. Keepwide4+4/d128/FF1024/
+  dkv64/H6,FP16SDPAcompile512,LR.003->.001warmup2cosine60,min40max60,
+  VAL5scoreEMA.5/delta.0005/pat15,rawVALselection. VAL/finalselectedTESTONLY
+  originalPair32FP32beam20batch64no seenfilter,inferenceGF.516500848.
+  OneT4worker,onefit,noadditionalcontrols/seeds/Full/shiftTESTvariants/HPO/
+  notifications/retries. ExistingTESTexamined,exploratory. Savefullbest/last
+  checkpoints/optimizer/scaler/RNG/LR,curves,predictions/FLOPs/timing/memory.
+  Quota37.32hbeforelaunch,expect~1–1.5h,cold9shapecompileuncertain. Hardserver
+  timeout180min,suite10800s. Docsgr-kindle-random-tokenization.md/preflight.json.
+
 - Kindle alignment probe COMPLETE,collected2026-11-15,no newGPU/fit.
   Privatecarasik/rhpr-kindle-alignment/1,sourcea2de37f0d0a3,28/28inferences,
   107.065s experimentexecutionafterinitialbootstrap,0failures. Samefrozen55

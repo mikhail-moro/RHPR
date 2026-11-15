@@ -96,6 +96,11 @@ def run_experiment(
             raise ValueError('ML1M field-learning experiment requires output directory')
         from rhpr.gr.field_learning import run
         return run(config, output_dir)
+    if kind == 'gr_kindle_random_tokenization':
+        if output_dir is None:
+            raise ValueError('Kindle random tokenization requires an output directory')
+        from rhpr.gr.kindle_random_tokenization import run
+        return run(config, output_dir)
     if kind == 'gr_kindle_mixed_views':
         if output_dir is None:
             raise ValueError('Kindle mixed views require an output directory')
