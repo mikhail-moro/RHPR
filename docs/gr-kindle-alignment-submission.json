@@ -1,0 +1,21 @@
+{
+  "kernel": "carasik/rhpr-kindle-alignment",
+  "version": 1,
+  "status": "RUNNING",
+  "source_code_sha": "a2de37f0d0a30fe4953b5e42b41b174c0c7e6902",
+  "workflow_run_id": 43657473213,
+  "workflow_job_id": 132639118028,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/43657473213",
+  "artifact_id": 14138487925,
+  "hard_timeout_seconds": 3600,
+  "private": true,
+  "internet": false,
+  "packaged_python_files_verified": 212,
+  "config_identical": true,
+  "parent_sources_verified": true,
+  "training_performed": false,
+  "planned_models": 2,
+  "planned_evaluations": 28,
+  "submission_only": true,
+  "notify_telegram": false
+}

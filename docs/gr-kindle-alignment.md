@@ -60,3 +60,9 @@ produce identical ranked SIDs for8saved VAL examples/model;maximum score
 difference1.1e-7. All7native-layout forward losses finite,model unchanged.
 Supported forward GFLOPs respectively.516501/.539346/.493853/.493853/
 .562388/.562388/.704770. See`gr-kindle-alignment-preflight.json`.
+
+Submitted once:private version1,RUNNING,executable sourcea2de37f0d0a3,
+workflow43657473213SUCCESS(submission only),job132639118028. Actual worker
+timeout3600s verified. All212deployed Python files,exact config,private/offline
+metadata and both completed parent sources byte-verified.1124tests pass,
+152optional skips. See`gr-kindle-alignment-submission.json`;results pending.

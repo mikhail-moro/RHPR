@@ -153,5 +153,12 @@
       "loaded_state_sha256": "a57dd8fe4c96e0f9466847bf729974696af9388611143819c61609162051c400",
       "model_unchanged": true
     }
+  },
+  "regression": {
+    "tests": 1124,
+    "skipped": 152,
+    "failures": 0,
+    "seconds": 95.693,
+    "log": "/workspace/artifacts/kindle-pilot/alignment-regression.log"
   }
 }

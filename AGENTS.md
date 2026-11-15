@@ -21,6 +21,11 @@
   ->TEST34_first shares8,->TEST30_first shares6;reference->reference0.
   Alllayouts/crosscontrasts exploratory:30/34changerecenttail/context,
   Full32isOODforPair-only. Do not selectwinneronpreviouslyexaminedTEST.
+  SUBMITTEDONCEprivateversion1RUNNING,sourcea2de37f0d0a3,workflow43657473213
+  SUCCESS(submissiononly),job132639118028,artifact14138487925. Actualpush
+  --timeout3600verified;all212deployedPythonfiles/exactconfig/private/offline/
+  3datasets/2completedparentmountsverified.1124tests/152skipsPASS95.693s.
+  Receiptdocs/gr-kindle-alignment-submission.json;results pending.
 
 - Mixed32 format follow-up COMPLETE,CPU saved-data audit only,no inference/GPU.
   User askedwhetherTESTwasPair-only andwhytestlost. BothVAL/TESTarePair32:
