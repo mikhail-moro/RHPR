@@ -1,0 +1,40 @@
+{
+  "kernel": "carasik/rhpr-kindle-mixed20",
+  "version": 1,
+  "url": "https://www.kaggle.com/code/carasik/rhpr-kindle-mixed20",
+  "status": "QUEUED",
+  "status_observed_at_utc": "2026-11-15T11:18:25.191338+00:00",
+  "source_git_sha": "4026db0e479881586cad0cdaeae264e0ec4d06ef",
+  "workflow_run_id": 43708134004,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/43708134004",
+  "workflow_conclusion": "success_submission_only",
+  "job_id": 132793609143,
+  "artifact_id": 14158704699,
+  "experiment": "experiments/kindle_mixed20_2t4.json",
+  "config_sha256": "4aaa897d208e9dfc54da530295a6b50d6358ec7cbd26bb79ea196f822fb9554e",
+  "new_generator_fits": 2,
+  "trials": [
+    "mixed20_wide_42",
+    "recent10_wide_42"
+  ],
+  "accelerator": "2xT4",
+  "worker_timeout_seconds": 10800,
+  "actual_push_timeout_seconds_verified": 10800,
+  "notify_telegram": false,
+  "private": true,
+  "offline": true,
+  "quota_remaining_before_submission_gpu_hours": 36.3,
+  "source_python_files_byte_verified": 214,
+  "deployed_source_sha256": "858d5cffbc4c1901c4e0e7d061127114255f66d9068589075364e0159ecb4e8b",
+  "deployed_source_size_bytes": 926235,
+  "exact_config_verified": true,
+  "all_dataset_and_parent_mounts_verified": true,
+  "preflight": "docs/gr-kindle-mixed20-preflight.json",
+  "regression": {
+    "tests": 1138,
+    "optional_skips": 152,
+    "failures": 0,
+    "seconds": 75.973
+  },
+  "note": "Submission only; no epoch or quality result observed. No additional retries, seeds or variants launched."
+}

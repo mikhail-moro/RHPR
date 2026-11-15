@@ -22,7 +22,12 @@
   missingvectors/codesproducedandretainedonKaggle. Quota36.30GPUh;estimate
   45–75min,serverhard180min/suite10800s/fit7200s. Nonewseeds/schedules/lengths/
   controls/HPO/retries/notifications. Docsgr-kindle-mixed20.md/preflight.json.
-  Submissionpending;do notduplicatefits. TESTalreadyexamined,exploratory.
+  SUBMITTEDONCEprivateversion1QUEUED,source4026db0e4798,workflow43708134004
+  SUCCESS(submissiononly),job132793609143,artifact14158704699. Actualpush
+  --timeout10800verified;214deployedPythonfiles/exactconfig/private/offline/
+  3datasets/completedparentmountverified. Receiptdocs/gr-kindle-mixed20-
+  submission.json. Noquality/epochresultsobservedyet;do notduplicatefits.
+  TESTalreadyexamined,exploratory.
   Full1138testsPASS/152optionalskips/0failures75.973s. Privateofflinebundle
   all214Pythonfiles/exactconfigverified;926204bytesbeforefinalcommit.
 

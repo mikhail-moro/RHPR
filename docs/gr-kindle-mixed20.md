@@ -91,3 +91,10 @@ Expected wall time roughly45–75minutes including frozen pair encoding and
 cold compilation;this is an estimate,not a reserved accelerator guarantee.
 Per-fit limit7200s,suite10800s,server hard timeout180minutes including startup.
 Submit only once;collection is a later step after completion.
+
+Submitted once as private version1,source`4026db0e479881586cad0cdaeae264e0ec4d06ef`.
+Workflow43708134004completed successfully as a submission job;Kaggle status
+isQUEUED. Job132793609143,artifact14158704699,actualpush`--timeout10800`
+verified. All214deployedPython files,exact config,private/offline settings,
+three datasets and completed parent mount match. Receipt:
+`gr-kindle-mixed20-submission.json`. No training results claimed yet.
