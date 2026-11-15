@@ -2,6 +2,32 @@
 
 ## Research status
 
+- Mixed20/Recent10pilot COMPLETE,collected2026-11-15,no newGPU/inference.
+  Privatecarasik/rhpr-kindle-mixed20/1,source4026db0e4798,execution2651.821s
+  afterbootstrap(44.20min). Both60epochs/best60/capped60,notprovenplateau.
+  Mixed20VAL.01479621/TEST.01564287,24/29hits,.319748392GF;
+  Recent10VAL.01493143/TEST.01462330,29/26hits,.217327232GF.
+  ReusedR20.02049218/.01472239,.427087952GF;Random32.01730845/.01496055,
+  .516500848GF. MixedTEST+6.25%vsR20/-25.13%GF,butVAL-27.80%;vsRandom32
+  TEST+4.56%/-38.09%GF,VAL-14.51%. Recent10TEST-0.67%vsR20/-49.11%GF;
+  MixedvsR10TEST+6.97%at+47.13%GF/VAL-0.91%. ALL12conditionalpaired-user
+  selectedCIs cross0;no establishedPareto/noninferiority/oldcontentutility.
+  MixedTEST29vsR2024hits,but4vs7rank1;rare1–5supportMixed1hitbothsplits,
+  R10threeboth,R20sevenVAL/sixTEST. Priorrare-recoverydoesnottransfer.
+  WarmMixed34.17s/R1016.31s;optimizer2515.22s/1116.82s;first315.20/143.09s.
+  Updates16558+2AMPskips52/59;R1016559+1skip57. No compilelimitfallback.
+  ALL60sampledTRAINinputhashes/counts/coverageexactlyreplayedCPU;19665207
+  pairpresentations/7213312oddstarts.5011actualvectors->codesCPUexact,
+  TRAIN-firstsuffixallocationreplayed,all116401oldSIDsunchanged,total121412,
+  maxsuffix31.64parent+10inputpins/initializer/targets/cases/LR/EMA/selection
+  verified.78predfiles/1494480pathsreplayed,2978invalid/0duplicates. Both
+  fullbest/lastcheckpointsdownloaded/finite/epochs/SHA/schedulercountersverified.
+  Reportsgr-kindle-mixed20-results.md/.json/completion.json;CPUreproducer
+  scripts/research/analyze_kindle_mixed20.py;privateartifacts/kindle-pilot/
+  mixed20-results includesweights/rawoutputs/analysis/CSV/ranks/PNG/PDF.
+  Full1138testsPASS/152optionalskips/0failures113.955s. No runs pending,
+  no additionalfits/seeds/checkpointinference/continuation/notifications.
+
 - Authorized2026-11-15:Mixed20 stochasticwithin-historytraining+Recent10,
   exactlytwofreshseed42fits,oneperT4;reuseRecent20/32andPair32outputs.
   Configkindle_mixed20_2t4.json,modulekindle_mixed20,kernelcarasik/
