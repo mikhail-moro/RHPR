@@ -66,3 +66,7 @@ workflow43657473213SUCCESS(submission only),job132639118028. Actual worker
 timeout3600s verified. All212deployed Python files,exact config,private/offline
 metadata and both completed parent sources byte-verified.1124tests pass,
 152optional skips. See`gr-kindle-alignment-submission.json`;results pending.
+
+Collected COMPLETE2026-11-15:all28evaluations verified. See
+`gr-kindle-alignment-results.md/.json` and`gr-kindle-alignment-completion.json`.
+Submission receipt above retains its historicalRUNNINGstate. No runs pending.

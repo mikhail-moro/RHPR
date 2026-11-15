@@ -2,6 +2,36 @@
 
 ## Research status
 
+- Kindle alignment probe COMPLETE,collected2026-11-15,no newGPU/fit.
+  Privatecarasik/rhpr-kindle-alignment/1,sourcea2de37f0d0a3,28/28inferences,
+  107.065s experimentexecutionafterinitialbootstrap,0failures. Samefrozen55
+  Mixed/Pair42,958VAL/TEST,7layouts3+1SID,FP32SDPAbeam20batch64noseenfilter.
+  All4reference predictionsANDscoresBITIDENTICAL.19parent+10input+2saved
+  Recent32pinsverified;28files/536480pathsreplayed,584invalid/0duplicates.
+  CPUexactlyreproduces838newpaircodes/appendedsuffixes,all116401original
+  pairSIDsunchanged,extended117239unique. Modelsunchanged,nogradients.
+  MixedreferenceVAL.018937/TEST.009874;edges.018437/.010408;Full32.017882/
+  .011408(TEST20->24hits,8gained4lost,VAL35->35);all12withinMixedlayoutCIs
+  cross0. FullTESTdelta+.001535CI[-.001832,.005413],VAL-.001056. Fullcost
+  .704770vs.516501GF(+36.45%). PairreferenceVAL.015966/TEST.010651;
+  edges.012739/.007946;Full.005868/.003593,OODforPair-only;ALLalternative
+  layoutsworsenbothPairpointmetrics. Mixedcomparativelyformat-tolerantunder
+  theseweights,notestablishedseed-robustgain. StableVALpairIDprobe:TEST34_first
+  retains8oldpairs butMixed.010771/Pair.008382,no uniformrescue. TEST34_last
+  hasZEROtrain-novelpairs butMixed.009733/Pair.009933,belowownreferences;
+  30_first1673novelpairoccurrences(highest)Mixed.011194,Pair.008708. No simple
+  monotonenoveltyexplanation;30/34alsomodifycontext/recenttail/positions.
+  All141137TRAINexamplesassignedPairviewatleastonceinMixed60epochs,soall
+  originalTRAINpairidentitiespresented,exposurecountstillroughlyhalved.
+  ReusedRecent32TEST.014447/VAL.016899;MixedFullsameinputs/GFstillTEST-21.03%,
+  conditionaldeltaCI[-.008561,.002237]cross0;causeofsplitreversalunidentified.
+  Reportsgr-kindle-alignment-results.md/.json/completion.json;CPUreplay
+  scripts/research/analyze_kindle_alignment.py;privateartifacts/kindle-pilot/
+  alignment-results inclraw28predictions/cachevectors/CSV/ranks/analysis.
+  Noadditionalruns/retraining/variants/notifications;TESTalreadyexamined,
+  conditionaluserCIsnotseed/selectionuncertainty,multiplecomparisonsexploratory.
+  Finalregression1124testsPASS/152skips/0failures79.589s.
+
 - Authorized2026-11-15:repeat frozen pair-alignment inference on Kindle Mixed32
   and originalPair32,plus Full32withoutPairSID. EXACTLY28inferences:two saved
   epoch55models xVAL/TEST x32_reference/32_edges/30_first/30_last/34_first/

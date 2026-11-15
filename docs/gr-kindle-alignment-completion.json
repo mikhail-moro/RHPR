@@ -1,0 +1,30 @@
+{
+  "kernel": "carasik/rhpr-kindle-alignment",
+  "version": 1,
+  "status": "COMPLETE",
+  "source": "a2de37f0d0a30fe4953b5e42b41b174c0c7e6902",
+  "workflow_run_id": 43657473213,
+  "session_seconds": 107.064858,
+  "evaluations": 28,
+  "training_performed": false,
+  "tokenizer_refitted": false,
+  "new_gpu_during_collection": false,
+  "parent_pins_verified": 19,
+  "input_files_verified": 10,
+  "additional_saved_control_pins_verified": 2,
+  "prediction_paths": 536480,
+  "invalid_predictions": 584,
+  "duplicate_predictions": 0,
+  "all_reference_predictions_and_scores_bit_identical": true,
+  "original_pair_sids_unchanged": true,
+  "new_pair_codes_and_suffixes_reproduced_on_cpu": true,
+  "artifacts": "/workspace/artifacts/kindle-pilot/alignment-results",
+  "pending_runs": false,
+  "regression": {
+    "tests": 1124,
+    "skipped": 152,
+    "failures": 0,
+    "seconds": 79.589,
+    "log": "/workspace/artifacts/kindle-pilot/alignment-results-regression.log"
+  }
+}
