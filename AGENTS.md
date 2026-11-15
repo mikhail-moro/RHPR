@@ -3,6 +3,29 @@
 ## Research status
 
 
+- Beauty4fitpilotSUBMITTEDONCEprivatecarasik/rhpr-beauty-pairs/1,
+  source7828d110117889667c3a5e5877f7be9bd0222c13,workflow43740644829/
+  job132892825370SUCCESS(submissiononly),artifact14172317185,actualpush
+  timeout21600sverified. FirststatusQUEUED,notrainingresultsobserved.
+  All217deployedPythonbytes/exactconfig/privateoffline/2datasets/no parents
+  verified;quota33.08GPUh. Receiptdocs/gr-beauty-pairs-submission.json.
+  Do not submit duplicates/additional fits;collect when user reports completion.
+
+- PreviousKindleprobabilitypilot COMPLETE,collected2026-11-15,sourcee239144,
+  carasik/rhpr-kindle-sampling/1. All3capped60,notplateau;runtime4591.732s.
+  p25best55VAL.015491/TEST.010004,p75best60.018527/.009069,rampbest60
+  .016560/.010761;all.319748392GF. Reusedp50.014796/.015643;newvariants
+  VALhigher/TESTlower. Rampreached1. No validated schedule improvement.
+  ConditionaluserCIsallcross0exceptp75TESTnegative;one seed/previously
+  inspectedTEST/no multiplicitycorrection. All3VALCEbest55/worse60.
+  Parent/cache+datahashesverified,84predictionfilesreplayed,all180TRAIN
+  COUNT/exposureepochsreplayed and3firstepochfulltensorhashesreplayed;
+  do NOT claim180fulltensorhashaudits. Sixfinitefullbest/lastcheckpoints
+  retainedwithoptimizer/scaler/LR/RNGstates. Reportsgr-kindle-sampling-results
+  .md/.json/completion.json;analyze_kindle_sampling.py;rawsampling-results
+  includesweights/PNG/PDF. No additionalGPU/inference duringcollection.
+
+
 - Authorized2026-11-15:original Amazon2014Beauty/P5 TIGER-style compression
   pilot,not long-user Kindle. EXACTLY4freshseed42fits:Recent20,Recent3,
   Random20protected-tail3,Random20protected-tail5;2isolatedT4workers.

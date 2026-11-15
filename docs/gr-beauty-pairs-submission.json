@@ -1,0 +1,29 @@
+{
+  "kernel": "carasik/rhpr-beauty-pairs",
+  "version": 1,
+  "status": "QUEUED",
+  "source_git_sha": "7828d110117889667c3a5e5877f7be9bd0222c13",
+  "workflow_run_id": 43740644829,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/43740644829",
+  "job_id": 132892825370,
+  "artifact_id": 14172317185,
+  "workflow_conclusion": "success",
+  "workflow_success_means": "submission only;no training results yet",
+  "submitted_at_utc": "2026-11-15T17:21:43Z",
+  "checked_at_utc": "2026-11-15T17:23:53.332753+00:00",
+  "exactly_one_submission": true,
+  "server_hard_timeout_seconds": 21600,
+  "notify_telegram": false,
+  "deployed_python_files_verified": 217,
+  "deployed_config_verified": true,
+  "deployed_private_offline_metadata_verified": true,
+  "package_compression": "zlib",
+  "new_generator_fits": 4,
+  "quota_before_submission_gpu_hours": 33.08,
+  "tests": {
+    "run": 1160,
+    "skipped": 152,
+    "failures": 0,
+    "seconds": 102.646
+  }
+}

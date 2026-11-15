@@ -1,0 +1,46 @@
+{
+  "kernel": "carasik/rhpr-kindle-sampling",
+  "version": 1,
+  "status": "COMPLETE",
+  "source_git_sha": "e239144016df6d98c8f6a7759dc0315e92bcaf0b",
+  "collected_at_utc": "2026-11-15T17:23:53.332443+00:00",
+  "duration_seconds": 4591.732368,
+  "all_three_fits_completed_60_epochs": true,
+  "new_gpu_inference_or_training": false,
+  "prediction_files_replayed": 84,
+  "actual_training_count_exposure_epochs_replayed": 180,
+  "full_training_tensor_hash_epochs_replayed": 3,
+  "full_checkpoint_verification": {
+    "random20_p25_42/best": {
+      "sha256": "ca5f046084c277c0b4fa3d491e3be3a852a9e6900ba01cc63918087ec232c6e4",
+      "size_bytes": 20514253,
+      "epoch": 55
+    },
+    "random20_p25_42/last": {
+      "sha256": "48d2cf01239e1726e262d050881cd184b9b4171ac1d1a6cecd5db898f1c9c2e9",
+      "size_bytes": 61483443,
+      "epoch": 60
+    },
+    "random20_p75_42/best": {
+      "sha256": "6e15e74d1a44f4a713f0b6203430c5a673b012cf5f60cbfb50966f6ee36d5c80",
+      "size_bytes": 20514253,
+      "epoch": 60
+    },
+    "random20_p75_42/last": {
+      "sha256": "0092480fbc36b574fc32520ba93c7e661ae28de17862192d7bcf7e62bd92abcb",
+      "size_bytes": 61483443,
+      "epoch": 60
+    },
+    "random20_ramp01_42/best": {
+      "sha256": "83d1e38b80359f4886f3be7bcdc37d02ec3d17276bc9dd41c5f1d591528a0959",
+      "size_bytes": 20514253,
+      "epoch": 60
+    },
+    "random20_ramp01_42/last": {
+      "sha256": "58144f7e238d748f6d6376e0056cc2b8917fd9bb3565e57124c674bf89da2003",
+      "size_bytes": 61483443,
+      "epoch": 60
+    }
+  },
+  "raw_artifacts": "/workspace/artifacts/kindle-pilot/sampling-results"
+}

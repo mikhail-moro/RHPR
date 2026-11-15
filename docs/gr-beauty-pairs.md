@@ -124,3 +124,10 @@ Full regression:1160tests passed,152optional skips,0failures,102.646seconds.
 Seven focused Beauty tests passed. CPUpreflight matched actual dataset digests,
 all65080candidate pairs,all native widths,finite real-model forward/backward
 and the previous wide-generator initializer. Private offline bundle built.
+
+Submitted ONCE private version1,source7828d110117889667c3a5e5877f7be9bd0222c13,
+workflow43740644829/job132892825370SUCCESS(submission only),artifact14172317185.
+Actualpush`--timeout21600`verified in joblogs. QUEUEDon first servercheck;
+all217deployedPythonfiles/exactconfig/privateoffline/2datasetmounts/no parent
+mounts verified. Quota33.08GPUh before submission. No training results yet.
+Receipt`gr-beauty-pairs-submission.json`.
