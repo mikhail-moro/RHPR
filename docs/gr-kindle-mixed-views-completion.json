@@ -42,5 +42,13 @@
     "failures": 0
   },
   "within_history_mixture_launched": false,
-  "pending_runs": false
+  "pending_runs": false,
+  "followup_input_format_audit": {
+    "new_gpu_or_model_inference": false,
+    "val_test_pair32_confirmed": true,
+    "pair_slots_changed_at_one_item_shift": 7664,
+    "seven_old_pair_slots_already_seen_in_train": true,
+    "training_pair_summary_exposure_fraction": 0.4939895355263474,
+    "original_aggregate_metrics_unchanged": true
+  }
 }

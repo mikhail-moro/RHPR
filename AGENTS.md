@@ -2,6 +2,23 @@
 
 ## Research status
 
+- Mixed32 format follow-up COMPLETE,CPU saved-data audit only,no inference/GPU.
+  User askedwhetherTESTwasPair-only andwhytestlost. BothVAL/TESTarePair32:
+  8oldpairSIDs+16singles=96SIDpositions+USER,all958fullwindows,nopadding,
+  targetsalwayssingle3+1;VALhashmatchesactualGPUresumeverification. Same
+  selected55/beam20/FP32/64,index;noformatmismatchfound. TESTlost13/add12,
+  shared8rankdelta−.000364;11lostoutsidebeam20,2atrank11–20,not proofbeamerror.
+  Targetsupport1–5:425usershits1→4;6–20:415users15→10;>20:79users5→6;
+  39coldboth0. Mainobserveddropin6–20,smallcounts,notcausalgroupclaim.
+  Pairsummaryexposure59,928,480→29,604,042(49.40%);singleinputoccurrences
+  122,616,000→183,264,876(+49.46%);targetsupervision8,468,220unchanged.
+  Sharedcodeembeddings/Transformer:theseareinputcounts,notallgradientcounts.
+  Val→testoneshiftchangesall8pairsforeach958user,butfirst7slotsseeninTRAIN;
+  onlylastcanbenovel,830VALvs847TEST/7664pairslots,not unseen code tokens.
+  Samewindowrulebothmodels;cannotattributequalitygaptoitalone. Addedauditto
+  analyze_kindle_mixed_views.py/results.md/.json/completion;oldaggregates
+  verifiedunchanged. SameMixed55 Full32vsPair32 evaluationproposedonly,NOT run.
+
 - Mixed-view study COMPLETE,collected2026-11-15,no newGPU. Private
   carasik/rhpr-kindle-mixed-resume/2,source88722e9081aa,workflow43651883595,
   originalfirst30epochscurves/6predictionsbytepreserved;actualweights/Adam/LR/

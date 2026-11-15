@@ -23,6 +23,61 @@ def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def write(path,value): path.write_text(json.dumps(value,indent=2,allow_nan=False)+'\n')
 
 
+def audit_pair_inputs(raw,sids,keys,pairs,curves,credits,ranks,selected):
+    """Input-format and exposure audit; uses no additional model inference."""
+    from rhpr.gr.kindle_pairs import encode
+    n=len(raw['train'][2]);lengths=np.minimum((raw['train'][0]>=0).sum(1),32)
+    summaries=lengths//4;singles=lengths-2*summaries
+    views=MixedViews(np.broadcast_to(0,(n,128)),np.broadcast_to(0,(n,96)))
+    mixed_pair=mixed_single=0
+    for row in curves['mixed32']:
+        epoch=row['epoch'];order=np.random.default_rng(42+epoch).permutation(n);choice=views.schedule(epoch)
+        for b,begin in enumerate(range(0,n,512)):
+            part=order[begin:begin+512]
+            if choice[b]:mixed_single+=int(lengths[part].sum())
+            else:
+                mixed_pair+=int(summaries[part].sum());mixed_single+=int(singles[part].sum())
+    epochs=len(curves['mixed32']);base_pair=int(summaries.sum())*epochs;base_single=int(singles.sum())*epochs
+    def pair_keys(h):
+        h=h[:,-32:];valid=(h>=0).sum(1);out=np.full((len(h),8),-1,dtype=np.int64)
+        for j in range(8):
+            mask=2*j+1<valid//2;rows=np.flatnonzero(mask);positions=32-valid[mask]+2*j
+            out[mask,j]=h[rows,positions].astype(np.int64)*len(sids)+h[rows,positions+1]
+        return out
+    training=pair_keys(raw['train'][0]);tk,tc=np.unique(training[training>=0],return_counts=True)
+    inputs={};splitkeys={};decomposition={}
+    for split in ('validation','test'):
+        h,u,t=raw[split];x=encode(h,sids,keys,pairs,32)
+        assert x.shape==(958,96)and np.all(x[:,:32]>=1024)and np.all(x[:,32:]<1024)and np.all(x>=0)
+        query=pair_keys(h);splitkeys[split]=query
+        at=np.searchsorted(tk,query);safe=np.minimum(at,len(tk)-1)
+        counts=np.where((at<len(tk))&(tk[safe]==query),tc[safe],0)
+        assert np.all(counts[:,:7]>0)and np.all((counts==0).sum(1)<=1)
+        inputs[split]=dict(input_case_sha256=case_digest((x,u,t)),users=len(u),sid_positions=96,encoder_positions_with_user=97,
+            old_pair_sids=8,recent_single_sids=16,pair_sid_token_positions=32,single_sid_token_positions=64,padding_positions=0,
+            target_format='single item 3+1 SID',unseen_pair_occurrences_by_slot=(counts==0).sum(0).tolist(),
+            users_with_unseen_pair=int((counts==0).any(1).sum()))
+        ka=selected['mixed32']if split=='validation'else'test';kb=selected['pair32']if split=='validation'else'test'
+        ar,br=ranks['mixed32',ka],ranks['pair32',kb];delta=credits['mixed32',ka]-credits['pair32',kb]
+        lost=(ar>10)&(br<=10);gained=(ar<=10)&(br>10);both=(ar<=10)&(br<=10)
+        decomposition[split]=dict(lost_hits=int(lost.sum()),gained_hits=int(gained.sum()),shared_hits=int(both.sum()),
+            loss_from_lost_hits=float(delta[lost].sum()/len(u)),gain_from_new_hits=float(delta[gained].sum()/len(u)),
+            rank_change_on_shared_hits=float(delta[both].sum()/len(u)),
+            lost_targets_at_beam11_20=int((lost&(ar<=20)).sum()),lost_targets_outside_beam20=int((lost&(ar>20)).sum()))
+    vh,vu,vt=raw['validation'];th,tu,_=raw['test']
+    np.testing.assert_array_equal(vu,tu);np.testing.assert_array_equal(th[:,-32:-1],vh[:,-31:]);np.testing.assert_array_equal(th[:,-1],vt)
+    shift=splitkeys['validation']!=splitkeys['test']
+    return dict(split_formats=inputs,rank_decomposition=decomposition,
+        val_to_test_shift=dict(one_item_shift_confirmed=True,users=len(vu),changed_pair_slots=int(shift.sum()),
+            total_pair_slots=int(shift.size),users_all_eight_pairs_changed=int(shift.all(1).sum()),
+            note='Rolling windows change all pair identities; seven slots already occurred in TRAIN for both splits. This does not identify a cause of the between-model difference.'),
+        training_input_exposure=dict(original_pair_summary_occurrences=base_pair,mixed_pair_summary_occurrences=mixed_pair,
+            pair_exposure_retained_fraction=mixed_pair/base_pair,original_single_item_occurrences=base_single,
+            mixed_single_item_occurrences=mixed_single,single_exposure_multiplier=mixed_single/base_single,
+            unchanged_target_examples=n*epochs,
+            note='Counts are input occurrences, not independent item/SID parameters or total gradients. Decoder target supervision remains unchanged; shared Transformer sees both formats.'))
+
+
 def analyze(root,parent,partial,data,archive):
     root,parent,partial,data,archive=map(Path,(root,parent,partial,data,archive))
     c=read(root/'experiment.json');validate(c)
@@ -184,6 +239,9 @@ def analyze(root,parent,partial,data,archive):
         for name in by:row[name]=float(credits[name,ep].mean())
         late.append(row)
     exposure={k:sum(r['training_views']['examples'][k]for r in curves['mixed32'])for k in ('full32','pair32')}
+    input_audit=audit_pair_inputs(raw,idx.sids,np.load(root/'frozen-indexes/pair-keys.npy'),
+        np.load(root/'frozen-indexes/pairs-42.npy'),curves,credits,ranks,{k:v['best_epoch']for k,v in by.items()})
+    assert input_audit['split_formats']['validation']['input_case_sha256']==verification['validation_case_sha256']
     result=dict(source=SOURCE,completed_fit=True,seed=42,validation_users=len(raw['validation'][2]),test_users=len(raw['test'][2]),
         resumed_from_epoch=30,completed_epochs=len(curves['mixed32']),continuation_session_seconds=manifest['duration_seconds'],
         original_parent_pins_verified=len(c['parent']['files']),resume_parent_pins_verified=len(c['resume_parent']['files']),
@@ -192,6 +250,7 @@ def analyze(root,parent,partial,data,archive):
         prediction_count=prediction_count,invalid_predictions=invalid,duplicate_predictions=duplicates,
         records=records,comparisons=comparisons,validation_by_epoch=late,groups=groups,recovery=recovery,
         training_view_examples=exposure,full_view_fraction=exposure['full32']/sum(exposure.values()),
+        pair_input_and_exposure_audit=input_audit,
         recent_popularity_cutoff_from_prior_probe=CUTOFF,
         limits=['One previously examined seed/index/cohort; no seed-robust improvement or harm established.',
             'Conditional paired-user intervals omit seed/index/item clustering and checkpoint selection uncertainty; no multiplicity correction.',

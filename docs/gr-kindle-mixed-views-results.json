@@ -755,5 +755,95 @@
     "Resume restores epoch-boundary state, but CUDA/compilation need not reproduce an uninterrupted GPU trajectory bitwise.",
     "Historical warm timings are not simultaneous benchmarks; extra cold resume compilation is included in total training time.",
     "B1 supported forward FLOPs exclude beam search, backward and offline text/pair processing."
-  ]
+  ],
+  "pair_input_and_exposure_audit": {
+    "split_formats": {
+      "validation": {
+        "input_case_sha256": "b00baa32c3bd67a26ac8ecd48b6e2244ed6955d60d997ba5718d03362405650d",
+        "users": 958,
+        "sid_positions": 96,
+        "encoder_positions_with_user": 97,
+        "old_pair_sids": 8,
+        "recent_single_sids": 16,
+        "pair_sid_token_positions": 32,
+        "single_sid_token_positions": 64,
+        "padding_positions": 0,
+        "target_format": "single item 3+1 SID",
+        "unseen_pair_occurrences_by_slot": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          830
+        ],
+        "users_with_unseen_pair": 830
+      },
+      "test": {
+        "input_case_sha256": "fa8b6fc6e0477092fa10d9b4149a207b588e2a60bb645ad4ae6f2056e6c5dc6a",
+        "users": 958,
+        "sid_positions": 96,
+        "encoder_positions_with_user": 97,
+        "old_pair_sids": 8,
+        "recent_single_sids": 16,
+        "pair_sid_token_positions": 32,
+        "single_sid_token_positions": 64,
+        "padding_positions": 0,
+        "target_format": "single item 3+1 SID",
+        "unseen_pair_occurrences_by_slot": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          847
+        ],
+        "users_with_unseen_pair": 847
+      }
+    },
+    "rank_decomposition": {
+      "validation": {
+        "lost_hits": 16,
+        "gained_hits": 20,
+        "shared_hits": 15,
+        "loss_from_lost_hits": -0.006413061445792033,
+        "gain_from_new_hits": 0.008824251894663855,
+        "rank_change_on_shared_hits": 0.0005606534446752195,
+        "lost_targets_at_beam11_20": 5,
+        "lost_targets_outside_beam20": 11
+      },
+      "test": {
+        "lost_hits": 13,
+        "gained_hits": 12,
+        "shared_hits": 8,
+        "loss_from_lost_hits": -0.005873937124629535,
+        "gain_from_new_hits": 0.005460657606259319,
+        "rank_change_on_shared_hits": -0.00036384666549162207,
+        "lost_targets_at_beam11_20": 2,
+        "lost_targets_outside_beam20": 11
+      }
+    },
+    "val_to_test_shift": {
+      "one_item_shift_confirmed": true,
+      "users": 958,
+      "changed_pair_slots": 7664,
+      "total_pair_slots": 7664,
+      "users_all_eight_pairs_changed": 958,
+      "note": "Rolling windows change all pair identities; seven slots already occurred in TRAIN for both splits. This does not identify a cause of the between-model difference."
+    },
+    "training_input_exposure": {
+      "original_pair_summary_occurrences": 59928480,
+      "mixed_pair_summary_occurrences": 29604042,
+      "pair_exposure_retained_fraction": 0.4939895355263474,
+      "original_single_item_occurrences": 122616000,
+      "mixed_single_item_occurrences": 183264876,
+      "single_exposure_multiplier": 1.494624486200822,
+      "unchanged_target_examples": 8468220,
+      "note": "Counts are input occurrences, not independent item/SID parameters or total gradients. Decoder target supervision remains unchanged; shared Transformer sees both formats."
+    }
+  }
 }

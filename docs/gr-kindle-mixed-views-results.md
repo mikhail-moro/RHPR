@@ -91,3 +91,54 @@ comparisons. TEST had already been examined before this follow-up, making the
 result exploratory. Epoch60is a cap, not demonstrated convergence. CUDA resume
 does not guarantee bitwise equivalence with uninterrupted GPU training.
 No extra seeds, training, inference variants or within-history mixtures launched.
+
+## Follow-up: was TEST evaluated in Pair format?
+
+Yes: both VAL and TEST use Pair32 exclusively, with8old pair SIDs and16recent
+single SIDs, each3+1. Each of958inputs has96SID positions plus USER, no padding;
+the first32positions belong to the pair namespace and the last64to singles.
+The target remains the four-code SID of one catalogue item. Full32 is used only
+by the TRAIN batch selector. The selected epoch55checkpoint, FP32/beam20/
+batch64 and item index are the same across the two evaluation splits. The
+reconstructed VAL input hash matches the actual GPU resume-verification record;
+the TEST input hash is recorded in the aggregate audit. No format mismatch
+between VAL and TEST was found.
+
+The TEST delta decomposes into−0.005874from lost hits,+0.005461from new hits,
+and−0.000364from changed ranks of8shared hits, totaling−0.000777. Of13lost
+hits,11leave the returned beam20 and2remain at ranks11–20. This identifies
+where the recorded ranking changes, not whether logits or beam pruning caused
+it; true-target teacher-forced scores were not measured in this follow-up.
+
+| TEST target support in TRAIN next-item positions | Users | Pair32 hits / NDCG@10 | Mixed32 hits / NDCG@10 |
+|---|---:|---:|---:|
+|1–5|425|1 /0.000784|4 /0.003217|
+|6–20|415|15 /0.017692|10 /0.012319|
+|Over20|79|5 /0.031998|6 /0.037714|
+|Unseen target|39|0 /0|0 /0|
+
+The aggregate decrease is concentrated in the6–20group, offset by gains in the
+other warm-target groups. These are descriptive, small-hit-count partitions;
+they do not establish a group effect or a cause.
+
+The training mixture also changes exposure to the evaluated format. The
+original Pair32 received59,928,480pair-summary occurrences over60epochs;
+Mixed received29,604,042(49.40%). Single-item input occurrences instead rose
+from122,616,000to183,264,876(+49.46%). Target supervision remains8,468,220
+examples. These are input occurrences of shared code embeddings, not an
+independent embedding for every item or pair, and not all gradients. The shared
+Transformer trains on both formats. The hypothesis that fewer Pair-format
+examples offset benefits from single-item exposure is plausible but unproven.
+
+Between VAL and TEST the latest32-item window shifts one event, adding the
+observed VAL item. All8pair identities change for all958users(7664slots).
+However, the first7pair slots already occurred in TRAIN for every held-out
+example: only the final slot may be a new ordered pair. VAL has830such new
+pair occurrences and TEST847, out of7664each. New ordered pairs are not unseen
+code tokens. Both models and both splits follow this same rolling-window rule;
+the shift alone does not explain the Mixed-versus-Pair delta.
+
+This audit reconstructs inputs and analyzes saved predictions only. A separate
+diagnostic could evaluate the same Mixed55weights in Full32 and Pair32 on the
+same VAL/TEST targets to inspect format-specific behavior, without retraining.
+That evaluation was not run here; TEST remains exploratory.
