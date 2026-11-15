@@ -3,6 +3,38 @@
 ## Research status
 
 
+- Beautyfixed-tailpilot COMPLETE,collected2026-11-16(clientEurope/Moscow),
+  privatecarasik/rhpr-beauty-pairs/1,source7828d110117889667c3a5e5877f7be9bd0222c13,
+  runtime8179.448s(136.32minafterbootstrap). All4EMAearly-stopped:
+  Recent20best55/stop75VAL.04576327/TEST.03173609/.4270882GF;
+  Recent3best50/75.04399019/.02997927/.08220052GF;
+  Tail3best85/90.04730982/.03149949/.25770564GF;
+  Tail5best50/75.04564402/.03162411/.278189884GF.
+  PairTESTpointlossvsR20-.75%/-.35%,GF-39.66%/-34.86%;conditionaluserCIs
+  vsR20cross0andpermit~5-6%relativeTESTloss,notprovennoninferiority.
+  Recent3NOTcompute-matched;needRecent12/13futurecontrolsbeforeequal-budget
+  superiorityclaim. No newGPUauthorized/submittedduringcollection.
+  Tail3losesTEST5-6events(.026246vsR20.029037),wins11-20(.043524vs.041635),
+  BUTRecent3isbest11-20onVALandTEST(.066409/.045088);no validatedrouter.
+  Commonn>=7TEST8300:R20.035970/R3.036277/T3.036735/T5.036140;CIs0.
+  WarmepochsR2029.64/R39.16/T328.30/T530.08s;no35-40%training-speedup.
+  Tail3lateVALpeak85only+.29%vsbest55;allVALCEmin40/45beforeNDCGpeaks.
+  AbsoluteVAL/TESTgappersistsR20-30.65%;noproofKindledatawasbuggy.
+  TargetTRAINsupportmedianVAL13/TEST10,cold81/196;descriptive,notcausal
+  explanation. GRID/P5normalizedrecords lacktimestampsforraworderaudit.
+  Inputpins/rawcases/indexsuffixes/initializer/targets/LR/EMA/selectionverified;
+  all67predictionfiles/29966420pathsreplayed,29920invalid/0duplicates.
+  All165randomTRAINCOUNT/exposureepochsand2firstepochfulltensorhashes
+  replayed,NOT165fulltensorhashes. CPUexportexact12097/12101itemsand
+  65076/65080pairs;4exceptionseachhavenearlyzeroresidualnorm<4.59e-7
+  beforedivergentnormalizeddirection. OriginalCUDA-SIDsretained,notrepaired;
+  suffixallocationexactusingactualprefixes,maxpairsuffix51. Eightfinitefull
+  best/lastweightsdownloaded,epochs/config/hashverified;lastoptimizer/scaler/
+  scheduler/RNGretained. Reportsgr-beauty-pairs-results.md/.json/completion.json;
+  analyze_beauty_pairs.py;rawbeauty-pair/resultswithCSV/ranks/PNG/PDF.
+  Full1160testsPASS/152skips/0fails98.581s. No pendingnewrun.
+
+
 - Beauty4fitpilotSUBMITTEDONCEprivatecarasik/rhpr-beauty-pairs/1,
   source7828d110117889667c3a5e5877f7be9bd0222c13,workflow43740644829/
   job132892825370SUCCESS(submissiononly),artifact14172317185,actualpush
