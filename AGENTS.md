@@ -2,6 +2,39 @@
 
 ## Research status
 
+- Authorized2026-11-15:TRAINsamplingratios/curriculumonoriginalRandom20,
+  EXACTLY3freshseed42fits,privateofflinecarasik/rhpr-kindle-sampling,
+  configkindle_sampling_2t4.json,modulekindle_sampling. Trialsrandom20_p25_42
+  (constant.25),random20_ramp01_42(p=(epoch-1)/59),random20_p75_42(constant.75).
+  GPU0p25thenp75,GPU1ramp. Reusecompletedp50legacyMixed20source4026db0,
+  Recent10/20,no duplicatep50fit. Oldest10eligible/latest10single;TRAINonly
+  countprobabilitychanges. M~Binomial(5,p)peroptimizerbatch,originalindividual
+  uniformmatching/shortvirtualslots/forcedoriginalPair20endpoint,RNG7401/7402,
+  index/training/augmentation42. Everyevent/suffixpreserved;targetsunchanged.
+  VAL/selectedTESTONLYoriginalfixedPair20,61positions/.319748392GFforALL,
+  sameoldSIDs/cases/initializer/architecture/optimizer/selection. Cached121412
+  pairsexactcopied,0newvectors/assignments/refits. Parent64+cache/control24pins
+  plusdata10pinsverified. Actualp50firstepochbyte-replay+all60count/exposure
+  schedulesreplayed. Projected60epochpairs:p259839002,p7529499847,ramp19718546vsoldp5019665207(+.27%). MeanTRAINforwardGF
+  .399761/.345905/.372754vsold.372711;forward-onlynottrainlatency/fullFLOPs.
+  Samewide4+4/d128/FF1024/dkv64/H6,FP16SDPAcompile512,LR.003->.001warmup2/
+  cosine60,min40max60,VAL5/scoreEMA.5delta.0005pat15/rawVALselection,
+  FP32beam20/64/noseenfilter. Rampreaches1onlyif60completed;earlystopretained,
+  recordactualfinalp. Activetrialpolicyalsosavedincheckpointconfig.
+  Addedoptionalview_factory/policyhooksinMixed20run_trial;defaultunchanged.
+  Testscoveroldp50exactreplay,allrampendpoints/shortcases,microbatches,RNG,
+  probabilities/metadata,strict3fitcontract,realrunnerfixedVAL/TEST/targets.
+  Full1153testsPASS/152optionalskips/0failures78.177s. Initialregressionfailed
+  ONLYhistoricalhugepinmanifestbundle917bytes>1MiB;fixedlosslessstdlibLZMA
+  fallbackonlywhenzlibexceedslimit,nosource/configbytesomitted. Newtestexecutes
+  fallback;oldrecovery737862bytes,newbundlezlib939083bytes/all216Pythonbytes/
+  exactconfig/privateofflineverified. NoGPUsubmittedbeforeregressionfixed.
+  Reportsgr-kindle-sampling.md/preflight.json;CPUreproducerpreflight_kindle_sampling.py.
+  Quota34.37GPUh;estimated70–100minafterbootstrap,fit7200/suite10800/server180min.
+  Noadditionalseeds/schedules/controls/HPO/retries/notifications. Submitonce,
+  returnafterverifiedsubmission,collectlater;notrainingresultsobservedyet.
+
+
 - Frequencycompressionpilot COMPLETE,collected2026-11-15,no newGPU/inference.
   Privatecarasik/rhpr-kindle-frequency/1,source7a9a7bd43036,execution4202.054s
   (70.03minafterinitialbootstrap). All3fits60epochs/capped60,notprovenplateau.

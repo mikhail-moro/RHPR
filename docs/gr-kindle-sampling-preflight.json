@@ -1,0 +1,3845 @@
+{
+  "gpu_used": false,
+  "new_generator_fits": 3,
+  "parent_and_cache_pins_verified": 88,
+  "input_files_verified": 10,
+  "original_p50_first_epoch_byte_replayed": true,
+  "original_p50_all60_count_exposures_replayed": true,
+  "all_original_cached_sids_used_unchanged": true,
+  "new_pair_embeddings": 0,
+  "tokenizer_refitted": false,
+  "initial_state_matches_previous_control": true,
+  "original_full_and_pair20_ramp_endpoints_verified": true,
+  "inference_encoder_positions": 61,
+  "inference_forward_flops": 319748392,
+  "needed_pair_counts": {
+    "train": 119744,
+    "validation": 4739,
+    "test": 4734
+  },
+  "totals": {
+    "random20_p25_42": {
+      "pair_occurrences": 9839002,
+      "expected_probability_mean": 0.25,
+      "total_examples": 8468220,
+      "supported_forward_flops_all_train": 3385266887797824,
+      "mean_train_forward_gflops_per_example": 0.39976132974790735,
+      "note": "forward-only supported matmul FLOPs; not backward/beam/elapsed time; original short-history padding retained"
+    },
+    "random20_ramp01_42": {
+      "pair_occurrences": 19718546,
+      "expected_probability_mean": 0.49999999999999994,
+      "total_examples": 8468220,
+      "supported_forward_flops_all_train": 3156565950347528,
+      "mean_train_forward_gflops_per_example": 0.3727543628233003,
+      "note": "forward-only supported matmul FLOPs; not backward/beam/elapsed time; original short-history padding retained"
+    },
+    "random20_p75_42": {
+      "pair_occurrences": 29499847,
+      "expected_probability_mean": 0.75,
+      "total_examples": 8468220,
+      "supported_forward_flops_all_train": 2929201269399416,
+      "mean_train_forward_gflops_per_example": 0.3459051925197286,
+      "note": "forward-only supported matmul FLOPs; not backward/beam/elapsed time; original short-history padding retained"
+    },
+    "reused_p50": {
+      "pair_occurrences": 19665207,
+      "expected_probability_mean": 0.5,
+      "total_examples": 8468220,
+      "supported_forward_flops_all_train": 3156197395472408,
+      "mean_train_forward_gflops_per_example": 0.37271084070470634,
+      "note": "forward-only supported matmul FLOPs; not backward/beam/elapsed time; original short-history padding retained"
+    }
+  },
+  "first_epochs": {
+    "random20_p25_42": {
+      "first_epoch": {
+        "merge_fraction": 0.25,
+        "merge_count_batches": [
+          59,
+          114,
+          83,
+          16,
+          3,
+          1
+        ],
+        "merge_count_examples": [
+          30208,
+          58368,
+          42321,
+          8192,
+          1536,
+          512
+        ],
+        "pair_summary_occurrences": 163082,
+        "odd_start_pair_occurrences": 68374,
+        "padding_sid_positions": 675248,
+        "native_sid_widths": [
+          80,
+          76,
+          72,
+          68,
+          64,
+          60
+        ],
+        "examples_consumed_once": true,
+        "schedule_sha256": "2fa0d0e0bab43d44eeb504058af4b3a3673fb9eb26f76c0f58c24c54187419c4",
+        "tokenized_epoch_sha256": "c5190daf12621c4767134a6214b562c26ce33181630f394fe889081a2dd6c882",
+        "probability_schedule": {
+          "kind": "constant",
+          "probability": 0.25
+        }
+      },
+      "cpu_seconds": 2.9770237960037775
+    },
+    "random20_ramp01_42": {
+      "first_epoch": {
+        "merge_fraction": 0.0,
+        "merge_count_batches": [
+          276,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "merge_count_examples": [
+          141137,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "pair_summary_occurrences": 0,
+        "odd_start_pair_occurrences": 0,
+        "padding_sid_positions": 728080,
+        "native_sid_widths": [
+          80,
+          76,
+          72,
+          68,
+          64,
+          60
+        ],
+        "examples_consumed_once": true,
+        "schedule_sha256": "d489001ff88ed206b56f44bd0789a8332510f33bf40a312a7b2e5d60c3fe3e03",
+        "tokenized_epoch_sha256": "081977f5e55ade4149a1f7c56344c83edea6d7a009098b292e333e5aa21d36c8",
+        "probability_schedule": {
+          "kind": "linear",
+          "start_probability": 0.0,
+          "end_probability": 1.0,
+          "start_epoch": 1,
+          "end_epoch": 60
+        }
+      },
+      "cpu_seconds": 2.890274100995157
+    },
+    "random20_p75_42": {
+      "first_epoch": {
+        "merge_fraction": 0.75,
+        "merge_count_batches": [
+          1,
+          3,
+          16,
+          74,
+          116,
+          66
+        ],
+        "merge_count_examples": [
+          512,
+          1536,
+          8192,
+          37888,
+          59217,
+          33792
+        ],
+        "pair_summary_occurrences": 497730,
+        "odd_start_pair_occurrences": 122604,
+        "padding_sid_positions": 569352,
+        "native_sid_widths": [
+          80,
+          76,
+          72,
+          68,
+          64,
+          60
+        ],
+        "examples_consumed_once": true,
+        "schedule_sha256": "d4d5a4ac403ef663cf5c0771028ca11bceff6e4e1af32963ab6b1b3c6fa75c02",
+        "tokenized_epoch_sha256": "b2b22656576ab4eb056c7abfda4899924bbb33dc0e2089a53f6207efe0e0f1fc",
+        "probability_schedule": {
+          "kind": "constant",
+          "probability": 0.75
+        }
+      },
+      "cpu_seconds": 2.6844685249961913
+    },
+    "reused_p50": {
+      "first_epoch": {
+        "merge_fraction": 0.5,
+        "merge_count_batches": [
+          8,
+          33,
+          82,
+          108,
+          38,
+          7
+        ],
+        "merge_count_examples": [
+          4096,
+          16896,
+          41984,
+          55121,
+          19456,
+          3584
+        ],
+        "pair_summary_occurrences": 334505,
+        "odd_start_pair_occurrences": 125102,
+        "padding_sid_positions": 618216,
+        "native_sid_widths": [
+          80,
+          76,
+          72,
+          68,
+          64,
+          60
+        ],
+        "examples_consumed_once": true,
+        "schedule_sha256": "e2306f39a95d65325c65246bea55323c0aa4eb023b0ac5113309f973179f6eae",
+        "tokenized_epoch_sha256": "f2e4a0aa609c901a1f9b44ae14d2cbbd1d4a92c81e93b27eed763f315c4fd4c2",
+        "probability_schedule": {
+          "kind": "constant",
+          "probability": 0.5
+        }
+      },
+      "cpu_seconds": 2.956338535004761
+    }
+  },
+  "native_forward_flops": {
+    "0": 427087952,
+    "1": 405226568,
+    "2": 383561920,
+    "3": 362094008,
+    "4": 340822832,
+    "5": 319748392
+  },
+  "finite_native_forward_backward_losses": {
+    "0": 22.819421768188477,
+    "1": 22.74555206298828,
+    "2": 22.985401153564453,
+    "3": 23.692691802978516,
+    "4": 22.317920684814453,
+    "5": 22.03470230102539
+  },
+  "all60schedules": {
+    "random20_p25_42": [
+      {
+        "epoch": 1,
+        "probability": 0.25,
+        "merge_count_examples": [
+          30208,
+          58368,
+          42321,
+          8192,
+          1536,
+          512
+        ],
+        "pair_occurrences": 163082,
+        "supported_train_forward_flops": 56439950351552,
+        "count_schedule_sha256": "2fa0d0e0bab43d44eeb504058af4b3a3673fb9eb26f76c0f58c24c54187419c4"
+      },
+      {
+        "epoch": 2,
+        "probability": 0.25,
+        "merge_count_examples": [
+          34304,
+          56145,
+          37376,
+          11776,
+          1536,
+          0
+        ],
+        "pair_occurrences": 159163,
+        "supported_train_forward_flops": 56525803995848,
+        "count_schedule_sha256": "f325e6fe076a371e76d8394650a351c4b607585a01cecbe7cf74cd32c88dd393"
+      },
+      {
+        "epoch": 3,
+        "probability": 0.25,
+        "merge_count_examples": [
+          30208,
+          58705,
+          36864,
+          14336,
+          1024,
+          0
+        ],
+        "pair_occurrences": 166148,
+        "supported_train_forward_flops": 56369907425992,
+        "count_schedule_sha256": "a264ee2955acdd3c08e358957b4ef266c9da8613aa5da8b47fc91003b044da31"
+      },
+      {
+        "epoch": 4,
+        "probability": 0.25,
+        "merge_count_examples": [
+          36177,
+          52736,
+          38400,
+          9216,
+          4608,
+          0
+        ],
+        "pair_occurrences": 161903,
+        "supported_train_forward_flops": 56457136845136,
+        "count_schedule_sha256": "bf8fc9090eb024bd7fcd226d23b38bc3d73fd13f8e74744f35ee71beeb8e7458"
+      },
+      {
+        "epoch": 5,
+        "probability": 0.25,
+        "merge_count_examples": [
+          32081,
+          62464,
+          28672,
+          14336,
+          3584,
+          0
+        ],
+        "pair_occurrences": 163566,
+        "supported_train_forward_flops": 56423457030480,
+        "count_schedule_sha256": "810502446e407946ebbde2c1b380e1700ca9c026b89a76d557bd4ba0e1ba8ad3"
+      },
+      {
+        "epoch": 6,
+        "probability": 0.25,
+        "merge_count_examples": [
+          35665,
+          56320,
+          35840,
+          13312,
+          0,
+          0
+        ],
+        "pair_occurrences": 155532,
+        "supported_train_forward_flops": 56621506765136,
+        "count_schedule_sha256": "f0a5f780e88ffe180e17fd57af5fdb4b759a731b0dc9e631b57abb548645cfbb"
+      },
+      {
+        "epoch": 7,
+        "probability": 0.25,
+        "merge_count_examples": [
+          32256,
+          55808,
+          36864,
+          14161,
+          1536,
+          512
+        ],
+        "pair_occurrences": 167992,
+        "supported_train_forward_flops": 56345488199480,
+        "count_schedule_sha256": "ffb7912b745c49bba1fd38511eaedaa2d9823b87ce8cd989ceb352201f4cebb6"
+      },
+      {
+        "epoch": 8,
+        "probability": 0.25,
+        "merge_count_examples": [
+          32256,
+          52224,
+          46417,
+          8192,
+          2048,
+          0
+        ],
+        "pair_occurrences": 164314,
+        "supported_train_forward_flops": 56406774181056,
+        "count_schedule_sha256": "42c44a914bc39d4952070ce63564120c2aaa76976c2a48e89c380f65bf2aea6a"
+      },
+      {
+        "epoch": 9,
+        "probability": 0.25,
+        "merge_count_examples": [
+          27136,
+          59729,
+          38912,
+          14336,
+          1024,
+          0
+        ],
+        "pair_occurrences": 171240,
+        "supported_train_forward_flops": 56258380055240,
+        "count_schedule_sha256": "a43e7f216112e9eea371ef8a6afb4225b1d225548feb8c76b540fab144c11186"
+      },
+      {
+        "epoch": 10,
+        "probability": 0.25,
+        "merge_count_examples": [
+          36864,
+          59217,
+          36352,
+          7168,
+          1536,
+          0
+        ],
+        "pair_occurrences": 147585,
+        "supported_train_forward_flops": 56802708574920,
+        "count_schedule_sha256": "e53405c95cfbd20f57d376e54b72feb8332fc2e268a85de898b5a08707d3350a"
+      },
+      {
+        "epoch": 11,
+        "probability": 0.25,
+        "merge_count_examples": [
+          31232,
+          53760,
+          40273,
+          14336,
+          1536,
+          0
+        ],
+        "pair_occurrences": 169619,
+        "supported_train_forward_flops": 56285463985344,
+        "count_schedule_sha256": "bd4a697e884990f7d82ad373f628fe828dd46aa21fb9155e9b3801e5a408e3d1"
+      },
+      {
+        "epoch": 12,
+        "probability": 0.25,
+        "merge_count_examples": [
+          33105,
+          56832,
+          34816,
+          13824,
+          2560,
+          0
+        ],
+        "pair_occurrences": 164788,
+        "supported_train_forward_flops": 56400768786768,
+        "count_schedule_sha256": "b9c8fb7fe60b369b393c8213ccaf1b173a540a7f0afcaaeff868db2822a348bc"
+      },
+      {
+        "epoch": 13,
+        "probability": 0.25,
+        "merge_count_examples": [
+          33617,
+          53760,
+          37376,
+          13312,
+          3072,
+          0
+        ],
+        "pair_occurrences": 167705,
+        "supported_train_forward_flops": 56345609474384,
+        "count_schedule_sha256": "db0c46945367aafa46d858d72d5a60623c4edf39f2bc8ef50e6b7a3cce503c68"
+      },
+      {
+        "epoch": 14,
+        "probability": 0.25,
+        "merge_count_examples": [
+          35328,
+          60241,
+          25600,
+          15872,
+          4096,
+          0
+        ],
+        "pair_occurrences": 162403,
+        "supported_train_forward_flops": 56461768417992,
+        "count_schedule_sha256": "a01eff8c0c4df00f52bb6253a6eb42d39dcd8f0ba760dd17e965fd8d7f26de19"
+      },
+      {
+        "epoch": 15,
+        "probability": 0.25,
+        "merge_count_examples": [
+          32256,
+          51025,
+          38912,
+          15360,
+          3072,
+          512
+        ],
+        "pair_occurrences": 175593,
+        "supported_train_forward_flops": 56150478922440,
+        "count_schedule_sha256": "f36ba7eb4185b47af70a74264e7356171f9369fd258b9ddff773be456bd2b5a6"
+      },
+      {
+        "epoch": 16,
+        "probability": 0.25,
+        "merge_count_examples": [
+          33280,
+          56657,
+          36352,
+          13312,
+          1536,
+          0
+        ],
+        "pair_occurrences": 161968,
+        "supported_train_forward_flops": 56459350926024,
+        "count_schedule_sha256": "5ea383c4cf1486ff8b631038b51271972e44640d28974f58b3683b4051b74a89"
+      },
+      {
+        "epoch": 17,
+        "probability": 0.25,
+        "merge_count_examples": [
+          35328,
+          56320,
+          33280,
+          13649,
+          2560,
+          0
+        ],
+        "pair_occurrences": 161299,
+        "supported_train_forward_flops": 56490191740728,
+        "count_schedule_sha256": "236bc400c067a8a46f91aa175bc2749e9ad9712ecb7680a96786424f0866aaa3"
+      },
+      {
+        "epoch": 18,
+        "probability": 0.25,
+        "merge_count_examples": [
+          38400,
+          58368,
+          30033,
+          11776,
+          2048,
+          512
+        ],
+        "pair_occurrences": 152548,
+        "supported_train_forward_flops": 56697692196032,
+        "count_schedule_sha256": "b79868f6f9ac459359480d2a831f8b58bf661c882dca774ecde857778168c342"
+      },
+      {
+        "epoch": 19,
+        "probability": 0.25,
+        "merge_count_examples": [
+          32768,
+          62801,
+          32768,
+          9216,
+          3584,
+          0
+        ],
+        "pair_occurrences": 158014,
+        "supported_train_forward_flops": 56570576110280,
+        "count_schedule_sha256": "ae40e6374a76ba8e40a58d7dad7690cafda26561ead05a165086e193dcd3a60d"
+      },
+      {
+        "epoch": 20,
+        "probability": 0.25,
+        "merge_count_examples": [
+          33105,
+          59904,
+          33280,
+          12800,
+          2048,
+          0
+        ],
+        "pair_occurrences": 160042,
+        "supported_train_forward_flops": 56511188140368,
+        "count_schedule_sha256": "ebeccfe5b277dbc4a10cce73720af8c98ef2bc2223ac3ff0ae4d2dc6ea8f3191"
+      },
+      {
+        "epoch": 21,
+        "probability": 0.25,
+        "merge_count_examples": [
+          37888,
+          55296,
+          38225,
+          8704,
+          1024,
+          0
+        ],
+        "pair_occurrences": 149676,
+        "supported_train_forward_flops": 56751239847104,
+        "count_schedule_sha256": "a501276d889877086203b4f9ae81fb2c825f83dbd7600430221709b2ae8aee02"
+      },
+      {
+        "epoch": 22,
+        "probability": 0.25,
+        "merge_count_examples": [
+          29184,
+          45568,
+          53248,
+          9216,
+          3921,
+          0
+        ],
+        "pair_occurrences": 180748,
+        "supported_train_forward_flops": 56026828859952,
+        "count_schedule_sha256": "994d56e7ab2d3136d6ee25721e1762460712086a95b411d9609b2de7d0a91f79"
+      },
+      {
+        "epoch": 23,
+        "probability": 0.25,
+        "merge_count_examples": [
+          25600,
+          57856,
+          40960,
+          15697,
+          1024,
+          0
+        ],
+        "pair_occurrences": 176846,
+        "supported_train_forward_flops": 56121728356152,
+        "count_schedule_sha256": "093d6366128d7591842dc750eb8f6785502ed049d22bb2cf632119dcc54efe5f"
+      },
+      {
+        "epoch": 24,
+        "probability": 0.25,
+        "merge_count_examples": [
+          32256,
+          58880,
+          32256,
+          17745,
+          0,
+          0
+        ],
+        "pair_occurrences": 163412,
+        "supported_train_forward_flops": 56433420767032,
+        "count_schedule_sha256": "785dfe4136bce8c87f5bde3ddaf315ead1710b5e43577a97c7fe8efa6843233b"
+      },
+      {
+        "epoch": 25,
+        "probability": 0.25,
+        "merge_count_examples": [
+          31232,
+          51025,
+          39424,
+          17920,
+          1024,
+          512
+        ],
+        "pair_occurrences": 176299,
+        "supported_train_forward_flops": 56138480063176,
+        "count_schedule_sha256": "96ba7cd184bf3faa8b9510c98ea5acb5b36425e8b99bdfea5f2a2891534c6291"
+      },
+      {
+        "epoch": 26,
+        "probability": 0.25,
+        "merge_count_examples": [
+          29696,
+          55296,
+          36689,
+          14336,
+          4608,
+          512
+        ],
+        "pair_occurrences": 178206,
+        "supported_train_forward_flops": 56087917894848,
+        "count_schedule_sha256": "9f3effea6794c5c568b54c119180e4329ee77b7fd6e1659143741d9514819221"
+      },
+      {
+        "epoch": 27,
+        "probability": 0.25,
+        "merge_count_examples": [
+          37713,
+          63488,
+          29696,
+          8704,
+          1536,
+          0
+        ],
+        "pair_occurrences": 143566,
+        "supported_train_forward_flops": 56899217174864,
+        "count_schedule_sha256": "194f4952dedf81585a4dc1f400914b07f13608637f71c29587e33aa521cc96fb"
+      },
+      {
+        "epoch": 28,
+        "probability": 0.25,
+        "merge_count_examples": [
+          29696,
+          55296,
+          40448,
+          13649,
+          1536,
+          512
+        ],
+        "pair_occurrences": 171942,
+        "supported_train_forward_flops": 56233960828728,
+        "count_schedule_sha256": "8250450968781849ebdbc898e6dbb6d13c2d631a314c4de594c16266527808ef"
+      },
+      {
+        "epoch": 29,
+        "probability": 0.25,
+        "merge_count_examples": [
+          29696,
+          55121,
+          39936,
+          14336,
+          2048,
+          0
+        ],
+        "pair_occurrences": 172356,
+        "supported_train_forward_flops": 56226211173064,
+        "count_schedule_sha256": "08d81c5b4ebebaf8a96bc102bb0520e73f7526f823e1e9918c9f4cf07aac7331"
+      },
+      {
+        "epoch": 30,
+        "probability": 0.25,
+        "merge_count_examples": [
+          32256,
+          56320,
+          36177,
+          13824,
+          2560,
+          0
+        ],
+        "pair_occurrences": 166430,
+        "supported_train_forward_flops": 56352722885824,
+        "count_schedule_sha256": "48f9d9bad1ebf1005228da574f647f5f1a19cd38573ddc8a3623023cdf76590d"
+      },
+      {
+        "epoch": 31,
+        "probability": 0.25,
+        "merge_count_examples": [
+          31744,
+          57856,
+          39761,
+          9728,
+          2048,
+          0
+        ],
+        "pair_occurrences": 161679,
+        "supported_train_forward_flops": 56473529437376,
+        "count_schedule_sha256": "e64a3cb8a9a2cecc614bc58b187739041b8883c43bf364b0628d8f1d032a0726"
+      },
+      {
+        "epoch": 32,
+        "probability": 0.25,
+        "merge_count_examples": [
+          32593,
+          52224,
+          41472,
+          12800,
+          1536,
+          512
+        ],
+        "pair_occurrences": 169152,
+        "supported_train_forward_flops": 56311728202064,
+        "count_schedule_sha256": "1d3bc5b8d4604436fba55fdd6985d688995c9ce06a9b1d22ab488903aed58b1f"
+      },
+      {
+        "epoch": 33,
+        "probability": 0.25,
+        "merge_count_examples": [
+          29521,
+          54272,
+          40960,
+          12800,
+          3584,
+          0
+        ],
+        "pair_occurrences": 174423,
+        "supported_train_forward_flops": 56167528304976,
+        "count_schedule_sha256": "afd4c8fc50fb649ecfa6048937b39adb3b0c10cd15d6f5b90d77e00051ec57e2"
+      },
+      {
+        "epoch": 34,
+        "probability": 0.25,
+        "merge_count_examples": [
+          26624,
+          65536,
+          33105,
+          14848,
+          1024,
+          0
+        ],
+        "pair_occurrences": 166930,
+        "supported_train_forward_flops": 56350909766848,
+        "count_schedule_sha256": "2b6d4ea49dd01089ada7edccf59b0e8c72c103b1b4cb1729f8d881202ab8b4d8"
+      },
+      {
+        "epoch": 35,
+        "probability": 0.25,
+        "merge_count_examples": [
+          38400,
+          48465,
+          38912,
+          13824,
+          1536,
+          0
+        ],
+        "pair_occurrences": 160745,
+        "supported_train_forward_flops": 56493735842504,
+        "count_schedule_sha256": "6bfb5ad51aac065fdb4f1cfb3e302128e1feaba08e76364ad7f5eebaf3ea365c"
+      },
+      {
+        "epoch": 36,
+        "probability": 0.25,
+        "merge_count_examples": [
+          34816,
+          56320,
+          36689,
+          10240,
+          2560,
+          512
+        ],
+        "pair_occurrences": 160551,
+        "supported_train_forward_flops": 56508417998016,
+        "count_schedule_sha256": "6a144eec023a6f277341ffd16391788dd439a160ba7021199192be1e3d41940a"
+      },
+      {
+        "epoch": 37,
+        "probability": 0.25,
+        "merge_count_examples": [
+          46417,
+          53248,
+          28160,
+          11776,
+          1536,
+          0
+        ],
+        "pair_occurrences": 139455,
+        "supported_train_forward_flops": 56990272336208,
+        "count_schedule_sha256": "d8c8cef996b5f39134dc418587dfd3f6da93f59eb35ce4095e3d847e42c75f86"
+      },
+      {
+        "epoch": 38,
+        "probability": 0.25,
+        "merge_count_examples": [
+          35665,
+          54784,
+          35840,
+          11776,
+          3072,
+          0
+        ],
+        "pair_occurrences": 161101,
+        "supported_train_forward_flops": 56489910100304,
+        "count_schedule_sha256": "bdf3dd01f57c3810c7ba1dfdf0965989fb8148335b0c2f2e4187af37a2ba86b2"
+      },
+      {
+        "epoch": 39,
+        "probability": 0.25,
+        "merge_count_examples": [
+          32768,
+          58880,
+          35840,
+          12113,
+          1536,
+          0
+        ],
+        "pair_occurrences": 160211,
+        "supported_train_forward_flops": 56510966136632,
+        "count_schedule_sha256": "00fb97015358cb4c1bf83de42e6e55a921fd4b09a708a732da17f9523c50b7c8"
+      },
+      {
+        "epoch": 40,
+        "probability": 0.25,
+        "merge_count_examples": [
+          31232,
+          56832,
+          36689,
+          15360,
+          1024,
+          0
+        ],
+        "pair_occurrences": 167038,
+        "supported_train_forward_flops": 56351917055168,
+        "count_schedule_sha256": "25145563d10d10059d64925f8e3c0f8e50c1b94b2b745e95afa33be64f4093a4"
+      },
+      {
+        "epoch": 41,
+        "probability": 0.25,
+        "merge_count_examples": [
+          28160,
+          55633,
+          41472,
+          12800,
+          3072,
+          0
+        ],
+        "pair_occurrences": 175024,
+        "supported_train_forward_flops": 56159657374408,
+        "count_schedule_sha256": "a5f051c9e40e5af866d7978d2f9d29b4b0fb5e4b34a49ed54b196398de561aeb"
+      },
+      {
+        "epoch": 42,
+        "probability": 0.25,
+        "merge_count_examples": [
+          32256,
+          53760,
+          40273,
+          12800,
+          2048,
+          0
+        ],
+        "pair_occurrences": 167385,
+        "supported_train_forward_flops": 56341126941888,
+        "count_schedule_sha256": "9401bdd3f46990e881afa6a27c49a709e3d267c410f54247e82cbc0726549aa6"
+      },
+      {
+        "epoch": 43,
+        "probability": 0.25,
+        "merge_count_examples": [
+          37201,
+          51200,
+          39424,
+          10240,
+          3072,
+          0
+        ],
+        "pair_occurrences": 159957,
+        "supported_train_forward_flops": 56512094699856,
+        "count_schedule_sha256": "f0c4d0c56a0d401193e9a40a8c798dceb059ea7af5ba1d3c92848583a0cba365"
+      },
+      {
+        "epoch": 44,
+        "probability": 0.25,
+        "merge_count_examples": [
+          29696,
+          57169,
+          37376,
+          12288,
+          3584,
+          1024
+        ],
+        "pair_occurrences": 174089,
+        "supported_train_forward_flops": 56183554364104,
+        "count_schedule_sha256": "d57932c14f8b258ae2db66ee6c6b19c0d39243310a17863326a7cf54a37ca8ff"
+      },
+      {
+        "epoch": 45,
+        "probability": 0.25,
+        "merge_count_examples": [
+          31569,
+          59904,
+          33280,
+          13824,
+          2048,
+          512
+        ],
+        "pair_occurrences": 165326,
+        "supported_train_forward_flops": 56389676486992,
+        "count_schedule_sha256": "1fea8ce7718f87cb79cb38b2f0b39bdf06130403abd3a1f0af1c89305cb65b3e"
+      },
+      {
+        "epoch": 46,
+        "probability": 0.25,
+        "merge_count_examples": [
+          36689,
+          56320,
+          36352,
+          9728,
+          2048,
+          0
+        ],
+        "pair_occurrences": 153578,
+        "supported_train_forward_flops": 56655488766288,
+        "count_schedule_sha256": "21db9a4d5c91528b041e455ad45f06d1a398e918ddcc338487ba95d4c710e7d2"
+      },
+      {
+        "epoch": 47,
+        "probability": 0.25,
+        "merge_count_examples": [
+          31744,
+          53248,
+          37713,
+          15360,
+          3072,
+          0
+        ],
+        "pair_occurrences": 173578,
+        "supported_train_forward_flops": 56209026632896,
+        "count_schedule_sha256": "55b62caa904b6f1a052043351203a8be11165e44d016dd943e1e8d85e4a3a347"
+      },
+      {
+        "epoch": 48,
+        "probability": 0.25,
+        "merge_count_examples": [
+          30720,
+          54097,
+          40960,
+          11776,
+          3584,
+          0
+        ],
+        "pair_occurrences": 171707,
+        "supported_train_forward_flops": 56237907845832,
+        "count_schedule_sha256": "ce18a253199ca3196dd85fb29c2a323b942844fd426f6a277ae333ff920f2bf7"
+      },
+      {
+        "epoch": 49,
+        "probability": 0.25,
+        "merge_count_examples": [
+          33792,
+          50001,
+          39424,
+          15360,
+          2560,
+          0
+        ],
+        "pair_occurrences": 171318,
+        "supported_train_forward_flops": 56249705247432,
+        "count_schedule_sha256": "521ac114ce234cd03501a8d9f7bd54e7fa58ff298cd03fccb2201d114a475276"
+      },
+      {
+        "epoch": 50,
+        "probability": 0.25,
+        "merge_count_examples": [
+          33792,
+          59392,
+          31569,
+          13824,
+          2560,
+          0
+        ],
+        "pair_occurrences": 161671,
+        "supported_train_forward_flops": 56486132669632,
+        "count_schedule_sha256": "52de4f192f4d5ac84fd3b1251d636283788ee7097a2c2dbc9e4acfde4ceb9d6a"
+      },
+      {
+        "epoch": 51,
+        "probability": 0.25,
+        "merge_count_examples": [
+          28160,
+          62464,
+          39761,
+          7680,
+          2560,
+          512
+        ],
+        "pair_occurrences": 164224,
+        "supported_train_forward_flops": 56406774181056,
+        "count_schedule_sha256": "f64d80f2ca398f24c56e8e1fe4ca6d4da38ad75cd93ee848b30a8b6b6d9d30fa"
+      },
+      {
+        "epoch": 52,
+        "probability": 0.25,
+        "merge_count_examples": [
+          33617,
+          59904,
+          35840,
+          10240,
+          1536,
+          0
+        ],
+        "pair_occurrences": 156296,
+        "supported_train_forward_flops": 56610313736528,
+        "count_schedule_sha256": "df1e696db79e633f292e0bdbbbcbc2d0a939ce2350dbeb04b3dd38b3b8fe7ffe"
+      },
+      {
+        "epoch": 53,
+        "probability": 0.25,
+        "merge_count_examples": [
+          30208,
+          56145,
+          43520,
+          10240,
+          1024,
+          0
+        ],
+        "pair_occurrences": 164545,
+        "supported_train_forward_flops": 56402378494664,
+        "count_schedule_sha256": "2d49323dde88fcb81a715caeed47d08f66eeff3319047ecfed068898c14c3e41"
+      },
+      {
+        "epoch": 54,
+        "probability": 0.25,
+        "merge_count_examples": [
+          32768,
+          57169,
+          39936,
+          8704,
+          2048,
+          512
+        ],
+        "pair_occurrences": 160294,
+        "supported_train_forward_flops": 56492527096520,
+        "count_schedule_sha256": "c5a64daef1a9c26ce995f2d4fda9c454abfa950aec8aeef47e28680ee205f72d"
+      },
+      {
+        "epoch": 55,
+        "probability": 0.25,
+        "merge_count_examples": [
+          30720,
+          51712,
+          41809,
+          15872,
+          1024,
+          0
+        ],
+        "pair_occurrences": 173091,
+        "supported_train_forward_flops": 56207717158080,
+        "count_schedule_sha256": "25052b4886c7e40f344155acb46e8681d3ce59e1a3fd3e54e3c80d25504391cc"
+      },
+      {
+        "epoch": 56,
+        "probability": 0.25,
+        "merge_count_examples": [
+          33280,
+          52736,
+          41809,
+          10752,
+          2560,
+          0
+        ],
+        "pair_occurrences": 165361,
+        "supported_train_forward_flops": 56385596869824,
+        "count_schedule_sha256": "5d78f5cf72f7e25fdba806901cf525e519e8ddd210cce256fd87935a15d10ca4"
+      },
+      {
+        "epoch": 57,
+        "probability": 0.25,
+        "merge_count_examples": [
+          35153,
+          53760,
+          37376,
+          13824,
+          1024,
+          0
+        ],
+        "pair_occurrences": 161204,
+        "supported_train_forward_flops": 56489003540816,
+        "count_schedule_sha256": "1801920fb688b0663486e0b187c2cde92f5ffe7867d33006fe7dd5d981d54418"
+      },
+      {
+        "epoch": 58,
+        "probability": 0.25,
+        "merge_count_examples": [
+          38400,
+          56320,
+          35328,
+          8704,
+          2385,
+          0
+        ],
+        "pair_occurrences": 150662,
+        "supported_train_forward_flops": 56737541876272,
+        "count_schedule_sha256": "46600a401fc36608e7dcb80116163fad5d76e67aa8a24b5c3690f45ba2680dcc"
+      },
+      {
+        "epoch": 59,
+        "probability": 0.25,
+        "merge_count_examples": [
+          39424,
+          54784,
+          36177,
+          10240,
+          512,
+          0
+        ],
+        "pair_occurrences": 148033,
+        "supported_train_forward_flops": 56795911232704,
+        "count_schedule_sha256": "ec1d002a549eaa29f180fe3cf61ed8760315bf9ceaecbb98c8a31dfeb57753e9"
+      },
+      {
+        "epoch": 60,
+        "probability": 0.25,
+        "merge_count_examples": [
+          29184,
+          60753,
+          36352,
+          13824,
+          512,
+          512
+        ],
+        "pair_occurrences": 166389,
+        "supported_train_forward_flops": 56369907425992,
+        "count_schedule_sha256": "28d9e97a45ee355529689613b8aa3b5430a1a254d0516f3d73715eb6eec7cc86"
+      }
+    ],
+    "random20_ramp01_42": [
+      {
+        "epoch": 1,
+        "probability": 0.0,
+        "merge_count_examples": [
+          141137,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "pair_occurrences": 0,
+        "supported_train_forward_flops": 60277912281424,
+        "count_schedule_sha256": "d489001ff88ed206b56f44bd0789a8332510f33bf40a312a7b2e5d60c3fe3e03"
+      },
+      {
+        "epoch": 2,
+        "probability": 0.01694915254237288,
+        "merge_count_examples": [
+          128337,
+          11264,
+          1536,
+          0,
+          0,
+          0
+        ],
+        "pair_occurrences": 13178,
+        "supported_train_forward_flops": 59964809666896,
+        "count_schedule_sha256": "c8d89345bca0013ee912622596eed9d75a3e23a6cb7dadf20c3ae11924a9224f"
+      },
+      {
+        "epoch": 3,
+        "probability": 0.03389830508474576,
+        "merge_count_examples": [
+          118272,
+          21329,
+          1536,
+          0,
+          0,
+          0
+        ],
+        "pair_occurrences": 22322,
+        "supported_train_forward_flops": 59744774836936,
+        "count_schedule_sha256": "fc242f20028d774b7ac3d0c8ed2344b46f4c652c4788c01146a610eb2c9c0a34"
+      },
+      {
+        "epoch": 4,
+        "probability": 0.05084745762711865,
+        "merge_count_examples": [
+          112977,
+          26112,
+          2048,
+          0,
+          0,
+          0
+        ],
+        "pair_occurrences": 27887,
+        "supported_train_forward_flops": 59617926508880,
+        "count_schedule_sha256": "69a71aaa3162df0e6466a8399d7583b2ebb16b59f74d53ab6bd35a55f4171be5"
+      },
+      {
+        "epoch": 5,
+        "probability": 0.06779661016949153,
+        "merge_count_examples": [
+          104273,
+          30208,
+          4608,
+          2048,
+          0,
+          0
+        ],
+        "pair_occurrences": 42302,
+        "supported_train_forward_flops": 59283848040784,
+        "count_schedule_sha256": "cbacb793ca79aa5dc47abbcba116a7d0903de9cfad65d2343b5ccdb91bed8900"
+      },
+      {
+        "epoch": 6,
+        "probability": 0.0847457627118644,
+        "merge_count_examples": [
+          87377,
+          44032,
+          8192,
+          1536,
+          0,
+          0
+        ],
+        "pair_occurrences": 60575,
+        "supported_train_forward_flops": 58858915869008,
+        "count_schedule_sha256": "c0482d47abb527ebb0d7d483191ba0b6af5ed855b1503d02861e2180060c0f54"
+      },
+      {
+        "epoch": 7,
+        "probability": 0.1016949152542373,
+        "merge_count_examples": [
+          81408,
+          49489,
+          9216,
+          1024,
+          0,
+          0
+        ],
+        "pair_occurrences": 66044,
+        "supported_train_forward_flops": 58728324539080,
+        "count_schedule_sha256": "925b0e2f0b6016c24f6e6825ebb7306646ca003997aefd928111eafc8116005d"
+      },
+      {
+        "epoch": 8,
+        "probability": 0.11864406779661017,
+        "merge_count_examples": [
+          70144,
+          53585,
+          15360,
+          1536,
+          512,
+          0
+        ],
+        "pair_occurrences": 84094,
+        "supported_train_forward_flops": 58293911728840,
+        "count_schedule_sha256": "a38dc447a81553ee83447b776d0fc87f27022eeb7ac0f69e4e38ae0a8919cb15"
+      },
+      {
+        "epoch": 9,
+        "probability": 0.13559322033898305,
+        "merge_count_examples": [
+          62976,
+          60753,
+          13824,
+          3072,
+          512,
+          0
+        ],
+        "pair_occurrences": 92797,
+        "supported_train_forward_flops": 58104234615496,
+        "count_schedule_sha256": "f583adb8a13ef8ce3be42f9e9ab8095d595578bfeeb3d18178832365fbe0d57b"
+      },
+      {
+        "epoch": 10,
+        "probability": 0.15254237288135594,
+        "merge_count_examples": [
+          66897,
+          53248,
+          18944,
+          2048,
+          0,
+          0
+        ],
+        "pair_occurrences": 90268,
+        "supported_train_forward_flops": 58156172558672,
+        "count_schedule_sha256": "805222622ce400018c9add05bad9163c1f68cecb6f83d1f829940e2cbd2228a0"
+      },
+      {
+        "epoch": 11,
+        "probability": 0.1694915254237288,
+        "merge_count_examples": [
+          56320,
+          63313,
+          17920,
+          3584,
+          0,
+          0
+        ],
+        "pair_occurrences": 101667,
+        "supported_train_forward_flops": 57880877687496,
+        "count_schedule_sha256": "c10e32bc90e9e448ef41d221686d5b51fd8e42ac586ea484a623336ab15e7c42"
+      },
+      {
+        "epoch": 12,
+        "probability": 0.1864406779661017,
+        "merge_count_examples": [
+          51537,
+          55808,
+          26624,
+          6144,
+          1024,
+          0
+        ],
+        "pair_occurrences": 122024,
+        "supported_train_forward_flops": 57411376812368,
+        "count_schedule_sha256": "ec327ee55bc8c305e49696d1c0b415791bf5b8305cbd1a0696cf49111585b5e6"
+      },
+      {
+        "epoch": 13,
+        "probability": 0.2033898305084746,
+        "merge_count_examples": [
+          41809,
+          62464,
+          27648,
+          7680,
+          1536,
+          0
+        ],
+        "pair_occurrences": 136272,
+        "supported_train_forward_flops": 57077298344272,
+        "count_schedule_sha256": "affc9862cdebf3aa4524b7853365f12e4186053217d3ed5e741134f1347c1fa9"
+      },
+      {
+        "epoch": 14,
+        "probability": 0.22033898305084745,
+        "merge_count_examples": [
+          41984,
+          60241,
+          24064,
+          11776,
+          3072,
+          0
+        ],
+        "pair_occurrences": 144500,
+        "supported_train_forward_flops": 56883175080648,
+        "count_schedule_sha256": "4a8898be07d2ba82b95d9588bb0f4fc14114de300df5563530cfd0c8c9ef8bc9"
+      },
+      {
+        "epoch": 15,
+        "probability": 0.23728813559322035,
+        "merge_count_examples": [
+          35840,
+          50001,
+          40960,
+          11776,
+          2048,
+          512
+        ],
+        "pair_occurrences": 164947,
+        "supported_train_forward_flops": 56404997444296,
+        "count_schedule_sha256": "1ef0d7c22fac5a5d3049af77b8464d90601c0b4d8aef96af8816ffab92c41386"
+      },
+      {
+        "epoch": 16,
+        "probability": 0.2542372881355932,
+        "merge_count_examples": [
+          32256,
+          56145,
+          36352,
+          14848,
+          1536,
+          0
+        ],
+        "pair_occurrences": 165753,
+        "supported_train_forward_flops": 56370713256648,
+        "count_schedule_sha256": "a1261134651544d67d428f88c4ffba1592ca0fde77069492831656ea9b77101d"
+      },
+      {
+        "epoch": 17,
+        "probability": 0.2711864406779661,
+        "merge_count_examples": [
+          30720,
+          51712,
+          39936,
+          15697,
+          3072,
+          0
+        ],
+        "pair_occurrences": 176967,
+        "supported_train_forward_flops": 56123944390456,
+        "count_schedule_sha256": "8ec016b8483a44c3de2c57bf02310ad732392558ef0fcce6c6155d68746ac0ec"
+      },
+      {
+        "epoch": 18,
+        "probability": 0.288135593220339,
+        "merge_count_examples": [
+          30720,
+          53248,
+          39249,
+          14336,
+          3072,
+          512
+        ],
+        "pair_occurrences": 175529,
+        "supported_train_forward_flops": 56153766591680,
+        "count_schedule_sha256": "cdefefe39dd407ca770da05fb60673b01e67b5ea83962dc4082ba1577c76d541"
+      },
+      {
+        "epoch": 19,
+        "probability": 0.3050847457627119,
+        "merge_count_examples": [
+          22016,
+          61265,
+          34816,
+          16896,
+          6144,
+          0
+        ],
+        "pair_occurrences": 191470,
+        "supported_train_forward_flops": 55795021685448,
+        "count_schedule_sha256": "5704c05a1df96800ea403d619544f2a4bae2accf7f4705bb7d87a40d16777299"
+      },
+      {
+        "epoch": 20,
+        "probability": 0.3220338983050847,
+        "merge_count_examples": [
+          17920,
+          52736,
+          44881,
+          21504,
+          4096,
+          0
+        ],
+        "pair_occurrences": 206647,
+        "supported_train_forward_flops": 55420566789312,
+        "count_schedule_sha256": "70e8db68809faab7806ded5b8f94fe95da943764927edd83f5755a6ba234b3f1"
+      },
+      {
+        "epoch": 21,
+        "probability": 0.3389830508474576,
+        "merge_count_examples": [
+          21504,
+          44032,
+          45905,
+          25600,
+          4096,
+          0
+        ],
+        "pair_occurrences": 212213,
+        "supported_train_forward_flops": 55300062424256,
+        "count_schedule_sha256": "430c50b147750cec100d2a2ebdd23cc6dea40855c88f3fbffd0dc747e565a5fa"
+      },
+      {
+        "epoch": 22,
+        "probability": 0.3559322033898305,
+        "merge_count_examples": [
+          14848,
+          34304,
+          54272,
+          29184,
+          7505,
+          1024
+        ],
+        "pair_occurrences": 245488,
+        "supported_train_forward_flops": 54511615859248,
+        "count_schedule_sha256": "adef818f431da3cafec42be6d71737586f7121f7c508566e06c5b6fc59146d2e"
+      },
+      {
+        "epoch": 23,
+        "probability": 0.3728813559322034,
+        "merge_count_examples": [
+          8192,
+          43520,
+          41984,
+          37376,
+          10065,
+          0
+        ],
+        "pair_occurrences": 259236,
+        "supported_train_forward_flops": 54201635838512,
+        "count_schedule_sha256": "dde01d109fbbd92db90c84dfa8ca4f0949d46fdcc6b63bdcbc9ac86061f322e5"
+      },
+      {
+        "epoch": 24,
+        "probability": 0.3898305084745763,
+        "merge_count_examples": [
+          10752,
+          38400,
+          46080,
+          35153,
+          10240,
+          512
+        ],
+        "pair_occurrences": 258744,
+        "supported_train_forward_flops": 54209710784312,
+        "count_schedule_sha256": "c4952c5bc3836483acf0018733d7139ce3e4939d3a7403f6c63e2a27fba1f5b7"
+      },
+      {
+        "epoch": 25,
+        "probability": 0.4067796610169492,
+        "merge_count_examples": [
+          8704,
+          32768,
+          50001,
+          37888,
+          10240,
+          1536
+        ],
+        "pair_occurrences": 273504,
+        "supported_train_forward_flops": 53874494381248,
+        "count_schedule_sha256": "7c85681174dd09c692cd9c3c942bbc9b1ca15e383cdd87987479d00aaf1de7d1"
+      },
+      {
+        "epoch": 26,
+        "probability": 0.423728813559322,
+        "merge_count_examples": [
+          6656,
+          30720,
+          45393,
+          37888,
+          17408,
+          3072
+        ],
+        "pair_occurrences": 296022,
+        "supported_train_forward_flops": 53336612506816,
+        "count_schedule_sha256": "ff95184a469831e9941595c3dc83ad005ff478b5ba664be0f23667ca689facbb"
+      },
+      {
+        "epoch": 27,
+        "probability": 0.4406779661016949,
+        "merge_count_examples": [
+          11776,
+          33105,
+          46080,
+          35840,
+          11776,
+          2560
+        ],
+        "pair_occurrences": 271333,
+        "supported_train_forward_flops": 53928481329864,
+        "count_schedule_sha256": "9b885292bb411819d18ae3e38673441f3f4cf4c2239dc87d2df0af94d1f94dcd"
+      },
+      {
+        "epoch": 28,
+        "probability": 0.4576271186440678,
+        "merge_count_examples": [
+          5120,
+          22016,
+          50688,
+          44881,
+          14848,
+          3584
+        ],
+        "pair_occurrences": 310075,
+        "supported_train_forward_flops": 53007801855800,
+        "count_schedule_sha256": "fb0414e31536e7bccf9a58929e2a362a7c7425369b40ee86e59b54a8eabd1f1e"
+      },
+      {
+        "epoch": 29,
+        "probability": 0.4745762711864407,
+        "merge_count_examples": [
+          5120,
+          20480,
+          47441,
+          45568,
+          16896,
+          5632
+        ],
+        "pair_occurrences": 321795,
+        "supported_train_forward_flops": 52741556743360,
+        "count_schedule_sha256": "aae9378599cecff4497812ad5fa308fabae673773735c46b3e52827af8d4d366"
+      },
+      {
+        "epoch": 30,
+        "probability": 0.4915254237288136,
+        "merge_count_examples": [
+          4608,
+          22016,
+          45905,
+          44544,
+          23552,
+          512
+        ],
+        "pair_occurrences": 317769,
+        "supported_train_forward_flops": 52816785349824,
+        "count_schedule_sha256": "4887ca6f8e5defeb877d17c1f82be7baf88f38de9a09ab051d5fcab26a1a6a06"
+      },
+      {
+        "epoch": 31,
+        "probability": 0.5084745762711864,
+        "merge_count_examples": [
+          2048,
+          23040,
+          48977,
+          39936,
+          23040,
+          4096
+        ],
+        "pair_occurrences": 327208,
+        "supported_train_forward_flops": 52619642174656,
+        "count_schedule_sha256": "8df52151b38957543bb44164ab47b9bc0cba682782f57fb1d4563d110747e07d"
+      },
+      {
+        "epoch": 32,
+        "probability": 0.5254237288135594,
+        "merge_count_examples": [
+          2560,
+          19281,
+          44032,
+          38400,
+          26624,
+          10240
+        ],
+        "pair_occurrences": 352151,
+        "supported_train_forward_flops": 52048217596616,
+        "count_schedule_sha256": "44dd74a5636b3b1697b870023f090427f5e0e4e9834171bf533092656a08c893"
+      },
+      {
+        "epoch": 33,
+        "probability": 0.5423728813559322,
+        "merge_count_examples": [
+          3072,
+          15185,
+          34816,
+          50688,
+          30208,
+          7168
+        ],
+        "pair_occurrences": 364121,
+        "supported_train_forward_flops": 51760825090760,
+        "count_schedule_sha256": "0b8aff3c52288da381d5283168f91276d4bf81c1236cf35cdc5f1a5f4992be09"
+      },
+      {
+        "epoch": 34,
+        "probability": 0.559322033898305,
+        "merge_count_examples": [
+          1536,
+          12800,
+          38400,
+          46080,
+          34304,
+          8017
+        ],
+        "pair_occurrences": 374979,
+        "supported_train_forward_flops": 51511986068904,
+        "count_schedule_sha256": "8a2754814eea0b160b3fa402bccb86cff2631f724aca3e45248205418552a384"
+      },
+      {
+        "epoch": 35,
+        "probability": 0.576271186440678,
+        "merge_count_examples": [
+          2048,
+          11264,
+          35328,
+          53073,
+          33792,
+          5632
+        ],
+        "pair_occurrences": 374096,
+        "supported_train_forward_flops": 51524947066680,
+        "count_schedule_sha256": "5fa758dc56693ba6dc95093f33a73eae9cb8ed4b9836a6afac9bb0e781488448"
+      },
+      {
+        "epoch": 36,
+        "probability": 0.5932203389830508,
+        "merge_count_examples": [
+          2048,
+          10752,
+          31744,
+          47104,
+          39761,
+          9728
+        ],
+        "pair_occurrences": 392118,
+        "supported_train_forward_flops": 51125506906672,
+        "count_schedule_sha256": "14b75fdc96f8287e681d4cef943103ffc15770f552708a951faa455cf1550996"
+      },
+      {
+        "epoch": 37,
+        "probability": 0.6101694915254238,
+        "merge_count_examples": [
+          1024,
+          9728,
+          35665,
+          45056,
+          35328,
+          14336
+        ],
+        "pair_occurrences": 396682,
+        "supported_train_forward_flops": 50998127574208,
+        "count_schedule_sha256": "eb4f6d13610bd08212d2ea0503252e8439eb62a550dbfdb415f0e6f1b9a0dd25"
+      },
+      {
+        "epoch": 38,
+        "probability": 0.6271186440677966,
+        "merge_count_examples": [
+          1024,
+          11264,
+          24401,
+          44032,
+          47104,
+          13312
+        ],
+        "pair_occurrences": 413276,
+        "supported_train_forward_flops": 50615437167808,
+        "count_schedule_sha256": "0c1e2564998f7d65697f97ac401babfe4c68b4803c890ad158eea2a079048284"
+      },
+      {
+        "epoch": 39,
+        "probability": 0.6440677966101694,
+        "merge_count_examples": [
+          0,
+          9728,
+          31232,
+          41984,
+          42833,
+          15360
+        ],
+        "pair_occurrences": 413608,
+        "supported_train_forward_flops": 50633404434992,
+        "count_schedule_sha256": "079e50582283479fe246449c5064d2d65424156708e28bba3c734408502acc8b"
+      },
+      {
+        "epoch": 40,
+        "probability": 0.6610169491525424,
+        "merge_count_examples": [
+          0,
+          6144,
+          20480,
+          48640,
+          46592,
+          19281
+        ],
+        "pair_occurrences": 440327,
+        "supported_train_forward_flops": 50001998839208,
+        "count_schedule_sha256": "735288a86a861f7b84fe7224ff850aa3e944fd56682d3c95c02ffcc30955790c"
+      },
+      {
+        "epoch": 41,
+        "probability": 0.6779661016949152,
+        "merge_count_examples": [
+          512,
+          2048,
+          18432,
+          50513,
+          50688,
+          18944
+        ],
+        "pair_occurrences": 451360,
+        "supported_train_forward_flops": 49741782224696,
+        "count_schedule_sha256": "45144c7f25afefa142e1bbbe32cb55c5647565901894538cc231971a2ece9783"
+      },
+      {
+        "epoch": 42,
+        "probability": 0.6949152542372882,
+        "merge_count_examples": [
+          1024,
+          3072,
+          19968,
+          41472,
+          47953,
+          27648
+        ],
+        "pair_occurrences": 460318,
+        "supported_train_forward_flops": 49541802002992,
+        "count_schedule_sha256": "b9540db2d3d51310cc77046cfcdf308fcc1dedbe22c7030411997ca00b4b28db"
+      },
+      {
+        "epoch": 43,
+        "probability": 0.711864406779661,
+        "merge_count_examples": [
+          512,
+          5632,
+          15185,
+          40448,
+          50688,
+          28672
+        ],
+        "pair_occurrences": 465094,
+        "supported_train_forward_flops": 49414724857024,
+        "count_schedule_sha256": "17a8e5abe4b5f1c641ff648e0746241bb3248988705b1fe9416b85d2159cf84e"
+      },
+      {
+        "epoch": 44,
+        "probability": 0.7288135593220338,
+        "merge_count_examples": [
+          512,
+          2560,
+          15360,
+          41472,
+          45905,
+          35328
+        ],
+        "pair_occurrences": 479534,
+        "supported_train_forward_flops": 49105866132016,
+        "count_schedule_sha256": "52ad482474708c61024e61f09ce2616e1efa42b5612e80d32d8b093761af9ad3"
+      },
+      {
+        "epoch": 45,
+        "probability": 0.7457627118644068,
+        "merge_count_examples": [
+          0,
+          2560,
+          12113,
+          36864,
+          50176,
+          39424
+        ],
+        "pair_occurrences": 495400,
+        "supported_train_forward_flops": 48738586086592,
+        "count_schedule_sha256": "b3f2cdb2354174109c1b654b2d4c660ba818edb048da418c13835c3ce18afd36"
+      },
+      {
+        "epoch": 46,
+        "probability": 0.7627118644067796,
+        "merge_count_examples": [
+          0,
+          2048,
+          10577,
+          32256,
+          58368,
+          37888
+        ],
+        "pair_occurrences": 502395,
+        "supported_train_forward_flops": 48574316895424,
+        "count_schedule_sha256": "26359c78b2f2fb0d21e66006c4486a31a2e95e4f390073a8856be61b09095199"
+      },
+      {
+        "epoch": 47,
+        "probability": 0.7796610169491526,
+        "merge_count_examples": [
+          0,
+          0,
+          9216,
+          24576,
+          55296,
+          52049
+        ],
+        "pair_occurrences": 531201,
+        "supported_train_forward_flops": 47922452368808,
+        "count_schedule_sha256": "173b152fbc33c1cdb8b60d923d233b5c4530259caf050dda53ba9baa4c36a024"
+      },
+      {
+        "epoch": 48,
+        "probability": 0.7966101694915254,
+        "merge_count_examples": [
+          0,
+          1024,
+          7168,
+          31569,
+          60416,
+          40960
+        ],
+        "pair_occurrences": 514962,
+        "supported_train_forward_flops": 48283315941176,
+        "count_schedule_sha256": "55009621495982bfaaa01d5e50904154c7f99de2372251cdbd691aed8b64e006"
+      },
+      {
+        "epoch": 49,
+        "probability": 0.8135593220338984,
+        "merge_count_examples": [
+          0,
+          1024,
+          4608,
+          21504,
+          52561,
+          61440
+        ],
+        "pair_occurrences": 548247,
+        "supported_train_forward_flops": 47528204958256,
+        "count_schedule_sha256": "5275bba20ea733643a9f150b4382608d3c92f852ccb061013c7db8950d81cd38"
+      },
+      {
+        "epoch": 50,
+        "probability": 0.8305084745762712,
+        "merge_count_examples": [
+          0,
+          0,
+          5632,
+          23552,
+          61265,
+          50688
+        ],
+        "pair_occurrences": 537203,
+        "supported_train_forward_flops": 47776176106032,
+        "count_schedule_sha256": "35e194447da479d63d70f9ce51b7a1688c66c987213de8715acafe26f2a4db29"
+      },
+      {
+        "epoch": 51,
+        "probability": 0.847457627118644,
+        "merge_count_examples": [
+          0,
+          0,
+          6144,
+          15360,
+          56145,
+          63488
+        ],
+        "pair_occurrences": 555340,
+        "supported_train_forward_flops": 47354052213296,
+        "count_schedule_sha256": "ece03bc34796d0b8215a68790725eea4314e11c50e03d69b07274c224da8b20e"
+      },
+      {
+        "epoch": 52,
+        "probability": 0.864406779661017,
+        "merge_count_examples": [
+          0,
+          0,
+          1536,
+          18432,
+          50176,
+          70993
+        ],
+        "pair_occurrences": 568129,
+        "supported_train_forward_flops": 47064291876264,
+        "count_schedule_sha256": "009dcf8b5cbffe0ef10d7fff490fd7c5ecde6d27b96e149e7f487e833cc5296a"
+      },
+      {
+        "epoch": 53,
+        "probability": 0.8813559322033898,
+        "merge_count_examples": [
+          0,
+          0,
+          2048,
+          11264,
+          54272,
+          73553
+        ],
+        "pair_occurrences": 576882,
+        "supported_train_forward_flops": 46879751933352,
+        "count_schedule_sha256": "2dd017e2f611d4226a8218a5917fce8a1e286459c4e47a1055ac3fd295892d20"
+      },
+      {
+        "epoch": 54,
+        "probability": 0.8983050847457628,
+        "merge_count_examples": [
+          0,
+          512,
+          3072,
+          9216,
+          44544,
+          83793
+        ],
+        "pair_occurrences": 583981,
+        "supported_train_forward_flops": 46697125838248,
+        "count_schedule_sha256": "926281c4aacc25f5dc09d906ff4dcb339de1649995e283321ff9e96e84c67f99"
+      },
+      {
+        "epoch": 55,
+        "probability": 0.9152542372881356,
+        "merge_count_examples": [
+          0,
+          0,
+          0,
+          7680,
+          41472,
+          91985
+        ],
+        "pair_occurrences": 600202,
+        "supported_train_forward_flops": 46327542308264,
+        "count_schedule_sha256": "afcedf8fe67c4feba6a639e61e649d6e05762ef8c21f626eddb7f7504ca6ca1f"
+      },
+      {
+        "epoch": 56,
+        "probability": 0.9322033898305084,
+        "merge_count_examples": [
+          0,
+          0,
+          0,
+          4096,
+          36864,
+          100177
+        ],
+        "pair_occurrences": 611029,
+        "supported_train_forward_flops": 46078664601000,
+        "count_schedule_sha256": "2cd01eed62641802e7d3e6bce0d94c943af10625284414db456713d9f552cd74"
+      },
+      {
+        "epoch": 57,
+        "probability": 0.9491525423728814,
+        "merge_count_examples": [
+          0,
+          0,
+          0,
+          4608,
+          29184,
+          107345
+        ],
+        "pair_occurrences": 617468,
+        "supported_train_forward_flops": 45938493857192,
+        "count_schedule_sha256": "5a356443e308f13ff5b74541b172c109d18d8e196aa8b04fe9f5b882781609f0"
+      },
+      {
+        "epoch": 58,
+        "probability": 0.9661016949152542,
+        "merge_count_examples": [
+          0,
+          0,
+          0,
+          1536,
+          22353,
+          117248
+        ],
+        "pair_occurrences": 629418,
+        "supported_train_forward_flops": 45664448625200,
+        "count_schedule_sha256": "28c0ddc8127232d923263db550ee49b6b605a2e71553492014073649352ab4cf"
+      },
+      {
+        "epoch": 59,
+        "probability": 0.9830508474576272,
+        "merge_count_examples": [
+          0,
+          0,
+          0,
+          1024,
+          14848,
+          125265
+        ],
+        "pair_occurrences": 637400,
+        "supported_train_forward_flops": 45484603997608,
+        "count_schedule_sha256": "83818ea5c160b89560720b477e8995022d7728bbb7b09bcc9d9d3f63de46db41"
+      },
+      {
+        "epoch": 60,
+        "probability": 1.0,
+        "merge_count_examples": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          141137
+        ],
+        "pair_occurrences": 652995,
+        "supported_train_forward_flops": 45128328801704,
+        "count_schedule_sha256": "1be52904a23893d4224c14e6cac596e15854a0141534fe0f6bc86a285b8d9efe"
+      }
+    ],
+    "random20_p75_42": [
+      {
+        "epoch": 1,
+        "probability": 0.75,
+        "merge_count_examples": [
+          512,
+          1536,
+          8192,
+          37888,
+          59217,
+          33792
+        ],
+        "pair_occurrences": 497730,
+        "supported_train_forward_flops": 48689697368624,
+        "count_schedule_sha256": "d4d5a4ac403ef663cf5c0771028ca11bceff6e4e1af32963ab6b1b3c6fa75c02"
+      },
+      {
+        "epoch": 2,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1024,
+          10240,
+          38400,
+          61265,
+          30208
+        ],
+        "pair_occurrences": 493077,
+        "supported_train_forward_flops": 48786506201648,
+        "count_schedule_sha256": "2fdbb396cedf23ac245b329bcdff76443fbdf0ae808a8dd6f68e176a908691fc"
+      },
+      {
+        "epoch": 3,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          2048,
+          11776,
+          37888,
+          54609,
+          34816
+        ],
+        "pair_occurrences": 491556,
+        "supported_train_forward_flops": 48810101004848,
+        "count_schedule_sha256": "a78364f88cdae77845b599c8237411514492b87ac36f0dda66cedffef3f011d6"
+      },
+      {
+        "epoch": 4,
+        "probability": 0.75,
+        "merge_count_examples": [
+          512,
+          3072,
+          12288,
+          34129,
+          54784,
+          36352
+        ],
+        "pair_occurrences": 491332,
+        "supported_train_forward_flops": 48829771894584,
+        "count_schedule_sha256": "8df2b4d4f6259b316a6e683db7afafb12f63bda07f2ad57ffca83b79aad2906f"
+      },
+      {
+        "epoch": 5,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1024,
+          12800,
+          35840,
+          54609,
+          36864
+        ],
+        "pair_occurrences": 497254,
+        "supported_train_forward_flops": 48701192583728,
+        "count_schedule_sha256": "d56ab845057e2a376c48a1c9d2c7d2c410d81e91be2b41421f647e34a0c237f3"
+      },
+      {
+        "epoch": 6,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1536,
+          7168,
+          35328,
+          58193,
+          38912
+        ],
+        "pair_occurrences": 508474,
+        "supported_train_forward_flops": 48439409457712,
+        "count_schedule_sha256": "6f2d3d973f33e132336e7983d9b470e6740a8351cd57fa2f617a2fbb4bc368f6"
+      },
+      {
+        "epoch": 7,
+        "probability": 0.75,
+        "merge_count_examples": [
+          512,
+          2560,
+          15360,
+          34304,
+          55808,
+          32593
+        ],
+        "pair_occurrences": 483524,
+        "supported_train_forward_flops": 49011032935848,
+        "count_schedule_sha256": "cc06e38f1b6e9948dbbb95139abf49b4bd1c6c90fa0c3bd2f2457570fa32cf9c"
+      },
+      {
+        "epoch": 8,
+        "probability": 0.75,
+        "merge_count_examples": [
+          512,
+          2560,
+          13824,
+          42496,
+          54097,
+          27648
+        ],
+        "pair_occurrences": 474112,
+        "supported_train_forward_flops": 49223852276272,
+        "count_schedule_sha256": "25c73ca50bf23c6bae3e604cde47d6c26c8ad1ac47943805428c5867f94bdbe8"
+      },
+      {
+        "epoch": 9,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          2048,
+          13824,
+          38400,
+          48465,
+          38400
+        ],
+        "pair_occurrences": 491461,
+        "supported_train_forward_flops": 48832990706224,
+        "count_schedule_sha256": "e22903e6e4717693d4d404acc1417642ad633a2b3c3dd42a9e031b16fa2d63df"
+      },
+      {
+        "epoch": 10,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1536,
+          9728,
+          40448,
+          60928,
+          28497
+        ],
+        "pair_occurrences": 488789,
+        "supported_train_forward_flops": 48877220236712,
+        "count_schedule_sha256": "76fd0e6826f8a08616b9a4efaacf691616cd09d420b702e4d4d19952cb6c4be2"
+      },
+      {
+        "epoch": 11,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          3072,
+          13312,
+          32256,
+          52224,
+          40273
+        ],
+        "pair_occurrences": 496871,
+        "supported_train_forward_flops": 48706895187368,
+        "count_schedule_sha256": "0cb1c28a60ae6073cfd2b2fa86777d3270f4df8198809366cde5b26ebf29fc17"
+      },
+      {
+        "epoch": 12,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1024,
+          13312,
+          37376,
+          55121,
+          34304
+        ],
+        "pair_occurrences": 491862,
+        "supported_train_forward_flops": 48809698089520,
+        "count_schedule_sha256": "e05e2912836939eb1c05af698fb7238957091a0f21779ca4a071b2034739be3e"
+      },
+      {
+        "epoch": 13,
+        "probability": 0.75,
+        "merge_count_examples": [
+          1024,
+          2560,
+          10240,
+          38737,
+          58880,
+          29696
+        ],
+        "pair_occurrences": 483833,
+        "supported_train_forward_flops": 48991724322616,
+        "count_schedule_sha256": "ca2ebb1dbf48808d5963e5d6572c3d2de6bc68b4e6a78189072f086f3d68bcf4"
+      },
+      {
+        "epoch": 14,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          2560,
+          13312,
+          31569,
+          56832,
+          36864
+        ],
+        "pair_occurrences": 495798,
+        "supported_train_forward_flops": 48731149942584,
+        "count_schedule_sha256": "2dc53523cf43611e365964bddde544d6402dbefaf7dc03a40431b901b9a6c23e"
+      },
+      {
+        "epoch": 15,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          2048,
+          11776,
+          39424,
+          50176,
+          37713
+        ],
+        "pair_occurrences": 493395,
+        "supported_train_forward_flops": 48781720878504,
+        "count_schedule_sha256": "a8aaab36fc26f0fec5e9ec6c92e595ccfbde1d0964e36b2cefaf7bd90bf277a8"
+      },
+      {
+        "epoch": 16,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1536,
+          15872,
+          32593,
+          49152,
+          41984
+        ],
+        "pair_occurrences": 497224,
+        "supported_train_forward_flops": 48688493133624,
+        "count_schedule_sha256": "578323c3769e7a2e4f215b8f01aa1498840324e88dc9e9a6c44aa2f00f9a2f6e"
+      },
+      {
+        "epoch": 17,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1536,
+          8704,
+          40448,
+          60753,
+          29696
+        ],
+        "pair_occurrences": 491871,
+        "supported_train_forward_flops": 48808187157040,
+        "count_schedule_sha256": "c915a6f2e2cd46c1e5cc8d86240563e688b7f0a26b300616069ffa3aa7eb5122"
+      },
+      {
+        "epoch": 18,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1536,
+          15872,
+          32768,
+          60928,
+          30033
+        ],
+        "pair_occurrences": 486040,
+        "supported_train_forward_flops": 48944076221864,
+        "count_schedule_sha256": "bb2796b708f6a0f89b5670e057075b1435b01c5bf8631617ef5ef1c07c486be4"
+      },
+      {
+        "epoch": 19,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          3072,
+          13312,
+          40448,
+          58193,
+          26112
+        ],
+        "pair_occurrences": 476016,
+        "supported_train_forward_flops": 49179583806000,
+        "count_schedule_sha256": "ed3fb1f161443a0401949269632b3cec44492ac44c5336c7801b2d884057b617"
+      },
+      {
+        "epoch": 20,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1536,
+          13824,
+          39424,
+          52224,
+          34129
+        ],
+        "pair_occurrences": 487874,
+        "supported_train_forward_flops": 48911806610856,
+        "count_schedule_sha256": "63ecb3dba72f8ce0efa74fbac553d9dd3137b3266ed1fe2294c9b075d9584a65"
+      },
+      {
+        "epoch": 21,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          2560,
+          16384,
+          39761,
+          54272,
+          28160
+        ],
+        "pair_occurrences": 474328,
+        "supported_train_forward_flops": 49220129820472,
+        "count_schedule_sha256": "ca47abe2041504871b106551c61ad393fb11429dfc04a2ca8a408621ee0ad804"
+      },
+      {
+        "epoch": 22,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1024,
+          7168,
+          36864,
+          59729,
+          36352
+        ],
+        "pair_occurrences": 505769,
+        "supported_train_forward_flops": 48493057837616,
+        "count_schedule_sha256": "70952881456ab99e57cbb0c4bdcc4f9f36dd07d3ea4d755404028002e5f512c0"
+      },
+      {
+        "epoch": 23,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          4096,
+          7680,
+          32256,
+          64849,
+          32256
+        ],
+        "pair_occurrences": 497358,
+        "supported_train_forward_flops": 48701091854896,
+        "count_schedule_sha256": "d68918b66c3991f0b138237fbfdf0dcacd59826483f796855a7d301991fd17a6"
+      },
+      {
+        "epoch": 24,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          2048,
+          11776,
+          39936,
+          52561,
+          34816
+        ],
+        "pair_occurrences": 489950,
+        "supported_train_forward_flops": 48853664373296,
+        "count_schedule_sha256": "abd63e0c5ee85c1029c0ed1d74bf5f989611432278a315a723475dd0af2f5f7a"
+      },
+      {
+        "epoch": 25,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          512,
+          13312,
+          36177,
+          58368,
+          32768
+        ],
+        "pair_occurrences": 493297,
+        "supported_train_forward_flops": 48783589576504,
+        "count_schedule_sha256": "f5142c1a1ba3695d6c6893b030874b660268103401e401126c947cd90857cec6"
+      },
+      {
+        "epoch": 26,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1536,
+          9216,
+          38737,
+          59904,
+          31744
+        ],
+        "pair_occurrences": 494675,
+        "supported_train_forward_flops": 48750514134840,
+        "count_schedule_sha256": "2f4056725351e451e6f4bf75ebf1ecd48685b2fb2d07ec4f09f92ebe5a05e82e"
+      },
+      {
+        "epoch": 27,
+        "probability": 0.75,
+        "merge_count_examples": [
+          512,
+          3072,
+          17233,
+          35328,
+          53248,
+          31744
+        ],
+        "pair_occurrences": 477087,
+        "supported_train_forward_flops": 49163731844288,
+        "count_schedule_sha256": "d1d18b3e3ba4cc5fd2caa3c7b3347be2a3b52d6b3ecf70a8b1ad5be39962ef0a"
+      },
+      {
+        "epoch": 28,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          2048,
+          13824,
+          30720,
+          59217,
+          35328
+        ],
+        "pair_occurrences": 495182,
+        "supported_train_forward_flops": 48734368754224,
+        "count_schedule_sha256": "51997d4e2b1bf014d972b1eee79eb100af71f087d4dfcd08314e0f83441ac034"
+      },
+      {
+        "epoch": 29,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          3072,
+          11776,
+          38912,
+          55633,
+          31744
+        ],
+        "pair_occurrences": 486019,
+        "supported_train_forward_flops": 48962572794416,
+        "count_schedule_sha256": "d4c7d0c95c65c5b28daa583d52abab0d50eff69d04a6f9a7da463a1f18b2d473"
+      },
+      {
+        "epoch": 30,
+        "probability": 0.75,
+        "merge_count_examples": [
+          512,
+          3584,
+          11776,
+          42496,
+          54609,
+          28160
+        ],
+        "pair_occurrences": 475030,
+        "supported_train_forward_flops": 49191481936432,
+        "count_schedule_sha256": "87735ecbc4ad5ef649757ceb4ab01783e3b5b33824da2a6da4e0c40e4263b582"
+      },
+      {
+        "epoch": 31,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          2048,
+          12113,
+          40960,
+          53248,
+          32768
+        ],
+        "pair_occurrences": 487508,
+        "supported_train_forward_flops": 48933009583296,
+        "count_schedule_sha256": "336cb4cab5de5bf6ad9433673890c607d111d377fa2e687131197d60b51e5e9d"
+      },
+      {
+        "epoch": 32,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1024,
+          7680,
+          43520,
+          56145,
+          32768
+        ],
+        "pair_occurrences": 495158,
+        "supported_train_forward_flops": 48732051991088,
+        "count_schedule_sha256": "f57de3cf6f20cf886fca70f5e65c21b2ea30dd55eac96bd2140e19b25592648d"
+      },
+      {
+        "epoch": 33,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1024,
+          11776,
+          36864,
+          56145,
+          35328
+        ],
+        "pair_occurrences": 496360,
+        "supported_train_forward_flops": 48711579781680,
+        "count_schedule_sha256": "655f113a0fc9c42b11dae648bc265a7ee15c316b2960805bc360955edf3c0efd"
+      },
+      {
+        "epoch": 34,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1536,
+          14336,
+          35328,
+          54784,
+          35153
+        ],
+        "pair_occurrences": 491206,
+        "supported_train_forward_flops": 48824982060456,
+        "count_schedule_sha256": "86bd9f99c612eb3a101fc3c2a9baee07817b633f30a53ff62db5368b7c7ffe3a"
+      },
+      {
+        "epoch": 35,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          3072,
+          11776,
+          33280,
+          56320,
+          36689
+        ],
+        "pair_occurrences": 495588,
+        "supported_train_forward_flops": 48738560425384,
+        "count_schedule_sha256": "fc17b742bd8d57d54bc85e44119ac665133b23b327baa4d6f2ff01bbaf5b2772"
+      },
+      {
+        "epoch": 36,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          2048,
+          9728,
+          36864,
+          61265,
+          31232
+        ],
+        "pair_occurrences": 493567,
+        "supported_train_forward_flops": 48776320461360,
+        "count_schedule_sha256": "cedfb38f8c59219bcefc902be45e250a017d8149d24b828ca0fb0002f1af7d56"
+      },
+      {
+        "epoch": 37,
+        "probability": 0.75,
+        "merge_count_examples": [
+          512,
+          512,
+          12800,
+          37376,
+          56320,
+          33617
+        ],
+        "pair_occurrences": 491342,
+        "supported_train_forward_flops": 48813486845352,
+        "count_schedule_sha256": "c5d8b155bb7ed6fc8e63ef5de8fb28a10c5e7aba252ac3cc9e1aaa5a9996ae3c"
+      },
+      {
+        "epoch": 38,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          512,
+          14673,
+          35328,
+          55808,
+          34816
+        ],
+        "pair_occurrences": 492946,
+        "supported_train_forward_flops": 48780537793728,
+        "count_schedule_sha256": "5398780d884b9d133568ad35dd0afc99bb2607010f94a8c5b9931876d62121dd"
+      },
+      {
+        "epoch": 39,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1024,
+          13824,
+          38400,
+          53248,
+          34641
+        ],
+        "pair_occurrences": 490551,
+        "supported_train_forward_flops": 48846260100520,
+        "count_schedule_sha256": "32f74c29ded260437166bf6ae0daf65ae204b885ddb98d737c11574a9ed148ae"
+      },
+      {
+        "epoch": 40,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1536,
+          9216,
+          35840,
+          59904,
+          34641
+        ],
+        "pair_occurrences": 500065,
+        "supported_train_forward_flops": 48627838885288,
+        "count_schedule_sha256": "ca470fc5cae75f6d5864cc9b026e44807e09290aa736866d4f64ac8519e24902"
+      },
+      {
+        "epoch": 41,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1536,
+          10752,
+          37713,
+          55808,
+          35328
+        ],
+        "pair_occurrences": 496007,
+        "supported_train_forward_flops": 48718848896824,
+        "count_schedule_sha256": "dce3da5ce4ccba54cffc78aa52b4646c929fd68458be822b430adfae287f0595"
+      },
+      {
+        "epoch": 42,
+        "probability": 0.75,
+        "merge_count_examples": [
+          512,
+          2048,
+          10240,
+          38400,
+          53585,
+          36352
+        ],
+        "pair_occurrences": 494027,
+        "supported_train_forward_flops": 48767142009392,
+        "count_schedule_sha256": "9d8513a1d2221eac68e9323afe0672ae1338a3b04e1567bee7233c863eb8fbbb"
+      },
+      {
+        "epoch": 43,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          2560,
+          11776,
+          37201,
+          53248,
+          36352
+        ],
+        "pair_occurrences": 492054,
+        "supported_train_forward_flops": 48796092079928,
+        "count_schedule_sha256": "d298e53a3ff1bb208597a2efa45d3f82aee0ad65e15685537ab8407693382d1d"
+      },
+      {
+        "epoch": 44,
+        "probability": 0.75,
+        "merge_count_examples": [
+          512,
+          1536,
+          12800,
+          37376,
+          49489,
+          39424
+        ],
+        "pair_occurrences": 494492,
+        "supported_train_forward_flops": 48757056997936,
+        "count_schedule_sha256": "d760888dd4b0b2739f78eecdb4668f60f087574f71512f94eb6e4ef2d5df4003"
+      },
+      {
+        "epoch": 45,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          2560,
+          11601,
+          35840,
+          50688,
+          40448
+        ],
+        "pair_occurrences": 498239,
+        "supported_train_forward_flops": 48673341762752,
+        "count_schedule_sha256": "61215409c406cdcbf8f9f46ada87cea49bdfd22de07a10ff7296aa4c7ecd27c5"
+      },
+      {
+        "epoch": 46,
+        "probability": 0.75,
+        "merge_count_examples": [
+          512,
+          1536,
+          13137,
+          34304,
+          57344,
+          34304
+        ],
+        "pair_occurrences": 491815,
+        "supported_train_forward_flops": 48814016150720,
+        "count_schedule_sha256": "9fe3da7403f9e313472baa7e5d3cc44f3dc25ef305fb9d1227576eb6bd040e77"
+      },
+      {
+        "epoch": 47,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          512,
+          11264,
+          30720,
+          56832,
+          41809
+        ],
+        "pair_occurrences": 511003,
+        "supported_train_forward_flops": 48389449104808,
+        "count_schedule_sha256": "de23b90f4ec50c2910048f87cd88a1274c1d7c169bf06da17fa2deaac6aeba99"
+      },
+      {
+        "epoch": 48,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          2048,
+          9728,
+          38225,
+          59904,
+          31232
+        ],
+        "pair_occurrences": 492288,
+        "supported_train_forward_flops": 48805270531896,
+        "count_schedule_sha256": "6a86ef867203abce02fe7bc60729ebaeeb9648cbb1cfd49fb4f33206582a4898"
+      },
+      {
+        "epoch": 49,
+        "probability": 0.75,
+        "merge_count_examples": [
+          1024,
+          512,
+          13824,
+          26624,
+          60241,
+          38912
+        ],
+        "pair_occurrences": 503063,
+        "supported_train_forward_flops": 48561122568752,
+        "count_schedule_sha256": "3d0cd5b7c7b648597eef3f9006044f5de2f2c1605a437bdf08137089528bbbe3"
+      },
+      {
+        "epoch": 50,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          2048,
+          11776,
+          37376,
+          62289,
+          27648
+        ],
+        "pair_occurrences": 485578,
+        "supported_train_forward_flops": 48950271748656,
+        "count_schedule_sha256": "1cfcc30e9a00830013d3c645d4fc7b3b6361dc73e81900a19c403e12858a6a84"
+      },
+      {
+        "epoch": 51,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1536,
+          15872,
+          35840,
+          55121,
+          32768
+        ],
+        "pair_occurrences": 485649,
+        "supported_train_forward_flops": 48951782681136,
+        "count_schedule_sha256": "435b9a5b1fba587e7be889933233118299b647415bc19cabdb4901871e7989a2"
+      },
+      {
+        "epoch": 52,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1024,
+          13312,
+          34816,
+          57169,
+          34816
+        ],
+        "pair_occurrences": 494864,
+        "supported_train_forward_flops": 48744453765680,
+        "count_schedule_sha256": "17b8fd7d62a79792fbf986a89e64cecfaf9b1e2e45cc0d194b1ade2e17b488ae"
+      },
+      {
+        "epoch": 53,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1536,
+          11264,
+          37376,
+          54609,
+          36352
+        ],
+        "pair_occurrences": 497206,
+        "supported_train_forward_flops": 48711982697008,
+        "count_schedule_sha256": "f15dada31c368fe26c187dce2ad63b6e582bff815ae8d6b43a3a5aa973bec4ff"
+      },
+      {
+        "epoch": 54,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          2048,
+          13312,
+          44544,
+          51025,
+          30208
+        ],
+        "pair_occurrences": 477839,
+        "supported_train_forward_flops": 49114440210992,
+        "count_schedule_sha256": "68c2a0330c6a085198613cd8ab71a554e63af3e83deb79f636e249975f51677b"
+      },
+      {
+        "epoch": 55,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1024,
+          9728,
+          40448,
+          53073,
+          36864
+        ],
+        "pair_occurrences": 498333,
+        "supported_train_forward_flops": 48667915684400,
+        "count_schedule_sha256": "7fff34bdb53a99a06bf716f1e143ce6678f1d7d0f35e5fb0eec21b030e3b4b32"
+      },
+      {
+        "epoch": 56,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          2560,
+          13824,
+          38400,
+          52736,
+          33617
+        ],
+        "pair_occurrences": 484874,
+        "supported_train_forward_flops": 48966764465576,
+        "count_schedule_sha256": "5a662495af4dc27075edb5984f95085c067f335b83c0769cce3f97dd8c445218"
+      },
+      {
+        "epoch": 57,
+        "probability": 0.75,
+        "merge_count_examples": [
+          1024,
+          4096,
+          12288,
+          30208,
+          53585,
+          39936
+        ],
+        "pair_occurrences": 493624,
+        "supported_train_forward_flops": 48780953987632,
+        "count_schedule_sha256": "254d5bdaa5b9970bb0eccc45da0f552215d2ee1633ba9429766685368115e231"
+      },
+      {
+        "epoch": 58,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          1536,
+          12800,
+          38400,
+          48977,
+          39424
+        ],
+        "pair_occurrences": 495128,
+        "supported_train_forward_flops": 48734670940720,
+        "count_schedule_sha256": "d25540d4117d7c11bd652f689d1c6a06ec11b8fc5a1288a1e94df01ccfd46069"
+      },
+      {
+        "epoch": 59,
+        "probability": 0.75,
+        "merge_count_examples": [
+          0,
+          3072,
+          14336,
+          40960,
+          58705,
+          24064
+        ],
+        "pair_occurrences": 471786,
+        "supported_train_forward_flops": 49277399927344,
+        "count_schedule_sha256": "06316c6794f15270cb124d9a3c242f3c16e34ed0da3add74a319371fb0935b30"
+      },
+      {
+        "epoch": 60,
+        "probability": 0.75,
+        "merge_count_examples": [
+          512,
+          512,
+          10752,
+          33280,
+          61777,
+          34304
+        ],
+        "pair_occurrences": 500899,
+        "supported_train_forward_flops": 48624352315952,
+        "count_schedule_sha256": "221a57d694621c1a65e657f08140cffac6bd1c89d72c57e3bf87696319179876"
+      }
+    ],
+    "reused_p50": [
+      {
+        "epoch": 1,
+        "probability": 0.5,
+        "merge_count_examples": [
+          4096,
+          16896,
+          41984,
+          55121,
+          19456,
+          3584
+        ],
+        "pair_occurrences": 334505,
+        "supported_train_forward_flops": 52435535064888,
+        "count_schedule_sha256": "e2306f39a95d65325c65246bea55323c0aa4eb023b0ac5113309f973179f6eae"
+      },
+      {
+        "epoch": 2,
+        "probability": 0.5,
+        "merge_count_examples": [
+          4096,
+          17920,
+          44369,
+          53248,
+          18944,
+          2560
+        ],
+        "pair_occurrences": 328288,
+        "supported_train_forward_flops": 52585156529344,
+        "count_schedule_sha256": "0d449e24e82551b7a5265c6ac63634cd379af16aec06fee28a0ddfca83564272"
+      },
+      {
+        "epoch": 3,
+        "probability": 0.5,
+        "merge_count_examples": [
+          4608,
+          22528,
+          41809,
+          44544,
+          22016,
+          5632
+        ],
+        "pair_occurrences": 329060,
+        "supported_train_forward_flops": 52566799625408,
+        "count_schedule_sha256": "ee200f8c18f4ad453bec6d086fb11d909857f17104967ed272201d82957f92e2"
+      },
+      {
+        "epoch": 4,
+        "probability": 0.5,
+        "merge_count_examples": [
+          6144,
+          18944,
+          43345,
+          43008,
+          25600,
+          4096
+        ],
+        "pair_occurrences": 330881,
+        "supported_train_forward_flops": 52533824912576,
+        "count_schedule_sha256": "3f61fbf612bd8cd8d0fef4379dcd478f8bd3af66c52f231a3ed6bb0694b227e1"
+      },
+      {
+        "epoch": 5,
+        "probability": 0.5,
+        "merge_count_examples": [
+          3072,
+          20480,
+          43857,
+          41984,
+          27136,
+          4608
+        ],
+        "pair_occurrences": 338308,
+        "supported_train_forward_flops": 52357053217984,
+        "count_schedule_sha256": "936ad741cef4b300d9db4f4e31ee0a38301c1c8f7343d13560b70085bab88485"
+      },
+      {
+        "epoch": 6,
+        "probability": 0.5,
+        "merge_count_examples": [
+          4096,
+          16721,
+          45056,
+          47616,
+          24064,
+          3584
+        ],
+        "pair_occurrences": 336867,
+        "supported_train_forward_flops": 52395918713544,
+        "count_schedule_sha256": "8d019ef8a87c335cb65e877adec6639782da11cb769ed5eb1fdd52f30a61e917"
+      },
+      {
+        "epoch": 7,
+        "probability": 0.5,
+        "merge_count_examples": [
+          4096,
+          23040,
+          43008,
+          44032,
+          22353,
+          4608
+        ],
+        "pair_occurrences": 327886,
+        "supported_train_forward_flops": 52617540147760,
+        "count_schedule_sha256": "ba27c9c42e6e8c6ccfb855d5668d5bff2c1e749e01ff3ad06a5aa29e05ad2579"
+      },
+      {
+        "epoch": 8,
+        "probability": 0.5,
+        "merge_count_examples": [
+          5120,
+          24576,
+          46929,
+          43520,
+          15872,
+          5120
+        ],
+        "pair_occurrences": 312677,
+        "supported_train_forward_flops": 52950698777792,
+        "count_schedule_sha256": "f870d37560b2e468bd957ef8093f268f2bafb4fb9e263fc446dba5d16d134813"
+      },
+      {
+        "epoch": 9,
+        "probability": 0.5,
+        "merge_count_examples": [
+          2560,
+          24576,
+          45568,
+          41297,
+          20480,
+          6656
+        ],
+        "pair_occurrences": 328779,
+        "supported_train_forward_flops": 52592036007736,
+        "count_schedule_sha256": "a88d802940b196a249aa987a8e5391aa655f9ceedb5aa5ce578febbdb5e8aad8"
+      },
+      {
+        "epoch": 10,
+        "probability": 0.5,
+        "merge_count_examples": [
+          3072,
+          23040,
+          48465,
+          41984,
+          22528,
+          2048
+        ],
+        "pair_occurrences": 320089,
+        "supported_train_forward_flops": 52772819066048,
+        "count_schedule_sha256": "04a7a711c0f48ab7d5e6299c48a194ab01876ab9d40c76834c40116599875f21"
+      },
+      {
+        "epoch": 11,
+        "probability": 0.5,
+        "merge_count_examples": [
+          5120,
+          24064,
+          39936,
+          41472,
+          26112,
+          4433
+        ],
+        "pair_occurrences": 327791,
+        "supported_train_forward_flops": 52589764394408,
+        "count_schedule_sha256": "e37a6419addc3d80750123e626a1985107f01877f6ff1fb4bab4e64a2000e506"
+      },
+      {
+        "epoch": 12,
+        "probability": 0.5,
+        "merge_count_examples": [
+          3072,
+          23552,
+          41472,
+          44881,
+          23552,
+          4608
+        ],
+        "pair_occurrences": 331425,
+        "supported_train_forward_flops": 52514591366968,
+        "count_schedule_sha256": "5cf8c363a50f26c927d2bcd7c1e9adecb6b30531f3a92bb55909aa1b880f426b"
+      },
+      {
+        "epoch": 13,
+        "probability": 0.5,
+        "merge_count_examples": [
+          4608,
+          21329,
+          40960,
+          46080,
+          25600,
+          2560
+        ],
+        "pair_occurrences": 329660,
+        "supported_train_forward_flops": 52550707266248,
+        "count_schedule_sha256": "188e396e1e07d9857369de4eddb78db53d6fa30d35fd65fbacebe961ccf172f2"
+      },
+      {
+        "epoch": 14,
+        "probability": 0.5,
+        "merge_count_examples": [
+          4608,
+          20480,
+          51537,
+          37888,
+          24064,
+          2560
+        ],
+        "pair_occurrences": 320370,
+        "supported_train_forward_flops": 52773826354368,
+        "count_schedule_sha256": "3d511e0ad0817881d4f6694bc9f8d7bcc93a688716f1886ebf83a36a8935ce40"
+      },
+      {
+        "epoch": 15,
+        "probability": 0.5,
+        "merge_count_examples": [
+          3584,
+          20480,
+          46592,
+          45905,
+          16384,
+          8192
+        ],
+        "pair_occurrences": 331658,
+        "supported_train_forward_flops": 52525985853240,
+        "count_schedule_sha256": "76275595759a71154ac4040c9a5e895af511374ecfaf463e07070950da14c0dd"
+      },
+      {
+        "epoch": 16,
+        "probability": 0.5,
+        "merge_count_examples": [
+          5120,
+          23040,
+          43857,
+          41984,
+          20480,
+          6656
+        ],
+        "pair_occurrences": 325496,
+        "supported_train_forward_flops": 52655437294784,
+        "count_schedule_sha256": "d60574fb70bab24a957ea7b2bedb55d7b1b0caeaac99cb653c939d77a676853f"
+      },
+      {
+        "epoch": 17,
+        "probability": 0.5,
+        "merge_count_examples": [
+          3072,
+          25088,
+          40960,
+          45568,
+          22865,
+          3584
+        ],
+        "pair_occurrences": 326559,
+        "supported_train_forward_flops": 52627826616880,
+        "count_schedule_sha256": "ef7b1d9cfcae8ead150efd3e3e3801e49159e43c628ed0cb27cc016279ca08e5"
+      },
+      {
+        "epoch": 18,
+        "probability": 0.5,
+        "merge_count_examples": [
+          5632,
+          19968,
+          49152,
+          38912,
+          22353,
+          5120
+        ],
+        "pair_occurrences": 323502,
+        "supported_train_forward_flops": 52695085517360,
+        "count_schedule_sha256": "e3339225438a93280ac0d62add5d36df44e38ac9ca8e3e487eefc8381875d18a"
+      },
+      {
+        "epoch": 19,
+        "probability": 0.5,
+        "merge_count_examples": [
+          4096,
+          24064,
+          42321,
+          40960,
+          26112,
+          3584
+        ],
+        "pair_occurrences": 327617,
+        "supported_train_forward_flops": 52610362993856,
+        "count_schedule_sha256": "46cd3bcf3bec358248071c5a00f123e5577cecf2970d3ae321fa108b28fc5ca7"
+      },
+      {
+        "epoch": 20,
+        "probability": 0.5,
+        "merge_count_examples": [
+          3584,
+          19968,
+          48128,
+          42833,
+          23040,
+          3584
+        ],
+        "pair_occurrences": 328469,
+        "supported_train_forward_flops": 52590424346424,
+        "count_schedule_sha256": "636271431a113e0df64a07c0e19d1d0f8c25cfe6e25155ddbb462cbd389a5089"
+      },
+      {
+        "epoch": 21,
+        "probability": 0.5,
+        "merge_count_examples": [
+          4096,
+          20992,
+          48640,
+          41809,
+          22528,
+          3072
+        ],
+        "pair_occurrences": 323341,
+        "supported_train_forward_flops": 52711432355640,
+        "count_schedule_sha256": "ad5d99abfd243e619147d3702001175704221ae84c7fdec9d8e338d65c8530cd"
+      },
+      {
+        "epoch": 22,
+        "probability": 0.5,
+        "merge_count_examples": [
+          4096,
+          16384,
+          45568,
+          47616,
+          21841,
+          5632
+        ],
+        "pair_occurrences": 338250,
+        "supported_train_forward_flops": 52352936614448,
+        "count_schedule_sha256": "3b402dcba8f32895220701a70ad047125d6657e2eace0d6cced10434565a2d2d"
+      },
+      {
+        "epoch": 23,
+        "probability": 0.5,
+        "merge_count_examples": [
+          3072,
+          19456,
+          41984,
+          48128,
+          24913,
+          3584
+        ],
+        "pair_occurrences": 337976,
+        "supported_train_forward_flops": 52363323812400,
+        "count_schedule_sha256": "102010de8504c2cc04441f51a87821831ad64c794650f531cf053dd1db8f3df9"
+      },
+      {
+        "epoch": 24,
+        "probability": 0.5,
+        "merge_count_examples": [
+          3072,
+          20480,
+          48128,
+          42321,
+          23552,
+          3584
+        ],
+        "pair_occurrences": 329421,
+        "supported_train_forward_flops": 52568340475704,
+        "count_schedule_sha256": "97657278f56f805cb37eeb9557625118c74a23bb839e47ce5df10ff58ea1d671"
+      },
+      {
+        "epoch": 25,
+        "probability": 0.5,
+        "merge_count_examples": [
+          3072,
+          21504,
+          41984,
+          52049,
+          17920,
+          4608
+        ],
+        "pair_occurrences": 330214,
+        "supported_train_forward_flops": 52557046718264,
+        "count_schedule_sha256": "c6933b54b3a4254fdc5633b8edcfc3a1fd84a7a538299be42abc48d327f13696"
+      },
+      {
+        "epoch": 26,
+        "probability": 0.5,
+        "merge_count_examples": [
+          3072,
+          16896,
+          41297,
+          51712,
+          21504,
+          6656
+        ],
+        "pair_occurrences": 345705,
+        "supported_train_forward_flops": 52180583709888,
+        "count_schedule_sha256": "8d7fd625c846e023b144ac2fad2412dc033520ed12c9efe56729db37487afc55"
+      },
+      {
+        "epoch": 27,
+        "probability": 0.5,
+        "merge_count_examples": [
+          7168,
+          30033,
+          38912,
+          43520,
+          16896,
+          4608
+        ],
+        "pair_occurrences": 305114,
+        "supported_train_forward_flops": 53146971775688,
+        "count_schedule_sha256": "33d9f37b75d466aaed16fe7f93ba5504f1dcdb14a4dae04d8079f35699eed737"
+      },
+      {
+        "epoch": 28,
+        "probability": 0.5,
+        "merge_count_examples": [
+          3072,
+          15872,
+          47616,
+          45905,
+          23040,
+          5632
+        ],
+        "pair_occurrences": 340880,
+        "supported_train_forward_flops": 52282761088824,
+        "count_schedule_sha256": "492156a64aa82a5675da9440340d00217aef9176a16b0506066a693c17858a09"
+      },
+      {
+        "epoch": 29,
+        "probability": 0.5,
+        "merge_count_examples": [
+          3584,
+          19456,
+          46417,
+          44032,
+          21504,
+          6144
+        ],
+        "pair_occurrences": 334338,
+        "supported_train_forward_flops": 52455876627648,
+        "count_schedule_sha256": "f1bcba48d0b790f5f85e9139d7d43e2e93c651735bb8f853306864e605b86594"
+      },
+      {
+        "epoch": 30,
+        "probability": 0.5,
+        "merge_count_examples": [
+          4608,
+          20992,
+          45393,
+          45056,
+          24576,
+          512
+        ],
+        "pair_occurrences": 321053,
+        "supported_train_forward_flops": 52739844353216,
+        "count_schedule_sha256": "ff099b71b8fc319ee52c38de239657a189cbb754b4de0db249b2dcdf2490ea77"
+      },
+      {
+        "epoch": 31,
+        "probability": 0.5,
+        "merge_count_examples": [
+          2048,
+          24064,
+          49489,
+          39936,
+          22016,
+          3584
+        ],
+        "pair_occurrences": 323029,
+        "supported_train_forward_flops": 52718264126656,
+        "count_schedule_sha256": "2b643cf9e303abcf7eef2a1ecfb3eff6dcf4dd6a17a2ae0d53242029683bbfa7"
+      },
+      {
+        "epoch": 32,
+        "probability": 0.5,
+        "merge_count_examples": [
+          3072,
+          22353,
+          44544,
+          40448,
+          23552,
+          7168
+        ],
+        "pair_occurrences": 335948,
+        "supported_train_forward_flops": 52420420076232,
+        "count_schedule_sha256": "dd5e80fc0af784bb68165c5d30041a9a4273696a0a3d4bf4bab4c8d9699759fc"
+      },
+      {
+        "epoch": 33,
+        "probability": 0.5,
+        "merge_count_examples": [
+          5120,
+          16721,
+          43520,
+          47104,
+          24064,
+          4608
+        ],
+        "pair_occurrences": 337137,
+        "supported_train_forward_flops": 52386135888584,
+        "count_schedule_sha256": "43f2aea641feeac6d93ee694a5cc6d8384675aa37edcfd2112370fef0a236c7a"
+      },
+      {
+        "epoch": 34,
+        "probability": 0.5,
+        "merge_count_examples": [
+          2048,
+          19456,
+          44032,
+          43008,
+          27136,
+          5457
+        ],
+        "pair_occurrences": 344966,
+        "supported_train_forward_flops": 52214137134504,
+        "count_schedule_sha256": "b27700e3a05df8fdef9c674392e2dea8c5a3070f26b2c0a39150454c76827aa6"
+      },
+      {
+        "epoch": 35,
+        "probability": 0.5,
+        "merge_count_examples": [
+          5120,
+          18432,
+          45568,
+          50001,
+          18432,
+          3584
+        ],
+        "pair_occurrences": 324719,
+        "supported_train_forward_flops": 52667063156536,
+        "count_schedule_sha256": "92387712e23fc387963373519ad069b85707c01692f948e6f57497eb5346ac41"
+      },
+      {
+        "epoch": 36,
+        "probability": 0.5,
+        "merge_count_examples": [
+          5120,
+          19456,
+          44544,
+          50176,
+          18257,
+          3584
+        ],
+        "pair_occurrences": 324304,
+        "supported_train_forward_flops": 52692970211888,
+        "count_schedule_sha256": "c2c4a95980703cbaaf71fcac90f322c2dc656f6b09ae40aa39cb6547f4bda6df"
+      },
+      {
+        "epoch": 37,
+        "probability": 0.5,
+        "merge_count_examples": [
+          4945,
+          32768,
+          39424,
+          38912,
+          20480,
+          4608
+        ],
+        "pair_occurrences": 308077,
+        "supported_train_forward_flops": 53055213465936,
+        "count_schedule_sha256": "9eda9010cc3e9cefb6ccdae1de120207d98efb1c63594c93c87d9416cff0a4fc"
+      },
+      {
+        "epoch": 38,
+        "probability": 0.5,
+        "merge_count_examples": [
+          2560,
+          22865,
+          40448,
+          45568,
+          26112,
+          3584
+        ],
+        "pair_occurrences": 335796,
+        "supported_train_forward_flops": 52418606957256,
+        "count_schedule_sha256": "bf82fb91b495f38fe700f3e129ad296c1264e500570b7f7142710470b44eeecf"
+      },
+      {
+        "epoch": 39,
+        "probability": 0.5,
+        "merge_count_examples": [
+          2560,
+          20480,
+          51712,
+          42496,
+          20305,
+          3584
+        ],
+        "pair_occurrences": 324428,
+        "supported_train_forward_flops": 52681072081456,
+        "count_schedule_sha256": "bc70ec601014363a2e0285e3dacc3267e6db2272b116d5016aaa68f90799da69"
+      },
+      {
+        "epoch": 40,
+        "probability": 0.5,
+        "merge_count_examples": [
+          5120,
+          18432,
+          49664,
+          40448,
+          24401,
+          3072
+        ],
+        "pair_occurrences": 325589,
+        "supported_train_forward_flops": 52649709029936,
+        "count_schedule_sha256": "e770d37ffea735e13575fb63f4858c9e58458911604b60c9d6b17b8bece74903"
+      },
+      {
+        "epoch": 41,
+        "probability": 0.5,
+        "merge_count_examples": [
+          2560,
+          18769,
+          50688,
+          40448,
+          23040,
+          5632
+        ],
+        "pair_occurrences": 334398,
+        "supported_train_forward_flops": 52440388641480,
+        "count_schedule_sha256": "58d982dcd74baee5a089729a2c5f76f912bc639e507c886f285708229a44b84b"
+      },
+      {
+        "epoch": 42,
+        "probability": 0.5,
+        "merge_count_examples": [
+          5120,
+          19968,
+          44881,
+          46592,
+          19968,
+          4608
+        ],
+        "pair_occurrences": 325847,
+        "supported_train_forward_flops": 52642531876032,
+        "count_schedule_sha256": "c7fc262e21de648b35a64423f23e6d4e8c80c268c4fb34d70512921b8d34dfd2"
+      },
+      {
+        "epoch": 43,
+        "probability": 0.5,
+        "merge_count_examples": [
+          5969,
+          23552,
+          37888,
+          49152,
+          22016,
+          2560
+        ],
+        "pair_occurrences": 321170,
+        "supported_train_forward_flops": 52745334174032,
+        "count_schedule_sha256": "225e5c869cd15c31c489a197123c8f7ecf56e4ed1dee7c12e3bbc949f6052e79"
+      },
+      {
+        "epoch": 44,
+        "probability": 0.5,
+        "merge_count_examples": [
+          5120,
+          22865,
+          41984,
+          39424,
+          23040,
+          8704
+        ],
+        "pair_occurrences": 333899,
+        "supported_train_forward_flops": 52466501665480,
+        "count_schedule_sha256": "4ca9df8ed6dcf23868a89ccea87fdfe999b88fe0b12ba855e85261ecae8759da"
+      },
+      {
+        "epoch": 45,
+        "probability": 0.5,
+        "merge_count_examples": [
+          4945,
+          23040,
+          39424,
+          45056,
+          23552,
+          5120
+        ],
+        "pair_occurrences": 330110,
+        "supported_train_forward_flops": 52548593914192,
+        "count_schedule_sha256": "76640ff52b243e4615a15342224afe81adfc52bddf3cbc2f53515396ea9c686f"
+      },
+      {
+        "epoch": 46,
+        "probability": 0.5,
+        "merge_count_examples": [
+          4945,
+          18944,
+          51712,
+          43520,
+          18432,
+          3584
+        ],
+        "pair_occurrences": 318897,
+        "supported_train_forward_flops": 52809671938384,
+        "count_schedule_sha256": "9e37a9fd43a0b286a0f39c8d35a95a039d38443316f242db5941a7d3e0cef8f6"
+      },
+      {
+        "epoch": 47,
+        "probability": 0.5,
+        "merge_count_examples": [
+          4608,
+          19456,
+          37888,
+          43008,
+          29521,
+          6656
+        ],
+        "pair_occurrences": 347725,
+        "supported_train_forward_flops": 52147118631472,
+        "count_schedule_sha256": "925a3cfb4421985968cd58ad21f075cabe5f1b1d57f69066439fe87f586ca915"
+      },
+      {
+        "epoch": 48,
+        "probability": 0.5,
+        "merge_count_examples": [
+          3072,
+          17920,
+          44369,
+          49152,
+          23040,
+          3584
+        ],
+        "pair_occurrences": 337332,
+        "supported_train_forward_flops": 52388114083008,
+        "count_schedule_sha256": "8619c85ec7b68ce0d8f2bb93a9e1722dd9e00c3db83011bf3a182ebefdb6df98"
+      },
+      {
+        "epoch": 49,
+        "probability": 0.5,
+        "merge_count_examples": [
+          2048,
+          23552,
+          46592,
+          40273,
+          23040,
+          5632
+        ],
+        "pair_occurrences": 330556,
+        "supported_train_forward_flops": 52525482209080,
+        "count_schedule_sha256": "c5221e6a3b163a376774b5fbbb1c032ec7d5ae8160834d6cf4cf7f7aff004e19"
+      },
+      {
+        "epoch": 50,
+        "probability": 0.5,
+        "merge_count_examples": [
+          5632,
+          26624,
+          41984,
+          39424,
+          24913,
+          2560
+        ],
+        "pair_occurrences": 315594,
+        "supported_train_forward_flops": 52882244409904,
+        "count_schedule_sha256": "c69b146c0a0154fc6518b971290a763bb11c494fbee0d70838ae0e72ae1904d2"
+      },
+      {
+        "epoch": 51,
+        "probability": 0.5,
+        "merge_count_examples": [
+          5120,
+          19968,
+          52224,
+          37713,
+          19456,
+          6656
+        ],
+        "pair_occurrences": 322627,
+        "supported_train_forward_flops": 52724337774392,
+        "count_schedule_sha256": "f8be5064c0d65e6f5b2ace674f7d2a704d39fcfbb4e372d65e55f8e6c0dd0b78"
+      },
+      {
+        "epoch": 52,
+        "probability": 0.5,
+        "merge_count_examples": [
+          3584,
+          22865,
+          47616,
+          45568,
+          17920,
+          3584
+        ],
+        "pair_occurrences": 318768,
+        "supported_train_forward_flops": 52813296222920,
+        "count_schedule_sha256": "78dea370da7d817e6dd201ef76aae632a12151354593abdfb9f6bbd7bcd287e0"
+      },
+      {
+        "epoch": 53,
+        "probability": 0.5,
+        "merge_count_examples": [
+          1536,
+          22528,
+          51712,
+          41297,
+          16896,
+          7168
+        ],
+        "pair_occurrences": 327134,
+        "supported_train_forward_flops": 52623600516920,
+        "count_schedule_sha256": "9bfc2edfc7de9b35c7e9cbd407a4d5707659b8aab87d3ce5a72b706fbcdc7ad7"
+      },
+      {
+        "epoch": 54,
+        "probability": 0.5,
+        "merge_count_examples": [
+          2048,
+          22016,
+          51200,
+          45905,
+          18432,
+          1536
+        ],
+        "pair_occurrences": 316213,
+        "supported_train_forward_flops": 52829619957560,
+        "count_schedule_sha256": "8c6b6bbf631287252b17b763475c339f8cdf0c2aa01aeaf3a92f113a8120a281"
+      },
+      {
+        "epoch": 55,
+        "probability": 0.5,
+        "merge_count_examples": [
+          5632,
+          20992,
+          41297,
+          42496,
+          27136,
+          3584
+        ],
+        "pair_occurrences": 331023,
+        "supported_train_forward_flops": 52533925641408,
+        "count_schedule_sha256": "34ec8500e2f601ebf56b163953df2098f84f269eccf592e61c259b11004ebb45"
+      },
+      {
+        "epoch": 56,
+        "probability": 0.5,
+        "merge_count_examples": [
+          7168,
+          29184,
+          43520,
+          33617,
+          23040,
+          4608
+        ],
+        "pair_occurrences": 307376,
+        "supported_train_forward_flops": 53078586265400,
+        "count_schedule_sha256": "a2089fa6e28fcacb89cb52cd8154f8afc91106af11d0b60c6fd784fb12873bda"
+      },
+      {
+        "epoch": 57,
+        "probability": 0.5,
+        "merge_count_examples": [
+          7680,
+          24576,
+          40785,
+          33792,
+          26112,
+          8192
+        ],
+        "pair_occurrences": 326733,
+        "supported_train_forward_flops": 52637281848512,
+        "count_schedule_sha256": "85b67b29272007ad1a9f75ae92a263dab6af5f0ef2d99606b1c09a3c2438f835"
+      },
+      {
+        "epoch": 58,
+        "probability": 0.5,
+        "merge_count_examples": [
+          7168,
+          22528,
+          47616,
+          35328,
+          23889,
+          4608
+        ],
+        "pair_occurrences": 316738,
+        "supported_train_forward_flops": 52861369285168,
+        "count_schedule_sha256": "61d5135d517a95c21553f7d3b638101fb4e8b45b5af9279c7925f70161483883"
+      },
+      {
+        "epoch": 59,
+        "probability": 0.5,
+        "merge_count_examples": [
+          5120,
+          24064,
+          46080,
+          45393,
+          17920,
+          2560
+        ],
+        "pair_occurrences": 312611,
+        "supported_train_forward_flops": 52975230058296,
+        "count_schedule_sha256": "e329a61a196abb654bffb0a54e8ffba797c2cc9e3f03656dadc9d3342e0c957a"
+      },
+      {
+        "epoch": 60,
+        "probability": 0.5,
+        "merge_count_examples": [
+          3072,
+          16896,
+          48128,
+          44544,
+          21841,
+          6656
+        ],
+        "pair_occurrences": 340284,
+        "supported_train_forward_flops": 52320062630448,
+        "count_schedule_sha256": "c465077fdceafc178a1a6d7547f59a1d544b31f382e65cd35759c9cad053a190"
+      }
+    ]
+  }
+}

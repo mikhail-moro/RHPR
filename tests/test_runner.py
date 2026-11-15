@@ -29,17 +29,36 @@ class RunnerTest(unittest.TestCase):
                 build(ROOT/'experiments/baseline.json','owner/oversized-kernel','gpu',Path(d)/'bundle')
 
     def test_recovery_bundle_fits_limit_and_preserves_every_source_byte(self) -> None:
-        import zlib
+        import lzma, zlib
         config=ROOT/'experiments/ml1m_proxy_plateau_finish_2t4.json'
         with tempfile.TemporaryDirectory() as d:
             path=build(config,'owner/recovery-kernel','gpu',Path(d)/'bundle')
             runner=path.parent/'run.py';self.assertLess(runner.stat().st_size,1024*1024)
             values={n.targets[0].id:ast.literal_eval(n.value) for n in ast.parse(runner.read_text()).body
                     if isinstance(n,ast.Assign) and isinstance(n.targets[0],ast.Name)
-                    and n.targets[0].id in {'EMBEDDED_PACKAGE','EXPERIMENT_CONFIG'}}
+                    and n.targets[0].id in {'EMBEDDED_PACKAGE','EXPERIMENT_CONFIG','PACKAGE_COMPRESSION'}}
             self.assertEqual(json.loads(values['EXPERIMENT_CONFIG']),json.loads(config.read_text()))
-            with zipfile.ZipFile(io.BytesIO(zlib.decompress(base64.b64decode(values['EMBEDDED_PACKAGE'])))) as z:
+            codec = lzma if values['PACKAGE_COMPRESSION'] == 'lzma' else zlib
+            with zipfile.ZipFile(io.BytesIO(codec.decompress(base64.b64decode(values['EMBEDDED_PACKAGE'])))) as z:
                 for name in z.namelist():self.assertEqual(z.read(name),(ROOT/'src'/name).read_bytes())
+
+    def test_lzma_fallback_executes_the_same_complete_package(self) -> None:
+        from scripts.build_kaggle_bundle import _render_runner
+        with tempfile.TemporaryDirectory() as directory:
+            calls = []
+            def render(config_text, git_sha, **kwargs):
+                calls.append(kwargs.get('compression', 'zlib'))
+                if not kwargs: return 'a'*(1024*1024)
+                return _render_runner(config_text, git_sha, **kwargs)
+            with patch('scripts.build_kaggle_bundle._render_runner', side_effect=render):
+                meta = build(ROOT/'experiments/baseline.json','owner/fallback','cpu',Path(directory)/'bundle')
+            self.assertEqual(calls, ['zlib','lzma'])
+            runner = (meta.parent/'run.py').read_text()
+            working = Path(directory)/'working'; local = meta.parent/'local.py'
+            local.write_text(runner.replace('Path("/kaggle/working")', f'Path({str(working)!r})'))
+            subprocess.run([sys.executable, str(local)], check=True, capture_output=True)
+            for name in ('metrics.json','summary.md','run-manifest.json'):
+                self.assertTrue((working/name).is_file())
 
     def test_baseline_is_deterministic_and_writes_contract(self) -> None:
         with tempfile.TemporaryDirectory() as first, tempfile.TemporaryDirectory() as second:

@@ -113,7 +113,7 @@ def prepare_cache(plan_path):
     _write(cache/'cache-report.json', report); _event('mixed20_cache_complete', **report)
 
 
-def run_trial(trial, p):
+def run_trial(trial, p, *, view_factory=None, policy=POLICY):
     import torch
     from rhpr.gr.data import file_sha256
     from rhpr.gr.grid import build_grid_generator
@@ -126,6 +126,7 @@ def run_trial(trial, p):
     from rhpr.gr.sid_study import state_digest
 
     c = copy.deepcopy(p['config']); width = trial['history_items']; c['data']['history_items'] = width
+    if view_factory is not None: c['active_training_view_policy'] = copy.deepcopy(policy)
     seed = c['seed_roles']['training_seed']; c['seed'] = seed
     random.seed(seed); np.random.seed(seed); torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
     root = Path(p['indexes']); sid = np.load(root/'items-42.npy')
@@ -140,7 +141,8 @@ def run_trial(trial, p):
     def encoding(h): return encode(h, sid, keys, pairs, 20) if random_mode else encode_window(h, sid, 10)
     raw = {s: cases(p['data'], s) for s in ('train', 'validation')}
     encoded = {s: (encoding(h), u, t) for s, (h, u, t) in raw.items()}
-    views = RandomTokenization(raw['train'][0], sid, keys, pairs, history_items=20,
+    factory = RandomTokenization if view_factory is None else view_factory
+    views = factory(raw['train'][0], sid, keys, pairs, history_items=20,
         seed=seed, augmentation_seed=c['seed_roles']['augmentation_seed']) if random_mode else None
     out = Path(p['output'])/'trials'/trial['id']; out.mkdir(parents=True)
     model.eval(); probe = tuple(a[:1] for a in encoded['validation'])
@@ -152,7 +154,7 @@ def run_trial(trial, p):
     forward = dict(parameters=sum(v.numel() for v in model.parameters()), encoder_positions=probe[0].shape[1]+1,
         supported_forward_flops_batch1=sum(e.flops for e in prof.key_averages()), scope=baseline['forward']['scope'])
     _write(out/'forward-flops.json', forward)
-    _write(out/'training-view-provenance.json', dict(seed_roles=SEEDS, policy=POLICY if random_mode else 'recent10',
+    _write(out/'training-view-provenance.json', dict(seed_roles=SEEDS, policy=policy if random_mode else 'recent10',
         evaluation_case_sha256={s: case_digest(a) for s, a in encoded.items()},
         original_train_target_count=len(raw['train'][2]), examples_doubled=False))
     model.to('cuda:0'); torch.cuda.reset_peak_memory_stats(); started = time.monotonic()
@@ -179,7 +181,7 @@ def run_trial(trial, p):
         raw_case_sha256={s: case_digest(a) for s, a in raw.items()},
         case_targets_sha256={s: case_digest(a[1:]) for s, a in raw.items()},
         test_case_sha256=case_digest((h, u, t)), timing=timing, test=test, test_evaluated=True)
-    if random_mode: row['random_tokenization'] = POLICY
+    if random_mode: row['random_tokenization'] = policy
     for key in ('sid_file_sha256', 'raw_case_sha256', 'case_targets_sha256', 'test_case_sha256'):
         if row[key] != baseline[key]: raise ValueError('comparison changes '+key)
     _write(out/'trial-result.json', row)
