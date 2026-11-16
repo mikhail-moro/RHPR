@@ -2,6 +2,23 @@
 
 ## Research status
 
+- Steam disjoint replication COMPLETE carasik/rhpr-steam-history-replica/1,
+  sourcea16145d4aa6e3ee526198482712d0282d7a8bc59,runtime2853.849s/47.56min.
+  R20VAL.02690487/TEST.01906973/80hits,best45stop65,warm29.68s/.427088GF;
+  R30VAL.02618690/TEST.01976394/87hits,best45stop65,warm38.64s/.656522GF.
+  R30vs20VAL-2.67%,TEST+3.64%: largefirstcohortgain didNOTrepeat; no reliable
+  30vs20benefityet. Conditional95%userCI VAL[-.005242,+.003826],TEST
+  [-.003411,+.004715]. Sameindex/initializer/training,sourceuseroverlap0;
+  all3embedding/centroid/SIDarraysbyte-identical. BothvalCEmin40,thenrises;
+  noobviouscaseforsimplyextending. TESTNDCG5falls.013969->.012331.
+  All28predictionfiles/1120000pathsreplayed,271invalid/0dups. All4fullbest/
+  lastweightsfinite,case/LR/EMA/selection/optimizerRNGhashesverified. OneAMP
+  skip,130epochs. Reportsgr-steam-history-replication-results.md/.json/
+  completion.json;rawsteam-history-replica-results/analysis includesplots/CSV.
+  Full1165testsOK/152skips/0fails142.742s;originalanalysisreplayunchanged.
+  No newGPU/inference/fitsduringcollection;fullcohort1M remainsdeferred.
+
+
 - Steam disjoint replication SUBMITTEDONCE carasik/rhpr-steam-history-replica/1,
   sourcea16145d4aa6e3ee526198482712d0282d7a8bc59,workflow43924489379/
   job133500204440SUCCESS(submissiononly),artifact14256295117. Actualpush

@@ -1,0 +1,333 @@
+{
+  "source": "a16145d4aa6e3ee526198482712d0282d7a8bc59",
+  "session_seconds": 2853.848991,
+  "new_models": 2,
+  "pipeline_seeds": [
+    42
+  ],
+  "validation_users": 2000,
+  "test_users": 2000,
+  "train_examples": 125305,
+  "sid_file_sha256": "3dd4d4d272286f0403acf51e4d3240f6ea0971814f113e134ed97d6c1b5a4262",
+  "data_seed": 1729,
+  "disjoint_replication": true,
+  "all_input_cases_metrics_lr_ema_and_selection_verified": true,
+  "prediction_files_replayed": 28,
+  "total_candidates": 1120000,
+  "invalid_candidates": 271,
+  "duplicate_candidates": 0,
+  "trials": [
+    {
+      "window": 20,
+      "best_epoch": 45,
+      "stop_epoch": 65,
+      "stopping_reason": "early_stopping",
+      "validation_ndcg10": 0.026904869374090555,
+      "test_ndcg10": 0.019069730672530413,
+      "validation_hits10": 107,
+      "test_hits10": 80,
+      "test_recall10": 0.04,
+      "val_ce_min_epoch": 40,
+      "optimizer_training_seconds": 2054.454223318001,
+      "validation_seconds": 92.44278798600021,
+      "warm_epoch_seconds": 29.682710466999993,
+      "fit_wall_seconds": 2159.580983237,
+      "first_epoch_seconds": 157.37489845599998,
+      "amp_skips": 1,
+      "peak_allocated_gib": 2.0339913368225098,
+      "forward_gflops": 0.427087952
+    },
+    {
+      "window": 30,
+      "best_epoch": 45,
+      "stop_epoch": 65,
+      "stopping_reason": "early_stopping",
+      "validation_ndcg10": 0.026186904316209653,
+      "test_ndcg10": 0.01976394210976589,
+      "validation_hits10": 101,
+      "test_hits10": 87,
+      "test_recall10": 0.0435,
+      "val_ce_min_epoch": 40,
+      "optimizer_training_seconds": 2639.8816526329992,
+      "validation_seconds": 111.24631257099952,
+      "warm_epoch_seconds": 38.63901989299984,
+      "fit_wall_seconds": 2763.591332197,
+      "first_epoch_seconds": 160.55131723199997,
+      "amp_skips": 0,
+      "peak_allocated_gib": 2.952744960784912,
+      "forward_gflops": 0.656522272
+    }
+  ],
+  "comparisons": [
+    {
+      "split": "validation",
+      "left": 30,
+      "right": 20,
+      "absolute_delta": -0.0007179650578809044,
+      "relative_delta": -0.026685320337303198,
+      "conditional_user_ci95": [
+        -0.005242167922720654,
+        0.003825939140460298
+      ],
+      "improved": 63,
+      "worsened": 69,
+      "tied": 1868
+    },
+    {
+      "split": "test",
+      "left": 30,
+      "right": 20,
+      "absolute_delta": 0.0006942114372354773,
+      "relative_delta": 0.03640384068116287,
+      "conditional_user_ci95": [
+        -0.0034113096876489087,
+        0.004715222674099317
+      ],
+      "improved": 59,
+      "worsened": 54,
+      "tied": 1887
+    }
+  ],
+  "fixed_epoch_validation": [
+    {
+      "epoch": 30,
+      "validation_ndcg10": {
+        "20": 0.023255040652963355,
+        "30": 0.023425525140981097
+      }
+    },
+    {
+      "epoch": 40,
+      "validation_ndcg10": {
+        "20": 0.023405197073036392,
+        "30": 0.02586196010415278
+      }
+    },
+    {
+      "epoch": 50,
+      "validation_ndcg10": {
+        "20": 0.02496213274928655,
+        "30": 0.023608977374451435
+      }
+    },
+    {
+      "epoch": 55,
+      "validation_ndcg10": {
+        "20": 0.02132767493673516,
+        "30": 0.020852545954903556
+      }
+    },
+    {
+      "epoch": 60,
+      "validation_ndcg10": {
+        "20": 0.019923300912681987,
+        "30": 0.02088644464473265
+      }
+    }
+  ],
+  "exploratory_groups": [
+    {
+      "split": "validation",
+      "group": "all",
+      "users": 2000,
+      "ndcg10": {
+        "20": 0.02690486937409056,
+        "30": 0.026186904316209653
+      }
+    },
+    {
+      "split": "validation",
+      "group": "distinct_train_val_test_days",
+      "users": 1572,
+      "ndcg10": {
+        "20": 0.026253846276291445,
+        "30": 0.02775977129366865
+      }
+    },
+    {
+      "split": "validation",
+      "group": "available_history_30_49",
+      "users": 1159,
+      "ndcg10": {
+        "20": 0.027380627102774748,
+        "30": 0.0287775579334577
+      }
+    },
+    {
+      "split": "validation",
+      "group": "available_history_50_99",
+      "users": 585,
+      "ndcg10": {
+        "20": 0.024652035919194248,
+        "30": 0.019740924537395906
+      }
+    },
+    {
+      "split": "validation",
+      "group": "available_history_100plus",
+      "users": 256,
+      "ndcg10": {
+        "20": 0.029899027044283374,
+        "30": 0.02918819583267665
+      }
+    },
+    {
+      "split": "validation",
+      "group": "target_train_positions_0",
+      "users": 87,
+      "ndcg10": {
+        "20": 0.0,
+        "30": 0.0
+      }
+    },
+    {
+      "split": "validation",
+      "group": "target_train_positions_1_5",
+      "users": 264,
+      "ndcg10": {
+        "20": 0.001140265135090838,
+        "30": 0.002389885430194915
+      }
+    },
+    {
+      "split": "validation",
+      "group": "target_train_positions_6_20",
+      "users": 391,
+      "ndcg10": {
+        "20": 0.0055738730824977135,
+        "30": 0.005744607250279084
+      }
+    },
+    {
+      "split": "validation",
+      "group": "target_train_positions_21plus",
+      "users": 1258,
+      "ndcg10": {
+        "20": 0.04080232462421345,
+        "30": 0.03934557825436306
+      }
+    },
+    {
+      "split": "test",
+      "group": "all",
+      "users": 2000,
+      "ndcg10": {
+        "20": 0.019069730672530413,
+        "30": 0.019763942109765894
+      }
+    },
+    {
+      "split": "test",
+      "group": "distinct_train_val_test_days",
+      "users": 1572,
+      "ndcg10": {
+        "20": 0.020465373261292306,
+        "30": 0.02069217428348663
+      }
+    },
+    {
+      "split": "test",
+      "group": "available_history_30_49",
+      "users": 1159,
+      "ndcg10": {
+        "20": 0.015163409498222789,
+        "30": 0.017890520297911456
+      }
+    },
+    {
+      "split": "test",
+      "group": "available_history_50_99",
+      "users": 585,
+      "ndcg10": {
+        "20": 0.024071029361881113,
+        "30": 0.022308105729620577
+      }
+    },
+    {
+      "split": "test",
+      "group": "available_history_100plus",
+      "users": 256,
+      "ndcg10": {
+        "20": 0.025326240468438135,
+        "30": 0.02243175524384517
+      }
+    },
+    {
+      "split": "test",
+      "group": "target_train_positions_0",
+      "users": 83,
+      "ndcg10": {
+        "20": 0.0,
+        "30": 0.0
+      }
+    },
+    {
+      "split": "test",
+      "group": "target_train_positions_1_5",
+      "users": 292,
+      "ndcg10": {
+        "20": 0.002070307202409646,
+        "30": 0.001141552511415525
+      }
+    },
+    {
+      "split": "test",
+      "group": "target_train_positions_6_20",
+      "users": 377,
+      "ndcg10": {
+        "20": 0.001979154999626318,
+        "30": 0.0016509235004011171
+      }
+    },
+    {
+      "split": "test",
+      "group": "target_train_positions_21plus",
+      "users": 1248,
+      "ndcg10": {
+        "20": 0.029478197281328597,
+        "30": 0.030907173659092325
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "window": 20,
+      "kind": "best",
+      "epoch": 45,
+      "sha256": "19111a2a0b8af7689d0e63dfe638943ed8149fd29e17e462bd2f072b0a4c1561",
+      "bytes": 20499469,
+      "finite": true
+    },
+    {
+      "window": 20,
+      "kind": "last",
+      "epoch": 65,
+      "sha256": "a6ff3493f713edd0b3f858ecb46323c27b1f5c868547a659f052627c94bb2b53",
+      "bytes": 61468659,
+      "finite": true
+    },
+    {
+      "window": 30,
+      "kind": "best",
+      "epoch": 45,
+      "sha256": "88194f7923c214d32d692267bb2be342533399483b052a4bde4249c0e9eab724",
+      "bytes": 20499469,
+      "finite": true
+    },
+    {
+      "window": 30,
+      "kind": "last",
+      "epoch": 65,
+      "sha256": "3c7b7b377c3a4f99cc0b9cb206638c4a40fbd0583dfaf8d4d08f461d67770647",
+      "bytes": 61468659,
+      "finite": true
+    }
+  ],
+  "limits": [
+    "One generator/index seed and one selected long-user cohort; reproducibility is not established.",
+    "Paired user intervals condition on fitted models and selected validation checkpoints; no seed/item clustering or multiplicity correction.",
+    "Within-day event order remains arbitrary; distinct-boundary analysis is descriptive, not a replacement split.",
+    "Different windows consume different compute; this is history utility, not a compression/Pareto result.",
+    "EMA stopping is an operational rule, not proof of global convergence."
+  ]
+}

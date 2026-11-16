@@ -12,7 +12,7 @@ from rhpr.gr.movie_data import case_digest
 from rhpr.gr.sid import SidIndex, evaluate_ranked_sids
 
 SOURCE = '72ceff63e025cb1cb4731672b665594c6f97db3b'
-WINDOWS = [10, 20, 30]
+REPLICATION_SOURCE = 'a16145d4aa6e3ee526198482712d0282d7a8bc59'
 
 
 def read(p): return json.loads(Path(p).read_text())
@@ -23,11 +23,15 @@ def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def analyze(root, data, out):
     root, data, out = map(Path, (root, data, out)); out.mkdir(parents=True, exist_ok=True)
     c = read(root/'experiment.json'); manifest = read(root/'run-manifest.json')
+    from rhpr.gr.history_windows import validate
+    validate(c)
+    source = REPLICATION_SOURCE if c.get('replication') is not None else SOURCE
+    windows = c['windows']; train_examples = c['cohorts']['steam']['train_examples']
     suite = read(root/'suite-results.json'); study = read(root/'study-summary.json'); metrics = read(root/'metrics.json')
-    assert manifest['git_sha'] == SOURCE and manifest['config'] == c
-    assert suite['results'] == study['results'] and not suite['failures'] and metrics['models'] == 3
+    assert manifest['git_sha'] == source and manifest['config'] == c
+    assert suite['results'] == study['results'] and not suite['failures'] and metrics['models'] == len(windows)
     assert (root/'summary.md').is_file()
-    assert set(suite['results']) == {f'steam_recent{w}_42' for w in WINDOWS}
+    assert set(suite['results']) == {f'steam_recent{w}_42' for w in windows}
     for name, expected in c['pilot_input']['sha256'].items(): assert sha(data/name) == expected
     sidpath = root/'frozen-indexes/steam/items-42.npy'; sid = np.load(sidpath, allow_pickle=False)
     assert sha(sidpath) == c['expected_sid_file_sha256']
@@ -36,8 +40,19 @@ def analyze(root, data, out):
     for split in ('train', 'validation', 'test'):
         with np.load(root/'prepared-cases/steam'/(split+'-cases.npz')) as z:
             raw[split] = tuple(z[k] for k in ('contexts', 'user_ids', 'targets'))
-    assert len(raw['train'][2]) == 127023
+    assert len(raw['train'][2]) == train_examples
     assert all(len(raw[s][2]) == 2000 and np.all(raw[s][0] >= 0) for s in ('validation', 'test'))
+    from rhpr.gr.data import load_beauty, build_examples
+    _, users, _, _ = load_beauty(data, c['cohorts']['steam'])
+    for split in raw:
+        for actual, expected in zip(raw[split], build_examples(users, 30, split)):
+            np.testing.assert_array_equal(actual, expected)
+    provenance = read(data/'source-provenance.json')
+    assert read(root/'cohort-provenance.json') == provenance
+    if c.get('replication') is not None:
+        selected_ids, excluded_ids = provenance['selected_source_user_ids'], provenance['excluded_source_user_ids']
+        assert len(set(selected_ids)) == len(set(excluded_ids)) == 2000 and not set(selected_ids) & set(excluded_ids)
+        assert [r['source_sasrec_user_id'] for r in read(data/'user-audit.json')] == selected_ids
     steps = math.ceil(len(raw['train'][2])/512)
     rows = []; curves = {}; credits = {}; selected = {}; prediction_files = invalid = duplicates = candidates = 0
     checkpoints = []
@@ -63,7 +78,7 @@ def analyze(root, data, out):
         if step < warm: return .003*(step+1)/warm
         return .001+.002*.5*(1+math.cos(math.pi*min(1., (step-warm+1)/(total-warm))))
 
-    for width in WINDOWS:
+    for width in windows:
         name = f'steam_recent{width}_42'; trial = suite['results'][name]; p = root/'trials'/name
         assert read(p/'trial-result.json') == trial and trial['sid_file_sha256'] == sha(sidpath)
         assert trial['raw_case_sha256'] == {s: case_digest(raw[s]) for s in ('train', 'validation')}
@@ -136,6 +151,7 @@ def analyze(root, data, out):
     draws = np.random.default_rng(4242).integers(0, 2000, size=(10000, 2000)); comparisons = []
     for split in ('validation', 'test'):
         for left, right in ((30, 20), (30, 10), (20, 10)):
+            if left not in windows or right not in windows: continue
             delta = selected[(split, left)]-selected[(split, right)]
             comparisons.append(dict(split=split, left=left, right=right, absolute_delta=float(delta.mean()),
                 relative_delta=float(selected[(split, left)].mean()/selected[(split, right)].mean()-1),
@@ -153,19 +169,21 @@ def analyze(root, data, out):
                  ('target_train_positions_6_20', (support >= 6)&(support <= 20)), ('target_train_positions_21plus', support > 20)]
         for label, mask in masks:
             groups.append(dict(split=split, group=label, users=int(mask.sum()),
-                ndcg10={str(w):float(selected[(split, w)][mask].mean()) if mask.any() else None for w in WINDOWS}))
+                ndcg10={str(w):float(selected[(split, w)][mask].mean()) if mask.any() else None for w in windows}))
         for j, uid in enumerate(raw[split][1]):
             user_rows.append(dict(split=split, user_id=int(uid), target_item_id=int(targets[j]), available_history=int(history[j])+(split == 'test'),
                 distinct_boundary_days=bool(clean_boundaries[j]), target_train_positions=int(support[j]),
-                **{f'ndcg10_recent{w}':float(selected[(split, w)][j]) for w in WINDOWS}))
+                **{f'ndcg10_recent{w}':float(selected[(split, w)][j]) for w in windows}))
     fixed = []
     for ep in (30, 40, 50, 55, 60):
-        fixed.append(dict(epoch=ep, validation_ndcg10={str(w):float(credits[('validation', w, ep)].mean()) for w in WINDOWS}))
+        if all(('validation', w, ep) in credits for w in windows):
+            fixed.append(dict(epoch=ep, validation_ndcg10={str(w):float(credits[('validation', w, ep)].mean()) for w in windows}))
     for name, records in [('trial-metrics.csv', rows), ('user-metrics.csv', user_rows)]:
         with (out/name).open('w', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=list(records[0])); writer.writeheader(); writer.writerows(records)
-    result = dict(source=SOURCE, session_seconds=manifest['duration_seconds'], new_models=3, pipeline_seeds=[42],
-        validation_users=2000, test_users=2000, train_examples=127023, sid_file_sha256=sha(sidpath),
+    result = dict(source=source, session_seconds=manifest['duration_seconds'], new_models=len(windows), pipeline_seeds=[42],
+        validation_users=2000, test_users=2000, train_examples=train_examples, sid_file_sha256=sha(sidpath),
+        data_seed=c['selection']['data_seed'], disjoint_replication=c.get('replication') is not None,
         all_input_cases_metrics_lr_ema_and_selection_verified=True, prediction_files_replayed=prediction_files,
         total_candidates=candidates, invalid_candidates=invalid, duplicate_candidates=duplicates,
         trials=rows, comparisons=comparisons, fixed_epoch_validation=fixed, exploratory_groups=groups,
@@ -185,7 +203,7 @@ def plot(result, curves, out):
     import matplotlib.pyplot as plt
     colors = {10:'#64748b', 20:'#2563eb', 30:'#15803d'}
     fig, ax = plt.subplots(2, 2, figsize=(11, 7.5), constrained_layout=True)
-    for width in WINDOWS:
+    for width in sorted(curves):
         all_rows = curves[width]; rows = [r for r in all_rows if 'validation' in r]
         label = f'Recent{width}'
         ax[0, 0].plot([r['epoch'] for r in rows], [r['validation']['ndcg@10'] for r in rows], color=colors[width], label=label, marker='.')
@@ -197,7 +215,7 @@ def plot(result, curves, out):
                                     (ax[1,0], 'Ranking vs optimizer training time', 'Training minutes (excludes validation)', 'NDCG@10'),
                                     (ax[1,1], 'Training loss', 'Epoch', 'Sum of code CE')]:
         a.set(title=title, xlabel=xlabel, ylabel=ylabel); a.grid(alpha=.2)
-    ax[0,0].legend(); fig.suptitle('Steam long-user pilot: one fixed index and generator seed42')
+    ax[0,0].legend(); fig.suptitle(f"Steam long-user cohort data seed{result['data_seed']}: fixed index and generator seed42")
     fig.savefig(out/'learning-curves.png', dpi=180); fig.savefig(out/'learning-curves.pdf'); plt.close(fig)
 
 

@@ -1,0 +1,68 @@
+{
+  "kernel": "carasik/rhpr-steam-history-replica",
+  "version": 1,
+  "status": "COMPLETE",
+  "source_sha": "a16145d4aa6e3ee526198482712d0282d7a8bc59",
+  "session_seconds": 2853.848991,
+  "started_at": "2026-11-16T18:47:08.981156+00:00",
+  "finished_at": "2026-11-16T19:34:42.830147+00:00",
+  "new_models": 2,
+  "new_gpu_fits_during_collection": 0,
+  "new_inference_during_collection": 0,
+  "index_and_protocol_audit": {
+    "cohort_overlap": 0,
+    "byte_identical_arrays": {
+      "item-embeddings.npy": "0149ff8792dd4e9219f8cf3323f5e7c747b116521e9d7680f9a491c22386cd20",
+      "centroids-42.npy": "9acbd5c54fec863da0a312bef8c7913da30e2573ccae23e65093b9b0762cc578",
+      "items-42.npy": "3dd4d4d272286f0403acf51e4d3240f6ea0971814f113e134ed97d6c1b5a4262"
+    },
+    "config_exact": true,
+    "training_unchanged": true
+  },
+  "all_metrics_lr_ema_selection_and_checkpoints_verified": true,
+  "prediction_files_replayed": 28,
+  "candidates": 1120000,
+  "invalid": 271,
+  "duplicates": 0,
+  "checkpoints": [
+    {
+      "window": 20,
+      "kind": "best",
+      "epoch": 45,
+      "sha256": "19111a2a0b8af7689d0e63dfe638943ed8149fd29e17e462bd2f072b0a4c1561",
+      "bytes": 20499469,
+      "finite": true
+    },
+    {
+      "window": 20,
+      "kind": "last",
+      "epoch": 65,
+      "sha256": "a6ff3493f713edd0b3f858ecb46323c27b1f5c868547a659f052627c94bb2b53",
+      "bytes": 61468659,
+      "finite": true
+    },
+    {
+      "window": 30,
+      "kind": "best",
+      "epoch": 45,
+      "sha256": "88194f7923c214d32d692267bb2be342533399483b052a4bde4249c0e9eab724",
+      "bytes": 20499469,
+      "finite": true
+    },
+    {
+      "window": 30,
+      "kind": "last",
+      "epoch": 65,
+      "sha256": "3c7b7b377c3a4f99cc0b9cb206638c4a40fbd0583dfaf8d4d08f461d67770647",
+      "bytes": 61468659,
+      "finite": true
+    }
+  ],
+  "unit_suite": {
+    "tests": 1165,
+    "skipped": 152,
+    "failures": 0,
+    "seconds": 142.742
+  },
+  "original_analysis_backward_compatibility_verified": true
+}
