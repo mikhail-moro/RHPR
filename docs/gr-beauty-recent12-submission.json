@@ -1,0 +1,33 @@
+{
+  "kernel_id": "carasik/rhpr-beauty-recent12",
+  "version": 1,
+  "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-beauty-recent12",
+  "source": "413f2afb993b5b56f93534a7ccef155313e89938",
+  "workflow_run": 43980886653,
+  "workflow_job": 133696732470,
+  "workflow_artifact": 14282493141,
+  "workflow_conclusion": "success_submission_only",
+  "push_at_utc": "2026-11-16T23:37:59.7312501Z",
+  "server_status": "RUNNING",
+  "server_timeout_seconds": 21600,
+  "deployed_python_files_verified": 218,
+  "exact_config_verified": true,
+  "private": true,
+  "internet": false,
+  "new_generator_fits": 1,
+  "generator_seed": 42,
+  "dataset_sources": [
+    "carasik/rhpr-gr-beauty-phase0",
+    "carasik/rhpr-t5-sdpa-runtime"
+  ],
+  "kernel_sources": [],
+  "notifications": false,
+  "configuration_sha256": "27d44d93e4f374d67c9a9ba9c15af491a978ba2a3091cb35b4dd20e9865760eb",
+  "cpu_preflight": "gr-beauty-recent12-preflight.json",
+  "tests": {
+    "total": 1169,
+    "optional_skips": 152,
+    "failures": 0,
+    "seconds": 124.075
+  }
+}

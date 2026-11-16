@@ -78,3 +78,8 @@ Local audit:`/workspace/artifacts/beauty-recent3-vs20-lengths.json`.
 
 Full regression:1169tests total,152optional skips,0failures,124.075seconds.
 Private/offline bundle built successfully;CPUpreflight passed.
+
+SubmittedONCEprivate`carasik/rhpr-beauty-recent12/1`,source413f2afb993b5b56f93534a7ccef155313e89938,
+workflow43980886653SUCCESS(submissiononly),serverRUNNING. Deployed218Python
+files/exactconfig/privateoffline/two originaldatasets/no parentsverified.
+Receipt:`gr-beauty-recent12-submission.json`;no trainingoutcomes yet.

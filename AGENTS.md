@@ -2,6 +2,16 @@
 
 ## Research status
 
+- BeautyRecent12 SUBMITTEDONCE privatecarasik/rhpr-beauty-recent12/1,source
+  413f2afb993b5b56f93534a7ccef155313e89938,workflow43980886653/
+  job133696732470SUCCESS(submissiononly),artifact14282493141. FirstKaggle
+  statusRUNNING;all218deployedPythonfiles/exactconfig/privateoffline/
+  original2datasets/no parents verified. Exactlyonefitseed42;sameSIDhashguard
+  beforetraining/no paircachetransfer or pairfitting. Full1169testsOK/152skips/
+  0fails124.075s;actualindex CPUFWD/BWDfinite49positions/.257705640GF.
+  Receiptgr-beauty-recent12-submission.json. No results yet/no duplicates.
+
+
 - Authorized2026-11-17: exactly ONE Beauty Recent12 control, seed42, same
   complete22363-user data/index/initializer/architecture/training as Beauty/1.
   Configbeauty_recent12_control.json;referenceSIDhash624a0e23fc8c4ca844972beb4718800121d23f9a12a85c8135a4c26767dd02ab.
