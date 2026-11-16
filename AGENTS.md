@@ -3,6 +3,28 @@
 ## Research status
 
 
+- Authorized2026-11-16: Steam-only history-utility pilot; Kindle explicitly
+  deferred after2014 metadata titles8/61934 and2018 recovery31808/61934.
+  EXACTLY3fits seed42 Recent10/20/30, no compression/HPO/new seeds/retries.
+  Configsteam_history_windows_2t4.json,kindgr_history_windows,modulehistory_windows.
+  Global iterativeSteam5core -> full_length>=32 -> uniform2000users seed4242;
+  no within-sample pruning. Full11961catalogue;133023events/127023TRAINprefixes;
+  VAL/TEST2000each,allfull30contexts,cold67/75. Title+genres ST5max256 -> native
+  GRID normalizedRQKmeans3x256+suffix,one frozenindexseed42. Samewide4+4/d128/
+  FF1024/dkv64/H6/USER2000/noSEP/SDPA,5108992params incl unusedpairtable;
+  initializer34e7397ed277. FP16compile512,Adam.003->.001warmup2/cosine60,
+  min40/max120,VAL5,EMA.5delta.0005pat20/rawVALNDCGselection,FP32beam20/64.
+  GPU0R30thenR10,GPU1R20;server6h/perfit9000s,no notifications/fallback.
+  SourcesSHApinned;all3686172user/gameincidencesexactreplayed,NOT fullsequence
+  replay. Sourceorderverifiednondecreasingearliestreviewday;307train/VALand
+  261VAL/TESTsame-dayboundariesretained. Alltitlespresent,173missinggenres
+  retained. Privateinputcarasik/rhpr-steam-history-input. CPUallprefix/holdout
+  replay+realbackbonefiniteFWD/BWDwithSYNTHETICSIDs,notqualityevidence;
+  forwardGF R10.217327232/R20.427087952/R30.656522272. Reports
+  gr-steam-history.md/preflight.json. Full1163testsOK/152skips/0fails88.955s.
+  Code/data ready; check submission receipt before any new dispatch.
+
+
 - Beautyfixed-tailpilot COMPLETE,collected2026-11-16(clientEurope/Moscow),
   privatecarasik/rhpr-beauty-pairs/1,source7828d110117889667c3a5e5877f7be9bd0222c13,
   runtime8179.448s(136.32minafterbootstrap). All4EMAearly-stopped:

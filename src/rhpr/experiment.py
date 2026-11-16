@@ -96,6 +96,11 @@ def run_experiment(
             raise ValueError('ML1M field-learning experiment requires output directory')
         from rhpr.gr.field_learning import run
         return run(config, output_dir)
+    if kind == 'gr_history_windows':
+        if output_dir is None:
+            raise ValueError('History window pilot requires an output directory')
+        from rhpr.gr.history_windows import run
+        return run(config, output_dir)
     if kind == 'gr_beauty_pairs':
         if output_dir is None:
             raise ValueError('Beauty pair pilot requires an output directory')
