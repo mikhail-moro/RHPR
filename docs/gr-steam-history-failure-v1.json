@@ -43,6 +43,12 @@
     "cache_transfer_auto_review_rejected": true,
     "cache_transfer_performed": false,
     "cache_transfer_not_needed_for_recovery": true,
-    "automatic_retries": false
+    "automatic_retries": false,
+    "unit_suite": {
+      "tests": 1164,
+      "skipped": 152,
+      "failures": 0,
+      "seconds": 104.564
+    }
   }
 }

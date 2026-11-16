@@ -3,6 +3,16 @@
 ## Research status
 
 
+- Steam manual recovery SUBMITTEDONCE privatecarasik/rhpr-steam-history/2,
+  source72ceff63e025cb1cb4731672b665594c6f97db3b,workflow43860774718/
+  job133276696581SUCCESS(submissiononly),artifact14223136994,timeout21600.
+  FirststatusQUEUED;all218deployedPythonfiles/exactconfig/privateoffline/
+  same3datasets/no parentsverified. Sendertrialfieldfixed;runtimeoriginalSID
+  hashguard beforetraining. No cachedvectors transferred;recomputefromoriginal
+  inputs. Same3fits/seed42/windows10,20,30;noextraaxes/automaticretryloop.
+  Receiptgr-steam-history-recovery-submission.json;do not submit duplicates.
+
+
 - Steam/1 FAILED before generator training at123.672s: start event usedid
   but ae_suite parent requires trial -> KeyError. Local senderfixed; real2process
   CPUprotocolregression covers success+partialfailure. No generatorcheckpoints.
@@ -11,7 +21,7 @@
   cache dataset-version upload;notperformed,no retryofthattransfer. Recovery
   recomputesfromalready-authorizedinputs and requires originalSIDfileSHA
   3dd4d4d272286f0403acf51e4d3240f6ea0971814f113e134ed97d6c1b5a4262
-  before any training. No trainingprotocolchange. Check recoveryreceipt before
+  before any training. Full1164testsOK/152skips/0fail104.564s. No trainingprotocolchange. Check recoveryreceipt before
   dispatch;no duplicates/automaticretryloop. Reportgr-steam-history-failure-v1.json.
 
 
