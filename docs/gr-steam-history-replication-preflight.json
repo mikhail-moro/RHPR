@@ -1,0 +1,146 @@
+{
+  "gpu_used": false,
+  "fitted_index": false,
+  "synthetic_SIDs_for_shape_only": true,
+  "data": {
+    "items": 11961,
+    "users": 2000,
+    "train_events": 127305,
+    "train_examples": 125305,
+    "splits": {
+      "train": {
+        "examples": 125305,
+        "context_length_counts": [
+          0,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          67305
+        ]
+      },
+      "validation": {
+        "examples": 2000,
+        "context_length_counts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2000
+        ]
+      },
+      "test": {
+        "examples": 2000,
+        "context_length_counts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2000
+        ]
+      }
+    }
+  },
+  "source_prefix_schedule_independently_verified": true,
+  "raw_case_sha256": {
+    "train": "bbe3fbab8bbd78d0446a1efa179b7cd42ffea7e4688c762688f55308de3b8d62",
+    "validation": "87ee71095b6a9d193e9a4434ba46b932811e2b3df9358fa9f6e68848892c64dd",
+    "test": "31fd43d5c7ef473ae6922dd1f6fd9d16b097cd026383511492a5110cf3687cf4"
+  },
+  "parameters": 5108992,
+  "initial_state_sha256": "34e7397ed277c78befd6254cbb736794df4907a011ed032bbd0735d9b7272286",
+  "costs": {
+    "20": {
+      "encoder_positions": 81,
+      "supported_forward_flops_batch1": 427087952
+    },
+    "30": {
+      "encoder_positions": 121,
+      "supported_forward_flops_batch1": 656522272
+    }
+  },
+  "input_sha256": {
+    "catalog.json": "a1815b62c53833959440ddd4a227da2f91b865f0fda01dc008ce2e18396cfd77",
+    "data-report.json": "376c4b4990b3c30e19f66b52b5761bdcbfd8d9c3e3cd6944f77c637f524edb55",
+    "sequences.json": "b26937932b548e6367ebb4e61e1ca96089ec0e72bc64b3457b53281144cc3c92",
+    "source-provenance.json": "9218e8c84ad88599bd713e63810b5a370123a1b03ddf0937e7dd91e72b8c28cf",
+    "user-audit.json": "1ba6a569a3f0b51e34f8d2b542fe1b95aa16271779b2fbec80612f6557eb3a56"
+  }
+}

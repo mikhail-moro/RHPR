@@ -58,6 +58,29 @@ class HistoryWindowsTests(unittest.TestCase):
         bad = copy.deepcopy(c); bad['cohorts']['kindle2014'] = {}
         with self.assertRaises(ValueError): validate(bad)
 
+    def test_replication_is_disjoint_and_allows_only_two_original_window_fits(self):
+        spec = importlib.util.spec_from_file_location('steam_cohort_preparation', 'scripts/prepare_steam_history_cohort.py')
+        preparation = importlib.util.module_from_spec(spec); spec.loader.exec_module(preparation)
+        eligible = np.arange(15239)
+        original, _ = preparation.select_users(eligible)
+        selected, excluded = preparation.select_users(eligible, replication=True)
+        np.testing.assert_array_equal(excluded, original)
+        self.assertEqual(len(set(selected)), 2000)
+        self.assertFalse(set(selected) & set(original))
+        np.testing.assert_array_equal(selected, preparation.select_users(eligible, replication=True)[0])
+        with self.assertRaises(ValueError): preparation.select_users(np.arange(3999), replication=True)
+        c = json.loads(Path('experiments/steam_history_replication_2t4.json').read_text()); validate(c)
+        self.assertEqual([t['history_items'] for t in c['trials']], [30, 20])
+        baseline = json.loads(Path('experiments/steam_history_windows_2t4.json').read_text())
+        for key in ('training', 'generator', 'quantizer', 'expected_sid_file_sha256', 'expected_initial_state_sha256'):
+            self.assertEqual(c[key], baseline[key])
+        for change in ('extra_trial', 'wrong_seed', 'overlap'):
+            bad = copy.deepcopy(c)
+            if change == 'extra_trial': bad['trials'].append(baseline['trials'][-1])
+            elif change == 'wrong_seed': bad['replication']['data_seed'] = 4242
+            else: bad['replication']['overlapping_users'] = 1
+            with self.assertRaises(ValueError): validate(bad)
+
     @unittest.skipUnless(importlib.util.find_spec('torch') and importlib.util.find_spec('transformers'), 'requires Torch/HF for CPU worker protocol test')
     def test_actual_worker_events_survive_parent_collection_and_preserve_partial_results(self):
         from unittest.mock import patch
@@ -76,24 +99,24 @@ with patch.object(torch.cuda,'device_count',return_value=1),patch.object(torch.c
 '''
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); (root/'steam_protocol_fixture.py').write_text(fixture)
-            c = json.loads(Path('experiments/steam_history_windows_2t4.json').read_text())
-            jobs = assignments(c, 2)
             source = Path(__file__).resolve().parents[1]/'src'
             paths = os.pathsep.join([str(root), str(source), os.environ.get('PYTHONPATH', '')])
-            for fail in (None, 'steam_recent20_42'):
-                out = root/('success' if fail is None else 'failure'); (out/'workers').mkdir(parents=True)
+            for config_name, fail in [('steam_history_windows_2t4', None), ('steam_history_windows_2t4', 'steam_recent20_42'),
+                                      ('steam_history_replication_2t4', None), ('steam_history_replication_2t4', 'steam_recent20_42')]:
+                c = json.loads(Path('experiments', config_name+'.json').read_text()); jobs = assignments(c, 2)
+                out = root/(config_name+('_success' if fail is None else '_failure')); (out/'workers').mkdir(parents=True)
                 plan = out/'plan.json'; plan.write_text(json.dumps(dict(config=c, output=str(out), assignments=jobs, injected_failure=fail)))
                 # Only backend discovery and ML work are stubbed; the real worker,
                 # OS pipes, event parser and status/result collector are exercised.
                 with patch.dict(os.environ, {'PYTHONPATH': paths}), patch.object(sys, 'path', [str(root), str(source), *sys.path]):
                     if fail is None:
                         summary = launch_workers(plan, worker_module='steam_protocol_fixture', event_prefix='history_windows')
-                        self.assertEqual(len(summary['results']), 3)
+                        self.assertEqual(len(summary['results']), len(c['trials']))
                     else:
                         with self.assertRaisesRegex(RuntimeError, 'incomplete'):
                             launch_workers(plan, worker_module='steam_protocol_fixture', event_prefix='history_windows')
                         summary = json.loads((out/'suite-results.json').read_text())
-                        self.assertEqual(len(summary['results']), 2)
+                        self.assertEqual(len(summary['results']), len(c['trials'])-1)
                         self.assertEqual(summary['failures'][0]['trial'], fail)
                 for job in jobs:
                     events = [json.loads(line) for line in (out/'workers'/f"worker-{job['slot']}.log").read_text().splitlines() if line.startswith('{')]

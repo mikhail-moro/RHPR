@@ -53,7 +53,19 @@ def load_columns(reviews, cache=None):
     return tuple(np.asarray(v, dtype=np.int32) for v in (users, items, dates))
 
 
-def prepare(raw, author_file, output, columns=None):
+def select_users(eligible, *, replication=False):
+    """Fix cohorts before outcomes: original seed4242, disjoint replica seed1729."""
+    eligible = np.asarray(eligible)
+    original = eligible[np.random.default_rng(4242).permutation(len(eligible))[:2000]]
+    if not replication:
+        return original, original
+    remaining = eligible[~np.isin(eligible, original)]
+    if len(remaining) < 2000:
+        raise ValueError('insufficient users for a disjoint replication')
+    return remaining[np.random.default_rng(1729).permutation(len(remaining))[:2000]], original
+
+
+def prepare(raw, author_file, output, columns=None, *, replication=False):
     raw, output = Path(raw), Path(output); output.mkdir(parents=True, exist_ok=True)
     for name, path in [('steam_reviews.json.gz', raw/'steam_reviews.json.gz'),
                        ('steam_games.json.gz', raw/'steam_games.json.gz'), ('Steam.txt', Path(author_file))]:
@@ -82,7 +94,7 @@ def prepare(raw, author_file, output, columns=None):
     catalogue_ids = sorted(map(int, np.unique(author[:, 1])))
     if (len(users), len(catalogue_ids), len(author)) != (281210, 11961, 3484694):
         raise ValueError('global iterative5core differs')
-    eligible = users[lengths >= 32]; chosen = eligible[np.random.default_rng(4242).permutation(len(eligible))[:2000]]
+    eligible = users[lengths >= 32]; chosen, original = select_users(eligible, replication=replication)
     metadata = {}
     with gzip.open(raw/'steam_games.json.gz', 'rt') as f:
         for line in f:
@@ -108,26 +120,36 @@ def prepare(raw, author_file, output, columns=None):
     write(output/'catalog.json', catalog); write(output/'sequences.json', sequences); write(output/'user-audit.json', audits)
     counts = dict(users=2000, items=11961, train_events=sum(len(v['train']) for v in sequences),
         train_examples=sum(len(v['train'])-1 for v in sequences))
-    if counts['train_examples'] != 127023: raise ValueError('sample differs from candidate audit')
+    if not replication and counts['train_examples'] != 127023: raise ValueError('sample differs from candidate audit')
     _, report = prepare_cases(output, counts, output/'cases')
-    report.update(events=sum(a['events'] for a in audits), history_items=30, data_seed=4242,
+    report.update(events=sum(a['events'] for a in audits), history_items=30, data_seed=1729 if replication else 4242,
         minimum_full_history=32, global_core_iterations=iterations, within_sample_core=False,
         validation_cold_targets=sum(v not in train_items for v in val), test_cold_targets=sum(v not in train_items for v in test),
         missing_catalogue_titles=0, missing_catalogue_genres=sum(not v['genres'] for v in catalog),
         train_val_same_day=sum(v['train_last_day'] == v['validation_day'] for v in audits),
         val_test_same_day=sum(v['validation_day'] == v['test_day'] for v in audits),
         full_length_quantiles=np.quantile([v['events'] for v in audits], [0, .25, .5, .75, .9, .95, .99, 1]).tolist())
-    write(output/'data-report.json', report)
-    write(output/'source-provenance.json', dict(source_sha256=SOURCE_HASHES, metadata_mapping='exact all3,686,172 unique author user/item incidences',
+    provenance = dict(source_sha256=SOURCE_HASHES, metadata_mapping='exact all3,686,172 unique author user/item incidences',
         ordering='unchanged author order, verified nondecreasing earliest raw review day; arbitrary provided order within same day',
         raw_duplicate_rows_removed=4213117-3686172, source_core_uses_full_histories=True,
         text_fields=['title', 'genres'], metadata_missing_genres_retained=True,
-        selection='global iterative5core;full_length>=32;uniform2000users seed4242;no within-sample item pruning', gpu_used=False))
+        selection='global iterative5core;full_length>=32;uniform2000users seed4242;no within-sample item pruning', gpu_used=False)
+    if replication:
+        if set(map(int, chosen)) & set(map(int, original)): raise ValueError('replica overlaps original cohort')
+        provenance.update(selection='global iterative5core;full_length>=32;exclude original2000 seed4242;uniform2000 remaining users seed1729;no within-sample item pruning',
+            data_seed=1729, excluded_data_seed=4242, eligible_users=len(eligible), remaining_eligible_users=len(eligible)-len(original),
+            selected_source_user_ids=list(map(int, chosen)), excluded_source_user_ids=list(map(int, original)),
+            overlapping_users=0, selection_uses_model_outcomes=False)
+        report.update(original_cohort_overlap=0, remaining_eligible_users=len(eligible)-len(original))
+    write(output/'data-report.json', report)
+    write(output/'source-provenance.json', provenance)
     print(json.dumps(report, indent=2))
 
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser(); p.add_argument('--raw', type=Path, required=True)
     p.add_argument('--author-file', type=Path, required=True); p.add_argument('--output', type=Path, required=True)
-    p.add_argument('--columns-cache', type=Path); a = p.parse_args()
-    prepare(a.raw, a.author_file, a.output, a.columns_cache)
+    p.add_argument('--columns-cache', type=Path)
+    p.add_argument('--replication', action='store_true', help='Disjoint2000-user seed1729 replication, excluding original seed4242 cohort')
+    a = p.parse_args()
+    prepare(a.raw, a.author_file, a.output, a.columns_cache, replication=a.replication)

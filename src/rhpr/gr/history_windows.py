@@ -20,11 +20,17 @@ WINDOWS = [10, 20, 30]
 # Start the longest fit first; one worker then also runs the cheapest control.
 TRIALS = [dict(id=f'{dataset}_recent{width}_42', dataset=dataset, history_items=width, seed=42)
           for dataset, width in [('steam', 30), ('steam', 20), ('steam', 10)]]
+REPLICATION_TRIALS = TRIALS[:2]
 
 
 def validate(c):
     t, g = c['training'], c['generator']
-    if (c['kind'] != 'gr_history_windows' or c['trials'] != TRIALS or c['windows'] != WINDOWS
+    replication = c.get('replication')
+    trials, windows = (REPLICATION_TRIALS, [20, 30]) if replication is not None else (TRIALS, WINDOWS)
+    if replication is not None and replication != dict(data_seed=1729, excluded_data_seed=4242, excluded_users=2000,
+            overlapping_users=0, original_kernel='carasik/rhpr-steam-history/2'):
+        raise ValueError('unexpected Steam replication selection')
+    if (c['kind'] != 'gr_history_windows' or c['trials'] != trials or c['windows'] != windows
         or c['seed'] != 42 or c['data']['history_items'] != 30
         or set(c['cohorts']) != {'steam'}
         or (t['min_epochs'], t['max_epochs'], t['validation_interval'], t['patience_epochs']) != (40, 120, 5, 20)
@@ -37,7 +43,7 @@ def validate(c):
         or g['attn_implementation'] != 'sdpa' or c['quantizer']['kind'] != 'grid_rkmeans'
         or c['execution']['worker_devices'] != ['cuda:0', 'cuda:1']
         or not c['evaluation']['test_after_selection'] or c['kaggle']['kernel_sources']):
-        raise ValueError('history pilot differs from the declared three-fit Steam protocol')
+        raise ValueError('history pilot differs from the declared Steam protocol')
 
 
 def encode_window(contexts, sids, width):
@@ -171,7 +177,15 @@ def run(c, output):
     reports = {}; texts = {}
     for dataset, spec in c['cohorts'].items():
         texts[dataset], reports[dataset] = prepare_cases(input_root, spec, data/dataset)
-    _write(output/'cohort-provenance.json', json.loads((input_root/'source-provenance.json').read_text()))
+    provenance = json.loads((input_root/'source-provenance.json').read_text())
+    if c.get('replication') is not None:
+        selected, excluded = provenance['selected_source_user_ids'], provenance['excluded_source_user_ids']
+        if (len(selected) != 2000 or len(set(selected)) != 2000 or len(excluded) != 2000 or len(set(excluded)) != 2000
+                or set(selected) & set(excluded) or provenance['data_seed'] != 1729 or provenance['excluded_data_seed'] != 4242
+                or provenance['overlapping_users'] != 0 or provenance['selection_uses_model_outcomes'] is not False
+                or c['selection']['data_seed'] != 1729):
+            raise ValueError('replication must use the fixed disjoint cohort')
+    _write(output/'cohort-provenance.json', provenance)
     encoder = SentenceTransformer(str(resources/'sentence-t5-base'), device='cuda:0', local_files_only=True)
     encoder.max_seq_length = 256; encoder.eval()
     for dataset in c['cohorts']:
@@ -187,7 +201,7 @@ def run(c, output):
         idx = SidIndex(codes, width=256)
         np.save(root/'items-42.npy', idx.sids); np.save(root/'centroids-42.npy', centers)
         if c.get('expected_sid_file_sha256') and file_sha256(root/'items-42.npy') != c['expected_sid_file_sha256']:
-            raise ValueError('recomputed SID differs from the original failed run; no generator training allowed')
+            raise ValueError('recomputed SID differs from the pinned original index; no generator training allowed')
         _write(root/'index-report.json', dict(fit=fit, sid=idx.diagnostics(), scope='full static source-core catalogue; no behavior fitting'))
     del vec, codes, centers; gc.collect(); torch.cuda.empty_cache()
     overlay = scratch/'modern-site'; overlay.mkdir()
@@ -202,9 +216,9 @@ def run(c, output):
     for dataset in c['cohorts']:
         rows = [r for r in summary['results'].values() if r['dataset'] == dataset]
         for key in ('initial_state_sha256', 'sid_file_sha256', 'raw_case_sha256', 'case_targets_sha256', 'test_case_sha256'):
-            if len(rows) != 3 or any(v[key] != rows[0][key] for v in rows[1:]): raise ValueError('unmatched comparison: '+key)
-    _write(output/'study-summary.json', dict(results=summary['results'], data=reports, new_generator_fits=3, exact_TIGER_reproduction=False))
-    metrics = dict(experiment=c['name'], models=3, seed=42, test_evaluated=True)
+            if len(rows) != len(c['trials']) or any(v[key] != rows[0][key] for v in rows[1:]): raise ValueError('unmatched comparison: '+key)
+    _write(output/'study-summary.json', dict(results=summary['results'], data=reports, new_generator_fits=len(c['trials']), exact_TIGER_reproduction=False))
+    metrics = dict(experiment=c['name'], models=len(c['trials']), seed=42, test_evaluated=True)
     for name, row in summary['results'].items():
         metrics[name+'_validation_ndcg10'] = row['selection']['validation_ndcg10']
         metrics[name+'_test_ndcg10'] = row['test']['metrics']['ndcg@10']

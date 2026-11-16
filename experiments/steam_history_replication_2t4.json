@@ -1,0 +1,183 @@
+{
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-history-replication"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false,
+    "attn_implementation": "sdpa"
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 1,
+    "batch_size": 512,
+    "physical_batch_size": 512,
+    "learning_rate": 0.003,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 120,
+    "min_epochs": 40,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 64,
+    "max_seconds": 9000,
+    "sampling": "precomputed_positive_leave_last_two_prefix_windows",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 20,
+    "scheduler": {
+      "kind": "warmup_cosine",
+      "warmup_epochs": 2,
+      "total_epochs": 60,
+      "min_lr": 0.001
+    },
+    "early_stopping": {
+      "kind": "ema",
+      "alpha": 0.5,
+      "min_delta": 0.0005
+    },
+    "compile_training": {
+      "mode": "reduce-overhead",
+      "fullgraph": false,
+      "dynamic": false
+    }
+  },
+  "quantizer": {
+    "kind": "grid_rkmeans",
+    "num_hierarchies": 3,
+    "codebook_size": 256,
+    "passes_per_level": 10,
+    "batch_size": 2048,
+    "init_buffer_size": 3072,
+    "normalize_residuals": true,
+    "distance_backend": "torch_cdist"
+  },
+  "modern_runtime": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-t5-sdpa-runtime",
+    "manifest_sha256": "18f4688aab798d792d9204d1c018d8aba7da80bc97f5aadcdd181b34f6f0b9f6"
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "evaluation": {
+    "test_after_selection": true,
+    "save_validation_predictions": true,
+    "selection_metric": "validation item NDCG@10",
+    "save_validation_losses": true,
+    "candidate_universe": "all11961source-core games,no sampled negatives,no seen-item filtering"
+  },
+  "kind": "gr_history_windows",
+  "name": "steam_disjoint_users_recent20_30",
+  "seed": 42,
+  "seeds": [
+    42
+  ],
+  "trials": [
+    {
+      "id": "steam_recent30_42",
+      "dataset": "steam",
+      "history_items": 30,
+      "seed": 42
+    },
+    {
+      "id": "steam_recent20_42",
+      "dataset": "steam",
+      "history_items": 20,
+      "seed": 42
+    }
+  ],
+  "suite_deadline_seconds": 21600,
+  "compare_initialization_by_seed": true,
+  "data": {
+    "history_items": 30
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-t5-sdpa-runtime",
+      "carasik/rhpr-steam-history-replica-input"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "representation": {
+    "model": "sentence-transformers/sentence-t5-base",
+    "item_max_tokens": 256,
+    "text": "Title and genres only; full original-core static catalogue; no IDs/interaction statistics in text"
+  },
+  "expected_initial_state_sha256": "34e7397ed277c78befd6254cbb736794df4907a011ed032bbd0735d9b7272286",
+  "windows": [
+    20,
+    30
+  ],
+  "cohorts": {
+    "steam": {
+      "users": 2000,
+      "items": 11961,
+      "train_examples": 125305,
+      "train_events": 127305,
+      "history_items": 30
+    }
+  },
+  "pilot_input": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-steam-history-replica-input",
+    "sha256": {
+      "catalog.json": "a1815b62c53833959440ddd4a227da2f91b865f0fda01dc008ce2e18396cfd77",
+      "data-report.json": "376c4b4990b3c30e19f66b52b5761bdcbfd8d9c3e3cd6944f77c637f524edb55",
+      "sequences.json": "b26937932b548e6367ebb4e61e1ca96089ec0e72bc64b3457b53281144cc3c92",
+      "source-provenance.json": "9218e8c84ad88599bd713e63810b5a370123a1b03ddf0937e7dd91e72b8c28cf",
+      "user-audit.json": "1ba6a569a3f0b51e34f8d2b542fe1b95aa16271779b2fbec80612f6557eb3a56"
+    }
+  },
+  "selection": {
+    "minimum_full_history": 32,
+    "sampled_users": 2000,
+    "data_seed": 1729,
+    "tokenizer_seed": 42,
+    "generator_seed": 42,
+    "global_core_before_user_sampling": true,
+    "within_sample_core": false,
+    "excluded_data_seed": 4242,
+    "excluded_users": 2000,
+    "overlapping_users": 0
+  },
+  "expected_sid_file_sha256": "3dd4d4d272286f0403acf51e4d3240f6ea0971814f113e134ed97d6c1b5a4262",
+  "replication": {
+    "data_seed": 1729,
+    "excluded_data_seed": 4242,
+    "excluded_users": 2000,
+    "overlapping_users": 0,
+    "original_kernel": "carasik/rhpr-steam-history/2"
+  }
+}

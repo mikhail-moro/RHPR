@@ -21,14 +21,15 @@ from rhpr.gr.sid_study import state_digest
 def main():
     p = argparse.ArgumentParser(); p.add_argument('--input', type=Path, required=True)
     p.add_argument('--source', type=Path, required=True); p.add_argument('--output', type=Path, required=True)
+    p.add_argument('--config', type=Path, default=Path('experiments/steam_history_windows_2t4.json'))
     a = p.parse_args(); torch.set_num_threads(1)
-    c = json.loads(Path('experiments/steam_history_windows_2t4.json').read_text()); validate(c)
+    c = json.loads(a.config.read_text()); validate(c)
     for name, digest in c['pilot_input']['sha256'].items(): assert file_sha256(a.input/name) == digest
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp); _, report = prepare_cases(a.input, c['cohorts']['steam'], root/'cases')
         raw = {s: cases(root/'cases', s) for s in ('train', 'validation', 'test')}
         original = json.loads((a.input/'sequences.json').read_text())
-        assert len(original) == 2000 and len(raw['train'][2]) == 127023
+        assert len(original) == c['cohorts']['steam']['users'] and len(raw['train'][2]) == c['cohorts']['steam']['train_examples']
         # Independently verify the source-prefix schedule and both temporal holdouts.
         at = 0
         for row in original:
@@ -48,7 +49,7 @@ def main():
         model = attach4(build_grid_generator(sid, c['generator'], 42, 'cpu', a.source))
         initial = state_digest(dict(model.named_parameters())); assert initial == c['expected_initial_state_sha256']
         costs = {}
-        for width in (10, 20, 30):
+        for width in c['windows']:
             h, u, t = raw['validation']; encoded = encode_window(h[:2], sid, width)
             model.eval()
             with torch.inference_mode(), torch.nn.attention.sdpa_kernel(torch.nn.attention.SDPBackend.MATH), torch.profiler.profile(

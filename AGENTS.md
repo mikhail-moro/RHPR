@@ -2,6 +2,18 @@
 
 ## Research status
 
+- Authorized2026-11-16: disjoint Steam cohort replication, EXACTLY2fits R20/R30,
+  generator/indexseed42, unchanged training/ES/VAL5. Exclude original2000
+  seed4242; select2000 remaining users seed1729 BEFORE outcomes. New131305
+  events/125305TRAINexamples,VAL/TEST2000each,cold87/83,sourceuseroverlap0.
+  Full11961catalogue byte-identical; originalSIDhashguard retained. Recompute
+  from original resources; no vector/checkpoint transfer. Config
+  steam_history_replication_2t4.json, reportgr-steam-history-replication.md.
+  Newprivateinputcarasik/rhpr-steam-history-replica-input; intendedkernel
+  carasik/rhpr-steam-history-replica. Check submissionreceipt before dispatch;
+  no duplicate/additionalfits/automaticretry. Fullcohort1M remains deferred.
+
+
 
 - Steam history/2 COMPLETE,source72ceff63e025cb1cb4731672b665594c6f97db3b,
   runtime3906.338s(65.1minafterbootstrap). All3EMA-stopped,none120cap:
