@@ -3,6 +3,16 @@
 ## Research status
 
 
+- Steam history pilot SUBMITTEDONCE privatecarasik/rhpr-steam-history/1,
+  source977c45193db4db57f9fc486620fbf0a85cd41abf,workflow43841814694/
+  job133212084917SUCCESS(submissiononly),artifact14212284925. Actualpush
+  2026-11-16T09:40:31Z,server--timeout21600verified. FirststatusQUEUED,
+  no trainingresultsobserved. All218deployedPythonfiles/exactconfig/private
+  offline/3datasets/no parentsverified;inputdownload-roundtripall5SHAsverified.
+  Receiptgr-steam-history-submission.json. Exactly3Steamfits10/20/30seed42;
+  Kindle explicitlydeferred. Do not submit duplicates or additionalfits.
+
+
 - Authorized2026-11-16: Steam-only history-utility pilot; Kindle explicitly
   deferred after2014 metadata titles8/61934 and2018 recovery31808/61934.
   EXACTLY3fits seed42 Recent10/20/30, no compression/HPO/new seeds/retries.

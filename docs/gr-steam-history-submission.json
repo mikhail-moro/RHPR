@@ -1,0 +1,48 @@
+{
+  "kernel": "carasik/rhpr-steam-history",
+  "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-steam-history",
+  "version": 1,
+  "source_sha": "977c45193db4db57f9fc486620fbf0a85cd41abf",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/43841814694",
+  "workflow_id": 43841814694,
+  "job_id": 133212084917,
+  "artifact_id": 14212284925,
+  "actual_push_utc": "2026-11-16T09:40:31Z",
+  "push_timeout_seconds": 21600,
+  "server_status_first_observed": "QUEUED",
+  "submission_only": true,
+  "training_results_observed": false,
+  "privacy_offline_verified": true,
+  "dataset_sources_verified": true,
+  "kernel_sources": [],
+  "deployed_config_exact": true,
+  "deployed_python_files_exact": 218,
+  "deployed_script_sha256": "1f1b4cfd399707437333a11b2b66f1395e14391b33435acb1031ed79585e491b",
+  "data_dataset": "carasik/rhpr-steam-history-input",
+  "data_roundtrip_sha256_verified": {
+    "catalog.json": "a1815b62c53833959440ddd4a227da2f91b865f0fda01dc008ce2e18396cfd77",
+    "data-report.json": "6fc4f6c08d60d99c90d32fb08c88aa20507f95cfa0e5fdfd8d784604b1ec3677",
+    "sequences.json": "bb9dc00a11972ff69679c3727775fbd7a36250b2b64215727b2a4cf8e4e0f104",
+    "source-provenance.json": "39219e7ef867bbc185e948af1d10d6ffb540f7de9d501a3d4285a43f272011ac",
+    "user-audit.json": "9e1d1b35acd407d5d8085ff3a02189d6d9779eaf9d16c2a4af281090796c554d"
+  },
+  "new_fits": 3,
+  "windows": [
+    10,
+    20,
+    30
+  ],
+  "seeds": [
+    42
+  ],
+  "kindle_deferred": true,
+  "full_unit_suite": {
+    "tests": 1163,
+    "skipped": 152,
+    "failures": 0,
+    "seconds": 88.955
+  },
+  "cpu_preflight": "gr-steam-history-preflight.json",
+  "automatic_retries": false,
+  "telegram_notifications": false
+}
