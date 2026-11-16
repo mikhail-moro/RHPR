@@ -175,5 +175,6 @@
     "generator_seed": 42,
     "global_core_before_user_sampling": true,
     "within_sample_core": false
-  }
+  },
+  "expected_sid_file_sha256": "3dd4d4d272286f0403acf51e4d3240f6ea0971814f113e134ed97d6c1b5a4262"
 }

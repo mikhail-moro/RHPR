@@ -1,5 +1,8 @@
 import copy
+import importlib.util
 import json
+import os
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -54,3 +57,45 @@ class HistoryWindowsTests(unittest.TestCase):
             with self.assertRaises(ValueError): validate(bad)
         bad = copy.deepcopy(c); bad['cohorts']['kindle2014'] = {}
         with self.assertRaises(ValueError): validate(bad)
+
+    @unittest.skipUnless(importlib.util.find_spec('torch') and importlib.util.find_spec('transformers'), 'requires Torch/HF for CPU worker protocol test')
+    def test_actual_worker_events_survive_parent_collection_and_preserve_partial_results(self):
+        from unittest.mock import patch
+        from rhpr.gr.ae_suite import assignments, launch_workers
+        fixture = '''
+import argparse
+from unittest.mock import patch
+import torch
+import rhpr.gr.history_windows as h
+p=argparse.ArgumentParser();p.add_argument('--plan');p.add_argument('--slot',type=int);a=p.parse_args()
+def trial(t,plan):
+    if plan.get('injected_failure')==t['id']:raise RuntimeError('injected protocol test failure')
+    return dict(trial=t['id'],seed=t['seed'],initial_state_sha256='matched')
+with patch.object(torch.cuda,'device_count',return_value=1),patch.object(torch.cuda,'get_device_capability',return_value=(7,5)),patch.object(torch.cuda,'empty_cache'),patch.object(h,'run_trial',side_effect=trial):
+    h.worker(a.plan,a.slot)
+'''
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); (root/'steam_protocol_fixture.py').write_text(fixture)
+            c = json.loads(Path('experiments/steam_history_windows_2t4.json').read_text())
+            jobs = assignments(c, 2)
+            source = Path(__file__).resolve().parents[1]/'src'
+            paths = os.pathsep.join([str(root), str(source), os.environ.get('PYTHONPATH', '')])
+            for fail in (None, 'steam_recent20_42'):
+                out = root/('success' if fail is None else 'failure'); (out/'workers').mkdir(parents=True)
+                plan = out/'plan.json'; plan.write_text(json.dumps(dict(config=c, output=str(out), assignments=jobs, injected_failure=fail)))
+                # Only backend discovery and ML work are stubbed; the real worker,
+                # OS pipes, event parser and status/result collector are exercised.
+                with patch.dict(os.environ, {'PYTHONPATH': paths}), patch.object(sys, 'path', [str(root), str(source), *sys.path]):
+                    if fail is None:
+                        summary = launch_workers(plan, worker_module='steam_protocol_fixture', event_prefix='history_windows')
+                        self.assertEqual(len(summary['results']), 3)
+                    else:
+                        with self.assertRaisesRegex(RuntimeError, 'incomplete'):
+                            launch_workers(plan, worker_module='steam_protocol_fixture', event_prefix='history_windows')
+                        summary = json.loads((out/'suite-results.json').read_text())
+                        self.assertEqual(len(summary['results']), 2)
+                        self.assertEqual(summary['failures'][0]['trial'], fail)
+                for job in jobs:
+                    events = [json.loads(line) for line in (out/'workers'/f"worker-{job['slot']}.log").read_text().splitlines() if line.startswith('{')]
+                    starts = [e['trial'] for e in events if e['phase'] == 'history_windows_trial_start']
+                    self.assertEqual(starts, [t['id'] for t in job['trials']])

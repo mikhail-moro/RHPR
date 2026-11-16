@@ -34,3 +34,12 @@ One private offline Kaggle session on 2xT4. GPU0: Recent30 then Recent10; GPU1: 
 Primary question: does additional history improve validation ranking at a sufficiently trained checkpoint, consistently enough to merit more seeds? Inspect curves by epochs, examples and measured time. Final test is a secondary confirmation, not a selection criterion. One pipeline seed cannot establish reproducibility; dataset, tokenizer and generator axes remain separate. Do not select user subgroups based on which window wins.
 
 Kindle is deferred: official2014 metadata has titles for only8/61,934 items; the2018 crosswalk recovers31,808 titles. No Kindle model is part of this run.
+
+
+## Version1 failure and manual recovery
+
+Version1 (`977c451`, kernel145369546) failed at kernel log time123.672s, before any generator training/checkpoint. The worker emitted `history_windows_trial_start` with `id`, while the shared parent event parser requires `trial`. Fixed the sender, preserving the existing collector contract. Added a CPU integration regression that starts two real OS processes through the real worker/parent code, tests all three trials, and verifies that an injected worker failure preserves the other two results. CUDA discovery and ML execution are stubbed in this protocol test; it does not claim GPU training validation.
+
+The original CUDA-fitted embeddings, centroids, 3+1SIDs, raw cases and worker logs were retrieved to the private workspace. All raw case hashes match the original CPU preflight; the real exported SIDs pass finite forward/backward checks of the actual generator at windows10/20/30 on CPU. No optimizer steps were taken locally.
+
+Automatic approval review rejected uploading the cached vectors as an updated Kaggle dataset version. No such transfer occurred; the existing private input dataset remains unchanged. Recovery therefore recomputes the tokenizer from the already-authorized static inputs and requires the original exported SID file SHA256 `3dd4d4d272286f0403acf51e4d3240f6ea0971814f113e134ed97d6c1b5a4262` before allowing generator training. There is no fallback to a different index. All three fits, seeds, targets, learning/stopping policies and runtime limits stay unchanged. This is a manual correction of the user-reported failure, not an automatic retry loop. See `gr-steam-history-failure-v1.json` and the recovery submission receipt.

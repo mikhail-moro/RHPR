@@ -132,7 +132,7 @@ def worker(plan_path, slot):
         raise RuntimeError('requires isolated T4/HF5.22.1')
     state = dict(results={}, failures=[])
     for trial in p['assignments'][slot]['trials']:
-        _event('history_windows_trial_start', **trial)
+        _event('history_windows_trial_start', trial=trial['id'], **trial)
         try:
             row = run_trial(trial, p); state['results'][trial['id']] = row
             _event('history_windows_trial_complete', **row)
@@ -186,6 +186,8 @@ def run(c, output):
         codes, centers, fit = fit_grid_rkmeans(vec, c['quantizer'], 42, 'cuda:0', source)
         idx = SidIndex(codes, width=256)
         np.save(root/'items-42.npy', idx.sids); np.save(root/'centroids-42.npy', centers)
+        if c.get('expected_sid_file_sha256') and file_sha256(root/'items-42.npy') != c['expected_sid_file_sha256']:
+            raise ValueError('recomputed SID differs from the original failed run; no generator training allowed')
         _write(root/'index-report.json', dict(fit=fit, sid=idx.diagnostics(), scope='full static source-core catalogue; no behavior fitting'))
     del vec, codes, centers; gc.collect(); torch.cuda.empty_cache()
     overlay = scratch/'modern-site'; overlay.mkdir()

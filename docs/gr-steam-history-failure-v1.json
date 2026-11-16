@@ -1,0 +1,48 @@
+{
+  "kernel": "carasik/rhpr-steam-history/1",
+  "source_sha": "977c45193db4db57f9fc486620fbf0a85cd41abf",
+  "status": "ERROR",
+  "failure": {
+    "exception_type": "KeyError",
+    "key": "trial",
+    "location": "ae_suite.launch_workers event parser",
+    "cause": "history_windows worker start event emitted id but omitted trial"
+  },
+  "observed_traceback_time_seconds": 123.672185264,
+  "generator_training_started": false,
+  "generator_checkpoints_saved": 0,
+  "tokenizer_saved": true,
+  "tokenizer_fit_seconds": 18.433874754999977,
+  "original_sid_file_sha256": "3dd4d4d272286f0403acf51e4d3240f6ea0971814f113e134ed97d6c1b5a4262",
+  "actual_backbone_cpu_checks": {
+    "real_exported_CUDA_SIDs": true,
+    "all_raw_cases_match_original_preflight": true,
+    "finite_real_backbone_checks": {
+      "10": {
+        "finite_loss": 22.66357421875,
+        "finite_gradient_norm": 45.401119232177734
+      },
+      "20": {
+        "finite_loss": 22.382282257080078,
+        "finite_gradient_norm": 43.77447509765625
+      },
+      "30": {
+        "finite_loss": 21.24492073059082,
+        "finite_gradient_norm": 43.01312255859375
+      }
+    },
+    "cpu_only": true,
+    "no_optimizer_updates": true
+  },
+  "recovery": {
+    "event_contract_fixed": true,
+    "real_two_process_regression_test": true,
+    "training_protocol_changed": false,
+    "recompute_tokenizer_from_previously_authorized_inputs": true,
+    "require_original_sid_hash_before_generator_training": true,
+    "cache_transfer_auto_review_rejected": true,
+    "cache_transfer_performed": false,
+    "cache_transfer_not_needed_for_recovery": true,
+    "automatic_retries": false
+  }
+}

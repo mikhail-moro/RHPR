@@ -3,6 +3,18 @@
 ## Research status
 
 
+- Steam/1 FAILED before generator training at123.672s: start event usedid
+  but ae_suite parent requires trial -> KeyError. Local senderfixed; real2process
+  CPUprotocolregression covers success+partialfailure. No generatorcheckpoints.
+  ExportedCUDA SIDs/casesretainedoutsideGit;allcasehashesmatchpreflight and
+  actualbackboneCPU FWD/BWDfiniteat10/20/30. Auto-review REJECTED external
+  cache dataset-version upload;notperformed,no retryofthattransfer. Recovery
+  recomputesfromalready-authorizedinputs and requires originalSIDfileSHA
+  3dd4d4d272286f0403acf51e4d3240f6ea0971814f113e134ed97d6c1b5a4262
+  before any training. No trainingprotocolchange. Check recoveryreceipt before
+  dispatch;no duplicates/automaticretryloop. Reportgr-steam-history-failure-v1.json.
+
+
 - Steam history pilot SUBMITTEDONCE privatecarasik/rhpr-steam-history/1,
   source977c45193db4db57f9fc486620fbf0a85cd41abf,workflow43841814694/
   job133212084917SUCCESS(submissiononly),artifact14212284925. Actualpush
