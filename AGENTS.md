@@ -2,6 +2,17 @@
 
 ## Research status
 
+- Steam disjoint replication SUBMITTEDONCE carasik/rhpr-steam-history-replica/1,
+  sourcea16145d4aa6e3ee526198482712d0282d7a8bc59,workflow43924489379/
+  job133500204440SUCCESS(submissiononly),artifact14256295117. Actualpush
+  2026-11-16T18:01:55Z,timeout21600. FirstKagglestatusQUEUED,nooutcomes.
+  All218deployedPythonfiles/exactconfig/privateoffline/3datasets/no parents
+  verified. New2000usersseed1729disjointfromoriginalseed4242,125305TRAIN;
+  EXACTLY2fitsR20/R30seed42,samefrozenSIDhashguard. FiveinputdownloadSHAs
+  match;full1165testsOK/152skips/0fails126.094s. Receipt
+  gr-steam-history-replication-submission.json. No duplicates/additionalfits.
+
+
 - Authorized2026-11-16: disjoint Steam cohort replication, EXACTLY2fits R20/R30,
   generator/indexseed42, unchanged training/ES/VAL5. Exclude original2000
   seed4242; select2000 remaining users seed1729 BEFORE outcomes. New131305

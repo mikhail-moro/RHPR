@@ -1,0 +1,43 @@
+{
+  "kernel": "carasik/rhpr-steam-history-replica",
+  "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-steam-history-replica",
+  "version": 1,
+  "source_sha": "a16145d4aa6e3ee526198482712d0282d7a8bc59",
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/43924489379",
+  "workflow_id": 43924489379,
+  "job_id": 133500204440,
+  "artifact_id": 14256295117,
+  "first_observed_status": "QUEUED",
+  "training_results_observed": false,
+  "submission_only": true,
+  "actual_server_timeout_seconds": 21600,
+  "actual_push_utc": "2026-11-16T18:01:55Z",
+  "deployed_python_files_exact": 218,
+  "deployed_config_exact": true,
+  "private_offline_verified": true,
+  "kernel_sources": [],
+  "new_generator_fits": 2,
+  "history_windows": [
+    20,
+    30
+  ],
+  "generator_seed": 42,
+  "tokenizer_seed": 42,
+  "data_seed": 1729,
+  "cohort_users": 2000,
+  "events": 131305,
+  "train_examples": 125305,
+  "overlap_with_original_users": 0,
+  "input_roundtrip_all_five_hashes_verified": true,
+  "catalogue_byte_identical": true,
+  "expected_original_sid_file_sha256": "3dd4d4d272286f0403acf51e4d3240f6ea0971814f113e134ed97d6c1b5a4262",
+  "cache_transfer_performed": false,
+  "automatic_retry_loop": false,
+  "unit_suite": {
+    "tests": 1165,
+    "skipped": 152,
+    "failures": 0,
+    "seconds": 126.094
+  },
+  "deployed_script_sha256": "6c38dc2a3a01c94f94842d4461f50c35c49843c0832608a74ad873f772184deb"
+}

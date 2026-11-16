@@ -27,3 +27,7 @@ CPU preflight `gr-steam-history-replication-preflight.json` independently replay
 ## Pre-submission verification
 
 Private dataset is ready; all five downloaded JSON SHA256 values match the pinned config. Local private offline GPU bundle built successfully. Full suite:1,165 tests,152 optional skips,0 failures,126.094s. CPU preflight passed with no GPU use.
+
+## Submission
+
+Submitted once: private `carasik/rhpr-steam-history-replica/1`, executable source `a16145d4aa6e3ee526198482712d0282d7a8bc59`, workflow43924489379/job133500204440. Push2026-11-16T18:01:55Z, timeout21,600s. Kaggle first statusQUEUED; no training outcomes observed. All218 deployed Python files, exact config, private/offline GPU metadata and three dataset sources verified. Receipt `gr-steam-history-replication-submission.json`. Do not dispatch a duplicate.
