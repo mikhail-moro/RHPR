@@ -1,0 +1,224 @@
+{
+  "kernel": "carasik/rhpr-steam-recent10-20",
+  "version": 1,
+  "status": "COMPLETE",
+  "source_sha": "e710aec495fce54dac88979da910e004bb639854",
+  "session_seconds": 7221.967419,
+  "started_at": "2026-11-16T20:43:48.956005+00:00",
+  "finished_at": "2026-11-16T22:44:10.923424+00:00",
+  "new_models": 9,
+  "reused_models": 3,
+  "total_comparison_models": 12,
+  "paired_comparisons": 6,
+  "new_gpu_fits_during_collection": 0,
+  "new_inference_during_collection": 0,
+  "all_audits_verified": true,
+  "replay": {
+    "files": 167,
+    "candidates": 6680000,
+    "invalid": 899,
+    "duplicates": 0
+  },
+  "checkpoints": [
+    {
+      "trial": "steam_a_recent10_101",
+      "kind": "best",
+      "epoch": 30,
+      "sha256": "6718b7d595baabf04d179e9c2069e9b559e2eb6676fea9a22cb92e62bb188db7",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent10_101",
+      "kind": "last",
+      "epoch": 70,
+      "sha256": "d9e7d8ef0f1b93519a5b98d0e6d90ac0eee9e5f378d52354ef3ddbfb6fc5bc9c",
+      "bytes": 61476403,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent10_202",
+      "kind": "best",
+      "epoch": 30,
+      "sha256": "0351bc3af19429d9976c76ce8a012ca641ee7bfe37c31c966eface25b2be0405",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent10_202",
+      "kind": "last",
+      "epoch": 50,
+      "sha256": "69329134d048838d297c5056e3fe1da203d218624c574d86867e2a89a0622a3d",
+      "bytes": 61476467,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent10_42",
+      "kind": "best",
+      "epoch": 55,
+      "sha256": "9155c4baf989beea6194c0d45061f63244dced49cae31372c71ee1175e4769e8",
+      "bytes": 20499277,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent10_42",
+      "kind": "last",
+      "epoch": 75,
+      "sha256": "5fe685961b98639000135a036211dbf31df69271bb4fb8b9131531b049ada94d",
+      "bytes": 61468531,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent20_101",
+      "kind": "best",
+      "epoch": 50,
+      "sha256": "2cbf24b1242f7db26617acfd5cf528e16e340642468cd921756ee470c871b5ea",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent20_101",
+      "kind": "last",
+      "epoch": 70,
+      "sha256": "fea33ea257cddb57cd367fa7b1bf0b60e972bd779cedbdfb94ec10512fc0bc9e",
+      "bytes": 61476403,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent20_202",
+      "kind": "best",
+      "epoch": 45,
+      "sha256": "571feada085e8e5bd0a90c22fa5c3ddf6ec5ea95fd16c4fcc3cf44e5992e7541",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent20_202",
+      "kind": "last",
+      "epoch": 65,
+      "sha256": "d32bc08a2da3ac68592ec52cc5b0e62084931a3d2333629e334bb8ce3c7033fb",
+      "bytes": 61476467,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent20_42",
+      "kind": "best",
+      "epoch": 55,
+      "sha256": "cd5f3fa32c33be78e07cf336f90660b0e0518da03589419e8c7feb88dd1a14ef",
+      "bytes": 20499277,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent20_42",
+      "kind": "last",
+      "epoch": 75,
+      "sha256": "893d7a7d557264bfc18610c09fc8e5f6f6a7c57db02b561438973ea96db2f378",
+      "bytes": 61468467,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent10_101",
+      "kind": "best",
+      "epoch": 50,
+      "sha256": "6a84c9090d79c7b19fe8fbc791da4f14ab1d2f3f0965e1cf1f1127fb67be3ee2",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent10_101",
+      "kind": "last",
+      "epoch": 60,
+      "sha256": "f01e0d860c1eb6c6fb8b0b3a83527e730f730d0d88c084ce4db57c9e747669f0",
+      "bytes": 61476403,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent10_202",
+      "kind": "best",
+      "epoch": 45,
+      "sha256": "1c2bad0ae8daeb337989398df39af3721a4911fe7edb9bfa1a68cbc2b5e1ba44",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent10_202",
+      "kind": "last",
+      "epoch": 65,
+      "sha256": "63181e98fc059334d8d5f106d75c80c426aa4499087d4b0d705abe803da7914b",
+      "bytes": 61476467,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent10_42",
+      "kind": "best",
+      "epoch": 45,
+      "sha256": "e0d9ed684a8b3d094d50a4648b4605de0ade74f03407e12ea6b79b50e0a0c97e",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent10_42",
+      "kind": "last",
+      "epoch": 65,
+      "sha256": "ed3add736a9ba5b3d01cdaaf9e9663480ced7f7250fc429c2e4c456a5f49d508",
+      "bytes": 61476467,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent20_101",
+      "kind": "best",
+      "epoch": 45,
+      "sha256": "88a2e908aaa9ee2c211394044ff87c710702b1ce7c6fdc8ca5cd2e2ab25c2083",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent20_101",
+      "kind": "last",
+      "epoch": 65,
+      "sha256": "7c51a4ef1f17bb5350c3839d084e67f31c2c77157a7827c2f9d5c5ac61f96a77",
+      "bytes": 61476403,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent20_202",
+      "kind": "best",
+      "epoch": 30,
+      "sha256": "5e4aad995b52fa70823708a9d2abc9a984492369573c5432ef64f23884b643e7",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent20_202",
+      "kind": "last",
+      "epoch": 50,
+      "sha256": "2fb01b743de2f6326ecdb2b4c1b81d849cd9693cb1e1e4d2a4a67f3e9632bf36",
+      "bytes": 61476403,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent20_42",
+      "kind": "best",
+      "epoch": 45,
+      "sha256": "19111a2a0b8af7689d0e63dfe638943ed8149fd29e17e462bd2f072b0a4c1561",
+      "bytes": 20499469,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent20_42",
+      "kind": "last",
+      "epoch": 65,
+      "sha256": "a6ff3493f713edd0b3f858ecb46323c27b1f5c868547a659f052627c94bb2b53",
+      "bytes": 61468659,
+      "finite": true
+    }
+  ],
+  "unit_suite": {
+    "tests": 1167,
+    "skipped": 152,
+    "failures": 0,
+    "seconds": 153.943
+  },
+  "user_token_unique_bins_per_cohort": 2000,
+  "user_token_causal_effect_tested": false
+}

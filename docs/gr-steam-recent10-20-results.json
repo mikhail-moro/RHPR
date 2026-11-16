@@ -1,0 +1,1797 @@
+{
+  "source": "e710aec495fce54dac88979da910e004bb639854",
+  "session_seconds": 7221.967419,
+  "new_models": 9,
+  "reused_models": 3,
+  "unique_users": 4000,
+  "cohorts": [
+    "steam_a",
+    "steam_b"
+  ],
+  "generator_seeds": [
+    42,
+    101,
+    202
+  ],
+  "tokenizer_seed": 42,
+  "windows": [
+    10,
+    20
+  ],
+  "all_input_cases_metrics_lr_ema_selection_and_checkpoints_verified": true,
+  "array_hashes": {
+    "steam_a": {
+      "items-42.npy": "3dd4d4d272286f0403acf51e4d3240f6ea0971814f113e134ed97d6c1b5a4262",
+      "item-embeddings.npy": "0149ff8792dd4e9219f8cf3323f5e7c747b116521e9d7680f9a491c22386cd20",
+      "centroids-42.npy": "9acbd5c54fec863da0a312bef8c7913da30e2573ccae23e65093b9b0762cc578"
+    },
+    "steam_b": {
+      "items-42.npy": "3dd4d4d272286f0403acf51e4d3240f6ea0971814f113e134ed97d6c1b5a4262",
+      "item-embeddings.npy": "0149ff8792dd4e9219f8cf3323f5e7c747b116521e9d7680f9a491c22386cd20",
+      "centroids-42.npy": "9acbd5c54fec863da0a312bef8c7913da30e2573ccae23e65093b9b0762cc578"
+    }
+  },
+  "replay": {
+    "files": 167,
+    "candidates": 6680000,
+    "invalid": 899,
+    "duplicates": 0
+  },
+  "trials": [
+    {
+      "trial": "steam_a_recent10_101",
+      "cohort": "steam_a",
+      "seed": 101,
+      "window": 10,
+      "validation_ndcg10": 0.02257145525710621,
+      "test_ndcg10": 0.020949638248817452,
+      "test_ndcg5": 0.016468319230455327,
+      "test_recall10": 0.0405,
+      "test_hits10": 81,
+      "best_epoch": 30,
+      "stop_epoch": 70,
+      "stopping_reason": "early_stopping",
+      "val_ce_min_epoch": 50,
+      "warm_epoch_seconds": 15.081156610000107,
+      "fit_wall_seconds": 1246.851016778,
+      "training_seconds": 1170.5963649939995,
+      "validation_seconds": 64.90246410100008,
+      "amp_skips": 1,
+      "forward_gflops": 0.217327232,
+      "reused": false
+    },
+    {
+      "trial": "steam_a_recent10_202",
+      "cohort": "steam_a",
+      "seed": 202,
+      "window": 10,
+      "validation_ndcg10": 0.023193250231527743,
+      "test_ndcg10": 0.020545408897744727,
+      "test_ndcg5": 0.014912016383545149,
+      "test_recall10": 0.042,
+      "test_hits10": 84,
+      "best_epoch": 30,
+      "stop_epoch": 50,
+      "stopping_reason": "early_stopping",
+      "val_ce_min_epoch": 50,
+      "warm_epoch_seconds": 15.092775985000117,
+      "fit_wall_seconds": 812.7443545250003,
+      "training_seconds": 759.3718020279998,
+      "validation_seconds": 47.273043778000556,
+      "amp_skips": 0,
+      "forward_gflops": 0.217327232,
+      "reused": false
+    },
+    {
+      "trial": "steam_a_recent10_42",
+      "cohort": "steam_a",
+      "seed": 42,
+      "window": 10,
+      "validation_ndcg10": 0.023911100625562558,
+      "test_ndcg10": 0.01661023552186087,
+      "test_ndcg5": 0.01324319933261467,
+      "test_recall10": 0.033,
+      "test_hits10": 66,
+      "best_epoch": 55,
+      "stop_epoch": 75,
+      "stopping_reason": "early_stopping",
+      "val_ce_min_epoch": 40,
+      "warm_epoch_seconds": 15.092397593499982,
+      "fit_wall_seconds": 1279.8534112910002,
+      "training_seconds": 1200.3963619240003,
+      "validation_seconds": 70.6262882750002,
+      "amp_skips": 2,
+      "forward_gflops": 0.217327232,
+      "reused": true
+    },
+    {
+      "trial": "steam_a_recent20_101",
+      "cohort": "steam_a",
+      "seed": 101,
+      "window": 20,
+      "validation_ndcg10": 0.02322841394572761,
+      "test_ndcg10": 0.021568522887503497,
+      "test_ndcg5": 0.016028751391978936,
+      "test_recall10": 0.041,
+      "test_hits10": 82,
+      "best_epoch": 50,
+      "stop_epoch": 70,
+      "stopping_reason": "early_stopping",
+      "val_ce_min_epoch": 40,
+      "warm_epoch_seconds": 28.031976818999738,
+      "fit_wall_seconds": 2186.47002871,
+      "training_seconds": 2080.870743553,
+      "validation_seconds": 93.91553772799944,
+      "amp_skips": 2,
+      "forward_gflops": 0.427087952,
+      "reused": false
+    },
+    {
+      "trial": "steam_a_recent20_202",
+      "cohort": "steam_a",
+      "seed": 202,
+      "window": 20,
+      "validation_ndcg10": 0.026837272529316395,
+      "test_ndcg10": 0.020604429004642478,
+      "test_ndcg5": 0.01627489282683806,
+      "test_recall10": 0.0405,
+      "test_hits10": 81,
+      "best_epoch": 45,
+      "stop_epoch": 65,
+      "stopping_reason": "early_stopping",
+      "val_ce_min_epoch": 35,
+      "warm_epoch_seconds": 28.12709873299991,
+      "fit_wall_seconds": 1931.6916536010003,
+      "training_seconds": 1837.0211408749979,
+      "validation_seconds": 86.75031868800306,
+      "amp_skips": 1,
+      "forward_gflops": 0.427087952,
+      "reused": false
+    },
+    {
+      "trial": "steam_a_recent20_42",
+      "cohort": "steam_a",
+      "seed": 42,
+      "window": 20,
+      "validation_ndcg10": 0.024503639548599992,
+      "test_ndcg10": 0.018821017245238256,
+      "test_ndcg5": 0.01405982529727391,
+      "test_recall10": 0.037,
+      "test_hits10": 74,
+      "best_epoch": 55,
+      "stop_epoch": 75,
+      "stopping_reason": "early_stopping",
+      "val_ce_min_epoch": 40,
+      "warm_epoch_seconds": 27.88613001400006,
+      "fit_wall_seconds": 2321.353045218,
+      "training_seconds": 2210.452154197,
+      "validation_seconds": 98.60554331999862,
+      "amp_skips": 2,
+      "forward_gflops": 0.427087952,
+      "reused": true
+    },
+    {
+      "trial": "steam_b_recent10_101",
+      "cohort": "steam_b",
+      "seed": 101,
+      "window": 10,
+      "validation_ndcg10": 0.022809342346353033,
+      "test_ndcg10": 0.020233128512219273,
+      "test_ndcg5": 0.014861998829570665,
+      "test_recall10": 0.043,
+      "test_hits10": 86,
+      "best_epoch": 50,
+      "stop_epoch": 60,
+      "stopping_reason": "early_stopping",
+      "val_ce_min_epoch": 50,
+      "warm_epoch_seconds": 14.220264266999948,
+      "fit_wall_seconds": 958.589469603,
+      "training_seconds": 896.0858957599985,
+      "validation_seconds": 55.0768373599999,
+      "amp_skips": 0,
+      "forward_gflops": 0.217327232,
+      "reused": false
+    },
+    {
+      "trial": "steam_b_recent10_202",
+      "cohort": "steam_b",
+      "seed": 202,
+      "window": 10,
+      "validation_ndcg10": 0.026070210071625213,
+      "test_ndcg10": 0.018292638864606296,
+      "test_ndcg5": 0.012825543369557704,
+      "test_recall10": 0.0375,
+      "test_hits10": 75,
+      "best_epoch": 45,
+      "stop_epoch": 65,
+      "stopping_reason": "early_stopping",
+      "val_ce_min_epoch": 35,
+      "warm_epoch_seconds": 14.323751774500124,
+      "fit_wall_seconds": 1007.9331922559995,
+      "training_seconds": 941.0085767949995,
+      "validation_seconds": 59.064775165001265,
+      "amp_skips": 0,
+      "forward_gflops": 0.217327232,
+      "reused": false
+    },
+    {
+      "trial": "steam_b_recent10_42",
+      "cohort": "steam_b",
+      "seed": 42,
+      "window": 10,
+      "validation_ndcg10": 0.02605850382149859,
+      "test_ndcg10": 0.0189901118704178,
+      "test_ndcg5": 0.013859301352303299,
+      "test_recall10": 0.038,
+      "test_hits10": 76,
+      "best_epoch": 45,
+      "stop_epoch": 65,
+      "stopping_reason": "early_stopping",
+      "val_ce_min_epoch": 45,
+      "warm_epoch_seconds": 14.25540749449965,
+      "fit_wall_seconds": 1000.2468969239999,
+      "training_seconds": 934.2425015890021,
+      "validation_seconds": 58.46624153599987,
+      "amp_skips": 1,
+      "forward_gflops": 0.217327232,
+      "reused": false
+    },
+    {
+      "trial": "steam_b_recent20_101",
+      "cohort": "steam_b",
+      "seed": 101,
+      "window": 20,
+      "validation_ndcg10": 0.025381627460014586,
+      "test_ndcg10": 0.017758408960842707,
+      "test_ndcg5": 0.011538803760255447,
+      "test_recall10": 0.0375,
+      "test_hits10": 75,
+      "best_epoch": 45,
+      "stop_epoch": 65,
+      "stopping_reason": "early_stopping",
+      "val_ce_min_epoch": 35,
+      "warm_epoch_seconds": 29.580737561999968,
+      "fit_wall_seconds": 2070.613680826,
+      "training_seconds": 1970.494735912998,
+      "validation_seconds": 91.98447341999872,
+      "amp_skips": 0,
+      "forward_gflops": 0.427087952,
+      "reused": false
+    },
+    {
+      "trial": "steam_b_recent20_202",
+      "cohort": "steam_b",
+      "seed": 202,
+      "window": 20,
+      "validation_ndcg10": 0.024355885674359288,
+      "test_ndcg10": 0.021075841434597554,
+      "test_ndcg5": 0.014972461607316488,
+      "test_recall10": 0.0465,
+      "test_hits10": 93,
+      "best_epoch": 30,
+      "stop_epoch": 50,
+      "stopping_reason": "early_stopping",
+      "val_ce_min_epoch": 25,
+      "warm_epoch_seconds": 29.37551406900002,
+      "fit_wall_seconds": 1550.12966581,
+      "training_seconds": 1474.224727382998,
+      "validation_seconds": 69.79311816000154,
+      "amp_skips": 0,
+      "forward_gflops": 0.427087952,
+      "reused": false
+    },
+    {
+      "trial": "steam_b_recent20_42",
+      "cohort": "steam_b",
+      "seed": 42,
+      "window": 20,
+      "validation_ndcg10": 0.026904869374090555,
+      "test_ndcg10": 0.019069730672530413,
+      "test_ndcg5": 0.013969493380576573,
+      "test_recall10": 0.04,
+      "test_hits10": 80,
+      "best_epoch": 45,
+      "stop_epoch": 65,
+      "stopping_reason": "early_stopping",
+      "val_ce_min_epoch": 40,
+      "warm_epoch_seconds": 29.682710466999993,
+      "fit_wall_seconds": 2159.580983237,
+      "training_seconds": 2054.454223318001,
+      "validation_seconds": 92.44278798600021,
+      "amp_skips": 1,
+      "forward_gflops": 0.427087952,
+      "reused": true
+    }
+  ],
+  "paired_comparisons": [
+    {
+      "cohort": "steam_a",
+      "seed": 42,
+      "split": "validation",
+      "recent10": 0.023911100625562554,
+      "recent20": 0.024503639548599992,
+      "absolute_delta": 0.0005925389230374354,
+      "relative_delta": 0.02478091378211067,
+      "conditional_user_ci95": [
+        -0.004438461409525852,
+        0.0056034589327561245
+      ],
+      "improved": 65,
+      "worsened": 71,
+      "tied": 1864
+    },
+    {
+      "cohort": "steam_a",
+      "seed": 101,
+      "split": "validation",
+      "recent10": 0.02257145525710621,
+      "recent20": 0.023228413945727607,
+      "absolute_delta": 0.0006569586886214009,
+      "relative_delta": 0.02910573027472685,
+      "conditional_user_ci95": [
+        -0.004935607488196133,
+        0.006134135446333693
+      ],
+      "improved": 67,
+      "worsened": 70,
+      "tied": 1863
+    },
+    {
+      "cohort": "steam_a",
+      "seed": 202,
+      "split": "validation",
+      "recent10": 0.023193250231527743,
+      "recent20": 0.026837272529316395,
+      "absolute_delta": 0.003644022297788652,
+      "relative_delta": 0.15711563758472935,
+      "conditional_user_ci95": [
+        -0.0019328238004099616,
+        0.009216201150726086
+      ],
+      "improved": 82,
+      "worsened": 67,
+      "tied": 1851
+    },
+    {
+      "cohort": "steam_b",
+      "seed": 42,
+      "split": "validation",
+      "recent10": 0.02605850382149859,
+      "recent20": 0.02690486937409056,
+      "absolute_delta": 0.0008463655525919662,
+      "relative_delta": 0.032479437744760586,
+      "conditional_user_ci95": [
+        -0.004112598583684148,
+        0.005776102320520097
+      ],
+      "improved": 71,
+      "worsened": 75,
+      "tied": 1854
+    },
+    {
+      "cohort": "steam_b",
+      "seed": 101,
+      "split": "validation",
+      "recent10": 0.022809342346353033,
+      "recent20": 0.025381627460014586,
+      "absolute_delta": 0.0025722851136615495,
+      "relative_delta": 0.11277331343456432,
+      "conditional_user_ci95": [
+        -0.002554598157623897,
+        0.007630238817983242
+      ],
+      "improved": 79,
+      "worsened": 74,
+      "tied": 1847
+    },
+    {
+      "cohort": "steam_b",
+      "seed": 202,
+      "split": "validation",
+      "recent10": 0.026070210071625213,
+      "recent20": 0.02435588567435929,
+      "absolute_delta": -0.0017143243972659223,
+      "relative_delta": -0.06575798171767666,
+      "conditional_user_ci95": [
+        -0.007155913736078458,
+        0.0035077491668018632
+      ],
+      "improved": 69,
+      "worsened": 70,
+      "tied": 1861
+    },
+    {
+      "cohort": "steam_a",
+      "seed": 42,
+      "split": "test",
+      "recent10": 0.016610235521860875,
+      "recent20": 0.018821017245238252,
+      "absolute_delta": 0.002210781723377381,
+      "relative_delta": 0.13309755424405312,
+      "conditional_user_ci95": [
+        -0.0024590911573722477,
+        0.006915489536125745
+      ],
+      "improved": 51,
+      "worsened": 46,
+      "tied": 1903
+    },
+    {
+      "cohort": "steam_a",
+      "seed": 101,
+      "split": "test",
+      "recent10": 0.02094963824881745,
+      "recent20": 0.021568522887503497,
+      "absolute_delta": 0.0006188846386860445,
+      "relative_delta": 0.029541542977286728,
+      "conditional_user_ci95": [
+        -0.004761730939902302,
+        0.0060364839477651516
+      ],
+      "improved": 66,
+      "worsened": 62,
+      "tied": 1872
+    },
+    {
+      "cohort": "steam_a",
+      "seed": 202,
+      "split": "test",
+      "recent10": 0.020545408897744727,
+      "recent20": 0.020604429004642478,
+      "absolute_delta": 5.902010689774584e-05,
+      "relative_delta": 0.002872666452709449,
+      "conditional_user_ci95": [
+        -0.004313170658180378,
+        0.004485705870322212
+      ],
+      "improved": 61,
+      "worsened": 58,
+      "tied": 1881
+    },
+    {
+      "cohort": "steam_b",
+      "seed": 42,
+      "split": "test",
+      "recent10": 0.018990111870417797,
+      "recent20": 0.019069730672530413,
+      "absolute_delta": 7.961880211261053e-05,
+      "relative_delta": 0.0041926452385276924,
+      "conditional_user_ci95": [
+        -0.0038928703679643045,
+        0.004032587204239797
+      ],
+      "improved": 50,
+      "worsened": 51,
+      "tied": 1899
+    },
+    {
+      "cohort": "steam_b",
+      "seed": 101,
+      "split": "test",
+      "recent10": 0.020233128512219273,
+      "recent20": 0.017758408960842707,
+      "absolute_delta": -0.002474719551376569,
+      "relative_delta": -0.12231027692440266,
+      "conditional_user_ci95": [
+        -0.006918226019183019,
+        0.002070275955198678
+      ],
+      "improved": 46,
+      "worsened": 70,
+      "tied": 1884
+    },
+    {
+      "cohort": "steam_b",
+      "seed": 202,
+      "split": "test",
+      "recent10": 0.018292638864606296,
+      "recent20": 0.021075841434597554,
+      "absolute_delta": 0.002783202569991257,
+      "relative_delta": 0.15214877364557644,
+      "conditional_user_ci95": [
+        -0.0015540219567614494,
+        0.007067420595379016
+      ],
+      "improved": 74,
+      "worsened": 47,
+      "tied": 1879
+    }
+  ],
+  "averages": [
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "recent10": 0.023225268704732172,
+      "recent20": 0.024856442007881327,
+      "absolute_delta": 0.0016311733031491623,
+      "relative_delta": 0.07023269887150119,
+      "conditional_user_ci95": [
+        -0.0015407186512573288,
+        0.0047660591723953745
+      ],
+      "recent10_seed_sd": 0.0006703963866820818,
+      "recent20_seed_sd": 0.0018301139993295058,
+      "paired_delta_seed_sd": 0.0017434759198123083,
+      "positive_seeds": 3
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "recent10": 0.02497935207982561,
+      "recent20": 0.025547460836154813,
+      "absolute_delta": 0.0005681087563291977,
+      "relative_delta": 0.022743134189938896,
+      "conditional_user_ci95": [
+        -0.0024184176709485116,
+        0.0034041115579894485
+      ],
+      "recent10_seed_sd": 0.00187929267055382,
+      "recent20_seed_sd": 0.0012825579935642185,
+      "paired_delta_seed_sd": 0.00215680908016757,
+      "positive_seeds": 2
+    },
+    {
+      "cohort": "both_equal_weight",
+      "split": "validation",
+      "recent10": 0.02410231039227889,
+      "recent20": 0.02520195142201807,
+      "absolute_delta": 0.0010996410297391783,
+      "relative_delta": 0.045623884675032755,
+      "conditional_user_ci95": [
+        -0.0010471243823550079,
+        0.0032572374340414803
+      ],
+      "note": "Same users resampled jointly across the three fixed seeds; cohorts resampled independently. Not12000 independent users."
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "recent10": 0.01936842755614102,
+      "recent20": 0.02033132304579474,
+      "absolute_delta": 0.0009628954896537237,
+      "relative_delta": 0.049714696087882704,
+      "conditional_user_ci95": [
+        -0.002167790944892156,
+        0.004142531398498764
+      ],
+      "recent10_seed_sd": 0.0023971999948986297,
+      "recent20_seed_sd": 0.0013939644766415122,
+      "paired_delta_seed_sd": 0.0011163678214309088,
+      "positive_seeds": 3
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "recent10": 0.019171959749081126,
+      "recent20": 0.01930132702265689,
+      "absolute_delta": 0.00012936727357576604,
+      "relative_delta": 0.006747733422607816,
+      "conditional_user_ci95": [
+        -0.002479972406480951,
+        0.0026985243871590864
+      ],
+      "recent10_seed_sd": 0.000982942778779135,
+      "recent20_seed_sd": 0.0016707983739891327,
+      "paired_delta_seed_sd": 0.0026293140629072777,
+      "positive_seeds": 2
+    },
+    {
+      "cohort": "both_equal_weight",
+      "split": "test",
+      "recent10": 0.019270193652611074,
+      "recent20": 0.019816325034225816,
+      "absolute_delta": 0.0005461313816147416,
+      "relative_delta": 0.028340731362642035,
+      "conditional_user_ci95": [
+        -0.0014863347903203198,
+        0.0025783277448047023
+      ],
+      "note": "Same users resampled jointly across the three fixed seeds; cohorts resampled independently. Not12000 independent users."
+    }
+  ],
+  "exploratory_groups": [
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "group": "all",
+      "users": 2000,
+      "recent10": 0.02322526870473217,
+      "recent20": 0.02485644200788133,
+      "absolute_delta": 0.0016311733031491623
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "group": "distinct_boundary_days",
+      "users": 1552,
+      "recent10": 0.022151589672203254,
+      "recent20": 0.02353044992786281,
+      "absolute_delta": 0.0013788602556595532
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "group": "history30_49",
+      "users": 1115,
+      "recent10": 0.026375415967128304,
+      "recent20": 0.029560354589877685,
+      "absolute_delta": 0.003184938622749382
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "group": "history50_99",
+      "users": 631,
+      "recent10": 0.022450096535865945,
+      "recent20": 0.020928960774379054,
+      "absolute_delta": -0.0015211357614868899
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "group": "history100plus",
+      "users": 254,
+      "recent10": 0.011322589338523098,
+      "recent20": 0.013964229918960073,
+      "absolute_delta": 0.0026416405804369756
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "group": "support0",
+      "users": 67,
+      "recent10": 0.0,
+      "recent20": 0.0,
+      "absolute_delta": 0.0
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "group": "support1_5",
+      "users": 259,
+      "recent10": 0.0,
+      "recent20": 0.0,
+      "absolute_delta": 0.0
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "group": "support6_20",
+      "users": 373,
+      "recent10": 0.0042477312963435316,
+      "recent20": 0.0032036523113484474,
+      "absolute_delta": -0.0010440789849950843
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "group": "support21plus",
+      "users": 1301,
+      "recent10": 0.034485882886954804,
+      "recent20": 0.03729279147089138,
+      "absolute_delta": 0.0028069085839365813
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "group": "excluding_gta_v_and_fallout4",
+      "users": 1974,
+      "recent10": 0.020576205333417776,
+      "recent20": 0.022043674866240325,
+      "absolute_delta": 0.0014674695328225462
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "group": "all",
+      "users": 2000,
+      "recent10": 0.02497935207982561,
+      "recent20": 0.025547460836154813,
+      "absolute_delta": 0.0005681087563291977
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "group": "distinct_boundary_days",
+      "users": 1572,
+      "recent10": 0.0261269292671219,
+      "recent20": 0.024809118936951258,
+      "absolute_delta": -0.0013178103301706434
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "group": "history30_49",
+      "users": 1159,
+      "recent10": 0.027567743086781046,
+      "recent20": 0.027025079893568487,
+      "absolute_delta": -0.0005426631932125581
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "group": "history50_99",
+      "users": 585,
+      "recent10": 0.02213508580972563,
+      "recent20": 0.022167679725033175,
+      "absolute_delta": 3.2593915307543285e-05
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "group": "history100plus",
+      "users": 256,
+      "recent10": 0.019760409075712883,
+      "recent20": 0.026581099361403654,
+      "absolute_delta": 0.00682069028569077
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "group": "support0",
+      "users": 87,
+      "recent10": 0.0,
+      "recent20": 0.0,
+      "absolute_delta": 0.0
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "group": "support1_5",
+      "users": 264,
+      "recent10": 0.0012689462086200559,
+      "recent20": 0.0012668531309144593,
+      "absolute_delta": -2.0930777055968065e-06
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "group": "support6_20",
+      "users": 391,
+      "recent10": 0.004149737173517405,
+      "recent20": 0.0044794842768810595,
+      "absolute_delta": 0.000329747103363654
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "group": "support21plus",
+      "users": 1258,
+      "recent10": 0.03815672108563611,
+      "recent20": 0.03895786493917942,
+      "absolute_delta": 0.0008011438535433103
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "group": "excluding_gta_v_and_fallout4",
+      "users": 1968,
+      "recent10": 0.019286191591407435,
+      "recent20": 0.020152956857078935,
+      "absolute_delta": 0.000866765265671501
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "group": "all",
+      "users": 2000,
+      "recent10": 0.01936842755614102,
+      "recent20": 0.02033132304579474,
+      "absolute_delta": 0.0009628954896537237
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "group": "distinct_boundary_days",
+      "users": 1552,
+      "recent10": 0.019231081567622252,
+      "recent20": 0.021192202737225146,
+      "absolute_delta": 0.0019611211696028905
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "group": "history30_49",
+      "users": 1115,
+      "recent10": 0.02064553105735172,
+      "recent20": 0.023008569060113917,
+      "absolute_delta": 0.002363038002762197
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "group": "history50_99",
+      "users": 631,
+      "recent10": 0.01975885225727814,
+      "recent20": 0.019624025349836323,
+      "absolute_delta": -0.00013482690744181893
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "group": "history100plus",
+      "users": 254,
+      "recent10": 0.012792331531466005,
+      "recent20": 0.010335951156754923,
+      "absolute_delta": -0.00245638037471108
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "group": "support0",
+      "users": 75,
+      "recent10": 0.0,
+      "recent20": 0.0,
+      "absolute_delta": 0.0
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "group": "support1_5",
+      "users": 281,
+      "recent10": 0.0003954132068011071,
+      "recent20": 0.0,
+      "absolute_delta": -0.0003954132068011071
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "group": "support6_20",
+      "users": 388,
+      "recent10": 0.0015062954580950848,
+      "recent20": 0.0038160932633096102,
+      "absolute_delta": 0.002309797805214526
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "group": "support21plus",
+      "users": 1256,
+      "recent10": 0.030287660321202253,
+      "recent20": 0.03119586138966987,
+      "absolute_delta": 0.0009082010684676139
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "group": "excluding_gta_v_and_fallout4",
+      "users": 1970,
+      "recent10": 0.015304256167918449,
+      "recent20": 0.016773457012001697,
+      "absolute_delta": 0.0014692008440832466
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "group": "all",
+      "users": 2000,
+      "recent10": 0.019171959749081126,
+      "recent20": 0.01930132702265689,
+      "absolute_delta": 0.00012936727357576604
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "group": "distinct_boundary_days",
+      "users": 1572,
+      "recent10": 0.02049968659315998,
+      "recent20": 0.019829625294250627,
+      "absolute_delta": -0.0006700612989093503
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "group": "history30_49",
+      "users": 1159,
+      "recent10": 0.017501150932196223,
+      "recent20": 0.01686235413684256,
+      "absolute_delta": -0.0006387967953536622
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "group": "history50_99",
+      "users": 585,
+      "recent10": 0.02267734867708322,
+      "recent20": 0.02260011761200505,
+      "absolute_delta": -7.723106507817013e-05
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "group": "history100plus",
+      "users": 256,
+      "recent10": 0.018725924186145094,
+      "recent20": 0.022805143740977734,
+      "absolute_delta": 0.00407921955483264
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "group": "support0",
+      "users": 83,
+      "recent10": 0.0,
+      "recent20": 0.0,
+      "absolute_delta": 0.0
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "group": "support1_5",
+      "users": 292,
+      "recent10": 0.002034009648644664,
+      "recent20": 0.0021043638529732282,
+      "absolute_delta": 7.035420432856413e-05
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "group": "support6_20",
+      "users": 377,
+      "recent10": 0.0,
+      "recent20": 0.0012806888761091,
+      "absolute_delta": 0.0012806888761091
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "group": "support21plus",
+      "users": 1248,
+      "recent10": 0.030248388365991995,
+      "recent20": 0.030052371870154224,
+      "absolute_delta": -0.00019601649583777226
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "group": "excluding_gta_v_and_fallout4",
+      "users": 1983,
+      "recent10": 0.017252252366440134,
+      "recent20": 0.01676392221608514,
+      "absolute_delta": -0.0004883301503549934
+    }
+  ],
+  "exploratory_item_contributions": [
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 4955,
+      "title": "Tom Clancy's Rainbow Six\u00ae Siege",
+      "targets": 20,
+      "contribution_to_mean_delta": 0.001382966484765666
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 1835,
+      "title": "Garry's Mod",
+      "targets": 7,
+      "contribution_to_mean_delta": -0.0008142373775569859
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 1342,
+      "title": "Paladins\u00ae",
+      "targets": 7,
+      "contribution_to_mean_delta": -0.0006715831638912309
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 6306,
+      "title": "Cuphead",
+      "targets": 15,
+      "contribution_to_mean_delta": 0.00043373387633953637
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 8328,
+      "title": "ARK: Survival Evolved",
+      "targets": 15,
+      "contribution_to_mean_delta": -0.00037671061899911937
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 7756,
+      "title": "Warframe",
+      "targets": 8,
+      "contribution_to_mean_delta": -0.00036499562202889314
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 11929,
+      "title": "Rogue Legacy",
+      "targets": 1,
+      "contribution_to_mean_delta": -0.0003333333333333333
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 11677,
+      "title": "Batman\u2122: Arkham Origins",
+      "targets": 5,
+      "contribution_to_mean_delta": 0.0002718216255952429
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 2222,
+      "title": "Middle-earth\u2122: Shadow of War\u2122",
+      "targets": 6,
+      "contribution_to_mean_delta": 0.00025848738891013376
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 3596,
+      "title": "DARK SOULS\u2122 III",
+      "targets": 12,
+      "contribution_to_mean_delta": 0.0002422911653313956
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 9654,
+      "title": "Absolver",
+      "targets": 5,
+      "contribution_to_mean_delta": 0.00023865995820590645
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 11229,
+      "title": "The Room",
+      "targets": 4,
+      "contribution_to_mean_delta": 0.0002330622034006735
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 10959,
+      "title": "Factorio",
+      "targets": 2,
+      "contribution_to_mean_delta": 0.00021138224104377094
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 3087,
+      "title": "Fallout 4",
+      "targets": 12,
+      "contribution_to_mean_delta": 0.00020386882416905977
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 7599,
+      "title": "Football Manager 2017",
+      "targets": 1,
+      "contribution_to_mean_delta": 0.00020038628067004508
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 11539,
+      "title": "Counter-Strike: Global Offensive",
+      "targets": 27,
+      "contribution_to_mean_delta": 0.0001947040791029408
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 3973,
+      "title": "Blackwell Convergence",
+      "targets": 1,
+      "contribution_to_mean_delta": -0.00019444444444444446
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 77,
+      "title": "Brawlhalla",
+      "targets": 4,
+      "contribution_to_mean_delta": 0.0001920540678020357
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 369,
+      "title": "Mount &amp; Blade: Warband",
+      "targets": 2,
+      "contribution_to_mean_delta": 0.0001740447511692409
+    },
+    {
+      "cohort": "steam_a",
+      "split": "validation",
+      "item_id": 2753,
+      "title": "Pillars of Eternity",
+      "targets": 1,
+      "contribution_to_mean_delta": 0.00017397062513980856
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 3087,
+      "title": "Fallout 4",
+      "targets": 12,
+      "contribution_to_mean_delta": -0.0006655481624476164
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 5825,
+      "title": "H1Z1",
+      "targets": 15,
+      "contribution_to_mean_delta": 0.0006551116798482346
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 1835,
+      "title": "Garry's Mod",
+      "targets": 11,
+      "contribution_to_mean_delta": 0.0004182247345119931
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 39,
+      "title": "Grand Theft Auto V",
+      "targets": 20,
+      "contribution_to_mean_delta": 0.0003807598973560569
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 7774,
+      "title": "Divinity: Original Sin 2",
+      "targets": 9,
+      "contribution_to_mean_delta": 0.00035724163212073765
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 8668,
+      "title": "Danganronpa: Trigger Happy Havoc",
+      "targets": 1,
+      "contribution_to_mean_delta": -0.0003551549589285763
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 4776,
+      "title": "Portal 2",
+      "targets": 4,
+      "contribution_to_mean_delta": -0.0003241371347593265
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 10245,
+      "title": "Half-Life 2",
+      "targets": 5,
+      "contribution_to_mean_delta": 0.00031942683407724807
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 7756,
+      "title": "Warframe",
+      "targets": 12,
+      "contribution_to_mean_delta": -0.0003047571829843677
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 4691,
+      "title": "Dirty Bomb\u00ae",
+      "targets": 4,
+      "contribution_to_mean_delta": 0.000294215513761462
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 11539,
+      "title": "Counter-Strike: Global Offensive",
+      "targets": 20,
+      "contribution_to_mean_delta": 0.0002910976985059526
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 4955,
+      "title": "Tom Clancy's Rainbow Six\u00ae Siege",
+      "targets": 16,
+      "contribution_to_mean_delta": -0.00028409977912476623
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 2222,
+      "title": "Middle-earth\u2122: Shadow of War\u2122",
+      "targets": 5,
+      "contribution_to_mean_delta": 0.0002319022413808387
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 9920,
+      "title": "Freedom Planet",
+      "targets": 1,
+      "contribution_to_mean_delta": 0.00022603453118467034
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 11821,
+      "title": "Undertale",
+      "targets": 3,
+      "contribution_to_mean_delta": 0.0002222222222222222
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 4762,
+      "title": "Dark Messiah of Might &amp; Magic",
+      "targets": 1,
+      "contribution_to_mean_delta": -0.0002103099178571525
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 3597,
+      "title": "Unturned",
+      "targets": 3,
+      "contribution_to_mean_delta": 0.00019387218187346823
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 4314,
+      "title": "Day of Defeat: Source",
+      "targets": 2,
+      "contribution_to_mean_delta": -0.00018998834583587658
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 3323,
+      "title": "XCOM\u00ae 2",
+      "targets": 6,
+      "contribution_to_mean_delta": 0.00017395630918287433
+    },
+    {
+      "cohort": "steam_b",
+      "split": "validation",
+      "item_id": 6759,
+      "title": "SUNLESS SEA",
+      "targets": 1,
+      "contribution_to_mean_delta": -0.00016666666666666666
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 4955,
+      "title": "Tom Clancy's Rainbow Six\u00ae Siege",
+      "targets": 23,
+      "contribution_to_mean_delta": 0.0028823330158519855
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 1342,
+      "title": "Paladins\u00ae",
+      "targets": 12,
+      "contribution_to_mean_delta": -0.0007276944600203358
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 1835,
+      "title": "Garry's Mod",
+      "targets": 6,
+      "contribution_to_mean_delta": -0.00063413089466789
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 39,
+      "title": "Grand Theft Auto V",
+      "targets": 19,
+      "contribution_to_mean_delta": -0.0006292521220039398
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 11821,
+      "title": "Undertale",
+      "targets": 7,
+      "contribution_to_mean_delta": -0.0004821315434523954
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 11944,
+      "title": "DayZ",
+      "targets": 7,
+      "contribution_to_mean_delta": -0.00042283156789743224
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 11538,
+      "title": "Rust",
+      "targets": 11,
+      "contribution_to_mean_delta": -0.0003870982331008489
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 3206,
+      "title": "Zup! 4",
+      "targets": 2,
+      "contribution_to_mean_delta": 0.00032199329153923976
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 6306,
+      "title": "Cuphead",
+      "targets": 11,
+      "contribution_to_mean_delta": 0.0002624115618275618
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 8728,
+      "title": "The Witness",
+      "targets": 4,
+      "contribution_to_mean_delta": 0.00024404384781746513
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 9097,
+      "title": "Battlerite",
+      "targets": 7,
+      "contribution_to_mean_delta": -0.00022296801310703638
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 9654,
+      "title": "Absolver",
+      "targets": 2,
+      "contribution_to_mean_delta": 0.00022007837900213546
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 1503,
+      "title": "Stellaris",
+      "targets": 5,
+      "contribution_to_mean_delta": 0.00021683833261066353
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 2403,
+      "title": "Sid Meier\u2019s Civilization\u00ae VI",
+      "targets": 7,
+      "contribution_to_mean_delta": 0.00020329023073188015
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 11732,
+      "title": "Call of Duty\u00ae: Black Ops II",
+      "targets": 3,
+      "contribution_to_mean_delta": 0.00019063213548199632
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 11929,
+      "title": "Rogue Legacy",
+      "targets": 4,
+      "contribution_to_mean_delta": -0.00016963042680099986
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 649,
+      "title": "Outland",
+      "targets": 1,
+      "contribution_to_mean_delta": -0.00016666666666666666
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 11902,
+      "title": "Oxygen Not Included",
+      "targets": 5,
+      "contribution_to_mean_delta": 0.00016666666666666666
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 3087,
+      "title": "Fallout 4",
+      "targets": 11,
+      "contribution_to_mean_delta": 0.00014498478023566573
+    },
+    {
+      "cohort": "steam_a",
+      "split": "test",
+      "item_id": 10098,
+      "title": "The Room Two",
+      "targets": 3,
+      "contribution_to_mean_delta": 0.00014270119785133703
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 11539,
+      "title": "Counter-Strike: Global Offensive",
+      "targets": 56,
+      "contribution_to_mean_delta": 0.001261291956669633
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 4955,
+      "title": "Tom Clancy's Rainbow Six\u00ae Siege",
+      "targets": 32,
+      "contribution_to_mean_delta": -0.0005020473750527054
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 1418,
+      "title": "NieR:Automata\u2122",
+      "targets": 11,
+      "contribution_to_mean_delta": -0.0004978561567799132
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 39,
+      "title": "Grand Theft Auto V",
+      "targets": 11,
+      "contribution_to_mean_delta": 0.0004950574220390564
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 6306,
+      "title": "Cuphead",
+      "targets": 17,
+      "contribution_to_mean_delta": 0.00047653378864716245
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 9097,
+      "title": "Battlerite",
+      "targets": 16,
+      "contribution_to_mean_delta": 0.00045475653624653514
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 3710,
+      "title": "Hellblade: Senua's Sacrifice",
+      "targets": 16,
+      "contribution_to_mean_delta": -0.0003386874701100753
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 11653,
+      "title": "Prison Architect",
+      "targets": 5,
+      "contribution_to_mean_delta": -0.0003283610623510503
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 4459,
+      "title": "RimWorld",
+      "targets": 4,
+      "contribution_to_mean_delta": -0.00029599584345880325
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 1503,
+      "title": "Stellaris",
+      "targets": 1,
+      "contribution_to_mean_delta": -0.0002529637601343332
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 7756,
+      "title": "Warframe",
+      "targets": 12,
+      "contribution_to_mean_delta": -0.0002478835739730219
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 3715,
+      "title": "Wolfenstein II: The New Colossus",
+      "targets": 19,
+      "contribution_to_mean_delta": -0.00024345614836860646
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 7774,
+      "title": "Divinity: Original Sin 2",
+      "targets": 9,
+      "contribution_to_mean_delta": 0.00022774585099802285
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 3597,
+      "title": "Unturned",
+      "targets": 6,
+      "contribution_to_mean_delta": 0.00021231475527840903
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 10527,
+      "title": "Antichamber",
+      "targets": 2,
+      "contribution_to_mean_delta": 0.00018848829226190958
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 2023,
+      "title": "Danganronpa 2: Goodbye Despair",
+      "targets": 1,
+      "contribution_to_mean_delta": -0.00018131895680756607
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 11821,
+      "title": "Undertale",
+      "targets": 8,
+      "contribution_to_mean_delta": -0.00017416464666349533
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 3436,
+      "title": "Stardew Valley",
+      "targets": 7,
+      "contribution_to_mean_delta": -0.00017253437686283495
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 11342,
+      "title": "Alien: Isolation",
+      "targets": 2,
+      "contribution_to_mean_delta": 0.0001672246132807086
+    },
+    {
+      "cohort": "steam_b",
+      "split": "test",
+      "item_id": 9805,
+      "title": "FTL: Faster Than Light",
+      "targets": 1,
+      "contribution_to_mean_delta": -0.00016666666666666666
+    }
+  ],
+  "checkpoints": [
+    {
+      "trial": "steam_a_recent10_101",
+      "kind": "best",
+      "epoch": 30,
+      "sha256": "6718b7d595baabf04d179e9c2069e9b559e2eb6676fea9a22cb92e62bb188db7",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent10_101",
+      "kind": "last",
+      "epoch": 70,
+      "sha256": "d9e7d8ef0f1b93519a5b98d0e6d90ac0eee9e5f378d52354ef3ddbfb6fc5bc9c",
+      "bytes": 61476403,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent10_202",
+      "kind": "best",
+      "epoch": 30,
+      "sha256": "0351bc3af19429d9976c76ce8a012ca641ee7bfe37c31c966eface25b2be0405",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent10_202",
+      "kind": "last",
+      "epoch": 50,
+      "sha256": "69329134d048838d297c5056e3fe1da203d218624c574d86867e2a89a0622a3d",
+      "bytes": 61476467,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent10_42",
+      "kind": "best",
+      "epoch": 55,
+      "sha256": "9155c4baf989beea6194c0d45061f63244dced49cae31372c71ee1175e4769e8",
+      "bytes": 20499277,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent10_42",
+      "kind": "last",
+      "epoch": 75,
+      "sha256": "5fe685961b98639000135a036211dbf31df69271bb4fb8b9131531b049ada94d",
+      "bytes": 61468531,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent20_101",
+      "kind": "best",
+      "epoch": 50,
+      "sha256": "2cbf24b1242f7db26617acfd5cf528e16e340642468cd921756ee470c871b5ea",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent20_101",
+      "kind": "last",
+      "epoch": 70,
+      "sha256": "fea33ea257cddb57cd367fa7b1bf0b60e972bd779cedbdfb94ec10512fc0bc9e",
+      "bytes": 61476403,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent20_202",
+      "kind": "best",
+      "epoch": 45,
+      "sha256": "571feada085e8e5bd0a90c22fa5c3ddf6ec5ea95fd16c4fcc3cf44e5992e7541",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent20_202",
+      "kind": "last",
+      "epoch": 65,
+      "sha256": "d32bc08a2da3ac68592ec52cc5b0e62084931a3d2333629e334bb8ce3c7033fb",
+      "bytes": 61476467,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent20_42",
+      "kind": "best",
+      "epoch": 55,
+      "sha256": "cd5f3fa32c33be78e07cf336f90660b0e0518da03589419e8c7feb88dd1a14ef",
+      "bytes": 20499277,
+      "finite": true
+    },
+    {
+      "trial": "steam_a_recent20_42",
+      "kind": "last",
+      "epoch": 75,
+      "sha256": "893d7a7d557264bfc18610c09fc8e5f6f6a7c57db02b561438973ea96db2f378",
+      "bytes": 61468467,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent10_101",
+      "kind": "best",
+      "epoch": 50,
+      "sha256": "6a84c9090d79c7b19fe8fbc791da4f14ab1d2f3f0965e1cf1f1127fb67be3ee2",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent10_101",
+      "kind": "last",
+      "epoch": 60,
+      "sha256": "f01e0d860c1eb6c6fb8b0b3a83527e730f730d0d88c084ce4db57c9e747669f0",
+      "bytes": 61476403,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent10_202",
+      "kind": "best",
+      "epoch": 45,
+      "sha256": "1c2bad0ae8daeb337989398df39af3721a4911fe7edb9bfa1a68cbc2b5e1ba44",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent10_202",
+      "kind": "last",
+      "epoch": 65,
+      "sha256": "63181e98fc059334d8d5f106d75c80c426aa4499087d4b0d705abe803da7914b",
+      "bytes": 61476467,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent10_42",
+      "kind": "best",
+      "epoch": 45,
+      "sha256": "e0d9ed684a8b3d094d50a4648b4605de0ade74f03407e12ea6b79b50e0a0c97e",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent10_42",
+      "kind": "last",
+      "epoch": 65,
+      "sha256": "ed3add736a9ba5b3d01cdaaf9e9663480ced7f7250fc429c2e4c456a5f49d508",
+      "bytes": 61476467,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent20_101",
+      "kind": "best",
+      "epoch": 45,
+      "sha256": "88a2e908aaa9ee2c211394044ff87c710702b1ce7c6fdc8ca5cd2e2ab25c2083",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent20_101",
+      "kind": "last",
+      "epoch": 65,
+      "sha256": "7c51a4ef1f17bb5350c3839d084e67f31c2c77157a7827c2f9d5c5ac61f96a77",
+      "bytes": 61476403,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent20_202",
+      "kind": "best",
+      "epoch": 30,
+      "sha256": "5e4aad995b52fa70823708a9d2abc9a984492369573c5432ef64f23884b643e7",
+      "bytes": 20507213,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent20_202",
+      "kind": "last",
+      "epoch": 50,
+      "sha256": "2fb01b743de2f6326ecdb2b4c1b81d849cd9693cb1e1e4d2a4a67f3e9632bf36",
+      "bytes": 61476403,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent20_42",
+      "kind": "best",
+      "epoch": 45,
+      "sha256": "19111a2a0b8af7689d0e63dfe638943ed8149fd29e17e462bd2f072b0a4c1561",
+      "bytes": 20499469,
+      "finite": true
+    },
+    {
+      "trial": "steam_b_recent20_42",
+      "kind": "last",
+      "epoch": 65,
+      "sha256": "a6ff3493f713edd0b3f858ecb46323c27b1f5c868547a659f052627c94bb2b53",
+      "bytes": 61468659,
+      "finite": true
+    }
+  ],
+  "limits": [
+    "Two previously fixed long-user cohorts,three generator seeds and one index; no dataset/index-seed replication.",
+    "User intervals condition on the12fitted selected models; exclude seed/item clustering/selection uncertainty and multiplicity adjustment.",
+    "Five of six paired wins would not be six independent trials; the same users and seeds repeat.",
+    "Subgroups and item attribution are descriptive; no new filtering or routing rules.",
+    "EMA stopping is an operational rule,not a convergence proof. Different windows consume different compute."
+  ]
+}

@@ -2,6 +2,26 @@
 
 ## Research status
 
+- SteamRecent10/20crossed COMPLETE carasik/rhpr-steam-recent10-20/1,source
+  e710aec495fce54dac88979da910e004bb639854,runtime7221.967s/120.37min.
+  Ninefresh+3reused=12models/sixpairs. TEST20vs10 Aseed42+13.31%,101+2.95%,
+  202+.29%;B42+.42%,101-12.23%,202+15.21%. MeanTEST A.019368->.020331
+  (+4.97%),B.019172->.019301(+.67%),both.019270->.019816(+2.83%). MeanVAL
+  +4.56%. Fiveofsixpositivebothsplits,butnotindependent;allindividualand
+  seed-averagedconditionaluserCIs0. PooledTESTdelta+.000546,CI[-.001486,
+  +.002578],fixed3seeds/noitemclusteringorindextests. No stable13%effect.
+  All12EMAstop50-75,best30-55,no120cap;somelossminatstop,notconvergenceproof.
+  Mean gains dominatedbyRainbowSix(A)/CSGO(B),withcancellation;posthoc only.
+  VERIFIED architecturalhypothesis:2kusersIDs1..2000/USERbins2000givesunique
+  learnedUSERembeddingperuser;mayreducevisiblehistoryneed,NOTcausallytested.
+  All167predfiles/6680000pathsreplayed899invalid/0dups. All24best/lastweights
+  finite+hash/optimizerRNGstatesverified;9fresh560epochs/5AMPskips(all12:775epochs/10skips).
+  Samearrays/cases/initializerperseed/LR/EMA/selectionverified. Full1167tests
+  OK/152skips/0fail153.943s. Reportsgr-steam-recent10-20-results.md/.json/
+  completion.json;analyzerscripts/research/analyze_steam_recent10_20.py. Raw
+  steam-recent10-20-results/analysis tables/plots. No newGPU/inference/fits.
+
+
 - SteamRecent10/20crossed SUBMITTEDONCE carasik/rhpr-steam-recent10-20/1,
   sourcee710aec495fce54dac88979da910e004bb639854,workflow43952604101/
   job133598768993SUCCESS(submissiononly),artifact14267213625. Actualpush
