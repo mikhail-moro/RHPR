@@ -1,0 +1,79 @@
+{
+  "kernel": "carasik/rhpr-steam-history/2",
+  "status": "COMPLETE",
+  "source_sha": "72ceff63e025cb1cb4731672b665594c6f97db3b",
+  "session_seconds": 3906.337852,
+  "all_three_trials_completed": true,
+  "new_generator_fits": 3,
+  "full_best_and_last_checkpoints": [
+    {
+      "window": 10,
+      "kind": "best",
+      "epoch": 55,
+      "sha256": "9155c4baf989beea6194c0d45061f63244dced49cae31372c71ee1175e4769e8",
+      "bytes": 20499277,
+      "finite": true
+    },
+    {
+      "window": 10,
+      "kind": "last",
+      "epoch": 75,
+      "sha256": "5fe685961b98639000135a036211dbf31df69271bb4fb8b9131531b049ada94d",
+      "bytes": 61468531,
+      "finite": true
+    },
+    {
+      "window": 20,
+      "kind": "best",
+      "epoch": 55,
+      "sha256": "cd5f3fa32c33be78e07cf336f90660b0e0518da03589419e8c7feb88dd1a14ef",
+      "bytes": 20499277,
+      "finite": true
+    },
+    {
+      "window": 20,
+      "kind": "last",
+      "epoch": 75,
+      "sha256": "893d7a7d557264bfc18610c09fc8e5f6f6a7c57db02b561438973ea96db2f378",
+      "bytes": 61468467,
+      "finite": true
+    },
+    {
+      "window": 30,
+      "kind": "best",
+      "epoch": 40,
+      "sha256": "290d0eb31da861410936c9425366d6e1be01f8c147236ff019c3348da8898621",
+      "bytes": 20499277,
+      "finite": true
+    },
+    {
+      "window": 30,
+      "kind": "last",
+      "epoch": 60,
+      "sha256": "cc00824988e48ee9494651d01a054b5d4264852d7bb822e7d66d0d068656930e",
+      "bytes": 61468467,
+      "finite": true
+    }
+  ],
+  "all_input_cases_metrics_lr_ema_and_selection_verified": true,
+  "prediction_files_replayed": 45,
+  "candidates_checked": 1800000,
+  "invalid_candidates": 158,
+  "duplicate_candidates": 0,
+  "recomputed_tokenizer_arrays_byte_exact_to_v1": {
+    "items-42.npy": true,
+    "centroids-42.npy": true,
+    "item-embeddings.npy": true
+  },
+  "total_epochs": 210,
+  "total_amp_skipped_updates": 5,
+  "no_gpu_fits_or_inference_during_collection": true,
+  "full_unit_suite": {
+    "tests": 1164,
+    "skipped": 152,
+    "failures": 0,
+    "seconds": 115.488
+  },
+  "raw_artifacts": "/workspace/artifacts/steam-history-results",
+  "analysis_script": "scripts/research/analyze_steam_history.py"
+}

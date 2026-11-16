@@ -3,6 +3,27 @@
 ## Research status
 
 
+- Steam history/2 COMPLETE,source72ceff63e025cb1cb4731672b665594c6f97db3b,
+  runtime3906.338s(65.1minafterbootstrap). All3EMA-stopped,none120cap:
+  R10best55/stop75 VAL.02391110/TEST.01661024/66hits/warm15.09s/.217327GF;
+  R20best55/75 .02450364/.01882102/74hits/27.89s/.427088GF;
+  R30best40/60 .02665329/.02329411/89hits/38.37s/.656522GF.
+  R30vsR20VAL+8.77%,TEST+23.77%;promisingone-seedhistoryutilitycandidate,
+  NOT replicated/Pareto/compressionresult. Conditionaluser95%CI VALdelta
+  [-.002972,+.007233],TEST[+.000056,+.009067];latternear0,no seed/item/
+  selection/multiplicitycorrection. Atmatched55VALnearlyequal;no uniformgain.
+  AllvalCEmin40;R30lowerCEthanR20atall12sharedchecks. Untiedboundarydays
+  1552userskeepdirection TEST.016541/.019202/.023727. Context30availableto
+  allVAL/TESTusers;no subgroupfilteringforfit. All45predictionfiles/1800000
+  candidatesreplayed,158invalid/0duplicates;allpins/cases/LR/EMA/selection
+  verified. Recomputedembeddings/centroids/SIDsbyte-exacttofailedv1. All6
+  best/lastweightsdownloadedfinite;continuationstate+encodedcasehashesverified.
+  Total210epochs,5AMPskips. Full1164testsOK/152skips/0fails115.488s.
+  Reportsgr-steam-history-results.md/.json/completion.json;reproscript
+  analyze_steam_history.py;rawsteam-history-resultscontainsallweights/index/
+  predictions/analysisCSV/PNG/PDF. No newGPU/inference/extra seeds submitted.
+
+
 - Steam manual recovery SUBMITTEDONCE privatecarasik/rhpr-steam-history/2,
   source72ceff63e025cb1cb4731672b665594c6f97db3b,workflow43860774718/
   job133276696581SUCCESS(submissiononly),artifact14223136994,timeout21600.
