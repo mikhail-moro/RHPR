@@ -2,6 +2,17 @@
 
 ## Research status
 
+- Authorized2026-11-16: SteamRecent10/20 across BOTHexistingdisjoint2000-user
+  cohortsdata4242/1729 and generatorseeds42/101/202. Twelvecomparisoncells;
+  reuse3completedseed42controls (A10,A20,B20), EXACTLY9freshmissingfits.
+  Configsteam_recent10_20_crossed_2t4.json; reportgr-steam-recent10-20-crossed.md.
+  Sameindexseed42/originalSIDhashguard,training/ES/VAL5 unchanged. Trialseed
+  feedsmodelconstructor AND trainingconfig(epochorder);perseedinitializerpins.
+  Existing4datasets only,no uploads/parentkernels/cachedvectortransfer. Full1M
+  remainsdeferred. Intendedkernelcarasik/rhpr-steam-recent10-20; checkreceipt
+  before dispatch, no duplicates/extraaxes/automaticretries.
+
+
 - Steam disjoint replication COMPLETE carasik/rhpr-steam-history-replica/1,
   sourcea16145d4aa6e3ee526198482712d0282d7a8bc59,runtime2853.849s/47.56min.
   R20VAL.02690487/TEST.01906973/80hits,best45stop65,warm29.68s/.427088GF;

@@ -9,7 +9,7 @@ from pathlib import Path
 
 import numpy as np
 
-from rhpr.gr.history_windows import encode_window, prepare_cases, validate
+from rhpr.gr.history_windows import encode_window, prepare_cases, trial_config, validate, verify_matched_results
 
 
 class HistoryWindowsTests(unittest.TestCase):
@@ -81,6 +81,49 @@ class HistoryWindowsTests(unittest.TestCase):
             else: bad['replication']['overlapping_users'] = 1
             with self.assertRaises(ValueError): validate(bad)
 
+    def test_crossed_study_completes_twelve_cells_without_retraining_three_controls(self):
+        c = json.loads(Path('experiments/steam_recent10_20_crossed_2t4.json').read_text()); validate(c)
+        baseline = json.loads(Path('experiments/steam_history_windows_2t4.json').read_text())
+        for key in ('training', 'generator', 'quantizer', 'expected_sid_file_sha256'):
+            self.assertEqual(c[key], baseline[key])
+        self.assertEqual(len(c['trials']), 9); self.assertEqual(len(c['reused_results']), 3)
+        cells = {(r['dataset'], r['seed'], r['history_items']) for r in c['trials']}
+        reused = {(v['result']['dataset'], v['result']['seed'], v['result']['history_items']) for v in c['reused_results'].values()}
+        self.assertFalse(cells & reused)
+        self.assertEqual(cells | reused, {(d, s, w) for d in ('steam_a', 'steam_b') for s in (42, 101, 202) for w in (10, 20)})
+        before = copy.deepcopy(c)
+        for trial in c['trials']:
+            active = trial_config(c, trial)
+            self.assertEqual(active['seed'], trial['seed'])  # Also consumed by the real epoch sampler.
+            self.assertEqual(active['expected_initial_state_sha256'], c['expected_initial_state_by_seed'][str(trial['seed'])])
+            self.assertEqual(active['data']['history_items'], trial['history_items'])
+        self.assertEqual(c, before)
+        for mutation in ('extra_trial', 'missing_trial', 'wrong_seed'):
+            bad = copy.deepcopy(c)
+            if mutation == 'extra_trial': bad['trials'].append(dict(id='duplicate', dataset='steam_a', history_items=10, seed=42))
+            elif mutation == 'missing_trial': bad['trials'].pop()
+            else: bad['trials'][0]['seed'] = 42
+            with self.assertRaises(ValueError): validate(bad)
+
+    def test_matching_checks_compare_cases_within_cohort_and_initialization_within_seed(self):
+        c = json.loads(Path('experiments/steam_recent10_20_crossed_2t4.json').read_text())
+        results = {}
+        for t in c['trials']:
+            reference = next(v['result'] for v in c['reused_results'].values() if v['result']['dataset'] == t['dataset'])
+            row = copy.deepcopy(reference); row.update(trial=t['id'], seed=t['seed'], history_items=t['history_items'],
+                initial_state_sha256=c['expected_initial_state_by_seed'][str(t['seed'])])
+            results[t['id']] = row
+        verify_matched_results(c, results)
+        first = c['trials'][0]['id']
+        for mutation in ('initializer', 'cases', 'missing'):
+            bad = copy.deepcopy(results)
+            if mutation == 'initializer': bad[first]['initial_state_sha256'] = c['expected_initial_state_by_seed']['42']
+            elif mutation == 'cases': bad[first]['raw_case_sha256']['train'] = 'changed'
+            else: del bad[first]
+            with self.assertRaises(ValueError): verify_matched_results(c, bad)
+        bad = copy.deepcopy(c); bad['reused_results']['steam_a_recent10_42']['best_checkpoint_sha256'] = 'changed'
+        with self.assertRaises(ValueError): verify_matched_results(bad, results)
+
     @unittest.skipUnless(importlib.util.find_spec('torch') and importlib.util.find_spec('transformers'), 'requires Torch/HF for CPU worker protocol test')
     def test_actual_worker_events_survive_parent_collection_and_preserve_partial_results(self):
         from unittest.mock import patch
@@ -102,7 +145,8 @@ with patch.object(torch.cuda,'device_count',return_value=1),patch.object(torch.c
             source = Path(__file__).resolve().parents[1]/'src'
             paths = os.pathsep.join([str(root), str(source), os.environ.get('PYTHONPATH', '')])
             for config_name, fail in [('steam_history_windows_2t4', None), ('steam_history_windows_2t4', 'steam_recent20_42'),
-                                      ('steam_history_replication_2t4', None), ('steam_history_replication_2t4', 'steam_recent20_42')]:
+                                      ('steam_history_replication_2t4', None), ('steam_history_replication_2t4', 'steam_recent20_42'),
+                                      ('steam_recent10_20_crossed_2t4', None), ('steam_recent10_20_crossed_2t4', 'steam_a_recent20_101')]:
                 c = json.loads(Path('experiments', config_name+'.json').read_text()); jobs = assignments(c, 2)
                 out = root/(config_name+('_success' if fail is None else '_failure')); (out/'workers').mkdir(parents=True)
                 plan = out/'plan.json'; plan.write_text(json.dumps(dict(config=c, output=str(out), assignments=jobs, injected_failure=fail)))

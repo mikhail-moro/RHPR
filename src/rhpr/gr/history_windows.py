@@ -1,4 +1,4 @@
-"""Matched 10/20/30-item TIGER pilot on a frozen Steam cohort."""
+"""Matched TIGER history windows on frozen Steam cohorts and generator seeds."""
 from __future__ import annotations
 
 import argparse
@@ -21,18 +21,41 @@ WINDOWS = [10, 20, 30]
 TRIALS = [dict(id=f'{dataset}_recent{width}_42', dataset=dataset, history_items=width, seed=42)
           for dataset, width in [('steam', 30), ('steam', 20), ('steam', 10)]]
 REPLICATION_TRIALS = TRIALS[:2]
+CROSSED_TRIALS = [dict(id=f'{dataset}_recent{width}_{seed}', dataset=dataset, history_items=width, seed=seed)
+    for dataset, width, seed in [('steam_a', 20, 101), ('steam_a', 10, 101),
+        ('steam_b', 10, 101), ('steam_b', 20, 101), ('steam_a', 20, 202), ('steam_a', 10, 202),
+        ('steam_b', 10, 202), ('steam_b', 20, 202), ('steam_b', 10, 42)]]
+
+
+def trial_config(config, trial):
+    """Use the trial seed for initialization AND epoch shuffling/dropout training."""
+    c = copy.deepcopy(config); c['seed'] = trial['seed']
+    c['data'] = {**c['cohorts'][trial['dataset']], 'history_items': trial['history_items']}
+    c['active_trial'] = trial
+    if c.get('crossed_recent10_20'):
+        c['expected_initial_state_sha256'] = c['expected_initial_state_by_seed'][str(trial['seed'])]
+    return c
 
 
 def validate(c):
     t, g = c['training'], c['generator']
     replication = c.get('replication')
     trials, windows = (REPLICATION_TRIALS, [20, 30]) if replication is not None else (TRIALS, WINDOWS)
+    cohorts = {'steam'}
+    if c.get('crossed_recent10_20') is not None:
+        if (replication is not None or c['crossed_recent10_20'] != dict(data_seeds=[4242, 1729], generator_seeds=[42, 101, 202], reused_models=3)
+                or c['seeds'] != [42, 101, 202] or set(c['cohort_inputs']) != {'steam_a', 'steam_b'}
+                or set(c['expected_initial_state_by_seed']) != {'42', '101', '202'}
+                or c['expected_initial_state_by_seed']['42'] != c['expected_initial_state_sha256']
+                or set(c['reused_results']) != {'steam_a_recent10_42', 'steam_a_recent20_42', 'steam_b_recent20_42'}):
+            raise ValueError('unexpected crossed Recent10/20 replication')
+        trials, windows, cohorts = CROSSED_TRIALS, [10, 20], {'steam_a', 'steam_b'}
     if replication is not None and replication != dict(data_seed=1729, excluded_data_seed=4242, excluded_users=2000,
             overlapping_users=0, original_kernel='carasik/rhpr-steam-history/2'):
         raise ValueError('unexpected Steam replication selection')
     if (c['kind'] != 'gr_history_windows' or c['trials'] != trials or c['windows'] != windows
         or c['seed'] != 42 or c['data']['history_items'] != 30
-        or set(c['cohorts']) != {'steam'}
+        or set(c['cohorts']) != cohorts
         or (t['min_epochs'], t['max_epochs'], t['validation_interval'], t['patience_epochs']) != (40, 120, 5, 20)
         or (t['batch_size'], t['physical_batch_size'], t['evaluation_batch_size']) != (512, 512, 64)
         or (t['learning_rate'], t['weight_decay'], t['grad_clip_norm']) != (.003, .0001, 1.)
@@ -86,12 +109,11 @@ def run_trial(trial, p):
     from rhpr.gr.pair_unique4 import attach4, InputIndex4
     from rhpr.gr.sid import SidIndex
     from rhpr.gr.sid_study import state_digest
-    c = copy.deepcopy(p['config']); width = trial['history_items']; dataset = trial['dataset']
-    c['data'] = {**c['cohorts'][dataset], 'history_items': width}; c['active_trial'] = trial
-    random.seed(42); np.random.seed(42); torch.manual_seed(42); torch.cuda.manual_seed_all(42)
+    c = trial_config(p['config'], trial); width = trial['history_items']; dataset = trial['dataset']; seed = trial['seed']
+    random.seed(seed); np.random.seed(seed); torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
     sidpath = Path(p['indexes'])/dataset/'items-42.npy'; sid = np.load(sidpath, allow_pickle=False)
     wrapped = InputIndex4(SidIndex.from_full_sids(sid, width=256))
-    model = attach4(build_grid_generator(sid, c['generator'], 42, 'cpu', p['source']))
+    model = attach4(build_grid_generator(sid, c['generator'], seed, 'cpu', p['source']))
     initial = state_digest(dict(model.named_parameters()))
     if initial != c['expected_initial_state_sha256']:
         raise ValueError('generator initializer differs from CPU preflight')
@@ -124,7 +146,7 @@ def run_trial(trial, p):
         cuda_peak_allocated_bytes=int(torch.cuda.max_memory_allocated()), cuda_peak_reserved_bytes=int(torch.cuda.max_memory_reserved()))
     h, u, t = cases(data, 'test')
     test = test_selected(model, (encode_window(h, sid, width), u, t), wrapped, out, out/'generator-best.pt', selection['best_epoch'])
-    row = dict(trial=trial['id'], dataset=dataset, seed=42, history_items=width, initial_state_sha256=initial,
+    row = dict(trial=trial['id'], dataset=dataset, seed=seed, history_items=width, initial_state_sha256=initial,
         sid_file_sha256=file_sha256(sidpath), raw_case_sha256={s: case_digest(v) for s, v in raw.items()},
         case_targets_sha256={s: case_digest(v[1:]) for s, v in raw.items()}, test_case_sha256=case_digest((h, u, t)),
         selection=selection, forward=forward, timing=timing, test=test)
@@ -164,11 +186,14 @@ def run(c, output):
     torch.set_num_threads(1)
     if torch.cuda.device_count() != 2 or any(torch.cuda.get_device_capability(i) != (7, 5) for i in (0, 1)):
         raise RuntimeError('requires two T4s; no fallback')
-    input_root = resolve_dataset_directory(c['pilot_input']['path'])
-    for name, digest in c['pilot_input']['sha256'].items():
-        path = Path(name)
-        if path.is_absolute() or '..' in path.parts or file_sha256(input_root/path) != digest:
-            raise ValueError('pilot input digest mismatch: '+name)
+    input_specs = c.get('cohort_inputs') or {dataset: c['pilot_input'] for dataset in c['cohorts']}
+    inputs = {}
+    for dataset, spec in input_specs.items():
+        inputs[dataset] = resolve_dataset_directory(spec['path'])
+        for name, digest in spec['sha256'].items():
+            path = Path(name)
+            if path.is_absolute() or '..' in path.parts or file_sha256(inputs[dataset]/path) != digest:
+                raise ValueError('pilot input digest mismatch: '+dataset+'/'+name)
     resources = resolve_dataset_directory(c['resources']['path']); verify_resources(resources, c['resources']['manifest_sha256'])
     modern = resolve_dataset_directory(c['modern_runtime']['path']); verify_resources(modern, c['modern_runtime']['manifest_sha256'])
     scratch = Path(c['resources']['scratch_path']); scratch.mkdir(parents=True, exist_ok=True)
@@ -176,8 +201,9 @@ def run(c, output):
     data = output/'prepared-cases'; indexes = output/'frozen-indexes'; indexes.mkdir()
     reports = {}; texts = {}
     for dataset, spec in c['cohorts'].items():
-        texts[dataset], reports[dataset] = prepare_cases(input_root, spec, data/dataset)
-    provenance = json.loads((input_root/'source-provenance.json').read_text())
+        texts[dataset], reports[dataset] = prepare_cases(inputs[dataset], spec, data/dataset)
+    provenance_by_dataset = {k: json.loads((v/'source-provenance.json').read_text()) for k, v in inputs.items()}
+    provenance = provenance_by_dataset.get('steam')
     if c.get('replication') is not None:
         selected, excluded = provenance['selected_source_user_ids'], provenance['excluded_source_user_ids']
         if (len(selected) != 2000 or len(set(selected)) != 2000 or len(excluded) != 2000 or len(set(excluded)) != 2000
@@ -185,7 +211,15 @@ def run(c, output):
                 or provenance['overlapping_users'] != 0 or provenance['selection_uses_model_outcomes'] is not False
                 or c['selection']['data_seed'] != 1729):
             raise ValueError('replication must use the fixed disjoint cohort')
-    _write(output/'cohort-provenance.json', provenance)
+    if c.get('crossed_recent10_20'):
+        a = json.loads((inputs['steam_a']/'user-audit.json').read_text())
+        b = json.loads((inputs['steam_b']/'user-audit.json').read_text())
+        old, new = ({r['source_sasrec_user_id'] for r in rows} for rows in (a, b))
+        if (len(old) != 2000 or len(new) != 2000 or old & new or texts['steam_a'] != texts['steam_b']
+                or old != set(provenance_by_dataset['steam_b']['excluded_source_user_ids'])
+                or new != set(provenance_by_dataset['steam_b']['selected_source_user_ids'])):
+            raise ValueError('crossed experiment requires the two pinned disjoint cohorts and identical catalogue')
+    _write(output/'cohort-provenance.json', provenance if provenance is not None else provenance_by_dataset)
     encoder = SentenceTransformer(str(resources/'sentence-t5-base'), device='cuda:0', local_files_only=True)
     encoder.max_seq_length = 256; encoder.eval()
     for dataset in c['cohorts']:
@@ -213,17 +247,39 @@ def run(c, output):
     p = dict(config=c, output=str(output), source=str(source), data=str(data), indexes=str(indexes), assignments=assignments(c, 2))
     path = output/'plan.json'; _write(path, p)
     summary = launch_workers(path, worker_module='rhpr.gr.history_windows', event_prefix='history_windows')
-    for dataset in c['cohorts']:
-        rows = [r for r in summary['results'].values() if r['dataset'] == dataset]
-        for key in ('initial_state_sha256', 'sid_file_sha256', 'raw_case_sha256', 'case_targets_sha256', 'test_case_sha256'):
-            if len(rows) != len(c['trials']) or any(v[key] != rows[0][key] for v in rows[1:]): raise ValueError('unmatched comparison: '+key)
-    _write(output/'study-summary.json', dict(results=summary['results'], data=reports, new_generator_fits=len(c['trials']), exact_TIGER_reproduction=False))
+    verify_matched_results(c, summary['results'])
+    _write(output/'study-summary.json', dict(results=summary['results'], data=reports, new_generator_fits=len(c['trials']),
+        reused_results=c.get('reused_results', {}), exact_TIGER_reproduction=False))
     metrics = dict(experiment=c['name'], models=len(c['trials']), seed=42, test_evaluated=True)
+    if c.get('crossed_recent10_20'):
+        metrics.update(generator_seed_count=3, cohort_count=2, reused_models=3, total_comparison_models=12)
     for name, row in summary['results'].items():
         metrics[name+'_validation_ndcg10'] = row['selection']['validation_ndcg10']
         metrics[name+'_test_ndcg10'] = row['test']['metrics']['ndcg@10']
         metrics[name+'_forward_flops'] = row['forward']['supported_forward_flops_batch1']
     return metrics
+
+
+def verify_matched_results(c, results):
+    if set(results) != {t['id'] for t in c['trials']}: raise ValueError('incomplete registered trials')
+    matched = dict(results)
+    for name, reference in c.get('reused_results', {}).items():
+        row = reference['result']
+        if name in matched or row['trial'] != name or row['seed'] != 42 or reference['best_checkpoint_sha256'] != row['test']['checkpoint_sha256']:
+            raise ValueError('invalid reused control reference')
+        matched[name] = row
+    for dataset in c['cohorts']:
+        rows = [r for r in matched.values() if r['dataset'] == dataset]
+        for key in ('sid_file_sha256', 'raw_case_sha256', 'case_targets_sha256', 'test_case_sha256'):
+            if not rows or any(v[key] != rows[0][key] for v in rows[1:]): raise ValueError('unmatched comparison: '+key)
+    if c.get('crossed_recent10_20'):
+        expected_cells = {(cohort, seed, width) for cohort in c['cohorts'] for seed in c['seeds'] for width in c['windows']}
+        if {(r['dataset'], r['seed'], r['history_items']) for r in matched.values()} != expected_cells or len(matched) != 12:
+            raise ValueError('incomplete crossed comparison')
+    for seed in {r['seed'] for r in matched.values()}:
+        rows = [r for r in matched.values() if r['seed'] == seed]
+        expected = c.get('expected_initial_state_by_seed', {}).get(str(seed), c['expected_initial_state_sha256'])
+        if any(r['initial_state_sha256'] != expected for r in rows): raise ValueError('unmatched seed initializer')
 
 
 if __name__ == '__main__':

@@ -1,0 +1,333 @@
+{
+  "gpu_used": false,
+  "no_new_inference_of_trained_models": true,
+  "input_hashes_verified": true,
+  "every_prefix_and_holdout_replayed": true,
+  "original_source_user_overlap": 0,
+  "cohorts": {
+    "steam_a": {
+      "data": {
+        "items": 11961,
+        "users": 2000,
+        "train_events": 129023,
+        "train_examples": 127023,
+        "splits": {
+          "train": {
+            "examples": 127023,
+            "context_length_counts": [
+              0,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              69023
+            ]
+          },
+          "validation": {
+            "examples": 2000,
+            "context_length_counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2000
+            ]
+          },
+          "test": {
+            "examples": 2000,
+            "context_length_counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2000
+            ]
+          }
+        }
+      },
+      "raw_case_sha256": {
+        "train": "4e1305b5125041a402692168e02eb1a12c8af7625fa5600a53dd504c204ba6e7",
+        "validation": "6b628bf91a7ba0b1d7e4428cdf435588efe3ec2e95bea04afd5ab8927b7f46b5",
+        "test": "f1de7197eb362b3bad531bb6c0a37b6a4169a97069401ed39a64f9fff717432e"
+      }
+    },
+    "steam_b": {
+      "data": {
+        "items": 11961,
+        "users": 2000,
+        "train_events": 127305,
+        "train_examples": 125305,
+        "splits": {
+          "train": {
+            "examples": 125305,
+            "context_length_counts": [
+              0,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              2000,
+              67305
+            ]
+          },
+          "validation": {
+            "examples": 2000,
+            "context_length_counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2000
+            ]
+          },
+          "test": {
+            "examples": 2000,
+            "context_length_counts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2000
+            ]
+          }
+        }
+      },
+      "raw_case_sha256": {
+        "train": "bbe3fbab8bbd78d0446a1efa179b7cd42ffea7e4688c762688f55308de3b8d62",
+        "validation": "87ee71095b6a9d193e9a4434ba46b932811e2b3df9358fa9f6e68848892c64dd",
+        "test": "31fd43d5c7ef473ae6922dd1f6fd9d16b097cd026383511492a5110cf3687cf4"
+      }
+    }
+  },
+  "initializer_by_seed": {
+    "42": "34e7397ed277c78befd6254cbb736794df4907a011ed032bbd0735d9b7272286",
+    "101": "f396ada491c9e86b6a7c489c1fb400b587bd9858abfe3e34fad38fcb7c876079",
+    "202": "0c51f36ba9c36b35b3e0fd2491ab5e2c7220ab71070d162830ae0a6f9867ddd8"
+  },
+  "sid_file_sha256": "3dd4d4d272286f0403acf51e4d3240f6ea0971814f113e134ed97d6c1b5a4262",
+  "real_original_SIDs_used": true,
+  "registered_new_fits": 9,
+  "verified_reused_controls": 3,
+  "total_comparison_cells": 12,
+  "finite_forward_backward": {
+    "42": {
+      "steam_a": {
+        "10": {
+          "loss": 24.23628807067871,
+          "finite_forward_backward": true
+        },
+        "20": {
+          "loss": 23.868297576904297,
+          "finite_forward_backward": true
+        }
+      },
+      "steam_b": {
+        "10": {
+          "loss": 22.595443725585938,
+          "finite_forward_backward": true
+        },
+        "20": {
+          "loss": 21.718250274658203,
+          "finite_forward_backward": true
+        }
+      }
+    },
+    "101": {
+      "steam_a": {
+        "10": {
+          "loss": 22.57832908630371,
+          "finite_forward_backward": true
+        },
+        "20": {
+          "loss": 23.945789337158203,
+          "finite_forward_backward": true
+        }
+      },
+      "steam_b": {
+        "10": {
+          "loss": 21.818166732788086,
+          "finite_forward_backward": true
+        },
+        "20": {
+          "loss": 22.653743743896484,
+          "finite_forward_backward": true
+        }
+      }
+    },
+    "202": {
+      "steam_a": {
+        "10": {
+          "loss": 23.677711486816406,
+          "finite_forward_backward": true
+        },
+        "20": {
+          "loss": 23.551944732666016,
+          "finite_forward_backward": true
+        }
+      },
+      "steam_b": {
+        "10": {
+          "loss": 23.285144805908203,
+          "finite_forward_backward": true
+        },
+        "20": {
+          "loss": 22.99852752685547,
+          "finite_forward_backward": true
+        }
+      }
+    }
+  }
+}
