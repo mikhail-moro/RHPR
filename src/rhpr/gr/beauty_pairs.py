@@ -51,7 +51,7 @@ def pair_keys(contexts, nitems, tail, *, random_tiling):
 def encode(contexts, sids, keys=None, pairs=None, *, tail=3, recent=None):
     h, lengths = compact(contexts, len(sids))
     if recent is not None:
-        if recent not in (3, 20): raise ValueError('expectedRecent3or20')
+        if recent not in (3, 12, 20): raise ValueError('expectedRecent3,12or20')
         raw = np.asarray(contexts)[:, -recent:]
         tokens = sids[np.maximum(raw, 0)]+np.arange(4)*256
         return np.where(raw[:, :, None] >= 0, tokens, -1).reshape(len(raw), 4*recent).astype(np.int32)
@@ -117,6 +117,13 @@ class TailTokenization(RandomTokenization):
 
 
 def validate(c):
+    if c.get('recent12_control'):
+        if (c['recent12_control'] != dict(reference_kernel='carasik/rhpr-beauty-pairs/1', new_generator_fits=1)
+                or c['trials'] != [dict(id='recent12_42', mode='recent', recent=12, seed=42)]
+                or c['execution']['worker_devices'] != ['cuda:0']
+                or c['expected_sid_file_sha256'] != '624a0e23fc8c4ca844972beb4718800121d23f9a12a85c8135a4c26767dd02ab'):
+            raise ValueError('expected exactly one matched Beauty Recent12 control')
+        c = copy.deepcopy(c); c['trials'] = TRIALS
     t = c['training']; g = c['generator']; d = c['data']
     if (c['kind'] != 'gr_beauty_pairs' or c['trials'] != TRIALS or c['policy'] != POLICY or c['seed'] != 42
         or (d['users'], d['items'], d['train_examples'], d['history_items']) != (22363, 12101, 131413, 20)
@@ -176,6 +183,13 @@ def run_trial(trial, p):
     def encoding(h):
         return encode(h, sids, keys, pairs, tail=trial['recent'], recent=trial['recent'] if trial['mode'] == 'recent' else None)
     raw = {s: cases(p['data'], s) for s in ('train', 'validation')}
+    if c.get('recent12_control'):
+        reference = c['reference_result']
+        if (file_sha256(root/'items-42.npy') != reference['sid_file_sha256']
+                or initial != reference['initial_state_sha256']
+                or {s: case_digest(v) for s, v in raw.items()} != reference['raw_case_sha256']
+                or case_digest(cases(p['data'], 'test')) != reference['test_case_sha256']):
+            raise ValueError('Recent12 input/index/initializer mismatch before training')
     encoded = {s: (encoding(h), u, t) for s, (h, u, t) in raw.items()}
     views = TailTokenization(raw['train'][0], sids, keys, pairs, tail=trial['recent']) if trial['mode'] == 'random' else None
     model.eval(); probe = (encoded['validation'][0][:1], raw['validation'][1][:1], raw['validation'][2][:1])
@@ -243,44 +257,60 @@ def run(c, output):
     resources = resolve_dataset_directory(c['resources']['path']); verify_resources(resources, c['resources']['manifest_sha256'])
     modern = resolve_dataset_directory(c['modern_runtime']['path']); verify_resources(modern, c['modern_runtime']['manifest_sha256'])
     texts, data, report = prepare_cases(c, resources, output)
-    sets = cache_sets(data, len(texts)); keys = np.unique(np.concatenate(list(sets.values()))); mask = np.isin(keys, sets['train'])
-    if {s: len(k) for s, k in sets.items()} != c['expected_pair_counts']: raise ValueError('pair candidates differ from CPU preflight')
+    control = bool(c.get('recent12_control'))
+    if not control:
+        sets = cache_sets(data, len(texts)); keys = np.unique(np.concatenate(list(sets.values()))); mask = np.isin(keys, sets['train'])
+        if {s: len(k) for s, k in sets.items()} != c['expected_pair_counts']: raise ValueError('pair candidates differ from CPU preflight')
     scratch = Path(c['resources']['scratch_path']); scratch.mkdir(parents=True, exist_ok=True)
     source = prepare_grid_source(unpack_grid(resources/'grid-source.bin', scratch/'original'), scratch/'grid')
     cache = output/'pair-cache'; cache.mkdir(); indexes = output/'frozen-indexes'; indexes.mkdir()
-    _event('beauty_pairs_embedding_start', items=len(texts), train_pairs=int(mask.sum()), all_pairs=len(keys))
+    _event('beauty_pairs_embedding_start', items=len(texts), train_pairs=0 if control else int(mask.sum()), all_pairs=0 if control else len(keys))
     encoder = SentenceTransformer(str(resources/'sentence-t5-base'), device='cuda:0', local_files_only=True)
     encoder.max_seq_length = 256; encoder.eval()
     vec = np.asarray(encoder.encode(texts, batch_size=32, convert_to_numpy=True, show_progress_bar=False), dtype=np.float32)
-    np.save(cache/'item-embeddings.npy', vec); encoder.max_seq_length = 2048
-    encode_pair_cache(encoder, texts, keys, cache/'pair-embeddings.npy', ['First item', 'Second item'])
+    np.save(cache/'item-embeddings.npy', vec)
+    if not control:
+        encoder.max_seq_length = 2048
+        encode_pair_cache(encoder, texts, keys, cache/'pair-embeddings.npy', ['First item', 'Second item'])
     del encoder; gc.collect(); torch.cuda.empty_cache()
     codes, centers, item_report = fit_grid_rkmeans(vec, c['quantizer'], 42, 'cuda:0', source)
     idx = SidIndex(codes, width=256); np.save(indexes/'items-42.npy', idx.sids); np.save(indexes/'item-centroids-42.npy', centers)
-    pairvec = np.load(cache/'pair-embeddings.npy', mmap_mode='r')
-    fitcodes, centers, pair_report = fit_grid_rkmeans(np.asarray(pairvec[mask]), c['quantizer'], 42, 'cuda:0', source)
-    codes = predict_rq(pairvec, centers, 'cuda:0')
-    if not np.array_equal(codes[mask], fitcodes): raise RuntimeError('pair assignments differ')
-    pairs = unique_pair_sids(keys, codes, sets['train'], np.union1d(sets['train'], sets['validation']))
-    np.save(indexes/'pair-keys.npy', keys); np.save(indexes/'pairs-42.npy', pairs); np.save(indexes/'pair-centroids-42.npy', centers)
-    _write(output/'index-report.json', dict(item=item_report, pair=pair_report, item_diagnostics=idx.diagnostics(),
-        pair_counts={s: len(v) for s, v in sets.items()}, all_pairs=len(keys), max_pair_suffix=int(pairs[:, 3].max()),
-        heldout_interactions_used_for_fit=False, heldout_pair_assignment='frozen centroids,append-only suffixes'))
-    del vec, pairvec, codes, centers, fitcodes; gc.collect(); torch.cuda.empty_cache()
+    if control:
+        from rhpr.gr.data import file_sha256
+        if file_sha256(indexes/'items-42.npy') != c['expected_sid_file_sha256']:
+            raise ValueError('recomputed SID differs; no generator training allowed')
+        # The control retains the original unused pair-input parameter table,
+        # but never encodes or fits pair representations.
+        np.save(indexes/'pair-keys.npy', np.empty(0, dtype=np.int64))
+        np.save(indexes/'pairs-42.npy', np.empty((0, 4), dtype=np.int32))
+        _write(output/'index-report.json', dict(item=item_report, item_diagnostics=idx.diagnostics(), pair_fitting_skipped=True))
+    else:
+        pairvec = np.load(cache/'pair-embeddings.npy', mmap_mode='r')
+        fitcodes, centers, pair_report = fit_grid_rkmeans(np.asarray(pairvec[mask]), c['quantizer'], 42, 'cuda:0', source)
+        codes = predict_rq(pairvec, centers, 'cuda:0')
+        if not np.array_equal(codes[mask], fitcodes): raise RuntimeError('pair assignments differ')
+        pairs = unique_pair_sids(keys, codes, sets['train'], np.union1d(sets['train'], sets['validation']))
+        np.save(indexes/'pair-keys.npy', keys); np.save(indexes/'pairs-42.npy', pairs); np.save(indexes/'pair-centroids-42.npy', centers)
+        _write(output/'index-report.json', dict(item=item_report, pair=pair_report, item_diagnostics=idx.diagnostics(),
+            pair_counts={s: len(v) for s, v in sets.items()}, all_pairs=len(keys), max_pair_suffix=int(pairs[:, 3].max()),
+            heldout_interactions_used_for_fit=False, heldout_pair_assignment='frozen centroids,append-only suffixes'))
+        del pairvec, fitcodes
+    del vec, codes, centers; gc.collect(); torch.cuda.empty_cache()
     overlay = scratch/'modern-site'; overlay.mkdir()
     command = [sys.executable, '-m', 'pip', 'install', '--no-index', '--no-deps', '--no-cache-dir', '--no-compile',
         '--require-hashes', '--only-binary=:all:', '--target', str(overlay), '--find-links', str(modern), '-r', str(modern/'requirements-lock.txt')]
     with (output/'modern-install.log').open('w') as log: subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=True, timeout=180)
     sys.path.insert(0, str(overlay))
-    p = dict(config=c, output=str(output), source=str(source), data=str(data), indexes=str(indexes), assignments=assignments(c, 2))
+    jobs = [dict(slot=0, device='cuda:0', trials=c['trials'])] if control else assignments(c, 2)
+    p = dict(config=c, output=str(output), source=str(source), data=str(data), indexes=str(indexes), assignments=jobs)
     path = output/'plan.json'; _write(path, p)
     summary = launch_workers(path, worker_module='rhpr.gr.beauty_pairs', event_prefix='beauty_pairs')
     rows = list(summary['results'].values())
     for key in ('initial_state_sha256', 'sid_file_sha256', 'pair_sid_file_sha256', 'raw_case_sha256', 'case_targets_sha256', 'test_case_sha256'):
-        if len(rows) != 4 or any(v[key] != rows[0][key] for v in rows[1:]): raise ValueError('unmatched comparison: '+key)
+        if len(rows) != len(c['trials']) or any(v[key] != rows[0][key] for v in rows[1:]): raise ValueError('unmatched comparison: '+key)
     _write(output/'study-summary.json', dict(results=summary['results'], data=report, policy=POLICY,
-        exact_TIGER_reproduction=False, new_generator_fits=4))
-    metrics = dict(experiment=c['name'], models=4, seed=42, test_evaluated=True)
+        exact_TIGER_reproduction=False, new_generator_fits=len(c['trials'])))
+    metrics = dict(experiment=c['name'], models=len(c['trials']), seed=42, test_evaluated=True)
     for name, row in summary['results'].items():
         metrics[name+'_validation_ndcg10'] = row['selection']['validation_ndcg10']; metrics[name+'_test_ndcg10'] = row['test']['metrics']['ndcg@10']
         metrics[name+'_forward_flops'] = row['forward']['supported_forward_flops_batch1']

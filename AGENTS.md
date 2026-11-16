@@ -2,6 +2,18 @@
 
 ## Research status
 
+- Authorized2026-11-17: exactly ONE Beauty Recent12 control, seed42, same
+  complete22363-user data/index/initializer/architecture/training as Beauty/1.
+  Configbeauty_recent12_control.json;referenceSIDhash624a0e23fc8c4ca844972beb4718800121d23f9a12a85c8135a4c26767dd02ab.
+  Recompute singles from original two resources,hashguard BEFORE training;
+  no pair embedding/fitting/cache transfer. Keep unused pair parameter table
+  to preserve initializer and5.108992Mparams. Exactlyoneworker/onefit;49encoder
+  positions/.257705640GF matchTail3fixedpaddedforward. Same40-120epochs,VAL5,
+  EMAstop20,rawVALcheckpointselect,TESTonce. Intendedprivatekernel
+  carasik/rhpr-beauty-recent12;checkreceipt before dispatch/no duplicates or
+  extra fits. Historical Beauty/1controls are reused,not retrained.
+
+
 - SteamRecent10/20crossed COMPLETE carasik/rhpr-steam-recent10-20/1,source
   e710aec495fce54dac88979da910e004bb639854,runtime7221.967s/120.37min.
   Ninefresh+3reused=12models/sixpairs. TEST20vs10 Aseed42+13.31%,101+2.95%,

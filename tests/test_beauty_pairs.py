@@ -101,3 +101,23 @@ class BeautyPairsTests(unittest.TestCase):
             with self.assertRaises(ValueError): validate(bad)
         bad = copy.deepcopy(c); bad['kaggle']['kernel_sources'] = ['unrelated/kernel']
         with self.assertRaises(ValueError): validate(bad)
+
+    def test_recent12_truncates_raw_items_with_all_four_codes(self):
+        out = encode(self.h, self.sids, recent=12)
+        self.assertEqual(out.shape, (21, 48))
+        for n, row in enumerate(out):
+            actual = row[row >= 0].reshape(-1, 4)-np.arange(4)*256
+            np.testing.assert_array_equal(actual, self.sids[max(0, n-12):n])
+        np.testing.assert_array_equal(out, encode(self.h, self.sids, recent=20)[:, -48:])
+
+    def test_recent12_control_has_one_fit_and_original_training_settings(self):
+        c = json.loads(Path('experiments/beauty_recent12_control.json').read_text()); validate(c)
+        old = json.loads(Path('experiments/beauty_pairs_2t4.json').read_text())
+        for key in ('training', 'generator', 'quantizer', 'data', 'kaggle', 'expected_initial_state_sha256'):
+            self.assertEqual(c[key], old[key])
+        for change in ('extra_fit', 'wrong_window', 'wrong_index'):
+            bad = copy.deepcopy(c)
+            if change == 'extra_fit': bad['trials'].append(old['trials'][0])
+            elif change == 'wrong_window': bad['trials'][0]['recent'] = 13
+            else: bad['expected_sid_file_sha256'] = 'wrong'
+            with self.assertRaises(ValueError): validate(bad)
