@@ -40,3 +40,7 @@ Use paired-user uncertainty within each fixed fitted-model pair and separately s
 ## Pre-submission checks
 
 CPU preflight passed using the real frozen SIDs. Focused7tests passed, including real two-process event collection and partial-failure preservation for the9-fit suite. Full suite:1,167tests,152optional skips,0failures,131.010s. Private offline two-T4 bundle built. Quota observed before submission:GPU28.85hours remaining. New kernel slug not found in the account; no prior run to duplicate.
+
+## Submission
+
+Submitted once private `carasik/rhpr-steam-recent10-20/1`, executable `e710aec495fce54dac88979da910e004bb639854`, workflow43952604101/job133598768993, artifact14267213625. Actual push2026-11-16T20:43:05Z (23:43:05Europe/Moscow), server timeout21,600s. First observed Kaggle statusRUNNING; no training results observed. All218deployed Python files, exact config and private offline two-T4 metadata/four dataset mounts verified. Receipt `gr-steam-recent10-20-submission.json`. Do not dispatch a duplicate.

@@ -1,0 +1,75 @@
+{
+  "kernel": "carasik/rhpr-steam-recent10-20",
+  "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-steam-recent10-20",
+  "version": 1,
+  "source_sha": "e710aec495fce54dac88979da910e004bb639854",
+  "workflow_id": 43952604101,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/43952604101",
+  "job_id": 133598768993,
+  "artifact_id": 14267213625,
+  "actual_push_utc": "2026-11-16T20:43:05Z",
+  "actual_server_timeout_seconds": 21600,
+  "submission_only": true,
+  "first_observed_status": "RUNNING",
+  "training_results_observed": false,
+  "deployed_python_files_exact": 218,
+  "deployed_config_exact": true,
+  "private_offline_two_t4_verified": true,
+  "dataset_sources": [
+    "carasik/rhpr-gr-beauty-phase0",
+    "carasik/rhpr-t5-sdpa-runtime",
+    "carasik/rhpr-steam-history-input",
+    "carasik/rhpr-steam-history-replica-input"
+  ],
+  "kernel_sources": [],
+  "new_fits": 9,
+  "reused_models": 3,
+  "total_comparison_models": 12,
+  "paired_comparisons": 6,
+  "data_seeds": [
+    4242,
+    1729
+  ],
+  "generator_seeds": [
+    42,
+    101,
+    202
+  ],
+  "tokenizer_seed": 42,
+  "windows": [
+    10,
+    20
+  ],
+  "original_sid_file_sha256": "3dd4d4d272286f0403acf51e4d3240f6ea0971814f113e134ed97d6c1b5a4262",
+  "initializer_by_seed": {
+    "42": "34e7397ed277c78befd6254cbb736794df4907a011ed032bbd0735d9b7272286",
+    "101": "f396ada491c9e86b6a7c489c1fb400b587bd9858abfe3e34fad38fcb7c876079",
+    "202": "0c51f36ba9c36b35b3e0fd2491ab5e2c7220ab71070d162830ae0a6f9867ddd8"
+  },
+  "reuse_references_local_hash_verified": true,
+  "registered_new_trials": [
+    "steam_a_recent20_101",
+    "steam_a_recent10_101",
+    "steam_b_recent10_101",
+    "steam_b_recent20_101",
+    "steam_a_recent20_202",
+    "steam_a_recent10_202",
+    "steam_b_recent10_202",
+    "steam_b_recent20_202",
+    "steam_b_recent10_42"
+  ],
+  "reused_trials": [
+    "steam_a_recent10_42",
+    "steam_a_recent20_42",
+    "steam_b_recent20_42"
+  ],
+  "new_dataset_or_cache_upload": false,
+  "automatic_retry_loop": false,
+  "unit_suite": {
+    "tests": 1167,
+    "skipped": 152,
+    "failures": 0,
+    "seconds": 131.01
+  },
+  "deployed_script_sha256": "e89bc65e17e43acc4346a6b6f31dbacd904c245d113fdfcaf2a76f20195991cf"
+}

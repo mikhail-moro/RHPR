@@ -2,6 +2,19 @@
 
 ## Research status
 
+- SteamRecent10/20crossed SUBMITTEDONCE carasik/rhpr-steam-recent10-20/1,
+  sourcee710aec495fce54dac88979da910e004bb639854,workflow43952604101/
+  job133598768993SUCCESS(submissiononly),artifact14267213625. Actualpush
+  2026-11-16T20:43:05Z,timeout21600;firstKagglestatusRUNNING,nooutcomes.
+  Exactly9freshfits+3hashedreusedcontrols=12models/sixpairedcomparisons,
+  cohortsA4242/B1729,seeds42/101/202,Recent10/20. SameSIDseed42/hashguard;
+  perseedinitializerhashesandactualtrainingseedverified. All218deployedPython
+  files/exactconfig/privateoffline2T4/fourexistingdatasets/no parentsverified.
+  Full1167testsOK/152skips/0fails131.010s;CPUrealSIDFWD/BWDall12cellsfinite,
+  allprefix/holdout/reusehashesverified. Receiptgr-steam-recent10-20-submission.
+  json,configsteam_recent10_20_crossed_2t4.json. No duplicates/extraaxes/retry.
+
+
 - Authorized2026-11-16: SteamRecent10/20 across BOTHexistingdisjoint2000-user
   cohortsdata4242/1729 and generatorseeds42/101/202. Twelvecomparisoncells;
   reuse3completedseed42controls (A10,A20,B20), EXACTLY9freshmissingfits.
