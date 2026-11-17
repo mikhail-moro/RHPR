@@ -1,0 +1,48 @@
+{
+  "kernel": "carasik/rhpr-ml1m-last8-remaining",
+  "kernel_version": 1,
+  "status": "RUNNING",
+  "source_commit": "eceafc4f9217e8a2f79c6fc2686936c80d542487",
+  "workflow_run": 44189403358,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/44189403358",
+  "job_id": 134414468296,
+  "workflow_conclusion": "success_submission_only",
+  "artifact_id": 14375622908,
+  "dispatch_utc": "2026-11-17T22:22:25Z",
+  "push_confirmed_utc": "2026-11-17T22:22:42.2077547Z",
+  "experiment": "experiments/ml1m_last8_remaining_2t4.json",
+  "new_generator_fits": 2,
+  "new_windows": [
+    16,
+    64
+  ],
+  "completed_windows_not_retrained": [
+    8,
+    32,
+    128
+  ],
+  "excluded_window": 256,
+  "seed": 42,
+  "server_runtime_limit_seconds": 28800,
+  "telegram_notifications": false,
+  "deployed_source_verified": true,
+  "deployed_python_files": 219,
+  "deployed_config_verified": true,
+  "private_offline_dual_t4_verified": true,
+  "deployed_source_sha256": "d00fbd62e3298cc86e71157eb8f04920489d182106b8371ebe93317393a7fe47",
+  "expected_sid_file_sha256": "80422aa36fbcabbd0c1133a0695547513c1a795f908c72b4ed412e9cc2c2b672",
+  "dataset_sources": [
+    "carasik/rhpr-gr-beauty-phase0",
+    "carasik/rhpr-ml1m-last8-input",
+    "carasik/rhpr-t5-sdpa-runtime"
+  ],
+  "cached_artifacts_transferred": false,
+  "quality_results_available": false,
+  "tests": {
+    "total_including_skips": 1178,
+    "skipped": 145,
+    "errors": 0,
+    "failures": 0,
+    "seconds": 142.577
+  }
+}

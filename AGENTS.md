@@ -2,6 +2,17 @@
 
 ## Research status
 
+- Last8 REMAINING SUBMITTEDONCE2026-11-17T22:22:25Z(18NovMoscow),
+  carasik/rhpr-ml1m-last8-remaining/1,RUNNING,sourceeceafc4f9217e8a2f79c6fc2686936c80d542487.
+  GHA44189403358/job134414468296SUCCESSsubmissiononly/artifact14375622908;
+  exact219deployedPythonfiles/config/privateoffline2T4/original3datasets
+  verified. Exactly2freshfits64/16seed42;8/32/128reusecompletedold/2;
+  256excluded,no retraining/extraaxes. Samecase/initializer/SIDhashguard.
+  Full1178testsOK/145skips/0errors142.577s. Receipt
+  gr-ml1m-last8-remaining-submission.json. No newqualityresults yet;
+  DO NOT DISPATCH again. Collectthiskernel plus originalthree tocomparefive.
+
+
 - Authorized2026-11-18(Moscow): user STOPPED Last8/2 because256tooexpensive;
   EXCLUDE256,finish remainingwindows. /2CANCEL_ACKNOWLEDGED;8/32/128actually
   COMPLETE,never retrain them. VAL/TEST8 .05199936/.04578558,best35/stop60;
