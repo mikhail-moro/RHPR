@@ -1,7 +1,7 @@
 {
   "kernel": "carasik/rhpr-ml1m-last8-remaining",
   "kernel_version": 1,
-  "status": "RUNNING",
+  "status": "COMPLETE",
   "source_commit": "eceafc4f9217e8a2f79c6fc2686936c80d542487",
   "workflow_run": 44189403358,
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/44189403358",
@@ -37,12 +37,18 @@
     "carasik/rhpr-t5-sdpa-runtime"
   ],
   "cached_artifacts_transferred": false,
-  "quality_results_available": false,
+  "quality_results_available": true,
   "tests": {
     "total_including_skips": 1178,
     "skipped": 145,
     "errors": 0,
     "failures": 0,
     "seconds": 142.577
-  }
+  },
+  "completion_report": "gr-ml1m-last8-completion.json",
+  "results_report": "gr-ml1m-last8-results.md",
+  "completed_windows": [
+    16,
+    64
+  ]
 }

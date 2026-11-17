@@ -2,6 +2,32 @@
 
 ## Research status
 
+- ML1M Last8 FIVE WINDOWS COMPLETE/audited2026-11-18Moscow. Newremaining/1
+  serverCOMPLETE,runtime3643.05s(60.72min),sourceeceafc4f9217e8a2f79c6fc2686936c80d542487.
+  Combined old/2 finished8/32/128 with new16/64;256remainsEXCLUDED/stopped.
+  WINDOW:VAL/TEST,best/stop,warmsecs,GF:
+  8:.05199936/.04578558,35/60,6.75,.177736;
+  16:.05084036/.04050114,35/55,10.66,.340823;
+  32:.04988699/.04138927,40/60,21.47,.704770;
+  64:.05538826/.04627123,40/60,46.05,1.583759;
+  128:.06705911/.05449579,35/70,124.94,3.946108.
+  AllEMAstop/nonecensored/zeroAMPskips,305totalepochs. Sharedcases/initializer/
+  vectors/centroids/SIDsbyteidentical,10bestlastcheckpointsfinite+fullresume
+  states/LR/EMA/selectionverified. Replay66files/7972800paths/4157invalid/0dups.
+  128vs8TEST+19.02%,delta.008710CI[.004473,.012913];vs64+17.77%,delta.008225
+  CI[.003914,.012496].64vs8+1.06%CI0. CIsconditionalusers/onefittedseed,
+  nomultiplicity/itemcluster/seeduncertainty. Strictbothboundary2333users:
+  TEST8.023398/64.024287/128.031630;128vs8delta.008232CI[.002935,.013702].
+  >=128past2378users:128vs64+22.46%delta.006947CI[.001122,.012928].
+  ALSOshort915users128beats64despitesamevisibleitems;trainingpopulation/
+  USERpaddingdistance/dropoutmicrobatchconfounds,nopurecausaloldhistoryproof.
+  Reportsgr-ml1m-last8-results.md/.json/completion.json;analyzer
+  scripts/research/analyze_ml1m_last8.py;raw/tmp/ml1m-last8-stopped-v2and
+  /tmp/ml1m-last8-remaining-results;combined/tmp/ml1m-last8-analysisCSV/ranks/
+  PNG/PDF. Full1178testsOK/145skips/0fails124.857s. No newtraining/inference/
+  GPUdispatchduringcollection. No extra seeds/ablation/256/ML10M authorized.
+
+
 - Last8 REMAINING SUBMITTEDONCE2026-11-17T22:22:25Z(18NovMoscow),
   carasik/rhpr-ml1m-last8-remaining/1,RUNNING,sourceeceafc4f9217e8a2f79c6fc2686936c80d542487.
   GHA44189403358/job134414468296SUCCESSsubmissiononly/artifact14375622908;

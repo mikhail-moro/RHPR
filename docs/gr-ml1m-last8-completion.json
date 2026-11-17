@@ -1,0 +1,68 @@
+{
+  "status": "five_window_comparison_complete",
+  "collected_utc": "2026-11-17T23:32:50.022359+00:00",
+  "kernels": [
+    {
+      "id": "carasik/rhpr-ml1m-last8-windows",
+      "version": 2,
+      "status": "CANCEL_ACKNOWLEDGED",
+      "retained_complete_windows": [
+        8,
+        32,
+        128
+      ],
+      "excluded_window": 256
+    },
+    {
+      "id": "carasik/rhpr-ml1m-last8-remaining",
+      "version": 1,
+      "status": "COMPLETE",
+      "retained_complete_windows": [
+        16,
+        64
+      ],
+      "runtime_seconds": 3643.049734
+    }
+  ],
+  "reports": [
+    "gr-ml1m-last8-results.md",
+    "gr-ml1m-last8-results.json"
+  ],
+  "analysis_script": "scripts/research/analyze_ml1m_last8.py",
+  "raw_directories": [
+    "/tmp/ml1m-last8-stopped-v2",
+    "/tmp/ml1m-last8-remaining-results"
+  ],
+  "analysis_directory": "/tmp/ml1m-last8-analysis",
+  "shared_sid_file_sha256": "80422aa36fbcabbd0c1133a0695547513c1a795f908c72b4ed412e9cc2c2b672",
+  "shared_raw_case_sha256": {
+    "train": "8ea681f85304befbc5fdeceec535a298edc64c8d35d7afa8f7ab0656e19261cc",
+    "validation": "f2035a8596ce933273c1c979f8d8ecd60f46b796ab972251cb9bcce83c8249a4",
+    "test": "bc47ff569738ddbad1ff64559f92ff96e058ed0fed990852a846765496237d31"
+  },
+  "byte_identical_embeddings_centroids_sids": true,
+  "models": 5,
+  "seeds": [
+    42
+  ],
+  "parameters_per_model": 4977920,
+  "all_stopped_by_ema": true,
+  "total_completed_model_epochs": 305,
+  "total_amp_skips": 0,
+  "prediction_replay": {
+    "files": 66,
+    "paths": 7972800,
+    "invalid": 4157,
+    "duplicates": 0
+  },
+  "finite_and_resume_checked_checkpoints": 10,
+  "new_training_or_inference": false,
+  "additional_dispatches": 0,
+  "tests": {
+    "total_including_skips": 1178,
+    "skipped": 145,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 124.857
+  }
+}
