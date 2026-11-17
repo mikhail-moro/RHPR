@@ -1,0 +1,93 @@
+import copy
+import json
+import tempfile
+import unittest
+from pathlib import Path
+
+import numpy as np
+
+from rhpr.gr.ml1m_last8_pairs import MERGE_PREFIXES,TRIALS,encode,pair_keys,validate,profiling_batch
+
+
+class Last8PairsTests(unittest.TestCase):
+    def setUp(self):
+        self.nitems=300
+        self.sids=np.array([[i%256,i//256,0,0] for i in range(self.nitems)],dtype=np.int32)
+        self.h=np.full((129,128),-1,dtype=np.int32)
+        for n in range(129):self.h[n,128-n:]=np.arange(n)
+        self.keys=pair_keys(self.h,self.nitems,120)
+        self.pairs=np.array([[i,1,2,0] for i in range(len(self.keys))],dtype=np.int32)
+
+    def test_every_length_and_merge_cap_preserves_events_order_odd_prefix_and_tail(self):
+        single_map={tuple(s):i for i,s in enumerate(self.sids)}
+        pair_map={tuple(s):divmod(int(k),self.nitems) for k,s in zip(self.keys,self.pairs)}
+        for m in MERGE_PREFIXES:
+            x=encode(self.h,self.sids,self.keys,self.pairs,m)
+            self.assertEqual(x.shape,(129,4*(128-m//2)))
+            for n,row in enumerate(x):
+                blocks=row.reshape(-1,4);valid=blocks[:,0]>=0
+                self.assertTrue(np.all(blocks[~valid]==-1))
+                self.assertTrue(np.all(np.diff(valid.astype(int))>=0))
+                rebuilt=[];types=[]
+                for block in blocks[valid]:
+                    if block[0]>=1024:
+                        rebuilt.extend(pair_map[tuple(block-(4+np.arange(4))*256)]);types.append('pair')
+                    else:rebuilt.append(single_map[tuple(block-np.arange(4)*256)]);types.append('single')
+                self.assertEqual(rebuilt,list(range(n)),(m,n))
+                expected_pairs=max(n-(128-m),0)//2
+                self.assertEqual(types.count('pair'),expected_pairs)
+                self.assertEqual(types,['pair']*expected_pairs+['single']*(n-2*expected_pairs))
+
+    def test_smallest_tail_covers_all_fixed_pair_indexes(self):
+        for m in MERGE_PREFIXES:
+            self.assertTrue(np.isin(pair_keys(self.h,self.nitems,m),self.keys).all())
+        for m in MERGE_PREFIXES:
+            short=np.full((1,128),-1,dtype=np.int32);short[0,-(128-m):]=np.arange(128-m)
+            self.assertEqual(len(pair_keys(short,self.nitems,m)),0)
+
+    def test_missing_pairs_and_invalid_padding_fail_without_dropping_events(self):
+        with self.assertRaisesRegex(ValueError,'missing pair'):encode(self.h,self.sids,self.keys[1:],self.pairs[1:],120)
+        for bad in (self.h.astype(float),self.h[:,:127],np.full((2,128),300),np.full((2,128),-2)):
+            with self.assertRaises(ValueError):pair_keys(bad,self.nitems,64)
+        bad=self.h[-1:].copy();bad[0,50]=-1
+        with self.assertRaises(ValueError):encode(bad,self.sids,self.keys,self.pairs,64)
+        with self.assertRaises(ValueError):encode(self.h,self.sids,self.keys,self.pairs,128)
+
+    def test_actual_targets_remain_single_sid_in_model_batch(self):
+        from rhpr.gr.pair_unique4 import InputIndex4
+        from rhpr.gr.sid import SidIndex
+        index=InputIndex4(SidIndex.from_full_sids(self.sids,width=256))
+        x=encode(self.h[-2:],self.sids,self.keys,self.pairs,120)
+        batch=profiling_batch(index,x,np.array([1,2]),np.array([299,298]),self.sids,'cpu')
+        np.testing.assert_array_equal(batch['future_ids'].numpy(),self.sids[[299,298]])
+        self.assertEqual(batch['future_ids'].shape,(2,4))
+
+    def test_only_four_same_seed_fixed_screens_and_existing40epoch_control(self):
+        c=json.loads(Path('experiments/ml1m_last8_pair128_2t4.json').read_text());validate(c)
+        self.assertEqual(c['trials'],TRIALS)
+        for key,value in [('trials',TRIALS+[TRIALS[0]]),('windows',[256]),('seed',101)]:
+            bad=copy.deepcopy(c);bad[key]=value
+            with self.assertRaises(ValueError):validate(bad)
+        for key,value in [('max_epochs',50),('precision','fp32'),('learning_rate',.001)]:
+            bad=copy.deepcopy(c);bad['training'][key]=value
+            with self.assertRaises(ValueError):validate(bad)
+        for key,value in [('random_training',True),('pair_max_tokens',256)]:
+            bad=copy.deepcopy(c);bad['policy'][key]=value
+            with self.assertRaises(ValueError):validate(bad)
+
+    def test_embedding_cache_uses_requested_batch_without_changing_order_or_dimensions(self):
+        from rhpr.gr.kindle_pairs import encode_pair_cache
+        class Encoder:
+            def encode(self,rows,**kwargs):
+                self.rows=rows;self.kwargs=kwargs
+                return np.arange(len(rows)*768,dtype=np.float32).reshape(len(rows),768)
+        e=Encoder()
+        with tempfile.TemporaryDirectory() as tmp:
+            p=Path(tmp)/'vec.npy';encode_pair_cache(e,['A','B'],np.array([1,2]),p,['First movie','Second movie'],batch_size=128,event_prefix='ml1m_pairs')
+            self.assertEqual(e.kwargs['batch_size'],128)
+            self.assertEqual(e.rows,['First movie: A Second movie: B','First movie: B Second movie: A'])
+            self.assertEqual(np.load(p).shape,(2,768))
+            with self.assertRaises(ValueError):encode_pair_cache(e,['A'],np.array([0]),p,['a','b'],batch_size=0)
+
+
+if __name__=='__main__':unittest.main()

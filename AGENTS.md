@@ -2,6 +2,34 @@
 
 ## Research status
 
+- Authorized2026-11-18Moscow: quick FOUR Pair128 screens seed42,
+  mergeold64/96/112/120,protecttail64/32/16/8. Fixedpairs TRAIN/VAL/TEST,
+  unique3+1bothsingleandpair,alltargetssingle;shortkeepssameprotectedtail,
+  oddoldleftoversingle,nodroppedevents. Exactly40epochs/VAL5,fullresume-last,
+  originalLast8 targets/cases/singleSIDhash. Reusecontrol128best35 (ALSO best
+  withinfirst40),VAL.06705910548/TEST.05449578525;no controlrefit/reeval.
+  Configml1m_last8_pair128_2t4.json;runnergr/ml1m_last8_pairs.py;
+  docgr-ml1m-last8-pair128.md. SharedpairindexfitTRAINunion252253,VAL163691,
+  TEST164627,union257184;FP32ST5pairbatch128/max2048,cache790069248bytes;
+  originalsinglesbatch32/max256+SIDhashguardBEFOREpaircache. PairRQKmeans3x256
+  seed42,append-onlyTRAIN/VAL/TESTsuffixes;retaincentroids/rawcodes/diagnostics
+  beforecollisionguard,no suffixdrops/fallbacks. Sameoriginal3datasets,
+  no newdataset/parent/cachedartifactupload. NativeTIGER4+4/d128samebasehash
+  d57fc2e783c0a04bfc567c0082541f757e241d1c53d7e79b3e8f281bf2eb9337;
+  addedpairtable131072params,5108992total/fullpairhash34e7397ed277c78befd6254cbb736794df4907a011ed032bbd0735d9b7272286.
+  Effective512/physical64/eval16,FP16SDPA/Inductorgraphsoff,.003->.001
+  originalwarm2/cosine60truncated40;40capisSCREENnotplateau. Positions
+  385/321/289/273;CPUforwardGF2.664203/2.098798/1.834982/1.707796vsbase3.946108.
+  CPUrealitem/syntheticpairallFWD/BWD/beam20finite,commonparamsunchanged;
+  AOTCPUaccumulatedprofile/restorationchecked. RealcompiledGPU1+2update
+  probeBEFOREeachfit;4hsession/7200sfit,19.22GPUhoursrembeforepreparation.
+  Intendedprivatekernelcarasik/rhpr-ml1m-pair128-screen,2T4,4fits,noextra
+  seeds/randomtraining/256/ML10M/controlinference/notifications. Checkpair128
+  submissionreceiptbeforedispatch;never duplicate.
+  Full1184testsOK/145skips/0errors124.560s;nativecompiledCPUprofileAPI/
+  accumulatedupdates+state restore passed;privatebundle built.
+
+
 - ML1M Last8 FIVE WINDOWS COMPLETE/audited2026-11-18Moscow. Newremaining/1
   serverCOMPLETE,runtime3643.05s(60.72min),sourceeceafc4f9217e8a2f79c6fc2686936c80d542487.
   Combined old/2 finished8/32/128 with new16/64;256remainsEXCLUDED/stopped.

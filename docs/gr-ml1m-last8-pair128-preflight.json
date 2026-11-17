@@ -1,0 +1,170 @@
+{
+  "gpu_used": false,
+  "actual_item_index": true,
+  "synthetic_unique_pair_sids": true,
+  "pair_quantizer_not_fitted_locally": true,
+  "costs": {
+    "64": {
+      "protected_tail": 64,
+      "encoder_positions": 385,
+      "forward_flops": 2664202672,
+      "finite_forward_backward": true
+    },
+    "96": {
+      "protected_tail": 32,
+      "encoder_positions": 321,
+      "forward_flops": 2098797872,
+      "finite_forward_backward": true
+    },
+    "112": {
+      "protected_tail": 16,
+      "encoder_positions": 289,
+      "forward_flops": 1834982128,
+      "finite_forward_backward": true
+    },
+    "120": {
+      "protected_tail": 8,
+      "encoder_positions": 273,
+      "forward_flops": 1707795920,
+      "finite_forward_backward": true
+    }
+  },
+  "views": {
+    "64": {
+      "train": {
+        "pair_occurrences": 736099,
+        "examples_with_pairs": 28441,
+        "unique_pairs": 137550,
+        "mean_valid_item_or_pair_units": 67.0863203642384
+      },
+      "validation": {
+        "pair_occurrences": 94995,
+        "examples_with_pairs": 3682,
+        "unique_pairs": 77713,
+        "mean_valid_item_or_pair_units": 69.36639072847682
+      },
+      "test": {
+        "pair_occurrences": 95663,
+        "examples_with_pairs": 3717,
+        "unique_pairs": 78147,
+        "mean_valid_item_or_pair_units": 69.86456953642384
+      }
+    },
+    "96": {
+      "train": {
+        "pair_occurrences": 1263263,
+        "examples_with_pairs": 37742,
+        "unique_pairs": 200375,
+        "mean_valid_item_or_pair_units": 56.17646937086093
+      },
+      "validation": {
+        "pair_occurrences": 163647,
+        "examples_with_pairs": 4961,
+        "unique_pairs": 123310,
+        "mean_valid_item_or_pair_units": 58.00016556291391
+      },
+      "test": {
+        "pair_occurrences": 164963,
+        "examples_with_pairs": 5019,
+        "unique_pairs": 123991,
+        "mean_valid_item_or_pair_units": 58.39105960264901
+      }
+    },
+    "112": {
+      "train": {
+        "pair_occurrences": 1597680,
+        "examples_with_pairs": 45389,
+        "unique_pairs": 234590,
+        "mean_valid_item_or_pair_units": 49.25558774834437
+      },
+      "validation": {
+        "pair_occurrences": 207757,
+        "examples_with_pairs": 6040,
+        "unique_pairs": 149934,
+        "mean_valid_item_or_pair_units": 50.69718543046358
+      },
+      "test": {
+        "pair_occurrences": 209571,
+        "examples_with_pairs": 6040,
+        "unique_pairs": 150969,
+        "mean_valid_item_or_pair_units": 51.005629139072845
+      }
+    },
+    "120": {
+      "train": {
+        "pair_occurrences": 1788086,
+        "examples_with_pairs": 48320,
+        "unique_pairs": 252253,
+        "mean_valid_item_or_pair_units": 45.315066225165566
+      },
+      "validation": {
+        "pair_occurrences": 231917,
+        "examples_with_pairs": 6040,
+        "unique_pairs": 163691,
+        "mean_valid_item_or_pair_units": 46.69718543046358
+      },
+      "test": {
+        "pair_occurrences": 233731,
+        "examples_with_pairs": 6040,
+        "unique_pairs": 164627,
+        "mean_valid_item_or_pair_units": 47.005629139072845
+      }
+    }
+  },
+  "counts": {
+    "train": 252253,
+    "validation": 163691,
+    "test": 164627
+  },
+  "pair_union": 257184,
+  "pair_embedding_bytes": 790069248,
+  "shared_base_initial_state_sha256": "d57fc2e783c0a04bfc567c0082541f757e241d1c53d7e79b3e8f281bf2eb9337",
+  "pair_initial_state_sha256": "34e7397ed277c78befd6254cbb736794df4907a011ed032bbd0735d9b7272286",
+  "parameters": 5108992,
+  "added_input_embedding_parameters": 131072,
+  "finite_beam20": true,
+  "common_base_parameters_identical": true,
+  "aot_eager_cpu_accumulation_finite": true,
+  "compiled_profile_accumulation_restored": true,
+  "cpu_profile": {
+    "status": "ok",
+    "mode": "full_pipeline",
+    "precision": "fp32",
+    "physical_batch_size": 1,
+    "effective_batch_size": 2,
+    "baseline_effective_batch_preserved": true,
+    "microbatches_per_update": 2,
+    "warmup_updates_applied": 1,
+    "measured_updates_applied": 2,
+    "measured_updates_attempted": 2,
+    "step_seconds_mean": 0.4313859029971354,
+    "step_seconds_min": 0.424214390994166,
+    "step_seconds_max": 0.4385574150001048,
+    "step_seconds": [
+      0.424214390994166,
+      0.4385574150001048
+    ],
+    "examples_per_second": 4.636220113139118,
+    "estimated_train_epoch_seconds": 0.4313859029971354,
+    "last_loss": 7.401783227920532,
+    "loss_scale": 1.0,
+    "peak_allocated_bytes": 0,
+    "peak_reserved_bytes": 0
+  },
+  "gpu_compilation_not_tested_locally": true,
+  "raw_case_sha256": {
+    "train": "8ea681f85304befbc5fdeceec535a298edc64c8d35d7afa8f7ab0656e19261cc",
+    "validation": "f2035a8596ce933273c1c979f8d8ecd60f46b796ab972251cb9bcce83c8249a4",
+    "test": "bc47ff569738ddbad1ff64559f92ff96e058ed0fed990852a846765496237d31"
+  },
+  "reference_control_matched_best_epoch": 35,
+  "tests": {
+    "total_including_skips": 1184,
+    "skipped": 145,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 124.56
+  },
+  "gpu_quota_remaining_hours_before_preparation": 19.22,
+  "private_bundle_built": true
+}

@@ -95,20 +95,21 @@ def encode(contexts, item_sids, keys, pair_sids, width):
     return out
 
 
-def encode_pair_cache(encoder, texts, keys, path, labels):
+def encode_pair_cache(encoder, texts, keys, path, labels, *, batch_size=32, event_prefix='kindle_pairs'):
+    if type(batch_size) is not int or batch_size < 1: raise ValueError('positive embedding batch size required')
     nitems = len(texts)
     dest = np.lib.format.open_memmap(path, mode='w+', dtype='float32', shape=(len(keys), 768))
     started = time.monotonic()
     for begin in range(0, len(keys), 2048):
         chunk = keys[begin:begin+2048]
         rows = [f'{labels[0]}: {texts[int(k)//nitems]} {labels[1]}: {texts[int(k)%nitems]}' for k in chunk]
-        values = np.asarray(encoder.encode(rows, batch_size=32, convert_to_numpy=True,
+        values = np.asarray(encoder.encode(rows, batch_size=batch_size, convert_to_numpy=True,
                                           show_progress_bar=False), dtype=np.float32)
         if values.shape != (len(chunk), 768) or not np.isfinite(values).all():
             raise ValueError('invalid pair embeddings')
         dest[begin:begin+len(chunk)] = values
         dest.flush()
-        _event('kindle_pairs_embedding_progress', completed=begin+len(chunk), total=len(keys),
+        _event(event_prefix+'_embedding_progress', completed=begin+len(chunk), total=len(keys),
                seconds=time.monotonic()-started)
     del dest
 
