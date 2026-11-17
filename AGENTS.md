@@ -21,8 +21,12 @@
   New privatecarasik/rhpr-ml1m-last8-input created and download-back verified:
   originalML1MZIP bytes asml-1m-source.bin SHAa6898adb50b9ca05aa231689da44c217cb524e7ebd39d264c56e2832f2c54e20;
   provenanceonly,no cachedvectors/models. Intendedkernelcarasik/rhpr-ml1m-last8-windows,
-  2T4offline,8hsessioncap;quota24.17h beforepreparation. Not yet submitted;
-  check submissionreceipt/server before dispatch. No extra seeds/retuning/retries.
+  2T4offline,8hsessioncap;quota24.17h beforepreparation. DispatchONCEat
+  2026-11-17T17:35:04Z,workflow44138588884/job134234838894,source77b170d430361795f58129c0a042e8ccd309b697;
+  GHA submissionSUCCESS/KaggleRUNNING,/1;all219Pythonfiles/exactconfig/privateoffline2T4
+  andoriginal3datasets/noparentsverified. Receiptgr-ml1m-last8-submission.json,
+  artifact14351949813. No quality results yet;do not dispatch again.
+  Full1176testsOK/145optionalskips/0fails119.324s. No extra seeds/retuning/retries.
 
 - BeautyRecent12andMenderDepth BOTH COMPLETE/audited2026-11-17. R12/1source
   413f2afb993b5b56f93534a7ccef155313e89938,runtime2518.518s/41.98min,
