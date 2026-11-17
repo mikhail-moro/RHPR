@@ -65,6 +65,13 @@ class ML1MLast8Tests(unittest.TestCase):
     def test_only_six_fits_and_microbatching_keeps_effective_batch(self):
         c = json.loads(Path('experiments/ml1m_last8_windows_2t4.json').read_text()); validate(c)
         before = copy.deepcopy(c)
+        # reduce-overhead enables CUDA Graphs, which failed with native GRID's
+        # shared embeddings on all six windows before completing an epoch.
+        self.assertEqual(c['training']['compile_training'], dict(
+            options={'triton.cudagraphs': False}, fullgraph=False, dynamic=False))
+        bad = copy.deepcopy(c)
+        bad['training']['compile_training'] = dict(mode='reduce-overhead', fullgraph=False, dynamic=False)
+        with self.assertRaises(ValueError): validate(bad)
         for trial in TRIALS:
             active = trial_config(c, trial)
             self.assertEqual(active['data']['history_items'], trial['history_items'])

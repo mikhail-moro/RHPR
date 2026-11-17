@@ -42,7 +42,8 @@ start with identical parameters. The USER precedes left padding as in GRID;
 maximum width also changes its relative distance to observed events.
 One source/core/runtime/constructor and fixed SID index across all six fits.
 
-Training:FP16,SDPA,torch.compile reduce-overhead,Adam.003/wd1e-4/clip1,
+Training:FP16,SDPA,torch.compile Inductor with explicit
+`options={"triton.cudagraphs": false}` (default mode),Adam.003/wd1e-4/clip1,
 effective batch512. Physical microbatches8/16/32/64/128/256 windows:
 256/256/128/64/32/16 respectively; accumulate gradients to the same512
 examples/update (95 attempted updates/epoch). Dropout consumption can differ
@@ -58,9 +59,11 @@ respectively, including TEST. Save per-user paths/scores/targets for paired
 analysis and post-hoc length/timestamp strata. Never select using TEST.
 
 Six fits in two isolated T4 workers, longest first. Per-trial pretraining
-profile:one warmup and two effective512 updates,180s profile deadline,
-restore weights/RNG; log estimated eager train time and peak memory. This
-is not the compiled throughput estimate or a serving latency benchmark.
+profile:one warmup and two effective512 updates through the actual compiled
+model,180s profile deadline, restore weights/RNG; log estimated compiled
+train time and peak memory. This excludes cold compilation and validation;
+it is not a serving latency benchmark. This compiled accumulation probe must
+succeed before the long fit starts; it covers the path missed by eager probes.
 CPU mathSDPA profiler records fixed-width B1 forward supported FLOPs,
 teacher-forced4code/FMA2; excludes beam/backward/text encoding. Record actual
 first/warm epoch times, validation time and peak memory. No extra profile
@@ -72,3 +75,30 @@ kernel:`carasik/rhpr-ml1m-last8-windows`; two offline runtime datasets plus
 a new private input containing only the original ML1M archive/provenance.
 The archive is stored byte-identically as `ml-1m-source.bin` to prevent Kaggle
 from automatically extracting ZIP inputs. A download-back SHA256 check passes.
+
+## Version 1 failure and repair
+
+Kaggle `/1`, source `77b170d430361795f58129c0a042e8ccd309b697`, failed
+on all six windows in the first epoch's backward with
+`accessing tensor output of CUDAGraphs that has been overwritten by a subsequent run`.
+The stack points to native GRID encoder embeddings and shared gradient addition.
+No epoch completed, no generator checkpoint or quality metric was produced.
+The source log reaches final failure at 288s (about five minutes including setup).
+Data preparation, frozen ST5/RQ-KMeans, FLOP accounting and eager profiles succeeded.
+Raw diagnostics and frozen index are retained in `/tmp/ml1m-last8-failed`;
+see the committed `gr-ml1m-last8-failure.json` for hashes and measured profiles.
+
+The repair disables CUDA Graphs explicitly while keeping Inductor compilation,
+FP16, SDPA and all model/data/optimizer/batch/selection settings. The pre-fit
+profile now runs compiled forward/backward with gradient accumulation, rather
+than only eager updates. CPU regression tests exercise the real Inductor policy,
+several accumulated updates, and restoration of original weights/RNG/mode.
+CPU tests cannot establish T4 behavior; the compiled GPU pre-fit probe is the
+runtime check. No automatic eager/LR/precision fallback is enabled.
+
+The failed attempt's EAGER projected train epoch seconds for windows
+8/16/32/64/128/256 were 13.03/18.84/44.12/95.65/263.78/846.21.
+At that last rate 40 epochs alone exceed nine hours; these are not compiled
+timings or a prediction of the repaired run. Retain the previously registered
+8h session /20,000s per-fit limits and explicitly label time-capped fits as
+censored. Do not claim a fast complete six-model plateau experiment in advance.

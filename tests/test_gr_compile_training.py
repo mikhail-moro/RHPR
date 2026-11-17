@@ -6,6 +6,27 @@ import test_gr_profiling as fixture_module
 from rhpr.gr.experiment import _train_generator
 
 class CompileTrainingTest(unittest.TestCase):
+    def test_inductor_profile_accumulates_gradients_and_restores_original_model(self):
+        from rhpr.gr.profiling import benchmark_training, ProfileDeadline
+        f=fixture_module.ProfileExecutionTests();f.setUpClass()
+        try:
+            f.setUp()
+            policy=json.loads(Path('experiments/ml1m_last8_windows_2t4.json').read_text())['training']['compile_training']
+            before={k:v.clone() for k,v in f.model.state_dict().items()}
+            rng=torch.get_rng_state().clone()
+            compiled=torch.compile(f.model, **policy)
+            result=benchmark_training(compiled,f.examples,f.index.sids,f.np.arange(4),2,'fp32',
+                'full_pipeline',f.training,dict(seed=42,warmup=1,iterations=2),ProfileDeadline(180),'cpu')
+            self.assertEqual(result['microbatches_per_update'],2)
+            self.assertEqual(result['measured_updates_applied'],2)
+            self.assertEqual(result['status'],'ok')
+            for k,v in f.model.state_dict().items(): self.assertTrue(torch.equal(before[k],v),k)
+            self.assertTrue(torch.equal(rng,torch.get_rng_state()))
+            self.assertFalse(f.model.training)
+        finally:
+            torch._dynamo.reset()
+            f.tearDownClass()
+
     def test_compiled_forward_updates_original_weights_and_keeps_unwrapped_checkpoints(self):
         f=fixture_module.ProfileExecutionTests();f.setUpClass()
         try:

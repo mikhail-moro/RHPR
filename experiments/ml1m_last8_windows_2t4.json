@@ -62,7 +62,9 @@
       "min_delta": 0.0005
     },
     "compile_training": {
-      "mode": "reduce-overhead",
+      "options": {
+        "triton.cudagraphs": false
+      },
       "fullgraph": false,
       "dynamic": false
     }

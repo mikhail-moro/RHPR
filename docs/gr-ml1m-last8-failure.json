@@ -1,0 +1,258 @@
+{
+  "kernel": "carasik/rhpr-ml1m-last8-windows/1",
+  "status": "ERROR",
+  "source_commit": "77b170d430361795f58129c0a042e8ccd309b697",
+  "collected_utc": "2026-11-17T17:57:31.451809+00:00",
+  "completed_generator_fits": 0,
+  "completed_epochs": 0,
+  "selected_generator_checkpoints": 0,
+  "quality_metrics_available": false,
+  "error_family": "CUDAGraph overwritten output during native GRID compiled backward",
+  "failures": [
+    {
+      "exception_type": "RuntimeError",
+      "message": "Error: accessing tensor output of CUDAGraphs that has been overwritten by a subsequent run. Stack trace: File \"/kaggle/temp/rhpr-ml1m-last8/grid/src/models/modules/semantic_id/tiger_generation_model.py\", line 848, in forward\n    encoder_output, attention_mask_for_encoder = self.encoder_forward_pass(\n  File \"/kaggle/temp/rhpr-ml1m-last8/grid/src/models/modules/semantic_id/tiger_generation_model.py\", line 607, in encoder_forward_pass\n    inputs_embeds_for_encoder = self.get_embedding_table(table_name=\"encoder\")(\nGradient addition node due to multiple use of tensor around:. To prevent overwriting, clone the tensor outside of torch.compile() or call torch.compiler.cudagraph_mark_step_begin() before each model invocation.",
+      "trial": "recent256_42"
+    },
+    {
+      "exception_type": "RuntimeError",
+      "message": "Error: accessing tensor output of CUDAGraphs that has been overwritten by a subsequent run. Stack trace: File \"/kaggle/temp/rhpr-ml1m-last8/grid/src/models/modules/semantic_id/tiger_generation_model.py\", line 848, in forward\n    encoder_output, attention_mask_for_encoder = self.encoder_forward_pass(\n  File \"/kaggle/temp/rhpr-ml1m-last8/grid/src/models/modules/semantic_id/tiger_generation_model.py\", line 607, in encoder_forward_pass\n    inputs_embeds_for_encoder = self.get_embedding_table(table_name=\"encoder\")(\nGradient addition node due to multiple use of tensor around:. To prevent overwriting, clone the tensor outside of torch.compile() or call torch.compiler.cudagraph_mark_step_begin() before each model invocation.",
+      "trial": "recent64_42"
+    },
+    {
+      "exception_type": "RuntimeError",
+      "message": "Error: accessing tensor output of CUDAGraphs that has been overwritten by a subsequent run. Stack trace: File \"/kaggle/temp/rhpr-ml1m-last8/grid/src/models/modules/semantic_id/tiger_generation_model.py\", line 848, in forward\n    encoder_output, attention_mask_for_encoder = self.encoder_forward_pass(\n  File \"/kaggle/temp/rhpr-ml1m-last8/grid/src/models/modules/semantic_id/tiger_generation_model.py\", line 607, in encoder_forward_pass\n    inputs_embeds_for_encoder = self.get_embedding_table(table_name=\"encoder\")(\nGradient addition node due to multiple use of tensor around:. To prevent overwriting, clone the tensor outside of torch.compile() or call torch.compiler.cudagraph_mark_step_begin() before each model invocation.",
+      "trial": "recent16_42"
+    },
+    {
+      "exception_type": "RuntimeError",
+      "message": "Error: accessing tensor output of CUDAGraphs that has been overwritten by a subsequent run. Stack trace: File \"/kaggle/temp/rhpr-ml1m-last8/grid/src/models/modules/semantic_id/tiger_generation_model.py\", line 848, in forward\n    encoder_output, attention_mask_for_encoder = self.encoder_forward_pass(\n  File \"/kaggle/temp/rhpr-ml1m-last8/grid/src/models/modules/semantic_id/tiger_generation_model.py\", line 607, in encoder_forward_pass\n    inputs_embeds_for_encoder = self.get_embedding_table(table_name=\"encoder\")(\nGradient addition node due to multiple use of tensor around:. To prevent overwriting, clone the tensor outside of torch.compile() or call torch.compiler.cudagraph_mark_step_begin() before each model invocation.",
+      "trial": "recent128_42"
+    },
+    {
+      "exception_type": "RuntimeError",
+      "message": "Error: accessing tensor output of CUDAGraphs that has been overwritten by a subsequent run. Stack trace: File \"/kaggle/temp/rhpr-ml1m-last8/grid/src/models/modules/semantic_id/tiger_generation_model.py\", line 848, in forward\n    encoder_output, attention_mask_for_encoder = self.encoder_forward_pass(\n  File \"/kaggle/temp/rhpr-ml1m-last8/grid/src/models/modules/semantic_id/tiger_generation_model.py\", line 607, in encoder_forward_pass\n    inputs_embeds_for_encoder = self.get_embedding_table(table_name=\"encoder\")(\nGradient addition node due to multiple use of tensor around:. To prevent overwriting, clone the tensor outside of torch.compile() or call torch.compiler.cudagraph_mark_step_begin() before each model invocation.",
+      "trial": "recent32_42"
+    },
+    {
+      "exception_type": "RuntimeError",
+      "message": "Error: accessing tensor output of CUDAGraphs that has been overwritten by a subsequent run. Stack trace: File \"/kaggle/temp/rhpr-ml1m-last8/grid/src/models/modules/semantic_id/tiger_generation_model.py\", line 848, in forward\n    encoder_output, attention_mask_for_encoder = self.encoder_forward_pass(\n  File \"/kaggle/temp/rhpr-ml1m-last8/grid/src/models/modules/semantic_id/tiger_generation_model.py\", line 607, in encoder_forward_pass\n    inputs_embeds_for_encoder = self.get_embedding_table(table_name=\"encoder\")(\nGradient addition node due to multiple use of tensor around:. To prevent overwriting, clone the tensor outside of torch.compile() or call torch.compiler.cudagraph_mark_step_begin() before each model invocation.",
+      "trial": "recent8_42"
+    }
+  ],
+  "log_last_failure_seconds": 288.055973502,
+  "raw_local_directory": "/tmp/ml1m-last8-failed",
+  "frozen_files": {
+    "centroids-42.npy": {
+      "bytes": 2359424,
+      "sha256": "b842155b3e51c0563d689d600eb5b199b3ecf1a8e250c5c5e2e3cc48295130cb"
+    },
+    "index-report.json": {
+      "bytes": 3391,
+      "sha256": "0a6792666082ffda2053461d16efebdaae175cfa50fb1a6d08296618719cc324"
+    },
+    "item-embeddings.npy": {
+      "bytes": 11384960,
+      "sha256": "3a3e48013b084c0c404dfb31df3564bc0199fc94ec2d74c7a5317bf929145760"
+    },
+    "items-42.npy": {
+      "bytes": 118720,
+      "sha256": "80422aa36fbcabbd0c1133a0695547513c1a795f908c72b4ed412e9cc2c2b672"
+    }
+  },
+  "profiles": {
+    "8": {
+      "baseline_effective_batch_preserved": true,
+      "effective_batch_size": 512,
+      "estimated_train_epoch_seconds": 13.026773208751852,
+      "examples_per_second": 3709.2838898536206,
+      "last_loss": 14.892332077026367,
+      "loss_scale": 1024.0,
+      "measured_updates_applied": 2,
+      "measured_updates_attempted": 2,
+      "microbatches_per_update": 2,
+      "mode": "full_pipeline",
+      "peak_allocated_bytes": 741105664,
+      "peak_reserved_bytes": 786432000,
+      "physical_batch_size": 256,
+      "precision": "fp16",
+      "status": "ok",
+      "step_seconds": [
+        0.144096353000009,
+        0.13196771500003024
+      ],
+      "step_seconds_max": 0.144096353000009,
+      "step_seconds_mean": 0.13803203400001962,
+      "step_seconds_min": 0.13196771500003024,
+      "warmup_updates_applied": 1
+    },
+    "16": {
+      "baseline_effective_batch_preserved": true,
+      "effective_batch_size": 512,
+      "estimated_train_epoch_seconds": 18.844427313126086,
+      "examples_per_second": 2564.153274445369,
+      "last_loss": 14.851921081542969,
+      "loss_scale": 1024.0,
+      "measured_updates_applied": 2,
+      "measured_updates_attempted": 2,
+      "microbatches_per_update": 2,
+      "mode": "full_pipeline",
+      "peak_allocated_bytes": 1274151424,
+      "peak_reserved_bytes": 1415577600,
+      "physical_batch_size": 256,
+      "precision": "fp16",
+      "status": "ok",
+      "step_seconds": [
+        0.20176344100002552,
+        0.1975886609999975
+      ],
+      "step_seconds_max": 0.20176344100002552,
+      "step_seconds_mean": 0.1996760510000115,
+      "step_seconds_min": 0.1975886609999975,
+      "warmup_updates_applied": 1
+    },
+    "32": {
+      "baseline_effective_batch_preserved": true,
+      "effective_batch_size": 512,
+      "estimated_train_epoch_seconds": 44.124959902499725,
+      "examples_per_second": 1095.071816649121,
+      "last_loss": 14.928496360778809,
+      "loss_scale": 1024.0,
+      "measured_updates_applied": 2,
+      "measured_updates_attempted": 2,
+      "microbatches_per_update": 4,
+      "mode": "full_pipeline",
+      "peak_allocated_bytes": 1265913856,
+      "peak_reserved_bytes": 1402994688,
+      "physical_batch_size": 128,
+      "precision": "fp16",
+      "status": "ok",
+      "step_seconds": [
+        0.47678573700000015,
+        0.458312750999994
+      ],
+      "step_seconds_max": 0.47678573700000015,
+      "step_seconds_mean": 0.4675492439999971,
+      "step_seconds_min": 0.458312750999994,
+      "warmup_updates_applied": 1
+    },
+    "64": {
+      "baseline_effective_batch_preserved": true,
+      "effective_batch_size": 512,
+      "estimated_train_epoch_seconds": 95.65204654312417,
+      "examples_per_second": 505.16430903770794,
+      "last_loss": 14.902461051940918,
+      "loss_scale": 1024.0,
+      "measured_updates_applied": 2,
+      "measured_updates_attempted": 2,
+      "microbatches_per_update": 8,
+      "mode": "full_pipeline",
+      "peak_allocated_bytes": 1339132416,
+      "peak_reserved_bytes": 1390411776,
+      "physical_batch_size": 64,
+      "precision": "fp16",
+      "status": "ok",
+      "step_seconds": [
+        1.016943556000001,
+        1.0101196819999814
+      ],
+      "step_seconds_max": 1.016943556000001,
+      "step_seconds_mean": 1.0135316189999912,
+      "step_seconds_min": 1.0101196819999814,
+      "warmup_updates_applied": 1
+    },
+    "128": {
+      "baseline_effective_batch_preserved": true,
+      "effective_batch_size": 512,
+      "estimated_train_epoch_seconds": 263.7822925999976,
+      "examples_per_second": 183.18136340286108,
+      "last_loss": 15.05443000793457,
+      "loss_scale": 1024.0,
+      "measured_updates_applied": 2,
+      "measured_updates_attempted": 2,
+      "microbatches_per_update": 16,
+      "mode": "full_pipeline",
+      "peak_allocated_bytes": 1548918784,
+      "peak_reserved_bytes": 1914699776,
+      "physical_batch_size": 32,
+      "precision": "fp16",
+      "status": "ok",
+      "step_seconds": [
+        2.790913297999964,
+        2.799175021999986
+      ],
+      "step_seconds_max": 2.799175021999986,
+      "step_seconds_mean": 2.795044159999975,
+      "step_seconds_min": 2.790913297999964,
+      "warmup_updates_applied": 1
+    },
+    "256": {
+      "baseline_effective_batch_preserved": true,
+      "effective_batch_size": 512,
+      "estimated_train_epoch_seconds": 846.2083822087504,
+      "examples_per_second": 57.10177423896042,
+      "last_loss": 14.894354820251465,
+      "loss_scale": 1024.0,
+      "measured_updates_applied": 2,
+      "measured_updates_attempted": 2,
+      "microbatches_per_update": 32,
+      "mode": "full_pipeline",
+      "peak_allocated_bytes": 2286064128,
+      "peak_reserved_bytes": 2986344448,
+      "physical_batch_size": 16,
+      "precision": "fp16",
+      "status": "ok",
+      "step_seconds": [
+        8.950782694000054,
+        8.982110173999956
+      ],
+      "step_seconds_max": 8.982110173999956,
+      "step_seconds_mean": 8.966446434000005,
+      "step_seconds_min": 8.950782694000054,
+      "warmup_updates_applied": 1
+    }
+  },
+  "repair": {
+    "compiler": "inductor",
+    "options": {
+      "triton.cudagraphs": false
+    },
+    "changes_to_data_or_model_or_optimizer": false,
+    "pretraining_profile": "same compiled forward/backward and gradient accumulation as training",
+    "automatic_fallback": false
+  },
+  "quota_before_repair": {
+    "resource": "GPU",
+    "used_hours": 20.92,
+    "remaining_hours": 24.08,
+    "total_hours": 45
+  },
+  "repair_verification": {
+    "full_suite": {
+      "total_including_skips": 1177,
+      "skipped": 145,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 146.449
+    },
+    "cpu_inductor_accumulation_profile": true,
+    "cpu_native_grid_aot_eager": {
+      "native_grid": true,
+      "real_frozen_index": true,
+      "history_items": 8,
+      "compiler_backend": "aot_eager",
+      "device": "cpu",
+      "updates": 2,
+      "microbatches_per_update": 2,
+      "losses": [
+        22.213354110717773,
+        21.290367126464844,
+        11.853877067565918,
+        12.017890930175781
+      ],
+      "finite": true,
+      "gpu_verified": false
+    },
+    "cuda_available_locally": false
+  }
+}

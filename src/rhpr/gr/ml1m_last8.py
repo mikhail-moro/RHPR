@@ -45,7 +45,7 @@ def validate(c):
             or c['quantizer']['num_hierarchies'] != 3 or c['quantizer']['codebook_size'] != 256
             or g['num_user_bins'] != 2000 or g['beam_width'] != 20 or g['mlp_layers'] is not None
             or t['weight_decay'] != .0001 or t['grad_clip_norm'] != 1.
-            or t['compile_training'] != dict(mode='reduce-overhead', fullgraph=False, dynamic=False)
+            or t['compile_training'] != dict(options={'triton.cudagraphs': False}, fullgraph=False, dynamic=False)
             or c['physical_batch_by_window'] != MICROBATCHES or c['evaluation_batch_by_window'] != EVAL_BATCHES
             or not c['evaluation']['test_after_selection'] or c['kaggle']['kernel_sources']
             or c['execution']['worker_devices'] != ['cuda:0', 'cuda:1']):
@@ -169,10 +169,16 @@ def run_trial(trial, p):
         scope='B1 fixed padded width, CPU mathSDPA teacher-forced4code forward,FMA2; excludes beam/backward/text encoder')
     _write(out/'forward-flops.json', forward)
     model.to('cuda:0')
-    profile = benchmark_training(model, visible['train'], index.sids,
+    # Exercise the actual compiled forward/backward with accumulation before a
+    # long fit. Eager-only profiling missed the native GRID CUDAGraph failure.
+    # Keep Inductor fusion, but explicitly disable graph-owned output buffers.
+    profile_model = torch.compile(model, **c['training']['compile_training'])
+    profile = benchmark_training(profile_model, visible['train'], index.sids,
         np.random.default_rng(seed).permutation(len(visible['train'][2]))[:512],
         c['training']['physical_batch_size'], 'fp16', 'full_pipeline', c['training'],
         dict(seed=seed, warmup=1, iterations=2), ProfileDeadline(180), 'cuda:0')
+    profile['compile_training'] = c['training']['compile_training']
+    profile['estimate_scope'] = 'compiled train updates after one warmup; excludes validation and cold compilation'
     if state_digest(dict(model.named_parameters())) != initial: raise RuntimeError('profile did not restore weights')
     _write(out/'training-profile.json', profile)
     _event('ml1m_last8_profile_complete', trial=trial['id'], history_items=width, **profile)

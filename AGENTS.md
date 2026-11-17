@@ -2,6 +2,25 @@
 
 ## Research status
 
+- ML1M Last8 /1 ERROR inspected2026-11-17 after user reported failure.
+  All SIX fits hit native GRID compiled backward CUDAGraph overwritten output;
+  NO completed epochs/checkpoints/quality metrics. Final failure~288s.
+  Data/index/eager profiles succeeded; raw preserved/tmp/ml1m-last8-failed;
+  reportgr-ml1m-last8-failure.json; original submission receipt correctedERROR.
+  FrozenSIDfile80422aa36fbcabbd0c1133a0695547513c1a795f908c72b4ed412e9cc2c2b672.
+  Repair keeps Inductor but explicitoptions triton.cudagraphs=false (no mode),
+  and pre-fit profile NOW exercises compiled accumulated forward/backward.
+  No architecture/data/optimizer/microbatch/ES changes. CPU actualInductor
+  accumulation+weights/RNGrestore passes; actualnative4+4+savedindex AOTeager
+  2updates/2microbatches finite. CUDA unavailablelocally; GPU check is the
+  compiled pre-fit probe. EAGER epoch estimates8/16/32/64/128/256:
+  13.03/18.84/44.12/95.65/263.78/846.21s; NOT compiled speed. Long256 may
+  time-cap before40; retain8hsession/20000sfit,markcensored,no quota extension.
+  Full1177testsOK/145skips/0errors146.449s. Same six-fit repair planned;
+  checkrepair-submission receipt before dispatch.
+  RemainingGPU24.08h before repair; no extra fits/seeds/ML10M/notifications.
+
+
 - Authorized2026-11-17: exactly SIX ordinary TIGER fits on FULL original ML1M,
   Last8fixedTRAINtargets/user,windows8/16/32/64/128/256,seed42. ML10M deferred.
   Configml1m_last8_windows_2t4.json;protocolgr-ml1m-last8-windows.md;
