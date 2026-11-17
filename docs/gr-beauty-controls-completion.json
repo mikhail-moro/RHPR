@@ -1,0 +1,88 @@
+{
+  "status": "COMPLETE_and_audited",
+  "collection_date_moscow": "2026-11-17",
+  "gpu_training_started_during_collection": false,
+  "new_inference": false,
+  "sessions": {
+    "recent12": {
+      "source": "413f2afb993b5b56f93534a7ccef155313e89938",
+      "seconds": 2518.518275,
+      "models": 1
+    },
+    "mender-depth": {
+      "source": "a68b70dbfe15b386d40552923afbe9801a7f5b90",
+      "seconds": 6989.027754,
+      "models": 2
+    }
+  },
+  "replay": {
+    "files": 68,
+    "candidates": 30413680,
+    "invalid": 25632,
+    "duplicates": 0
+  },
+  "all_original_embeddings_centroids_sids_byte_identical": true,
+  "all_raw_cases_and_targets_verified": true,
+  "all_metrics_lr_ema_selection_verified": true,
+  "checkpoints": [
+    {
+      "trial": "recent12_42",
+      "kind": "best",
+      "epoch": 60,
+      "sha256": "3e539e05d2e227ba58317d0a6dac3c85ac41da02a5fa56b7dbea22c27a3c3d6e",
+      "finite": true,
+      "bytes": 20500621
+    },
+    {
+      "trial": "recent12_42",
+      "kind": "last",
+      "epoch": 80,
+      "sha256": "e485539c09277696312e2e2bd48d14f15c9bdfdb06a2f3fbf27ecfcc1dae54c7",
+      "finite": true,
+      "bytes": 61469811
+    },
+    {
+      "trial": "mender_recent20_42",
+      "kind": "best",
+      "epoch": 75,
+      "sha256": "eed015e392c75a17e70fd9eae935de92b034c37d3ed270a0ffe241c49b436ca0",
+      "finite": true,
+      "bytes": 29444571
+    },
+    {
+      "trial": "mender_recent20_42",
+      "kind": "last",
+      "epoch": 95,
+      "sha256": "f494b16aa23024300f1a498011fb8cb2fbf0b610597d8bec95cb3cf37a4137ed",
+      "finite": true,
+      "bytes": 88285947
+    },
+    {
+      "trial": "mender_recent3_42",
+      "kind": "best",
+      "epoch": 110,
+      "sha256": "aae5555f242ac16566e21c20887052f577079eacfda89c337815be0643ba388d",
+      "finite": true,
+      "bytes": 29444571
+    },
+    {
+      "trial": "mender_recent3_42",
+      "kind": "last",
+      "epoch": 110,
+      "sha256": "524cffc24bfa3cff59978bf29cd7566bdcbebd0786db00049a044307bc1361e2",
+      "finite": true,
+      "bytes": 88285947
+    }
+  ],
+  "artifacts": "/workspace/artifacts/beauty-controls-analysis",
+  "raw_roots": [
+    "/workspace/artifacts/beauty-recent12-results",
+    "/workspace/artifacts/beauty-mender-depth-results"
+  ],
+  "tests": {
+    "total": 1170,
+    "optional_skips": 152,
+    "failures": 0,
+    "seconds": 143.955
+  }
+}

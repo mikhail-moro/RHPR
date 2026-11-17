@@ -2,6 +2,29 @@
 
 ## Research status
 
+- BeautyRecent12andMenderDepth BOTH COMPLETE/audited2026-11-17. R12/1source
+  413f2afb993b5b56f93534a7ccef155313e89938,runtime2518.518s/41.98min,
+  VAL.04445329/TEST.03137152,best60/stop80,.257705640GF/warm17.25s.
+  Mender/1sourcea68b70dbfe15b386d40552923afbe9801a7f5b90,6989.028s/116.48min:
+  new20VAL.04207304/TEST.02978388,best75/stop95/.640482218GF/warm45.80s;
+  new3.03905005/.02819985,best110/stop110/.123168026GF/warm12.84s.
+  New6+6/dropout.2 losesold20/3 TEST6.15%/5.94%;withinmodel20vs3TESTgain
+  +5.62%vsold+5.86%,pairedgainchange-.00017279CI[-.00227096,+.00191736].
+  Long11-20directionflipsbutnew20stillbelowold20;new3fallsmost,no overall
+  capacitybenefit established. DepthPLUSdropout confounded/one seed.
+  Tail3vsR12VAL+6.43%/TEST+.41%,TESTdelta+.00012797CI[-.00144844,+.00175220];
+  sameGF,noestablishedTESTadvantageovertruncation/noformalnoninferiority.
+  R12vsR20TEST-1.15%/forward-39.66%. All3EMAstop/nocap;rawbest110validunder
+  EMAreference90/min_delta.0005,notglobalconvergenceproof. Both recomputed
+  vectors/centroids/SIDsbyteidenticaloriginal;allcases/LR/EMA/selectionverified,
+  all6newweightsfinite+fullcontinuationstate. Replay68predfiles/30413680paths,
+  25632invalid/0dups (57newVAL+3newTEST+8oldselected). Full1170testsOK/152skips/
+  0fail143.955s. Reportgr-beauty-controls-results.md/.json/completion.json,
+  analyzerscripts/research/analyze_beauty_controls.py,rawbeauty-recent12-results/
+  beauty-mender-depth-results,combinedbeauty-controls-analysisCSV/PNG/PDF/ranks.
+  No newtraining/inference/fits duringcollection. No additionalruns authorized.
+
+
 - BeautyMenderDepth SUBMITTEDONCE privatecarasik/rhpr-beauty-mender-depth/1,
   sourcea68b70dbfe15b386d40552923afbe9801a7f5b90,workflow43987690723/
   job133719986217SUCCESS(submissiononly),artifact14285358656. Firstserver
