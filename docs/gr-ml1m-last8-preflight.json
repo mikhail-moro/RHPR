@@ -1,0 +1,83 @@
+{
+  "gpu_used": false,
+  "source_zip_sha256": "a6898adb50b9ca05aa231689da44c217cb524e7ebd39d264c56e2832f2c54e20",
+  "data_counts": {
+    "users": 6040,
+    "items": 3706,
+    "events": 1000209,
+    "train_examples": 48320,
+    "train_events": 988129
+  },
+  "raw_case_sha256": {
+    "train": "8ea681f85304befbc5fdeceec535a298edc64c8d35d7afa8f7ab0656e19261cc",
+    "validation": "f2035a8596ce933273c1c979f8d8ecd60f46b796ab972251cb9bcce83c8249a4",
+    "test": "bc47ff569738ddbad1ff64559f92ff96e058ed0fed990852a846765496237d31"
+  },
+  "targets_shared": true,
+  "synthetic_unique_sids": true,
+  "fitted_index_tested": false,
+  "initial_state_sha256": "d57fc2e783c0a04bfc567c0082541f757e241d1c53d7e79b3e8f281bf2eb9337",
+  "parameters": 4977920,
+  "native_encoder": true,
+  "finite_beam20": true,
+  "costs": {
+    "8": {
+      "encoder_positions": 33,
+      "forward_flops": 177735989,
+      "finite_forward_backward": true,
+      "physical_batch": 256,
+      "evaluation_batch": 64
+    },
+    "16": {
+      "encoder_positions": 65,
+      "forward_flops": 340822965,
+      "finite_forward_backward": true,
+      "physical_batch": 256,
+      "evaluation_batch": 64
+    },
+    "32": {
+      "encoder_positions": 129,
+      "forward_flops": 704770229,
+      "finite_forward_backward": true,
+      "physical_batch": 128,
+      "evaluation_batch": 32
+    },
+    "64": {
+      "encoder_positions": 257,
+      "forward_flops": 1583758005,
+      "finite_forward_backward": true,
+      "physical_batch": 64,
+      "evaluation_batch": 32
+    },
+    "128": {
+      "encoder_positions": 513,
+      "forward_flops": 3946106549,
+      "finite_forward_backward": true,
+      "physical_batch": 32,
+      "evaluation_batch": 16
+    },
+    "256": {
+      "encoder_positions": 1025,
+      "forward_flops": 11088295605,
+      "finite_forward_backward": true,
+      "physical_batch": 16,
+      "evaluation_batch": 8
+    }
+  },
+  "tests": {
+    "command": "OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MPLCONFIGDIR=/tmp/ml1m-mpl PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /tmp/ml1m-venv/bin/python -m unittest discover -s tests -v",
+    "total_including_skips": 1176,
+    "seconds": 119.324,
+    "optional_skipped": 145,
+    "failures": 0,
+    "errors": 0
+  },
+  "kaggle_dataset": {
+    "id": "carasik/rhpr-ml1m-last8-input",
+    "private": true,
+    "download_back_verified": true,
+    "file": "ml-1m-source.bin",
+    "source_zip_sha256": "a6898adb50b9ca05aa231689da44c217cb524e7ebd39d264c56e2832f2c54e20",
+    "cached_vectors_or_weights_transferred": false
+  }
+}

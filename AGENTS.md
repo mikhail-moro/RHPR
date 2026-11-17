@@ -2,6 +2,28 @@
 
 ## Research status
 
+- Authorized2026-11-17: exactly SIX ordinary TIGER fits on FULL original ML1M,
+  Last8fixedTRAINtargets/user,windows8/16/32/64/128/256,seed42. ML10M deferred.
+  Configml1m_last8_windows_2t4.json;protocolgr-ml1m-last8-windows.md;
+  runnergr/ml1m_last8.py. No user/positive-rating/metadata coverage filters;
+  6040users,3706ratedfilms,1000209events,48320TRAIN,6040VAL/TEST. Sorttimestamp
+  thenmovieID,ties retained;2483train/valand2544val/testties,not verified
+  viewing order. SharedfrozenST5title(year)+genres/RQKmeans3x256+suffix42;
+  ordinary4+4/d128/FF1024/dkv64/H6/.1,no unusedpairtable,4977920params.
+  CPUinitializerd57fc2e783c0a04bfc567c0082541f757e241d1c53d7e79b3e8f281bf2eb9337.
+  Effective512,physical256/256/128/64/32/16;FP16SDPAcompile,old.003->.001
+  warmup2cosine60,40min/120max,VAL5EMA.5delta.0005pat20,RAWVALNDCGselection.
+  TESTFP32beam20batch64/64/32/32/16/8,no seenfilter. Index and all targets
+  shared; Last8labelsupport3085films,VAL56/TEST73absentselectedTRAINlabels.
+  Save curves,best/fullresume-last,rawcases,chronologicalevents/anchorstimestamps,
+  predictionpaths,FLOPs/timing/memory. CPUall6FWD/BWD+beam finite on synthetic
+  uniqueSIDs;actualindexfitonlyonKaggle. Per-trialrestoredGPUprofile1+2updates.
+  New privatecarasik/rhpr-ml1m-last8-input created and download-back verified:
+  originalML1MZIP bytes asml-1m-source.bin SHAa6898adb50b9ca05aa231689da44c217cb524e7ebd39d264c56e2832f2c54e20;
+  provenanceonly,no cachedvectors/models. Intendedkernelcarasik/rhpr-ml1m-last8-windows,
+  2T4offline,8hsessioncap;quota24.17h beforepreparation. Not yet submitted;
+  check submissionreceipt/server before dispatch. No extra seeds/retuning/retries.
+
 - BeautyRecent12andMenderDepth BOTH COMPLETE/audited2026-11-17. R12/1source
   413f2afb993b5b56f93534a7ccef155313e89938,runtime2518.518s/41.98min,
   VAL.04445329/TEST.03137152,best60/stop80,.257705640GF/warm17.25s.
