@@ -1,0 +1,34 @@
+{
+  "kernel_id": "carasik/rhpr-beauty-mender-depth",
+  "version": 1,
+  "kernel_url": "https://www.kaggle.com/code/carasik/rhpr-beauty-mender-depth",
+  "source": "a68b70dbfe15b386d40552923afbe9801a7f5b90",
+  "workflow_run": 43987690723,
+  "workflow_job": 133719986217,
+  "workflow_artifact": 14285358656,
+  "workflow_conclusion": "success_submission_only",
+  "push_at_utc": "2026-11-17T00:27:10.0865627Z",
+  "server_status": "RUNNING",
+  "server_timeout_seconds": 21600,
+  "deployed_python_files_verified": 218,
+  "exact_config_verified": true,
+  "private": true,
+  "internet": false,
+  "new_generator_fits": 2,
+  "generator_seed": 42,
+  "parameters": 7338496,
+  "dataset_sources": [
+    "carasik/rhpr-gr-beauty-phase0",
+    "carasik/rhpr-t5-sdpa-runtime"
+  ],
+  "kernel_sources": [],
+  "notifications": false,
+  "configuration_sha256": "0b6d50f787b9a8f8fac2e92ed7d9b6b1f916a64f4ba33a73b3efb6bb268e6765",
+  "cpu_preflight": "gr-beauty-mender-depth-preflight.json",
+  "tests": {
+    "total": 1170,
+    "optional_skips": 152,
+    "failures": 0,
+    "seconds": 120.99
+  }
+}

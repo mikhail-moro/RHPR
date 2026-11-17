@@ -2,6 +2,17 @@
 
 ## Research status
 
+- BeautyMenderDepth SUBMITTEDONCE privatecarasik/rhpr-beauty-mender-depth/1,
+  sourcea68b70dbfe15b386d40552923afbe9801a7f5b90,workflow43987690723/
+  job133719986217SUCCESS(submissiononly),artifact14285358656. Firstserver
+  statusRUNNING;all218deployedPythonfiles/exactconfig/privateoffline/
+  original2datasets/noparents verified. Exactly2fits Recent20/3seed42,6+6/
+  dropout.2/7.338496Mparams;restoriginalBeautyprotocol/SIDhashguardunchanged.
+  CPUactualindexFWD/BWDfinitebothwidths .640482218/.123168070GF. Full1170tests
+  OK/152skips/0fails120.990s. Receiptgr-beauty-mender-depth-submission.json.
+  No newoutcomes/no extraHPO/seeds/duplicates. Recent12COMPLETEawaitingaudit.
+
+
 - Recent12serverstatusCOMPLETE observed2026-11-17 while preparingMenderdepth;
   outputs/qualitynotyetcollected inthisturn. Do not rerun it.
 
