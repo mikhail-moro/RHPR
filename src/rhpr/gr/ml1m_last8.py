@@ -23,13 +23,22 @@ from rhpr.gr.movie_data import case_digest
 
 WINDOWS = [8, 16, 32, 64, 128, 256]
 TRIALS = [dict(id=f'recent{w}_42', history_items=w, seed=42) for w in (256, 128, 64, 32, 16, 8)]
+REMAINING_WINDOWS = [16, 64]
+REMAINING_TRIALS = [dict(id=f'recent{w}_42', history_items=w, seed=42) for w in (64, 16)]
+REFERENCE_SID_SHA256 = '80422aa36fbcabbd0c1133a0695547513c1a795f908c72b4ed412e9cc2c2b672'
 MICROBATCHES = {'8': 256, '16': 256, '32': 128, '64': 64, '128': 32, '256': 16}
 EVAL_BATCHES = {'8': 64, '16': 64, '32': 32, '64': 32, '128': 16, '256': 8}
 
 
 def validate(c):
     t, g = c['training'], c['generator']
-    if (c['kind'] != 'gr_ml1m_last8' or c['windows'] != WINDOWS or c['trials'] != TRIALS
+    remaining = c.get('remaining_windows')
+    windows, trials = (REMAINING_WINDOWS, REMAINING_TRIALS) if remaining else (WINDOWS, TRIALS)
+    if remaining is not None and (remaining != dict(source_kernel='carasik/rhpr-ml1m-last8-windows',
+            source_version=2, completed_windows=[8, 32, 128], excluded_windows=[256])
+            or c.get('expected_sid_file_sha256') != REFERENCE_SID_SHA256):
+        raise ValueError('remaining-window run must preserve the completed index and exclude 256')
+    if (c['kind'] != 'gr_ml1m_last8' or c['windows'] != windows or c['trials'] != trials
             or c['seed'] != 42 or c['seeds'] != [42] or c['data']['history_items'] != 256
             or c['data']['users'] != 6040 or c['data']['items'] != 3706 or c['data']['train_examples'] != 48320
             or c['sampling'] != dict(kind='fixed_last_train_targets', targets_per_user=8,
@@ -49,7 +58,7 @@ def validate(c):
             or c['physical_batch_by_window'] != MICROBATCHES or c['evaluation_batch_by_window'] != EVAL_BATCHES
             or not c['evaluation']['test_after_selection'] or c['kaggle']['kernel_sources']
             or c['execution']['worker_devices'] != ['cuda:0', 'cuda:1']):
-        raise ValueError('ML1M Last-8 differs from the registered six-fit protocol')
+        raise ValueError('ML1M Last-8 differs from the registered window protocol')
     hashes = [c['expected_initial_state_sha256'], c['movie_input']['source_zip_sha256'], *c['expected_raw_case_sha256'].values()]
     if (set(c['expected_raw_case_sha256']) != {'train','validation','test'}
             or any(re.fullmatch('[0-9a-f]{64}', value) is None for value in hashes)):
@@ -236,7 +245,7 @@ def worker(plan_path, slot):
 
 
 def verify_results(c, results):
-    if set(results) != {t['id'] for t in c['trials']}: raise ValueError('incomplete six-window comparison')
+    if set(results) != {t['id'] for t in c['trials']}: raise ValueError('incomplete registered-window comparison')
     rows = list(results.values())
     for key in ('initial_state_sha256', 'sid_file_sha256', 'raw_case_sha256', 'case_targets_sha256', 'test_case_sha256'):
         if any(r[key] != rows[0][key] for r in rows[1:]): raise ValueError('unmatched comparison: '+key)
@@ -274,6 +283,8 @@ def run(c, output):
     np.save(indexes/'item-embeddings.npy', vec); del encoder; gc.collect(); torch.cuda.empty_cache()
     codes, centers, fit = fit_grid_rkmeans(vec, c['quantizer'], 42, 'cuda:0', source)
     index = SidIndex(codes, width=256); np.save(indexes/'items-42.npy', index.sids); np.save(indexes/'centroids-42.npy', centers)
+    if c.get('expected_sid_file_sha256') and file_sha256(indexes/'items-42.npy') != c['expected_sid_file_sha256']:
+        raise ValueError('recomputed frozen index differs from the completed windows; no training started')
     _write(indexes/'index-report.json', dict(fit=fit, sid=index.diagnostics(), scope='frozen title+genres, full rated static catalogue; no behavior fitting'))
     del vec, codes, centers; gc.collect(); torch.cuda.empty_cache()
     overlay = scratch/'modern-site'; overlay.mkdir()
@@ -286,8 +297,8 @@ def run(c, output):
     path = output/'plan.json'; _write(path, p)
     summary = launch_workers(path, worker_module='rhpr.gr.ml1m_last8', event_prefix='ml1m_last8')
     verify_results(c, summary['results'])
-    _write(output/'study-summary.json', dict(results=summary['results'], data=report, new_generator_fits=6, exact_TIGER_reproduction=False))
-    metrics = dict(experiment=c['name'], models=6, seed=42, test_evaluated=True, train_examples=48320, validation_examples=6040, test_examples=6040)
+    _write(output/'study-summary.json', dict(results=summary['results'], data=report, new_generator_fits=len(c['trials']), exact_TIGER_reproduction=False))
+    metrics = dict(experiment=c['name'], models=len(c['trials']), seed=42, test_evaluated=True, train_examples=48320, validation_examples=6040, test_examples=6040)
     for name, row in summary['results'].items():
         metrics[name+'_validation_ndcg10'] = row['selection']['validation_ndcg10']
         metrics[name+'_test_ndcg10'] = row['test']['metrics']['ndcg@10']

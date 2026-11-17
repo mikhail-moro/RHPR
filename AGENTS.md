@@ -2,6 +2,24 @@
 
 ## Research status
 
+- Authorized2026-11-18(Moscow): user STOPPED Last8/2 because256tooexpensive;
+  EXCLUDE256,finish remainingwindows. /2CANCEL_ACKNOWLEDGED;8/32/128actually
+  COMPLETE,never retrain them. VAL/TEST8 .05199936/.04578558,best35/stop60;
+  32 .04988699/.04138927,best40/stop60;128 .06705911/.05449579,best35/stop70.
+  AllEMAstop/0AMPskips;128TESTvs8+19.02%,one seed/notmonotonic.256last32,
+  nofinalTEST;16/64neverstarted,blockedbehind256. Nativecompile repairWORKED.
+  Raw/tmp/ml1m-last8-stopped-v2;6VALTESTfiles/724800pathsreplayed;6complete
+  modelbestlastweightsfinite/fullstatepresent/casehashesandselectionverified.
+  Audit scripts/research/audit_ml1m_last8_partial.py;report
+  gr-ml1m-last8-partial-results.json. KEEP old kernel outputs;newintendedslug
+  carasik/rhpr-ml1m-last8-remaining. Configml1m_last8_remaining_2t4.json,
+  exactlyTWO freshfits64/16seed42,oneworkerperT4,alltrainingunchanged.
+  Recompute indexfromoriginal3datasets;SIDfileSHAguard80422aa36fbcabbd0c1133a0695547513c1a795f908c72b4ed412e9cc2c2b672
+  BEFOREtraining. No cacheddata/modelupload/parentmount/newdataset. Same8hcap,
+  20000sfit/40-120epochs;GPU20.25hrembeforedispatch. Checkremaining-submission
+  receiptbeforelaunch;no duplicates/extra seeds/ML10M/256/notifications.
+
+
 - ML1M Last8 REPAIR SUBMITTEDONCE2026-11-17T17:59:31Z, kernel
   carasik/rhpr-ml1m-last8-windows/2, source5c1af46bddb1a848877acead858ec855e77201ed.
   Workflow44142974366/job134250475853SUCCESSsubmissiononly/artifact14354987719;

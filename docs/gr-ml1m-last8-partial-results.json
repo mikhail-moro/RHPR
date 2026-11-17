@@ -1,0 +1,86 @@
+{
+  "kernel": "carasik/rhpr-ml1m-last8-windows/2",
+  "status": "CANCEL_ACKNOWLEDGED",
+  "source_commit": "5c1af46bddb1a848877acead858ec855e77201ed",
+  "raw_local_directory": "/tmp/ml1m-last8-stopped-v2",
+  "completed_windows": {
+    "8": {
+      "validation_ndcg10": 0.051999356563041735,
+      "test_ndcg10": 0.04578557754067205,
+      "best_epoch": 35,
+      "stopped_epoch": 60,
+      "stopping_reason": "early_stopping",
+      "warm_epoch_seconds": 6.751389013001244,
+      "forward_gflops": 0.177735989,
+      "total_training_and_validation_seconds": 618.0597478359996,
+      "checkpoints": {
+        "best": {
+          "epoch": 35,
+          "model_sha256": "0554a4683f76c547a2ed6b392611530f476f3baf4cfbafe34d438812e0773f9a"
+        },
+        "last": {
+          "epoch": 60,
+          "model_sha256": "de5f7303c60f7183dbf996b3b2ca30752c50ddde149d1d8ba7147f5a9d721e62"
+        }
+      }
+    },
+    "32": {
+      "validation_ndcg10": 0.04988699144322487,
+      "test_ndcg10": 0.04138926685966919,
+      "best_epoch": 40,
+      "stopped_epoch": 60,
+      "stopping_reason": "early_stopping",
+      "warm_epoch_seconds": 21.46985344300083,
+      "forward_gflops": 0.704770229,
+      "total_training_and_validation_seconds": 1740.3832281710002,
+      "checkpoints": {
+        "best": {
+          "epoch": 40,
+          "model_sha256": "c0ba18392eddb294bdce8b954f73b785b7230b9ea3ade149260445ebd74f34bb"
+        },
+        "last": {
+          "epoch": 60,
+          "model_sha256": "883b4bf489a9410fa5cc8e96ddc096c0885181cd3d2ae10e23bb0545e2296ae4"
+        }
+      }
+    },
+    "128": {
+      "validation_ndcg10": 0.06705910547926063,
+      "test_ndcg10": 0.05449578524985305,
+      "best_epoch": 35,
+      "stopped_epoch": 70,
+      "stopping_reason": "early_stopping",
+      "warm_epoch_seconds": 124.93720015200006,
+      "forward_gflops": 3.946108093,
+      "total_training_and_validation_seconds": 10477.200049183,
+      "checkpoints": {
+        "best": {
+          "epoch": 35,
+          "model_sha256": "9483bf0761e8958553bc980b9fc074570054334d85e80d66817c039fa4176743"
+        },
+        "last": {
+          "epoch": 70,
+          "model_sha256": "ae3ab15908d9b031a1e4c7c44c698996b740e8ad886d73b25f4910130bbcf3c3"
+        }
+      }
+    }
+  },
+  "remaining_windows": [
+    16,
+    64
+  ],
+  "excluded_window": 256,
+  "excluded_last_completed_epoch": 32,
+  "sid_file_sha256": "80422aa36fbcabbd0c1133a0695547513c1a795f908c72b4ed412e9cc2c2b672",
+  "raw_case_sha256": {
+    "train": "8ea681f85304befbc5fdeceec535a298edc64c8d35d7afa8f7ab0656e19261cc",
+    "validation": "f2035a8596ce933273c1c979f8d8ecd60f46b796ab972251cb9bcce83c8249a4",
+    "test": "bc47ff569738ddbad1ff64559f92ff96e058ed0fed990852a846765496237d31"
+  },
+  "replayed_selected_prediction_files": 6,
+  "replayed_paths": 724800,
+  "checkpoints_finite_and_full_resume_state_present": true,
+  "gpu_compile_repair_successful": true,
+  "additional_gpu_inference": false,
+  "note": "One generator/index seed; windows16/64 pending. Window256 stopped by user and not resumed. Conditional on current target and timestamp tie protocol."
+}

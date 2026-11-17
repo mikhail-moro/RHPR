@@ -1,0 +1,49 @@
+{
+  "config": "experiments/ml1m_last8_remaining_2t4.json",
+  "assignments": [
+    {
+      "slot": 0,
+      "device": "cuda:0",
+      "trials": [
+        {
+          "id": "recent64_42",
+          "history_items": 64,
+          "seed": 42
+        }
+      ]
+    },
+    {
+      "slot": 1,
+      "device": "cuda:1",
+      "trials": [
+        {
+          "id": "recent16_42",
+          "history_items": 16,
+          "seed": 42
+        }
+      ]
+    }
+  ],
+  "reused_complete_windows": [
+    8,
+    32,
+    128
+  ],
+  "new_fits": 2,
+  "no_256_model": true,
+  "source_sid_file_sha256": "80422aa36fbcabbd0c1133a0695547513c1a795f908c72b4ed412e9cc2c2b672",
+  "expected_case_sha256": {
+    "train": "8ea681f85304befbc5fdeceec535a298edc64c8d35d7afa8f7ab0656e19261cc",
+    "validation": "f2035a8596ce933273c1c979f8d8ecd60f46b796ab972251cb9bcce83c8249a4",
+    "test": "bc47ff569738ddbad1ff64559f92ff96e058ed0fed990852a846765496237d31"
+  },
+  "full_tests": {
+    "total_including_skips": 1178,
+    "skipped": 145,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 142.577
+  },
+  "quota_remaining_hours": 20.25,
+  "partial_results_audited": true
+}

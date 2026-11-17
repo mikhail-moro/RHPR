@@ -7,7 +7,7 @@
   "private_offline_dual_t4_verified": true,
   "kernel": "carasik/rhpr-ml1m-last8-windows",
   "kernel_version": 2,
-  "status": "QUEUED",
+  "status": "CANCEL_ACKNOWLEDGED",
   "workflow_run": 44142974366,
   "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/44142974366",
   "workflow_conclusion": "success_submission_only",
@@ -45,6 +45,17 @@
     "errors": 0,
     "seconds": 146.449
   },
-  "gpu_fix_verified": false,
-  "quality_results_available": false
+  "gpu_fix_verified": true,
+  "quality_results_available": true,
+  "completed_windows": [
+    8,
+    32,
+    128
+  ],
+  "unstarted_windows": [
+    16,
+    64
+  ],
+  "excluded_window": 256,
+  "partial_results": "gr-ml1m-last8-partial-results.json"
 }

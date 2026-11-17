@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 
-from rhpr.gr.ml1m_last8 import WINDOWS, TRIALS, build_last8_cases, prepare_raw, trial_config, validate, verify_results
+from rhpr.gr.ml1m_last8 import WINDOWS, TRIALS, REMAINING_TRIALS, build_last8_cases, prepare_raw, trial_config, validate, verify_results
 
 
 class ML1MLast8Tests(unittest.TestCase):
@@ -97,6 +97,23 @@ class ML1MLast8Tests(unittest.TestCase):
         for key in row:
             bad = copy.deepcopy(results); bad[TRIALS[0]['id']][key] = 'different'
             with self.assertRaises(ValueError): verify_results(c, bad)
+
+    def test_remaining_run_trains_only_missing_windows_with_same_model_targets_and_index(self):
+        c = json.loads(Path('experiments/ml1m_last8_remaining_2t4.json').read_text())
+        old = json.loads(Path('experiments/ml1m_last8_windows_2t4.json').read_text())
+        validate(c)
+        self.assertEqual(c['windows'], [16, 64])
+        self.assertEqual(c['trials'], REMAINING_TRIALS)
+        for key in ('generator', 'training', 'quantizer', 'data', 'sampling',
+                    'expected_raw_case_sha256', 'expected_initial_state_sha256', 'kaggle'):
+            self.assertEqual(c[key], old[key], key)
+        for trial in c['trials']:
+            self.assertNotIn(trial['history_items'], [8, 32, 128, 256])
+            self.assertEqual(trial_config(c, trial)['training']['batch_size'], 512)
+        for field, value in [('windows', WINDOWS), ('trials', TRIALS),
+                             ('expected_sid_file_sha256', '0'*64), ('remaining_windows', None)]:
+            bad=copy.deepcopy(c);bad[field]=value
+            with self.assertRaises(ValueError): validate(bad)
 
     @unittest.skipUnless(importlib.util.find_spec('torch') and importlib.util.find_spec('transformers'), 'requires Torch/HF')
     def test_actual_two_worker_event_collection_and_partial_failure(self):
