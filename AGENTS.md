@@ -2,6 +2,23 @@
 
 ## Research status
 
+- Recent12serverstatusCOMPLETE observed2026-11-17 while preparingMenderdepth;
+  outputs/qualitynotyetcollected inthisturn. Do not rerun it.
+
+
+- Authorized2026-11-17: exactlyTWO Beauty generator fits Recent20/Recent3,
+  seed42,6+6layers/dropout.2 borrowed from officialMenderTIGERBeautyconfig
+  cf2d58f014477ca3702d63c7937289cf3c2f9ade. Keep USER2000/allothergenerator
+  settings,originalindex/completeBeautydata/training/VAL5/EMAunchanged.
+  Configbeauty_mender_depth_2t4.json;reportgr-beauty-mender-depth.md.
+  New7338496params,initializer42d133f62430a906aeb64942d36247f8614eee7b26b87dd91c5e3b22af9d8ecb;
+  originalSIDhashguardBEFOREtraining. Recomputefromoriginal2datasets,
+  nopairfitting/vectortransfer/newdataset. TwoisolatedT4workers,onefit each;
+  intendedprivatekernelcarasik/rhpr-beauty-mender-depth. Checkreceiptbefore
+  dispatch;no additionalHPO/seeds/duplicates/retries. Recent12untouched.
+  This testsdepthPLUSdropout,not purecapacity or exactpaperreproduction.
+
+
 - BeautyRecent12 SUBMITTEDONCE privatecarasik/rhpr-beauty-recent12/1,source
   413f2afb993b5b56f93534a7ccef155313e89938,workflow43980886653/
   job133696732470SUCCESS(submissiononly),artifact14282493141. FirstKaggle

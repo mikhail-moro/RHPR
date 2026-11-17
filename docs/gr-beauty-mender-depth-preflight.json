@@ -1,0 +1,145 @@
+{
+  "gpu_used": false,
+  "new_generator_fits": 2,
+  "fitted_sids_used": true,
+  "local_saved_index_only": true,
+  "external_vector_transfer": false,
+  "data": {
+    "items": 12101,
+    "users": 22363,
+    "train_events": 153776,
+    "train_examples": 131413,
+    "full_length_median": 6.0,
+    "splits": {
+      "train": {
+        "examples": 131413,
+        "context_length_counts": [
+          0,
+          22363,
+          22363,
+          15201,
+          10980,
+          8300,
+          6489,
+          5123,
+          4242,
+          3547,
+          2989,
+          2550,
+          2189,
+          1927,
+          1720,
+          1507,
+          1366,
+          1248,
+          1136,
+          1019,
+          15154
+        ],
+        "tails": {
+          "3": {
+            "compressible_examples": 60506,
+            "fixed_pair_occurrences": 253628
+          },
+          "5": {
+            "compressible_examples": 45717,
+            "fixed_pair_occurrences": 193122
+          }
+        }
+      },
+      "validation": {
+        "examples": 22363,
+        "context_length_counts": [
+          0,
+          0,
+          0,
+          7162,
+          4221,
+          2680,
+          1811,
+          1366,
+          881,
+          695,
+          558,
+          439,
+          361,
+          262,
+          207,
+          213,
+          141,
+          118,
+          112,
+          117,
+          1019
+        ],
+        "tails": {
+          "3": {
+            "compressible_examples": 10980,
+            "fixed_pair_occurrences": 31111
+          },
+          "5": {
+            "compressible_examples": 6489,
+            "fixed_pair_occurrences": 20131
+          }
+        }
+      },
+      "test": {
+        "examples": 22363,
+        "context_length_counts": [
+          0,
+          0,
+          0,
+          0,
+          7162,
+          4221,
+          2680,
+          1811,
+          1366,
+          881,
+          695,
+          558,
+          439,
+          361,
+          262,
+          207,
+          213,
+          141,
+          118,
+          112,
+          1136
+        ],
+        "tails": {
+          "3": {
+            "compressible_examples": 15201,
+            "fixed_pair_occurrences": 39403
+          },
+          "5": {
+            "compressible_examples": 8300,
+            "fixed_pair_occurrences": 24202
+          }
+        }
+      }
+    }
+  },
+  "data_sha256": {
+    "catalog.json": "0336747ab3d50741fde2bb17f734b9e393c418bc54f818ab714977bacd2ae767",
+    "sequences.json": "f197aab8b2e8a9d86bef04a4a552b112ce0c8d7be831dff6281e416783d2c645"
+  },
+  "raw_cases_verified": true,
+  "targets_verified": true,
+  "sid_file_sha256": "624a0e23fc8c4ca844972beb4718800121d23f9a12a85c8135a4c26767dd02ab",
+  "initial_state_sha256": "42d133f62430a906aeb64942d36247f8614eee7b26b87dd91c5e3b22af9d8ecb",
+  "parameters": 7338496,
+  "costs": {
+    "20": {
+      "encoder_positions": 81,
+      "forward_flops": 640482218,
+      "finite_forward_backward": true
+    },
+    "3": {
+      "encoder_positions": 13,
+      "forward_flops": 123168070,
+      "finite_forward_backward": true
+    }
+  }
+}

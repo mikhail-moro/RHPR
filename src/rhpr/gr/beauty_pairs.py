@@ -117,6 +117,18 @@ class TailTokenization(RandomTokenization):
 
 
 def validate(c):
+    if c.get('architecture_pilot'):
+        if (c.get('recent12_control') or c['architecture_pilot'] != dict(
+                reference_kernel='carasik/rhpr-beauty-pairs/1', new_generator_fits=2,
+                source_revision='cf2d58f014477ca3702d63c7937289cf3c2f9ade',
+                adopted=['encoder_layers', 'decoder_layers', 'dropout'])
+                or c['trials'] != [dict(id=f'mender_recent{n}_42', mode='recent', recent=n, seed=42) for n in (20, 3)]
+                or c['execution']['worker_devices'] != ['cuda:0', 'cuda:1']
+                or (c['generator']['encoder_layers'], c['generator']['decoder_layers'], c['generator']['dropout']) != (6, 6, .2)
+                or c['expected_sid_file_sha256'] != '624a0e23fc8c4ca844972beb4718800121d23f9a12a85c8135a4c26767dd02ab'):
+            raise ValueError('expected exactly two matched Mender-depth Beauty controls')
+        c = copy.deepcopy(c); c['trials'] = TRIALS
+        c['generator'].update(encoder_layers=4, decoder_layers=4, dropout=.1)
     if c.get('recent12_control'):
         if (c['recent12_control'] != dict(reference_kernel='carasik/rhpr-beauty-pairs/1', new_generator_fits=1)
                 or c['trials'] != [dict(id='recent12_42', mode='recent', recent=12, seed=42)]
@@ -183,13 +195,14 @@ def run_trial(trial, p):
     def encoding(h):
         return encode(h, sids, keys, pairs, tail=trial['recent'], recent=trial['recent'] if trial['mode'] == 'recent' else None)
     raw = {s: cases(p['data'], s) for s in ('train', 'validation')}
-    if c.get('recent12_control'):
+    if c.get('recent12_control') or c.get('architecture_pilot'):
         reference = c['reference_result']
         if (file_sha256(root/'items-42.npy') != reference['sid_file_sha256']
-                or initial != reference['initial_state_sha256']
+                or initial != c['expected_initial_state_sha256']
                 or {s: case_digest(v) for s, v in raw.items()} != reference['raw_case_sha256']
+                or {s: case_digest(v[1:]) for s, v in raw.items()} != reference['case_targets_sha256']
                 or case_digest(cases(p['data'], 'test')) != reference['test_case_sha256']):
-            raise ValueError('Recent12 input/index/initializer mismatch before training')
+            raise ValueError('Beauty control input/index/initializer mismatch before training')
     encoded = {s: (encoding(h), u, t) for s, (h, u, t) in raw.items()}
     views = TailTokenization(raw['train'][0], sids, keys, pairs, tail=trial['recent']) if trial['mode'] == 'random' else None
     model.eval(); probe = (encoded['validation'][0][:1], raw['validation'][1][:1], raw['validation'][2][:1])
@@ -257,7 +270,7 @@ def run(c, output):
     resources = resolve_dataset_directory(c['resources']['path']); verify_resources(resources, c['resources']['manifest_sha256'])
     modern = resolve_dataset_directory(c['modern_runtime']['path']); verify_resources(modern, c['modern_runtime']['manifest_sha256'])
     texts, data, report = prepare_cases(c, resources, output)
-    control = bool(c.get('recent12_control'))
+    control = bool(c.get('recent12_control') or c.get('architecture_pilot'))
     if not control:
         sets = cache_sets(data, len(texts)); keys = np.unique(np.concatenate(list(sets.values()))); mask = np.isin(keys, sets['train'])
         if {s: len(k) for s, k in sets.items()} != c['expected_pair_counts']: raise ValueError('pair candidates differ from CPU preflight')
@@ -301,7 +314,7 @@ def run(c, output):
         '--require-hashes', '--only-binary=:all:', '--target', str(overlay), '--find-links', str(modern), '-r', str(modern/'requirements-lock.txt')]
     with (output/'modern-install.log').open('w') as log: subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=True, timeout=180)
     sys.path.insert(0, str(overlay))
-    jobs = [dict(slot=0, device='cuda:0', trials=c['trials'])] if control else assignments(c, 2)
+    jobs = [dict(slot=0, device='cuda:0', trials=c['trials'])] if c.get('recent12_control') else assignments(c, 2)
     p = dict(config=c, output=str(output), source=str(source), data=str(data), indexes=str(indexes), assignments=jobs)
     path = output/'plan.json'; _write(path, p)
     summary = launch_workers(path, worker_module='rhpr.gr.beauty_pairs', event_prefix='beauty_pairs')

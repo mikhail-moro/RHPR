@@ -121,3 +121,25 @@ class BeautyPairsTests(unittest.TestCase):
             elif change == 'wrong_window': bad['trials'][0]['recent'] = 13
             else: bad['expected_sid_file_sha256'] = 'wrong'
             with self.assertRaises(ValueError): validate(bad)
+
+    def test_mender_pilot_changes_only_depth_and_dropout_with_two_matched_windows(self):
+        c = json.loads(Path('experiments/beauty_mender_depth_2t4.json').read_text()); validate(c)
+        old = json.loads(Path('experiments/beauty_pairs_2t4.json').read_text())
+        for key in ('training', 'quantizer', 'data', 'kaggle'):
+            self.assertEqual(c[key], old[key])
+        generator = copy.deepcopy(c['generator']); generator.update(encoder_layers=4, decoder_layers=4, dropout=.1)
+        self.assertEqual(generator, old['generator'])
+        self.assertEqual([t['recent'] for t in c['trials']], [20, 3])
+        self.assertNotEqual(c['expected_initial_state_sha256'], old['expected_initial_state_sha256'])
+        from rhpr.gr.ae_suite import assignments
+        jobs = assignments(c, 2)
+        self.assertEqual([[t['recent'] for t in j['trials']] for j in jobs], [[20], [3]])
+        self.assertEqual([j['device'] for j in jobs], ['cuda:0', 'cuda:1'])
+        for change in ('depth', 'dropout', 'third_fit', 'seed', 'lr'):
+            bad = copy.deepcopy(c)
+            if change == 'depth': bad['generator']['encoder_layers'] = 8
+            elif change == 'dropout': bad['generator']['dropout'] = .1
+            elif change == 'third_fit': bad['trials'].append(old['trials'][0])
+            elif change == 'seed': bad['trials'][1]['seed'] = 101
+            else: bad['training']['learning_rate'] = .001
+            with self.assertRaises(ValueError): validate(bad)
