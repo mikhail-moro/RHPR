@@ -1,0 +1,59 @@
+{
+  "source_commit": "8d53f94583a5a27a708165bd3060ecd123d56469",
+  "deployed_source_verified": true,
+  "deployed_python_files": 220,
+  "deployed_config_verified": true,
+  "private_offline_dual_t4_verified": true,
+  "deployed_source_sha256": "80da6ae580a0fd5a21a6cf84c1b45c4f091d7a49545b17af4f38be90566c3b97",
+  "dataset_sources": [
+    "carasik/rhpr-gr-beauty-phase0",
+    "carasik/rhpr-ml1m-last8-input",
+    "carasik/rhpr-t5-sdpa-runtime"
+  ],
+  "kernel": "carasik/rhpr-ml1m-pair128-screen",
+  "kernel_version": 1,
+  "status": "RUNNING",
+  "workflow_run": 44203522024,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/44203522024",
+  "job_id": 134463474522,
+  "workflow_conclusion": "success_submission_only",
+  "artifact_id": 14382876143,
+  "dispatch_utc": "2026-11-17T23:55:23Z",
+  "push_confirmed_utc": "2026-11-17T23:55:42.6922663Z",
+  "experiment": "experiments/ml1m_last8_pair128_2t4.json",
+  "new_generator_fits": 4,
+  "seed": 42,
+  "merge_prefix_items": [
+    64,
+    96,
+    112,
+    120
+  ],
+  "protected_tail_items": [
+    64,
+    32,
+    16,
+    8
+  ],
+  "epochs": 40,
+  "validation_interval": 5,
+  "reference_control_retrained": false,
+  "reference_control_reevaluated": false,
+  "reference_control_matched_best_epoch": 35,
+  "expected_sid_file_sha256": "80422aa36fbcabbd0c1133a0695547513c1a795f908c72b4ed412e9cc2c2b672",
+  "expected_base_initial_state_sha256": "d57fc2e783c0a04bfc567c0082541f757e241d1c53d7e79b3e8f281bf2eb9337",
+  "expected_pair_initial_state_sha256": "34e7397ed277c78befd6254cbb736794df4907a011ed032bbd0735d9b7272286",
+  "pair_union": 257184,
+  "pair_embedding_batch_size": 128,
+  "server_runtime_limit_seconds": 14400,
+  "telegram_notifications": false,
+  "cached_artifacts_transferred": false,
+  "quality_results_available": false,
+  "tests": {
+    "total_including_skips": 1184,
+    "skipped": 145,
+    "errors": 0,
+    "failures": 0,
+    "seconds": 124.56
+  }
+}

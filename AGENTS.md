@@ -2,6 +2,17 @@
 
 ## Research status
 
+- Pair128 SCREEN SUBMITTEDONCE2026-11-17T23:55:23Z(18NovMoscow),
+  carasik/rhpr-ml1m-pair128-screen/1,RUNNING,source8d53f94583a5a27a708165bd3060ecd123d56469.
+  GHA44203522024/job134463474522SUCCESSsubmissiononly/artifact14382876143;
+  exact220deployedPythonfiles/config/privateoffline2T4/original3datasets
+  verified. FOUR fixedprefix64/96/112/120fits,seed42,40epochs,VAL5,4hcap;
+  commonpaircache257184keys,sharedTRAINonlypairquantizer3+1;singlesoriginal
+  hashguardBEFOREcache. Control128reusebest35/no refit/no reevaluation.
+  Receiptgr-ml1m-last8-pair128-submission.json. No newqualityresults yet;
+  DO NOT DISPATCH again,waitforexistingrun. No extra axes/notifications.
+
+
 - Authorized2026-11-18Moscow: quick FOUR Pair128 screens seed42,
   mergeold64/96/112/120,protecttail64/32/16/8. Fixedpairs TRAIN/VAL/TEST,
   unique3+1bothsingleandpair,alltargetssingle;shortkeepssameprotectedtail,
