@@ -2,6 +2,16 @@
 
 ## Research status
 
+- ML1M Last8 REPAIR SUBMITTEDONCE2026-11-17T17:59:31Z, kernel
+  carasik/rhpr-ml1m-last8-windows/2, source5c1af46bddb1a848877acead858ec855e77201ed.
+  Workflow44142974366/job134250475853SUCCESSsubmissiononly/artifact14354987719;
+  serverQUEUED,not qualitysuccess/GPUfixnotyetverified. All219deployedPython
+  files/exactconfig/privateoffline2T4/3originaldatasets/noparents verified.
+  Receiptgr-ml1m-last8-repair-submission.json. Same6windows/seed42/budgets;
+  Inductor graphsoff,compiledpre-fit accumulationprobe. No furtherdispatch;
+  awaitexistingv2. No newqualityresults/extraaxes/notifications.
+
+
 - ML1M Last8 /1 ERROR inspected2026-11-17 after user reported failure.
   All SIX fits hit native GRID compiled backward CUDAGraph overwritten output;
   NO completed epochs/checkpoints/quality metrics. Final failure~288s.
