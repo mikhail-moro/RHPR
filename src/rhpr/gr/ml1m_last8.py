@@ -28,9 +28,40 @@ REMAINING_TRIALS = [dict(id=f'recent{w}_42', history_items=w, seed=42) for w in 
 REFERENCE_SID_SHA256 = '80422aa36fbcabbd0c1133a0695547513c1a795f908c72b4ed412e9cc2c2b672'
 MICROBATCHES = {'8': 256, '16': 256, '32': 128, '64': 64, '128': 32, '256': 16}
 EVAL_BATCHES = {'8': 64, '16': 64, '32': 32, '64': 32, '128': 16, '256': 8}
+CONTROL_WINDOWS = [64, 128]
+CONTROL_SEEDS = [101, 202]
+CONTROL_TRIALS = [dict(id=f'recent{width}_{seed}', history_items=width, seed=seed)
+                  for width in reversed(CONTROL_WINDOWS) for seed in CONTROL_SEEDS]
+
+
+def validate_frozen_controls(c):
+    from rhpr.gr.ml1m_last8_pairs import PARENT_COMMIT, PARENT_FILES, PARENT_KERNEL
+
+    parent, initializers = c['frozen_parent'], c['control_initializers']
+    if (c['frozen_controls'] is not True or c['windows'] != CONTROL_WINDOWS
+            or c['seeds'] != CONTROL_SEEDS or c['trials'] != CONTROL_TRIALS
+            or (c['training']['max_epochs'], c['training']['max_seconds']) != (40, 7200)
+            or c['suite_deadline_seconds'] != 10800
+            or parent['kernel'] != PARENT_KERNEL or parent['git_sha'] != PARENT_COMMIT
+            or set(parent['files']) != PARENT_FILES
+            or parent['files']['frozen-indexes/items-42.npy']['sha256'] != REFERENCE_SID_SHA256
+            or c['kaggle']['kernel_sources'] != [PARENT_KERNEL]
+            or set(initializers) != {str(seed) for seed in CONTROL_SEEDS}
+            or any(re.fullmatch('[0-9a-f]{64}', v) is None for v in initializers.values())
+            or len(set(initializers.values()) | {c['expected_initial_state_sha256']}) != 3):
+        raise ValueError('expected two seeds each for Recent64 and Recent128 with the frozen parent')
+    normalized = copy.deepcopy(c)
+    del normalized['frozen_controls']
+    normalized.update(windows=WINDOWS, trials=TRIALS, seeds=[42])
+    normalized['training']['max_epochs'] = 120
+    normalized['kaggle']['kernel_sources'] = []
+    validate(normalized)
 
 
 def validate(c):
+    if 'frozen_controls' in c:
+        validate_frozen_controls(c)
+        return
     t, g = c['training'], c['generator']
     remaining = c.get('remaining_windows')
     windows, trials = (REMAINING_WINDOWS, REMAINING_TRIALS) if remaining else (WINDOWS, TRIALS)
@@ -149,6 +180,9 @@ def trial_config(config, trial):
     c['data']['history_items'] = width; c['active_trial'] = trial
     c['training']['physical_batch_size'] = c['physical_batch_by_window'][str(width)]
     c['training']['evaluation_batch_size'] = c['evaluation_batch_by_window'][str(width)]
+    if c.get('frozen_controls'):
+        c['seed'] = trial['seed']
+        c['expected_initial_state_sha256'] = c['control_initializers'][str(trial['seed'])]
     return c
 
 
@@ -201,6 +235,8 @@ def run_trial(trial, p):
     epochs = selection['training_epochs']
     if selection['optimizer_updates']+selection['amp_skipped_updates'] != ((len(raw['train'][2])+511)//512)*epochs:
         raise RuntimeError('update accounting mismatch')
+    if c.get('frozen_controls') and (epochs, selection['validation_checks']) != (40, 8):
+        raise RuntimeError('incomplete 40-epoch control fit')
     curve = json.loads((out/'training-curves.json').read_text())
     timing = dict(wall_seconds=time.monotonic()-started, first_epoch_training_seconds=curve[0]['train_seconds'],
         warm_epoch_training_median_seconds=float(np.median([r['train_seconds'] for r in curve[1:]])),
@@ -247,29 +283,25 @@ def worker(plan_path, slot):
 def verify_results(c, results):
     if set(results) != {t['id'] for t in c['trials']}: raise ValueError('incomplete registered-window comparison')
     rows = list(results.values())
-    for key in ('initial_state_sha256', 'sid_file_sha256', 'raw_case_sha256', 'case_targets_sha256', 'test_case_sha256'):
+    for key in ('sid_file_sha256', 'raw_case_sha256', 'case_targets_sha256', 'test_case_sha256'):
         if any(r[key] != rows[0][key] for r in rows[1:]): raise ValueError('unmatched comparison: '+key)
+    for row in rows:
+        expected = (c['control_initializers'][str(row['seed'])] if c.get('frozen_controls')
+                    else rows[0]['initial_state_sha256'])
+        if row['initial_state_sha256'] != expected:
+            raise ValueError('unmatched initialization for its seed')
 
 
-def run(c, output):
+def prepare_indexes(c, output, resources, source):
     import torch
     from sentence_transformers import SentenceTransformer
-    from rhpr.gr.ae_suite import assignments, launch_workers
-    from rhpr.gr.grid import fit_grid_rkmeans, prepare_grid_source
-    from rhpr.gr.resources import unpack_grid, verify_resources
+    from rhpr.gr.grid import fit_grid_rkmeans
     from rhpr.gr.sid import SidIndex
     from rhpr.offline_runtime import resolve_dataset_directory
-    validate(c); output = Path(output).resolve(); output.mkdir(parents=True, exist_ok=True); (output/'workers').mkdir()
-    torch.set_num_threads(1)
-    if torch.cuda.device_count() != 2 or any(torch.cuda.get_device_capability(i) != (7, 5) for i in (0, 1)):
-        raise RuntimeError('requires two T4s; no fallback')
+
     root = resolve_dataset_directory(c['movie_input']['path'])
     archive = root/'ml-1m-source.bin'
     if file_sha256(archive) != c['movie_input']['source_zip_sha256']: raise ValueError('raw ML1M source changed')
-    resources = resolve_dataset_directory(c['resources']['path']); verify_resources(resources, c['resources']['manifest_sha256'])
-    modern = resolve_dataset_directory(c['modern_runtime']['path']); verify_resources(modern, c['modern_runtime']['manifest_sha256'])
-    scratch = Path(c['resources']['scratch_path']); scratch.mkdir(parents=True, exist_ok=True)
-    source = prepare_grid_source(unpack_grid(resources/'grid-source.bin', scratch/'original'), scratch/'grid')
     data = output/'prepared-cases'; texts, report = prepare_raw(archive, data, c['data'])
     for split, digest in c['expected_raw_case_sha256'].items():
         if report['splits'][split]['raw_case_sha256'] != digest: raise ValueError('prepared cases differ from CPU preflight')
@@ -287,6 +319,32 @@ def run(c, output):
         raise ValueError('recomputed frozen index differs from the completed windows; no training started')
     _write(indexes/'index-report.json', dict(fit=fit, sid=index.diagnostics(), scope='frozen title+genres, full rated static catalogue; no behavior fitting'))
     del vec, codes, centers; gc.collect(); torch.cuda.empty_cache()
+    return data, indexes, report
+
+
+def run(c, output):
+    import torch
+    from rhpr.gr.ae_suite import assignments, launch_workers
+    from rhpr.gr.grid import prepare_grid_source
+    from rhpr.gr.resources import unpack_grid, verify_resources
+    from rhpr.offline_runtime import resolve_dataset_directory
+
+    validate(c); output = Path(output).resolve(); output.mkdir(parents=True, exist_ok=True); (output/'workers').mkdir()
+    torch.set_num_threads(1)
+    if torch.cuda.device_count() != 2 or any(torch.cuda.get_device_capability(i) != (7, 5) for i in (0, 1)):
+        raise RuntimeError('requires two T4s; no fallback')
+    resources = resolve_dataset_directory(c['resources']['path']); verify_resources(resources, c['resources']['manifest_sha256'])
+    modern = resolve_dataset_directory(c['modern_runtime']['path']); verify_resources(modern, c['modern_runtime']['manifest_sha256'])
+    scratch = Path(c['resources']['scratch_path']); scratch.mkdir(parents=True, exist_ok=True)
+    source = prepare_grid_source(unpack_grid(resources/'grid-source.bin', scratch/'original'), scratch/'grid')
+    if c.get('frozen_controls'):
+        from rhpr.gr.ml1m_last8_pairs import frozen_inputs
+        _, data, indexes, report, _, _ = frozen_inputs(c, ordinary_controls=True)
+        _write(output/'frozen-parent-verification.json', c['frozen_parent'])
+        _event('ml1m_last8_frozen_parent_verified', kernel=c['frozen_parent']['kernel'],
+               revision=c['frozen_parent']['git_sha'], files=len(c['frozen_parent']['files']))
+    else:
+        data, indexes, report = prepare_indexes(c, output, resources, source)
     overlay = scratch/'modern-site'; overlay.mkdir()
     with (output/'modern-install.log').open('w') as log:
         subprocess.run([sys.executable, '-m', 'pip', 'install', '--no-index', '--no-deps', '--no-cache-dir', '--no-compile',
@@ -299,6 +357,8 @@ def run(c, output):
     verify_results(c, summary['results'])
     _write(output/'study-summary.json', dict(results=summary['results'], data=report, new_generator_fits=len(c['trials']), exact_TIGER_reproduction=False))
     metrics = dict(experiment=c['name'], models=len(c['trials']), seed=42, test_evaluated=True, train_examples=48320, validation_examples=6040, test_examples=6040)
+    if c.get('frozen_controls'):
+        del metrics['seed']
     for name, row in summary['results'].items():
         metrics[name+'_validation_ndcg10'] = row['selection']['validation_ndcg10']
         metrics[name+'_test_ndcg10'] = row['test']['metrics']['ndcg@10']

@@ -1,0 +1,71 @@
+{
+  "kernel": "carasik/rhpr-ml1m-mixed120-seeds",
+  "kernel_version": 1,
+  "status_at_verification": "QUEUED",
+  "source_commit": "fce1ab109c994385a17cc4b13d9c8a1a9c971bcd",
+  "deployed_python_files_verified": 220,
+  "deployed_source_sha256": "258dd7cb3a6adc94a40a5d8d75bcadb28cde9445ec964f5881baa8cc3d3eea0d",
+  "workflow_run": 44287312446,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/44287312446",
+  "job_id": 134743198237,
+  "artifact_id": 14420250701,
+  "workflow_conclusion": "success_submission_only",
+  "dispatch_utc": "2026-11-18T10:38:29Z",
+  "push_confirmed_utc": "2026-11-18T10:38:44.1243091Z",
+  "experiment": "experiments/ml1m_last8_mixed120_seeds_2t4.json",
+  "server_runtime_limit_seconds": 7200,
+  "frozen_parent": "carasik/rhpr-ml1m-mixed128-screen",
+  "frozen_parent_commit": "1074a7599c52875d66eb83716491f377c2310f33",
+  "trials": [
+    {
+      "id": "mixed128_merge120_101",
+      "merge_items": 120,
+      "seed": 101
+    },
+    {
+      "id": "mixed128_merge120_202",
+      "merge_items": 120,
+      "seed": 202
+    }
+  ],
+  "validation_interval": 5,
+  "epochs": 40,
+  "mixture": {
+    "full_probability": 0.5,
+    "unit": "optimizer_batch",
+    "inference": "fixed_pairs",
+    "rng_stream": 7301,
+    "preserve_native_positions": true
+  },
+  "cpu_preflight": [
+    {
+      "seed": 101,
+      "full_examples": 980864,
+      "pair_examples": 951936,
+      "initializer": {
+        "base": "4dcaf4ec587f08ce3ec69536526f4cda5c4ab01eedbc1e09bd7e2803c69ac9b3",
+        "pair": "f396ada491c9e86b6a7c489c1fb400b587bd9858abfe3e34fad38fcb7c876079"
+      },
+      "compiled_cpu_forward_backward_both_views": true,
+      "finite_beam20": true,
+      "pinned_parent_files": 11
+    },
+    {
+      "seed": 202,
+      "full_examples": 982080,
+      "pair_examples": 950720,
+      "initializer": {
+        "base": "0102d0baf3e18b608649a6473bcae2852792a5f0649e4dd4daa35dfcd416bd74",
+        "pair": "0c51f36ba9c36b35b3e0fd2491ab5e2c7220ab71070d162830ae0a6f9867ddd8"
+      },
+      "compiled_cpu_forward_backward_both_views": true,
+      "finite_beam20": true,
+      "pinned_parent_files": 11
+    }
+  ],
+  "tests": {
+    "total_including_skips": 1186,
+    "skipped": 93,
+    "seconds": 172.845
+  }
+}

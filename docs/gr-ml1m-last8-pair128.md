@@ -157,3 +157,12 @@ Recent128 scores are retained as references.
 
 The config is `experiments/ml1m_last8_mixed120_seeds_2t4.json`.
 The private kernel uses a two-hour session cap, including startup.
+
+The matched controls run Recent64 and Recent128 at seeds 101 and 202.
+Recent64 is close to Mixed120 in forward cost (1.584 vs 1.708 GFLOPs),
+and Recent128 sees the full 128-item context. The controls reproduce
+the original window-specific microbatches (64 and 32 respectively),
+with an effective batch of 512 for both. The base initialization,
+Last-8 cases, single-item index, 40 epochs and selection rule match
+the corresponding Mixed120 fit. The config is
+`experiments/ml1m_last8_mixed120_controls_2t4.json`.

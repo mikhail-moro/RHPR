@@ -159,15 +159,17 @@ def profiling_batch(index, contexts, users, targets, ignored_sids, device):
     return index.model_batch(contexts,users,targets,device)
 
 
-def frozen_inputs(c, input_root=Path('/kaggle/input')):
+def frozen_inputs(c, input_root=Path('/kaggle/input'), *, ordinary_controls=False):
     """Load pinned cases and tokens from the completed Mixed128 pilot."""
     from rhpr.gr.ml100k_pair_raw import cases
     from rhpr.gr.pair_test import locate_parent
 
     parent = locate_parent(c['frozen_parent'], input_root)
     original = json.loads((parent/'run-manifest.json').read_text())['config']
-    shared_keys = ('data','training','generator','quantizer','policy','mixed_views','sampling',
-                   'evaluation','pair_batches','reference_control','expected_raw_case_sha256')
+    shared_keys = ('data','training','generator','quantizer','sampling','evaluation',
+                   'reference_control','expected_raw_case_sha256')
+    if not ordinary_controls:
+        shared_keys += ('policy','mixed_views','pair_batches')
     if original['trials'] != MIXED_TRIALS or any(original[k] != c[k] for k in shared_keys):
         raise ValueError('frozen parent uses a different data, model or training protocol')
     data, indexes = parent/'prepared-cases', parent/'frozen-indexes'

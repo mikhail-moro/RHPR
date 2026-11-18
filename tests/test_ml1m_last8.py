@@ -10,7 +10,10 @@ from pathlib import Path
 
 import numpy as np
 
-from rhpr.gr.ml1m_last8 import WINDOWS, TRIALS, REMAINING_TRIALS, build_last8_cases, prepare_raw, trial_config, validate, verify_results
+from rhpr.gr.ml1m_last8 import (
+    CONTROL_TRIALS, REMAINING_TRIALS, TRIALS, WINDOWS, build_last8_cases,
+    prepare_raw, trial_config, validate, verify_results,
+)
 
 
 class ML1MLast8Tests(unittest.TestCase):
@@ -114,6 +117,28 @@ class ML1MLast8Tests(unittest.TestCase):
                              ('expected_sid_file_sha256', '0'*64), ('remaining_windows', None)]:
             bad=copy.deepcopy(c);bad[field]=value
             with self.assertRaises(ValueError): validate(bad)
+
+    def test_controls_use_each_mixed_seed_with_matching_base_and_original_microbatches(self):
+        cfg = json.loads(Path('experiments/ml1m_last8_mixed120_controls_2t4.json').read_text())
+        mixed = json.loads(Path('experiments/ml1m_last8_mixed120_seeds_2t4.json').read_text())
+        validate(cfg)
+        self.assertEqual(cfg['trials'], CONTROL_TRIALS)
+        for field in ('data', 'training', 'generator', 'frozen_parent'):
+            self.assertEqual(cfg[field], mixed[field])
+        results = {}
+        for trial in CONTROL_TRIALS:
+            active = trial_config(cfg, trial)
+            seed, width = trial['seed'], trial['history_items']
+            self.assertEqual(active['seed'], seed)
+            self.assertEqual(active['expected_initial_state_sha256'],
+                             mixed['replication_initializers'][str(seed)]['base'])
+            self.assertEqual(active['training']['physical_batch_size'], 4096 // width)
+            results[trial['id']] = dict(seed=seed, initial_state_sha256=active['expected_initial_state_sha256'],
+                sid_file_sha256='shared', raw_case_sha256={}, case_targets_sha256={}, test_case_sha256='shared')
+        verify_results(cfg, results)
+        results['recent128_101']['initial_state_sha256'] = results['recent128_202']['initial_state_sha256']
+        with self.assertRaisesRegex(ValueError, 'initialization'):
+            verify_results(cfg, results)
 
     @unittest.skipUnless(importlib.util.find_spec('torch') and importlib.util.find_spec('transformers'), 'requires Torch/HF')
     def test_actual_two_worker_event_collection_and_partial_failure(self):
