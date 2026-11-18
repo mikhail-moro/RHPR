@@ -166,3 +166,24 @@ with an effective batch of 512 for both. The base initialization,
 Last-8 cases, single-item index, 40 epochs and selection rule match
 the corresponding Mixed120 fit. The config is
 `experiments/ml1m_last8_mixed120_controls_2t4.json`.
+
+## Mixed64 at a 60-epoch budget
+
+Mixed64 protects the latest 64 events and compresses up to 64 earlier
+events into 32 PairSIDs. A full compressed input has 385 positions
+including the user token. Training keeps the 50/50 optimizer batch
+mixture. The held-out splits use the fixed compressed view.
+
+Seeds 101 and 202 each fit Mixed64 and Recent96 for 60 epochs. Recent96
+also uses 385 positions and shares the physical train/evaluation batch
+sizes of 64/16. Recent128 continues the two 40-epoch fits using their
+last checkpoints, including optimizer, scheduler, scaler, and RNG
+state. It retains its original physical train batch of 32. The frozen
+catalogue, pair index, and cases come from the Mixed128 pilot.
+
+The original 60-epoch cosine schedule, validation every five epochs,
+and checkpoint selection by raw validation NDCG@10 apply to all fits.
+The reports also give the best validation score within the first 40
+epochs. The selected checkpoint within 60 epochs is evaluated on test.
+The configuration files are `ml1m_last8_mixed64_extended_2t4.json` and
+`ml1m_last8_mixed64_controls_2t4.json` under `experiments/`.

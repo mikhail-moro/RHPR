@@ -18,7 +18,7 @@ import numpy as np
 
 from rhpr.gr.data import file_sha256
 from rhpr.gr.experiment import _evaluate, _event, _loss, _train_generator, _write
-from rhpr.gr.ml1m_last8 import REFERENCE_SID_SHA256, prepare_raw
+from rhpr.gr.ml1m_last8 import REFERENCE_SID_SHA256, prepare_raw, val_best_within
 from rhpr.gr.movie_data import case_digest
 
 MERGE_PREFIXES = [64, 96, 112, 120]
@@ -27,6 +27,8 @@ MIXED_TRIALS = [dict(id=f'mixed128_merge{m}_42', merge_items=m, seed=42) for m i
 REPLICATION_SEEDS = [101, 202]
 REPLICATION_TRIALS = [dict(id=f'mixed128_merge120_{seed}', merge_items=120, seed=seed)
                       for seed in REPLICATION_SEEDS]
+EXTENDED_TRIALS = [dict(id=f'mixed128_merge64_{seed}', merge_items=64, seed=seed)
+                   for seed in REPLICATION_SEEDS]
 PARENT_KERNEL = 'carasik/rhpr-ml1m-mixed128-screen'
 PARENT_COMMIT = '1074a7599c52875d66eb83716491f377c2310f33'
 PARENT_TRIAL = 'trials/mixed128_merge120_42'
@@ -46,6 +48,16 @@ POLICY = dict(history_items=128, merge_prefix_items=MERGE_PREFIXES,
     all_targets_single=True, random_training=False, fixed_epochs=40)
 MIXED_POLICY = {**POLICY, 'training': 'full_or_fixed_pairs_per_optimizer_batch',
                 'random_training': True}
+EXTENDED_MIXED_POLICY = {**MIXED_POLICY, 'fixed_epochs': 60}
+
+
+def mixed_parent_trial(config):
+    return 'trials/mixed128_merge64_42' if config.get('extended_budget') else PARENT_TRIAL
+
+
+def mixed_parent_files(config):
+    trial = mixed_parent_trial(config)
+    return {name.replace(PARENT_TRIAL, trial) for name in PARENT_FILES}
 
 
 def validate(c):
@@ -53,40 +65,45 @@ def validate(c):
     t = c['training']; reference = c['reference_control']
     mixed = c.get('mixed_views')
     parent = c.get('frozen_parent')
-    trials = REPLICATION_TRIALS if parent else MIXED_TRIALS if mixed else TRIALS
+    extended = c.get('extended_budget')
+    epochs = 60 if extended else 40
+    trials = (EXTENDED_TRIALS if extended else REPLICATION_TRIALS) if parent else MIXED_TRIALS if mixed else TRIALS
+    policy = EXTENDED_MIXED_POLICY if extended else MIXED_POLICY if mixed else POLICY
+    deadline = 10800 if extended else 7200 if parent else 14400
     if (('mixed_views' in c and mixed != MIXED_VIEWS)
+            or ('extended_budget' in c and (extended is not True or not parent or not mixed))
             or c['kind'] != 'gr_ml1m_last8_pairs' or c['windows'] != [128] or c['trials'] != trials
-            or c['policy'] != (MIXED_POLICY if mixed else POLICY)
+            or c['policy'] != policy
             or c['expected_sid_file_sha256'] != REFERENCE_SID_SHA256
-            or (t['min_epochs'],t['max_epochs'],t['max_seconds']) != (40,40,7200)
+            or (t['min_epochs'],t['max_epochs'],t['max_seconds']) != (epochs,epochs,9000 if extended else 7200)
             or c['pair_batches'] != dict(physical=64,evaluation=16)
             or c['pair_embedding_batch_size'] != 128
             or reference['kernel'] != 'carasik/rhpr-ml1m-last8-windows/2'
             or reference['source_commit'] != '5c1af46bddb1a848877acead858ec855e77201ed'
             or reference['best_epoch'] != 35 or reference['matched_max_epoch'] != 40
             or not re.fullmatch('[0-9a-f]{64}',c['expected_pair_initial_state_sha256'])
-            or c['suite_deadline_seconds'] != (7200 if parent else 14400)):
-        raise ValueError('Pair128 configuration differs from the registered 40-epoch protocols')
+            or c['suite_deadline_seconds'] != deadline):
+        raise ValueError('Pair128 configuration differs from the registered protocol')
     if parent:
         initializations = c['replication_initializers']
         if (mixed != MIXED_VIEWS or c['seeds'] != REPLICATION_SEEDS
                 or parent['kernel'] != PARENT_KERNEL or parent['git_sha'] != PARENT_COMMIT
                 or c['kaggle']['kernel_sources'] != [PARENT_KERNEL]
-                or set(parent['files']) != PARENT_FILES
+                or set(parent['files']) != mixed_parent_files(c)
                 or parent['files']['frozen-indexes/items-42.npy']['sha256'] != REFERENCE_SID_SHA256
                 or set(initializations) != {str(seed) for seed in REPLICATION_SEEDS}
                 or any(set(v) != {'base','pair'} or
                        any(re.fullmatch('[0-9a-f]{64}', h) is None for h in v.values())
                        for v in initializations.values())
                 or len({v['pair'] for v in initializations.values()} | {c['expected_pair_initial_state_sha256']}) != 3):
-            raise ValueError('expected only two new Mixed120 seeds on the completed frozen index')
+            raise ValueError('expected two new Mixed128 seeds on the completed frozen index')
     if (len(reference['validation_curve']) != 8
             or [r['epoch'] for r in reference['validation_curve']] != list(range(5,41,5))
             or max(reference['validation_curve'],key=lambda r:r['ndcg10'])['epoch'] != reference['best_epoch']
             or reference['validation_ndcg10'] != max(r['ndcg10'] for r in reference['validation_curve'])):
         raise ValueError('existing control checkpoint must also be the best within40epochs')
     normalized=copy.deepcopy(c);normalized.update(kind='gr_ml1m_last8',windows=WINDOWS,trials=BASE_TRIALS)
-    normalized['training']['max_epochs']=120
+    normalized['training'].update(min_epochs=40,max_epochs=120)
     if parent:
         normalized['seeds'] = [42]
         normalized['kaggle']['kernel_sources'] = []
@@ -166,24 +183,30 @@ def frozen_inputs(c, input_root=Path('/kaggle/input'), *, ordinary_controls=Fals
 
     parent = locate_parent(c['frozen_parent'], input_root)
     original = json.loads((parent/'run-manifest.json').read_text())['config']
-    shared_keys = ('data','training','generator','quantizer','sampling','evaluation',
+    shared_keys = ('data','generator','quantizer','sampling','evaluation',
                    'reference_control','expected_raw_case_sha256')
     if not ordinary_controls:
-        shared_keys += ('policy','mixed_views','pair_batches')
+        shared_keys += ('mixed_views','pair_batches')
     if original['trials'] != MIXED_TRIALS or any(original[k] != c[k] for k in shared_keys):
         raise ValueError('frozen parent uses a different data, model or training protocol')
+    limits = dict(min_epochs=40,max_epochs=40,max_seconds=7200)
+    training = {**c['training'], **limits} if c.get('extended_budget') else c['training']
+    if original['training'] != training or (not ordinary_controls and
+            original['policy'] != {**c['policy'], 'fixed_epochs': 40}):
+        raise ValueError('frozen parent differs outside the allowed training budget')
     data, indexes = parent/'prepared-cases', parent/'frozen-indexes'
     report = json.loads((data/'data-report.json').read_text())
     for split, expected in c['expected_raw_case_sha256'].items():
         if case_digest(cases(data, split)) != expected:
             raise ValueError(f'parent case data changed: {split}')
-    prior = parent/PARENT_TRIAL
+    prior = parent/(mixed_parent_trial(c) if not ordinary_controls else PARENT_TRIAL)
     reference = json.loads((prior/'trial-result.json').read_text())
     views = json.loads((prior/'training-view-provenance.json').read_text())
-    if (reference['seed'] != 42 or reference['merge_items'] != 120
+    expected_merge = 64 if c.get('extended_budget') and not ordinary_controls else 120
+    if (reference['seed'] != 42 or reference['merge_items'] != expected_merge
             or reference['selection']['training_epochs'] != 40
             or reference['pair_sid_file_sha256'] != c['frozen_parent']['files']['frozen-indexes/pairs-42.npy']['sha256']):
-        raise ValueError('frozen parent lacks the completed seed 42 Mixed120 comparison')
+        raise ValueError('frozen parent lacks the completed seed 42 comparison')
     return parent, data, indexes, report, reference, views
 
 
@@ -258,9 +281,10 @@ def run_trial(trial,p):
         return encoded[split]
     selection=_train_generator(model,p['data'],wrapped,c,out,'cuda:0',example_builder=builder,
                                training_context_selector=views)
-    if (selection['training_epochs'] != 40 or selection['validation_checks'] != 8
-            or selection['optimizer_updates']+selection['amp_skipped_updates'] != 3800):
-        raise RuntimeError('incomplete40epochscreen; preserve checkpoints')
+    epochs = c['training']['max_epochs']
+    if (selection['training_epochs'] != epochs or selection['validation_checks'] != epochs//5
+            or selection['optimizer_updates']+selection['amp_skipped_updates'] != 95*epochs):
+        raise RuntimeError(f'incomplete {epochs}-epoch run; checkpoints are preserved')
     curve=json.loads((out/'training-curves.json').read_text())
     timing=dict(wall_seconds=time.monotonic()-started,warm_epoch_training_median_seconds=float(np.median([v['train_seconds'] for v in curve[1:]])),
         first_epoch_training_seconds=curve[0]['train_seconds'],cuda_peak_allocated_bytes=int(torch.cuda.max_memory_allocated()),cuda_peak_reserved_bytes=int(torch.cuda.max_memory_reserved()))
@@ -282,6 +306,8 @@ def run_trial(trial,p):
                    full_training_profile=full_profile,
                    train_view_examples={name: sum(v['training_views']['examples'][name] for v in curve)
                                         for name in views.widths})
+    if c.get('extended_budget'):
+        row['validation_best_within_40'] = val_best_within(curve, 40)
     _write(out/'trial-result.json',row);return row
 
 
@@ -382,8 +408,15 @@ def run(c,output):
     rows=list(summary['results'].values())
     shared = ('sid_file_sha256','pair_sid_file_sha256','raw_case_sha256','case_targets_sha256','test_case_sha256')
     if extra:
-        keys = (*shared, 'forward')
+        keys = shared
         anchor = extra['reference_mixed42']
+        reference_forward = anchor['forward']
+        flop_key = 'supported_forward_flops_batch1'
+        for row in rows:
+            profile = row['forward']
+            if (any(profile[k] != reference_forward[k] for k in profile if k != flop_key)
+                    or abs(profile[flop_key] / reference_forward[flop_key] - 1) > 1e-6):
+                raise ValueError('forward dimensions or FLOPs differ from the reference')
     else:
         keys = (*shared, 'base_initial_state_sha256', 'initial_state_sha256')
         anchor = rows[0]
@@ -391,7 +424,7 @@ def run(c,output):
         if any(r[key]!=anchor[key] for r in rows):raise ValueError('unmatched pair comparison: '+key)
     _write(output/'study-summary.json',dict(results=summary['results'],data=report,reference_control=c['reference_control'],
         new_generator_fits=len(rows),epoch_capped_screen=True,**extra))
-    metrics=dict(experiment=c['name'],models=len(rows),epochs=40,test_evaluated=True)
+    metrics=dict(experiment=c['name'],models=len(rows),epochs=c['training']['max_epochs'],test_evaluated=True)
     if not extra:
         metrics['seed'] = 42
     for name,row in summary['results'].items():

@@ -11,7 +11,7 @@ from pathlib import Path
 import numpy as np
 
 from rhpr.gr.ml1m_last8 import (
-    CONTROL_TRIALS, REMAINING_TRIALS, TRIALS, WINDOWS, build_last8_cases,
+    CONTROL_TRIALS, EXTENDED_CONTROL_TRIALS, REMAINING_TRIALS, TRIALS, WINDOWS, build_last8_cases,
     prepare_raw, trial_config, validate, verify_results,
 )
 
@@ -139,6 +139,27 @@ class ML1MLast8Tests(unittest.TestCase):
         results['recent128_101']['initial_state_sha256'] = results['recent128_202']['initial_state_sha256']
         with self.assertRaisesRegex(ValueError, 'initialization'):
             verify_results(cfg, results)
+
+    def test_extended_budget_matches_recent96_and_resumes_only_recent128(self):
+        cfg = json.loads(Path('experiments/ml1m_last8_mixed64_controls_2t4.json').read_text())
+        previous = json.loads(Path('experiments/ml1m_last8_mixed120_controls_2t4.json').read_text())
+        validate(cfg)
+        self.assertEqual(cfg['trials'], EXTENDED_CONTROL_TRIALS)
+        self.assertEqual(cfg['training']['scheduler'], previous['training']['scheduler'])
+        for trial in cfg['trials']:
+            active = trial_config(cfg, trial)
+            if trial['history_items'] == 128:
+                old = trial_config(previous, trial)
+                self.assertEqual(active['data'], old['data'])
+                limits = dict(min_epochs=40,max_epochs=40,max_seconds=7200)
+                self.assertEqual({**active['training'], **limits}, old['training'])
+            else:
+                self.assertEqual(active['training']['physical_batch_size'], 64)
+                self.assertEqual(active['training']['evaluation_batch_size'], 16)
+        broken = copy.deepcopy(cfg)
+        del broken['resume_parent']['files']['trials/recent128_101/generator-last.pt']
+        with self.assertRaises(ValueError):
+            validate(broken)
 
     @unittest.skipUnless(importlib.util.find_spec('torch') and importlib.util.find_spec('transformers'), 'requires Torch/HF')
     def test_actual_two_worker_event_collection_and_partial_failure(self):

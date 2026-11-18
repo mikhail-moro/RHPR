@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 
 from rhpr.gr.ml1m_last8_pairs import (
-    MERGE_PREFIXES, MIXED_TRIALS, PARENT_KERNEL, REPLICATION_TRIALS, TRIALS, encode,
+    EXTENDED_TRIALS, MERGE_PREFIXES, MIXED_TRIALS, PARENT_KERNEL, REPLICATION_TRIALS, TRIALS, encode,
     full_context_selector, pair_keys, profiling_batch, validate,
 )
 
@@ -142,6 +142,19 @@ class Last8PairsTests(unittest.TestCase):
                     altered['replication_initializers']['101'] = altered['replication_initializers']['202']
                 with self.assertRaises(ValueError):
                     validate(altered)
+
+    def test_extended_mixed64_uses_original_schedule_to_sixty(self):
+        config = json.loads(Path('experiments/ml1m_last8_mixed64_extended_2t4.json').read_text())
+        prior = json.loads(Path('experiments/ml1m_last8_mixed120_seeds_2t4.json').read_text())
+        validate(config)
+        self.assertEqual(config['trials'], EXTENDED_TRIALS)
+        self.assertEqual(config['mixed_views'], prior['mixed_views'])
+        self.assertEqual(config['training']['scheduler'], prior['training']['scheduler'])
+        for position in range(len(EXTENDED_TRIALS)):
+            altered = copy.deepcopy(config)
+            altered['trials'][position]['merge_items'] = 120
+            with self.assertRaises(ValueError):
+                validate(altered)
 
 
 if __name__=='__main__':unittest.main()

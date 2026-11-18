@@ -32,29 +32,53 @@ CONTROL_WINDOWS = [64, 128]
 CONTROL_SEEDS = [101, 202]
 CONTROL_TRIALS = [dict(id=f'recent{width}_{seed}', history_items=width, seed=seed)
                   for width in reversed(CONTROL_WINDOWS) for seed in CONTROL_SEEDS]
+EXTENDED_CONTROL_WINDOWS = [96, 128]
+# Continue Recent128 first on each T4, then fit the matched-cost Recent96.
+EXTENDED_CONTROL_TRIALS = [dict(id=f'recent{width}_{seed}', history_items=width, seed=seed)
+                          for width in reversed(EXTENDED_CONTROL_WINDOWS) for seed in CONTROL_SEEDS]
+RESUME_CONTROL_KERNEL = 'carasik/rhpr-ml1m-mixed120-controls'
+RESUME_CONTROL_COMMIT = '6754b3a1cd1631f77de0db01c532fe5d1023b0c7'
+RESUME_CONTROL_FILES = {'run-manifest.json'} | {
+    f'trials/recent128_{seed}/{name}' for seed in CONTROL_SEEDS
+    for name in ('generator-best.pt','generator-last.pt','training-curves.json','training-selection.json',
+                 *(f'validation-epoch-{epoch:03d}.npz' for epoch in range(5,41,5)))}
 
 
 def validate_frozen_controls(c):
     from rhpr.gr.ml1m_last8_pairs import PARENT_COMMIT, PARENT_FILES, PARENT_KERNEL
 
     parent, initializers = c['frozen_parent'], c['control_initializers']
-    if (c['frozen_controls'] is not True or c['windows'] != CONTROL_WINDOWS
-            or c['seeds'] != CONTROL_SEEDS or c['trials'] != CONTROL_TRIALS
-            or (c['training']['max_epochs'], c['training']['max_seconds']) != (40, 7200)
-            or c['suite_deadline_seconds'] != 10800
+    extended = c.get('extended_budget')
+    epochs = 60 if extended else 40
+    windows, trials = ((EXTENDED_CONTROL_WINDOWS, EXTENDED_CONTROL_TRIALS) if extended else
+                       (CONTROL_WINDOWS, CONTROL_TRIALS))
+    sources = [PARENT_KERNEL, RESUME_CONTROL_KERNEL] if extended else [PARENT_KERNEL]
+    if (c['frozen_controls'] is not True or c['windows'] != windows
+            or ('extended_budget' in c and extended is not True)
+            or c['seeds'] != CONTROL_SEEDS or c['trials'] != trials
+            or (c['training']['min_epochs'], c['training']['max_epochs'], c['training']['max_seconds'])
+                != (epochs, epochs, 9000 if extended else 7200)
+            or c['suite_deadline_seconds'] != (14400 if extended else 10800)
             or parent['kernel'] != PARENT_KERNEL or parent['git_sha'] != PARENT_COMMIT
             or set(parent['files']) != PARENT_FILES
             or parent['files']['frozen-indexes/items-42.npy']['sha256'] != REFERENCE_SID_SHA256
-            or c['kaggle']['kernel_sources'] != [PARENT_KERNEL]
+            or c['kaggle']['kernel_sources'] != sources
             or set(initializers) != {str(seed) for seed in CONTROL_SEEDS}
             or any(re.fullmatch('[0-9a-f]{64}', v) is None for v in initializers.values())
             or len(set(initializers.values()) | {c['expected_initial_state_sha256']}) != 3):
-        raise ValueError('expected two seeds each for Recent64 and Recent128 with the frozen parent')
+        raise ValueError('ordinary controls differ from the registered frozen-index protocol')
     normalized = copy.deepcopy(c)
     del normalized['frozen_controls']
     normalized.update(windows=WINDOWS, trials=TRIALS, seeds=[42])
-    normalized['training']['max_epochs'] = 120
+    normalized['training'].update(min_epochs=40,max_epochs=120)
     normalized['kaggle']['kernel_sources'] = []
+    if extended:
+        resume = c['resume_parent']
+        if (resume['kernel'] != RESUME_CONTROL_KERNEL or resume['git_sha'] != RESUME_CONTROL_COMMIT
+                or set(resume['files']) != RESUME_CONTROL_FILES
+                or normalized['physical_batch_by_window'].pop('96', None) != 64
+                or normalized['evaluation_batch_by_window'].pop('96', None) != 16):
+            raise ValueError('expected exact Recent128 resume and matching Recent96 microbatches')
     validate(normalized)
 
 
@@ -186,6 +210,12 @@ def trial_config(config, trial):
     return c
 
 
+def val_best_within(curve, max_epoch):
+    best = max((row for row in curve if row['epoch'] <= max_epoch and 'validation' in row),
+               key=lambda row: row['validation']['ndcg@10'])
+    return dict(epoch=best['epoch'], ndcg10=best['validation']['ndcg@10'])
+
+
 def run_trial(trial, p):
     import torch
     from rhpr.gr.grid import build_grid_generator
@@ -231,16 +261,26 @@ def run_trial(trial, p):
     def builder(root, ignored, split):
         if split not in visible: raise ValueError('TEST forbidden during training')
         return visible[split]
-    selection = _train_generator(model, p['data'], index, c, out, 'cuda:0', example_builder=builder)
+    resume_from = None
+    if c.get('extended_budget') and width == 128:
+        resume_from = Path(p['resume_parent'])/'trials'/trial['id']
+    selection = _train_generator(model, p['data'], index, c, out, 'cuda:0', example_builder=builder,
+                                 resume_from=resume_from)
     epochs = selection['training_epochs']
     if selection['optimizer_updates']+selection['amp_skipped_updates'] != ((len(raw['train'][2])+511)//512)*epochs:
         raise RuntimeError('update accounting mismatch')
-    if c.get('frozen_controls') and (epochs, selection['validation_checks']) != (40, 8):
-        raise RuntimeError('incomplete 40-epoch control fit')
+    cap = c['training']['max_epochs']
+    if c.get('frozen_controls') and (epochs, selection['validation_checks']) != (cap, cap//5):
+        raise RuntimeError(f'incomplete {cap}-epoch control fit')
+    if resume_from is not None and (selection['resumed_from_epoch'], selection['continuation_epochs']) != (40, 20):
+        raise RuntimeError('Recent128 did not resume at epoch 40')
     curve = json.loads((out/'training-curves.json').read_text())
     timing = dict(wall_seconds=time.monotonic()-started, first_epoch_training_seconds=curve[0]['train_seconds'],
         warm_epoch_training_median_seconds=float(np.median([r['train_seconds'] for r in curve[1:]])),
         cuda_peak_allocated_bytes=int(torch.cuda.max_memory_allocated()), cuda_peak_reserved_bytes=int(torch.cuda.max_memory_reserved()))
+    if resume_from is not None:
+        timing.update(wall_seconds_scope='continuation session; curve median covers all epochs',
+                      warm_continuation_epoch_seconds=float(np.median([r['train_seconds'] for r in curve[41:]])))
     h, u, t = cases(p['data'], 'test')
     checkpoint = out/'generator-best.pt'
     ck = torch.load(checkpoint, map_location='cpu', weights_only=False)
@@ -257,6 +297,8 @@ def run_trial(trial, p):
         case_targets_sha256={s:case_digest(v[1:]) for s, v in raw.items()}, test_case_sha256=case_digest((h, u, t)),
         selection=selection, forward=forward, timing=timing, profile=profile, test=test,
         budget_censored=selection['stopping_reason'] != 'early_stopping')
+    if c.get('extended_budget'):
+        row['validation_best_within_40'] = val_best_within(curve, 40)
     _write(out/'trial-result.json', row); return row
 
 
@@ -345,13 +387,20 @@ def run(c, output):
                revision=c['frozen_parent']['git_sha'], files=len(c['frozen_parent']['files']))
     else:
         data, indexes, report = prepare_indexes(c, output, resources, source)
+    extra = {}
+    if c.get('extended_budget'):
+        from rhpr.gr.pair_test import locate_parent
+        resume = locate_parent(c['resume_parent'])
+        _write(output/'resume-parent-verification.json', c['resume_parent'])
+        extra['resume_parent'] = str(resume)
     overlay = scratch/'modern-site'; overlay.mkdir()
     with (output/'modern-install.log').open('w') as log:
         subprocess.run([sys.executable, '-m', 'pip', 'install', '--no-index', '--no-deps', '--no-cache-dir', '--no-compile',
             '--require-hashes', '--only-binary=:all:', '--target', str(overlay), '--find-links', str(modern),
             '-r', str(modern/'requirements-lock.txt')], stdout=log, stderr=subprocess.STDOUT, check=True, timeout=180)
     sys.path.insert(0, str(overlay))
-    p = dict(config=c, output=str(output), source=str(source), data=str(data), indexes=str(indexes), assignments=assignments(c, 2))
+    p = dict(config=c, output=str(output), source=str(source), data=str(data), indexes=str(indexes),
+             assignments=assignments(c, 2), **extra)
     path = output/'plan.json'; _write(path, p)
     summary = launch_workers(path, worker_module='rhpr.gr.ml1m_last8', event_prefix='ml1m_last8')
     verify_results(c, summary['results'])
