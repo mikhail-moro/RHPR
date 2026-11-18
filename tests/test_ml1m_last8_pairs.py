@@ -7,8 +7,8 @@ from pathlib import Path
 import numpy as np
 
 from rhpr.gr.ml1m_last8_pairs import (
-    MERGE_PREFIXES, MIXED_TRIALS, TRIALS, encode, full_context_selector, pair_keys,
-    profiling_batch, validate,
+    MERGE_PREFIXES, MIXED_TRIALS, PARENT_KERNEL, REPLICATION_TRIALS, TRIALS, encode,
+    full_context_selector, pair_keys, profiling_batch, validate,
 )
 
 
@@ -125,6 +125,23 @@ class Last8PairsTests(unittest.TestCase):
             report = views.epoch_summary(1)
             self.assertEqual(sum(report['examples'].values()), len(order))
             self.assertEqual(report['native_sid_widths'], {'full128': 512, 'pair128': pair.shape[1]})
+
+    def test_replication_accepts_only_two_new_merge120_fits_and_pinned_parent(self):
+        config = json.loads(Path('experiments/ml1m_last8_mixed120_seeds_2t4.json').read_text())
+        validate(config)
+        self.assertEqual(config['trials'], REPLICATION_TRIALS)
+        self.assertEqual(config['kaggle']['kernel_sources'], [PARENT_KERNEL])
+        for edited in ('trial', 'parent', 'initializer'):
+            with self.subTest(edited=edited):
+                altered = copy.deepcopy(config)
+                if edited == 'trial':
+                    altered['trials'][0]['merge_items'] = 112
+                elif edited == 'parent':
+                    del altered['frozen_parent']['files']['frozen-indexes/pairs-42.npy']
+                else:
+                    altered['replication_initializers']['101'] = altered['replication_initializers']['202']
+                with self.assertRaises(ValueError):
+                    validate(altered)
 
 
 if __name__=='__main__':unittest.main()

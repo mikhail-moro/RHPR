@@ -143,3 +143,17 @@ The parallel session builds its own copy of the index from the same raw
 data and pair fitting settings. Compare the saved single and pair SID
 file hashes before attributing differences between sessions to mixing.
 The config is `experiments/ml1m_last8_mixed128_2t4.json`.
+
+## Mixed120 seed replication
+
+Mixed120 led the seed 42 compressed variants on validation and test.
+The follow-up assigns one T4 each to generator seeds 101 and 202 for
+40 epochs with five-epoch validation checks. Each seed drives weight
+initialization, dropout, shuffle and the 50/50 batch schedule. The original
+seed 42 tokenizer and Last-8 cases are loaded from the completed Mixed128
+kernel and verified against recorded hashes. The 60-pair, eight-single
+layout still costs 1.708 GFLOPs at evaluation. The seed 42 Mixed120 and
+Recent128 scores are retained as references.
+
+The config is `experiments/ml1m_last8_mixed120_seeds_2t4.json`.
+The private kernel uses a two-hour session cap, including startup.
