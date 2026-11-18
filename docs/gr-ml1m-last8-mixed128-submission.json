@@ -1,0 +1,51 @@
+{
+  "kernel": "carasik/rhpr-ml1m-mixed128-screen",
+  "kernel_version": 1,
+  "status": "RUNNING",
+  "source_commit": "1074a7599c52875d66eb83716491f377c2310f33",
+  "deployed_python_files": 220,
+  "deployed_config_verified": true,
+  "private_offline_dual_t4_verified": true,
+  "deployed_source_sha256": "8ee3e735633b059b8b5096b9cf2ce4666f871459b80885db4906a89504549674",
+  "workflow_run": 44217232001,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/44217232001",
+  "job_id": 134509993931,
+  "artifact_id": 14388428676,
+  "workflow_conclusion": "success_submission_only",
+  "dispatch_utc": "2026-11-18T01:37:35Z",
+  "push_confirmed_utc": "2026-11-18T01:37:49.0119794Z",
+  "server_runtime_limit_seconds": 14400,
+  "experiment": "experiments/ml1m_last8_mixed128_2t4.json",
+  "fixed_comparison_kernel": "carasik/rhpr-ml1m-pair128-screen/1",
+  "fixed_comparison_status": "RUNNING",
+  "seed": 42,
+  "merge_prefixes": [
+    64,
+    96,
+    112,
+    120
+  ],
+  "epochs": 40,
+  "validation_interval": 5,
+  "mixed_views": {
+    "full_probability": 0.5,
+    "unit": "optimizer_batch",
+    "inference": "fixed_pairs",
+    "rng_stream": 7301,
+    "preserve_native_positions": true
+  },
+  "scheduled_training_examples_per_trial": {
+    "full128": 966464,
+    "pair128": 966336
+  },
+  "dataset_sources": [
+    "carasik/rhpr-gr-beauty-phase0",
+    "carasik/rhpr-ml1m-last8-input",
+    "carasik/rhpr-t5-sdpa-runtime"
+  ],
+  "tests": {
+    "total_including_skips": 1185,
+    "skipped": 145,
+    "seconds": 144.76
+  }
+}

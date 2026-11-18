@@ -2,6 +2,16 @@
 
 ## Research status
 
+- Mixed128 submitted once 2026-11-18T01:37:35Z as
+  carasik/rhpr-ml1m-mixed128-screen/1. Both this kernel and the original
+  fixed Pair128 were RUNNING at verification. Source 1074a7599c52,
+  workflow 44217232001, receipt docs/gr-ml1m-last8-mixed128-submission.json.
+  Same four merge prefixes and seed 42, 40 epochs, VAL every 5, 2 T4, 4h cap.
+  Per optimizer batch draw full SingleSID or fixed PairSID with probability
+  .5 each, sharing the schedule across variants. VAL/TEST use fixed PairSID.
+  Compare saved pair SID file hashes across sessions before interpreting
+  differences. Full suite passed (1185 tests including 145 skips).
+
 - Pair128 SCREEN SUBMITTEDONCE2026-11-17T23:55:23Z(18NovMoscow),
   carasik/rhpr-ml1m-pair128-screen/1,RUNNING,source8d53f94583a5a27a708165bd3060ecd123d56469.
   GHA44203522024/job134463474522SUCCESSsubmissiononly/artifact14382876143;
