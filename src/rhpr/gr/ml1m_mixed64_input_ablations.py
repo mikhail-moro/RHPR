@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from concurrent.futures import ThreadPoolExecutor
 import subprocess
 import sys
 from pathlib import Path
@@ -123,13 +124,16 @@ def run(config, output):
     from rhpr.gr.grid import prepare_grid_source
     from rhpr.gr.pair_test import locate_parent
     from rhpr.gr.resources import unpack_grid, verify_resources
+    from rhpr.gr.study_parallel import worker_environment
     from rhpr.offline_runtime import resolve_dataset_directory
 
     if (config['seeds'], config['minimum_history'], config['evaluation_batch_size'], config['shuffle_seed']) != (
             [101, 202], 97, 16, 64128):
         raise ValueError('expected the pinned Mixed64 validation ablation protocol')
-    if not torch.cuda.is_available() or torch.cuda.get_device_capability(0) != (7, 5):
-        raise RuntimeError('this run requires a T4')
+    devices = config['execution']['worker_devices']
+    if (devices != ['cuda:0', 'cuda:1'] or torch.cuda.device_count() != len(devices)
+            or any(torch.cuda.get_device_capability(i) != (7, 5) for i in range(len(devices)))):
+        raise RuntimeError('this run requires two T4s')
     torch.set_num_threads(1)
     print(f'Kaggle allocated {torch.cuda.device_count()} GPUs', flush=True)
     frozen = locate_parent(config['frozen_parent'])
@@ -150,7 +154,39 @@ def run(config, output):
                         '-r', str(roots['modern_runtime'] / 'requirements-lock.txt')],
                        stdout=log, stderr=subprocess.STDOUT, check=True, timeout=180)
     sys.path.insert(0, str(overlay))
+    plan = scratch / 'plan.json'
+    plan.write_text(json.dumps(dict(config=config, frozen=str(frozen), checkpoints=str(checkpoints),
+                                    source=str(source), output=str(output))))
+    with ThreadPoolExecutor(max_workers=len(devices)) as pool:
+        runs = [
+            pool.submit(subprocess.run, [sys.executable, '-u', '-m', __name__, str(plan), str(seed)],
+                        env=worker_environment(config, {'device':device}), check=True, timeout=480)
+            for seed, device in zip(config['seeds'], devices)
+        ]
+        for job in runs:
+            job.result()
     metrics = {'validation_users':len(prepared[3])}
     for seed in config['seeds']:
-        metrics.update(evaluate_checkpoint(seed, config, prepared, checkpoints, source, output, 'cuda:0'))
+        metrics.update(read(output / f'worker-{seed}.json'))
     return metrics
+
+
+def worker(plan_path, seed):
+    import torch
+    import transformers
+
+    if (torch.cuda.device_count() != 1 or torch.cuda.get_device_capability() != (7, 5)
+            or transformers.__version__ != '5.22.1'):
+        raise RuntimeError('worker requires one isolated T4 and Transformers 5.22.1')
+    torch.set_num_threads(1)
+    plan = read(plan_path)
+    config = plan['config']
+    prepared = prepare(config, Path(plan['frozen']))
+    output = Path(plan['output'])
+    metrics = evaluate_checkpoint(seed, config, prepared, Path(plan['checkpoints']),
+                                  Path(plan['source']), output, 'cuda:0')
+    (output / f'worker-{seed}.json').write_text(json.dumps(metrics, indent=2))
+
+
+if __name__ == '__main__':
+    worker(Path(sys.argv[1]), int(sys.argv[2]))

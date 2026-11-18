@@ -127,5 +127,12 @@
         "sha256": "dd21e3ed62e98d6090e72661e95193819e1617bd7c7ade76d75643408428722d"
       }
     }
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
   }
 }
