@@ -29,6 +29,8 @@ REPLICATION_TRIALS = [dict(id=f'mixed128_merge120_{seed}', merge_items=120, seed
                       for seed in REPLICATION_SEEDS]
 EXTENDED_TRIALS = [dict(id=f'mixed128_merge64_{seed}', merge_items=64, seed=seed)
                    for seed in REPLICATION_SEEDS]
+THINNED_TRIALS = [dict(id=f'thin128_merge64_{seed}', merge_items=64, seed=seed)
+                  for seed in REPLICATION_SEEDS]
 PARENT_KERNEL = 'carasik/rhpr-ml1m-mixed128-screen'
 PARENT_COMMIT = '1074a7599c52875d66eb83716491f377c2310f33'
 PARENT_TRIAL = 'trials/mixed128_merge120_42'
@@ -49,6 +51,9 @@ POLICY = dict(history_items=128, merge_prefix_items=MERGE_PREFIXES,
 MIXED_POLICY = {**POLICY, 'training': 'full_or_fixed_pairs_per_optimizer_batch',
                 'random_training': True}
 EXTENDED_MIXED_POLICY = {**MIXED_POLICY, 'fixed_epochs': 60}
+THINNED_POLICY = {**EXTENDED_MIXED_POLICY, 'training': 'full_or_keep_second_per_optimizer_batch',
+                  'merge_prefix_items': [64], 'protected_tail_items': [64]}
+THINNED_VIEWS = {**MIXED_VIEWS, 'inference': 'keep_second'}
 
 
 def mixed_parent_trial(config):
@@ -66,11 +71,16 @@ def validate(c):
     mixed = c.get('mixed_views')
     parent = c.get('frozen_parent')
     extended = c.get('extended_budget')
+    thinned = c.get('history_reduction') == 'keep_second'
+    expected_views = THINNED_VIEWS if thinned else MIXED_VIEWS
     epochs = 60 if extended else 40
     trials = (EXTENDED_TRIALS if extended else REPLICATION_TRIALS) if parent else MIXED_TRIALS if mixed else TRIALS
     policy = EXTENDED_MIXED_POLICY if extended else MIXED_POLICY if mixed else POLICY
+    if thinned:
+        trials, policy = THINNED_TRIALS, THINNED_POLICY
     deadline = 10800 if extended else 7200 if parent else 14400
-    if (('mixed_views' in c and mixed != MIXED_VIEWS)
+    if (('mixed_views' in c and mixed != expected_views)
+            or ('history_reduction' in c and (not thinned or not extended or not mixed))
             or ('extended_budget' in c and (extended is not True or not parent or not mixed))
             or c['kind'] != 'gr_ml1m_last8_pairs' or c['windows'] != [128] or c['trials'] != trials
             or c['policy'] != policy
@@ -86,7 +96,7 @@ def validate(c):
         raise ValueError('Pair128 configuration differs from the registered protocol')
     if parent:
         initializations = c['replication_initializers']
-        if (mixed != MIXED_VIEWS or c['seeds'] != REPLICATION_SEEDS
+        if (mixed != expected_views or c['seeds'] != REPLICATION_SEEDS
                 or parent['kernel'] != PARENT_KERNEL or parent['git_sha'] != PARENT_COMMIT
                 or c['kaggle']['kernel_sources'] != [PARENT_KERNEL]
                 or set(parent['files']) != mixed_parent_files(c)
@@ -97,6 +107,11 @@ def validate(c):
                        for v in initializations.values())
                 or len({v['pair'] for v in initializations.values()} | {c['expected_pair_initial_state_sha256']}) != 3):
             raise ValueError('expected two new Mixed128 seeds on the completed frozen index')
+    if thinned:
+        hashes = c.get('expected_thinned_case_sha256', {})
+        if (set(hashes) != {'train', 'validation', 'test'}
+                or any(not re.fullmatch('[0-9a-f]{64}', v) for v in hashes.values())):
+            raise ValueError('expected pinned cases for thinning each split')
     if (len(reference['validation_curve']) != 8
             or [r['epoch'] for r in reference['validation_curve']] != list(range(5,41,5))
             or max(reference['validation_curve'],key=lambda r:r['ndcg10'])['epoch'] != reference['best_epoch']
@@ -131,8 +146,8 @@ def pair_keys(contexts, nitems, merge_items):
     return np.unique(np.concatenate(parts)) if parts else np.empty(0,dtype=np.int64)
 
 
-def encode(contexts, sids, keys, pairs, merge_items):
-    """Preserve all valid events, the protected recent tail and every suffix."""
+def encode(contexts, sids, keys, pairs, merge_items, *, keep_second=False):
+    """Represent each old pair by its SID or the second item's SID."""
     if (merge_items not in MERGE_PREFIXES or sids.shape != (len(sids),4)
             or pairs.shape != (len(keys),4) or np.any(keys[1:] <= keys[:-1])):
         raise ValueError('expected sorted pair keys and two3+1SIDtables')
@@ -145,7 +160,9 @@ def encode(contexts, sids, keys, pairs, merge_items):
         rows=np.flatnonzero(valid & ~ispair)
         if len(rows):out[rows,col]=sids[h[rows,source[rows]]]+np.arange(4)*256
         rows=np.flatnonzero(ispair)
-        if len(rows):
+        if keep_second:
+            out[rows, col] = sids[h[rows, source[rows] + 1]] + np.arange(4) * 256
+        elif len(rows):
             wanted=h[rows,source[rows]].astype(np.int64)*len(sids)+h[rows,source[rows]+1]
             at=np.searchsorted(keys,wanted)
             if np.any(at >= len(keys)) or not np.array_equal(keys[at],wanted): raise ValueError('missing pair SID; never drop events')
@@ -166,9 +183,10 @@ def full_context_selector(contexts, sids, pair_contexts, config, merge_items):
     history, _ = checked_contexts(contexts, len(sids))
     tokens = sids[np.maximum(history, 0)] + 256 * np.arange(4, dtype=np.int32)
     full = np.where(history[:, :, None] >= 0, tokens, -1).reshape(len(history), 512)
+    compressed_name = 'thin128' if config.get('history_reduction') == 'keep_second' else 'pair128'
     return MixedViews(full, pair_contexts, batch_size=config['training']['batch_size'],
                       seed=config['seed'], full_probability=config['mixed_views']['full_probability'],
-                      layout=(('full128', 512), ('pair128', 4 * (128 - merge_items // 2))))
+                      layout=(('full128', 512), (compressed_name, 4 * (128 - merge_items // 2))))
 
 
 def profiling_batch(index, contexts, users, targets, ignored_sids, device):
@@ -187,12 +205,14 @@ def frozen_inputs(c, input_root=Path('/kaggle/input'), *, ordinary_controls=Fals
                    'reference_control','expected_raw_case_sha256')
     if not ordinary_controls:
         shared_keys += ('mixed_views','pair_batches')
-    if original['trials'] != MIXED_TRIALS or any(original[k] != c[k] for k in shared_keys):
+    thinned = c.get('history_reduction') == 'keep_second'
+    comparison = {**c, 'mixed_views': MIXED_VIEWS} if thinned else c
+    if original['trials'] != MIXED_TRIALS or any(original[k] != comparison[k] for k in shared_keys):
         raise ValueError('frozen parent uses a different data, model or training protocol')
     limits = dict(min_epochs=40,max_epochs=40,max_seconds=7200)
     training = {**c['training'], **limits} if c.get('extended_budget') else c['training']
-    if original['training'] != training or (not ordinary_controls and
-            original['policy'] != {**c['policy'], 'fixed_epochs': 40}):
+    policy = MIXED_POLICY if thinned else {**c['policy'], 'fixed_epochs': 40}
+    if original['training'] != training or (not ordinary_controls and original['policy'] != policy):
         raise ValueError('frozen parent differs outside the allowed training budget')
     data, indexes = parent/'prepared-cases', parent/'frozen-indexes'
     report = json.loads((data/'data-report.json').read_text())
@@ -235,8 +255,19 @@ def run_trial(trial,p):
     del before
     initial=state_digest(dict(model.named_parameters()))
     if initial != expected_init['pair']: raise ValueError('pair initialization differs from CPU preflight')
-    m=trial['merge_items'];raw={s:cases(p['data'],s) for s in ('train','validation')}
-    encoded={s:(encode(h,sids,keys,pairs,m),u,t) for s,(h,u,t) in raw.items()}
+    m = trial['merge_items']
+    thinned = c.get('history_reduction') == 'keep_second'
+    def build_cases(split):
+        h, u, t = cases(p['data'], split)
+        x = encode(h, sids, keys, pairs, m, keep_second=thinned)
+        if thinned:
+            if np.any(x >= 1024) or case_digest((x, u, t)) != c['expected_thinned_case_sha256'][split]:
+                raise ValueError(f'thinning produced unexpected inputs in {split}')
+        return (h, u, t), (x, u, t)
+    splits = ('train', 'validation')
+    built = {s:build_cases(s) for s in splits}
+    raw = {s:built[s][0] for s in splits}
+    encoded = {s:built[s][1] for s in splits}
     views = None
     if 'mixed_views' in c:
         views = full_context_selector(raw['train'][0], sids, encoded['train'][0], c, m)
@@ -244,10 +275,18 @@ def run_trial(trial,p):
     if views is not None:
         provenance = dict(
             policy=c['mixed_views'], native_sid_widths=views.widths,
-            full_case_sha256=case_digest((views.full, *encoded['train'][1:])),
-            pair_case_sha256=case_digest(encoded['train']))
-        if p.get('reference_views', provenance) != provenance:
-            raise ValueError('encoded training views differ from seed 42')
+            full_case_sha256=case_digest((views.full, *encoded['train'][1:])))
+        compressed_digest = case_digest(encoded['train'])
+        if thinned:
+            reference = p['reference_views']
+            provenance['thinned_case_sha256'] = compressed_digest
+            if (provenance['full_case_sha256'] != reference['full_case_sha256']
+                    or list(views.widths.values()) != list(reference['native_sid_widths'].values())):
+                raise ValueError('full training inputs or widths differ from Mixed64')
+        else:
+            provenance['pair_case_sha256'] = compressed_digest
+            if p.get('reference_views', provenance) != provenance:
+                raise ValueError('encoded training views differ from seed 42')
         _write(out/'training-view-provenance.json', provenance)
     model.eval()
     with torch.inference_mode(),torch.nn.attention.sdpa_kernel(torch.nn.attention.SDPBackend.MATH),torch.profiler.profile(
@@ -288,7 +327,8 @@ def run_trial(trial,p):
     curve=json.loads((out/'training-curves.json').read_text())
     timing=dict(wall_seconds=time.monotonic()-started,warm_epoch_training_median_seconds=float(np.median([v['train_seconds'] for v in curve[1:]])),
         first_epoch_training_seconds=curve[0]['train_seconds'],cuda_peak_allocated_bytes=int(torch.cuda.max_memory_allocated()),cuda_peak_reserved_bytes=int(torch.cuda.max_memory_reserved()))
-    h,u,t=cases(p['data'],'test');x=encode(h,sids,keys,pairs,m);checkpoint=out/'generator-best.pt'
+    (h, u, t), (x, _, _) = build_cases('test')
+    checkpoint = out / 'generator-best.pt'
     ck=torch.load(checkpoint,map_location='cpu',weights_only=False)
     if ck['epoch'] != selection['best_epoch']:raise ValueError('selected checkpoint mismatch')
     model.load_state_dict(ck['model'],strict=True)
@@ -306,6 +346,9 @@ def run_trial(trial,p):
                    full_training_profile=full_profile,
                    train_view_examples={name: sum(v['training_views']['examples'][name] for v in curve)
                                         for name in views.widths})
+    if thinned:
+        row.update(history_reduction='keep_second', training_pair_view='batch_mixture_with_thinning',
+                   test_pair_view='keep_second_of_oldest_valid_pairs', used_pair_embeddings=False)
     if c.get('extended_budget'):
         row['validation_best_within_40'] = val_best_within(curve, 40)
     _write(out/'trial-result.json',row);return row

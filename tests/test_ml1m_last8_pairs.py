@@ -41,6 +41,27 @@ class Last8PairsTests(unittest.TestCase):
                 self.assertEqual(types.count('pair'),expected_pairs)
                 self.assertEqual(types,['pair']*expected_pairs+['single']*(n-2*expected_pairs))
 
+    def test_thinning_preserves_mixed64_positions_with_second_item_sids(self):
+        config = json.loads(Path('experiments/ml1m_last8_mixed64_thinned_2t4.json').read_text())
+        validate(config)
+        thinned = encode(self.h, self.sids, self.keys, self.pairs, 64, keep_second=True)
+        paired = encode(self.h, self.sids, self.keys, self.pairs, 64)
+        np.testing.assert_array_equal(thinned >= 0, paired >= 0)
+        offsets = np.arange(4) * 256
+        for length, row in enumerate(thinned.reshape(129, 96, 4)):
+            count = max(length - 64, 0) // 2
+            items = [*range(1, 2 * count, 2), *range(2 * count, length)]
+            np.testing.assert_array_equal(row[row[:, 0] >= 0], self.sids[items] + offsets)
+        for seed in config['seeds']:
+            config['seed'] = seed
+            thin_views = full_context_selector(self.h, self.sids, thinned, config, 64)
+            pair_config = {k: v for k, v in config.items() if k != 'history_reduction'}
+            pair_views = full_context_selector(self.h, self.sids, paired, pair_config, 64)
+            np.testing.assert_array_equal(thin_views.full, pair_views.full)
+            self.assertEqual(thin_views.widths, {'full128': 512, 'thin128': 384})
+            for epoch in (1, 40, 60):
+                np.testing.assert_array_equal(thin_views.schedule(epoch), pair_views.schedule(epoch))
+
     def test_smallest_tail_covers_all_fixed_pair_indexes(self):
         for m in MERGE_PREFIXES:
             self.assertTrue(np.isin(pair_keys(self.h,self.nitems,m),self.keys).all())
