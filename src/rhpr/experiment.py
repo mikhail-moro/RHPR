@@ -96,6 +96,11 @@ def run_experiment(
             raise ValueError('ML1M field-learning experiment requires output directory')
         from rhpr.gr.field_learning import run
         return run(config, output_dir)
+    if kind == 'gr_ml1m_mixed64_input_ablations':
+        if output_dir is None:
+            raise ValueError('ML1M Mixed64 input ablations require an output directory')
+        from rhpr.gr.ml1m_mixed64_input_ablations import run
+        return run(config, output_dir)
     if kind == 'gr_ml1m_last8_pairs':
         if output_dir is None:
             raise ValueError('ML1M Last-8 pairs require an output directory')
