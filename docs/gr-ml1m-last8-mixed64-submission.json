@@ -1,0 +1,143 @@
+{
+  "runs": {
+    "extended": {
+      "kernel": "carasik/rhpr-ml1m-mixed64-extended",
+      "version": 1,
+      "status_at_verification": "RUNNING",
+      "experiment": "experiments/ml1m_last8_mixed64_extended_2t4.json",
+      "workflow_run": 44328761858,
+      "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/44328761858",
+      "workflow_job": 134887124989,
+      "artifact_id": 14438625971,
+      "workflow_conclusion": "success_submission_only",
+      "dispatch_utc": "2026-11-18T14:50:44Z",
+      "push_confirmed_utc": "2026-11-18T14:51:01.2146376Z",
+      "timeout_seconds": 10800,
+      "trials": [
+        {
+          "id": "mixed128_merge64_101",
+          "merge_items": 64,
+          "seed": 101
+        },
+        {
+          "id": "mixed128_merge64_202",
+          "merge_items": 64,
+          "seed": 202
+        }
+      ],
+      "git_sha": "911b1366479644950b4113be32495c5446a12259",
+      "validated_python_files": 220,
+      "deployed_source_sha256": "0dcd23abd3d62aaf6dd547623ca278cbbe0d8cf2a7842567d322498032c9bc7c",
+      "dataset_sources": [
+        "carasik/rhpr-gr-beauty-phase0",
+        "carasik/rhpr-t5-sdpa-runtime"
+      ],
+      "kernel_sources": [
+        "carasik/rhpr-ml1m-mixed128-screen"
+      ]
+    },
+    "controls": {
+      "kernel": "carasik/rhpr-ml1m-mixed64-controls",
+      "version": 1,
+      "status_at_verification": "RUNNING",
+      "experiment": "experiments/ml1m_last8_mixed64_controls_2t4.json",
+      "workflow_run": 44328765027,
+      "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/44328765027",
+      "workflow_job": 134887123942,
+      "artifact_id": 14436889128,
+      "workflow_conclusion": "success_submission_only",
+      "dispatch_utc": "2026-11-18T14:50:45Z",
+      "push_confirmed_utc": "2026-11-18T14:51:02.3566434Z",
+      "timeout_seconds": 14400,
+      "trials": [
+        {
+          "id": "recent128_101",
+          "history_items": 128,
+          "seed": 101
+        },
+        {
+          "id": "recent128_202",
+          "history_items": 128,
+          "seed": 202
+        },
+        {
+          "id": "recent96_101",
+          "history_items": 96,
+          "seed": 101
+        },
+        {
+          "id": "recent96_202",
+          "history_items": 96,
+          "seed": 202
+        }
+      ],
+      "git_sha": "911b1366479644950b4113be32495c5446a12259",
+      "validated_python_files": 220,
+      "deployed_source_sha256": "18a72f6fc4dce88061b0cdb717aa07aa9f91a461e533ef8312e3a6024635809f",
+      "dataset_sources": [
+        "carasik/rhpr-gr-beauty-phase0",
+        "carasik/rhpr-t5-sdpa-runtime"
+      ],
+      "kernel_sources": [
+        "carasik/rhpr-ml1m-mixed128-screen",
+        "carasik/rhpr-ml1m-mixed120-controls"
+      ]
+    }
+  },
+  "training_epochs": 60,
+  "validation_interval": 5,
+  "control_resume_epoch": 40,
+  "cpu_preflight": [
+    {
+      "seed": 101,
+      "mode": "mixed64",
+      "flops": 2664203833,
+      "full_examples": 1473856,
+      "pair_examples": 1425344
+    },
+    {
+      "seed": 101,
+      "mode": "recent96",
+      "flops": 2664204606,
+      "base": "4dcaf4ec587f08ce3ec69536526f4cda5c4ab01eedbc1e09bd7e2803c69ac9b3"
+    },
+    {
+      "seed": 101,
+      "mode": "recent128_resume",
+      "from_epoch": 40,
+      "best_epoch": 35,
+      "updates": 3800,
+      "lr": 0.0015310878904640417,
+      "cpu_rng_restored": true,
+      "cuda_rng_records": 1
+    },
+    {
+      "seed": 202,
+      "mode": "mixed64",
+      "flops": 2664203833,
+      "full_examples": 1440896,
+      "pair_examples": 1458304
+    },
+    {
+      "seed": 202,
+      "mode": "recent96",
+      "flops": 2664204606,
+      "base": "0102d0baf3e18b608649a6473bcae2852792a5f0649e4dd4daa35dfcd416bd74"
+    },
+    {
+      "seed": 202,
+      "mode": "recent128_resume",
+      "from_epoch": 40,
+      "best_epoch": 40,
+      "updates": 3800,
+      "lr": 0.0015310878904640417,
+      "cpu_rng_restored": true,
+      "cuda_rng_records": 1
+    }
+  ],
+  "tests": {
+    "total_including_skips": 1189,
+    "skipped": 93,
+    "seconds": 180.004
+  }
+}

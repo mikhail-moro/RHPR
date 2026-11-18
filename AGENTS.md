@@ -2,6 +2,23 @@
 
 ## Research status
 
+- Mixed64 60-epoch follow-up submitted 2026-11-18. Both private two-T4
+  kernels were RUNNING at verification. Mixed64 seeds 101/202 trains from
+  scratch (carasik/rhpr-ml1m-mixed64-extended/1, workflow 44328761858, 3h cap).
+  Recent96 matches its encoder width and trains from scratch, and Recent128
+  resumes each saved epoch-40 state to epoch 60 (carasik/rhpr-ml1m-mixed64-controls/1,
+  workflow 44328765027, 4h cap). Source 911b13664796; byte-verified both.
+  All three arms use shared frozen index/cases, VAL every 5, original cosine60.
+  Reports include best VAL within first 40 and final val-selected TEST.
+  Pinned parent and actual checkpoints passed CPU preflight. Full 1189 tests
+  including 93 skips, zero failures. Receipt docs/gr-ml1m-last8-mixed64-submission.json.
+
+- Mixed120 40-epoch replication COMPLETE. TEST Mixed120 / Recent64 / Recent128:
+  seed101 .04869486/.05241982/.05125769; seed202 .04342749/.04332243/.05313261.
+  Two-new-seed mean Mixed120 −3.78% vs Recent64, −11.75% vs Recent128.
+  Mixed120's best VAL was epoch 40 in both fits. Analysis and replay at
+  /workspace/artifacts/ml1m-mixed120-seed-comparison/results.json.
+
 - Mixed120 replication and matched controls submitted on 2026-11-18.
   Both private two-T4 kernels were QUEUED at verification. Mixed120 seeds
   101/202: carasik/rhpr-ml1m-mixed120-seeds/1, source fce1ab109c99,
