@@ -2,6 +2,24 @@
 
 ## Research status
 
+- Mixed120 replication and matched controls submitted on 2026-11-18.
+  Both private two-T4 kernels were QUEUED at verification. Mixed120 seeds
+  101/202: carasik/rhpr-ml1m-mixed120-seeds/1, source fce1ab109c99,
+  workflow 44287312446, 2h cap. Recent64 and Recent128 at both seeds:
+  carasik/rhpr-ml1m-mixed120-controls/1, source 6754b3a1cd16, workflow
+  44288539814, 3h cap. Keep index seed 42 and all case arrays frozen via
+  the completed Mixed128 parent. Each fit uses 40 epochs, VAL every 5,
+  and selection by raw VAL NDCG@10. Full source and config verified.
+  Receipts docs/gr-ml1m-last8-mixed120-{seeds,controls}-submission.json.
+
+- Fixed Pair128 and Mixed128 seed 42 screens COMPLETE. Pair codes,
+  centroids, single/pair SIDs and targets matched across kernels. Mixed
+  raised TEST NDCG@10 at all caps. Mixed120 led the compressed variants:
+  VAL .06455863, TEST .05851838, 1.707796744 GFLOPs. Fixed120 TEST
+  .04806065, Recent64 .04627123, Recent128 .05449579. Paired TEST CI
+  versus Recent128 crosses zero. Replay covered 76 prediction files.
+  Analysis at /workspace/artifacts/ml1m-pair128-comparison/results.json.
+
 - Mixed128 submitted once 2026-11-18T01:37:35Z as
   carasik/rhpr-ml1m-mixed128-screen/1. Both this kernel and the original
   fixed Pair128 were RUNNING at verification. Source 1074a7599c52,

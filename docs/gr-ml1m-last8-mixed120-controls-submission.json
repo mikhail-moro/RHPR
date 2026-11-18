@@ -1,0 +1,82 @@
+{
+  "kernel": "carasik/rhpr-ml1m-mixed120-controls",
+  "kernel_version": 1,
+  "status_at_verification": "QUEUED",
+  "source_commit": "6754b3a1cd1631f77de0db01c532fe5d1023b0c7",
+  "deployed_python_files_verified": 220,
+  "deployed_source_sha256": "2cf7786a45e1e3554e811c60d39be4a491d06ee447d261230abfb60618013c5a",
+  "workflow_run": 44288539814,
+  "workflow_url": "https://github.com/mikhail-moro/RHPR/actions/runs/44288539814",
+  "job_id": 134747419471,
+  "artifact_id": 14420396300,
+  "workflow_conclusion": "success_submission_only",
+  "dispatch_utc": "2026-11-18T10:46:26Z",
+  "push_confirmed_utc": "2026-11-18T10:46:45.8666106Z",
+  "experiment": "experiments/ml1m_last8_mixed120_controls_2t4.json",
+  "server_runtime_limit_seconds": 10800,
+  "frozen_parent": "carasik/rhpr-ml1m-mixed128-screen",
+  "frozen_parent_commit": "1074a7599c52875d66eb83716491f377c2310f33",
+  "trials": [
+    {
+      "id": "recent128_101",
+      "history_items": 128,
+      "seed": 101
+    },
+    {
+      "id": "recent128_202",
+      "history_items": 128,
+      "seed": 202
+    },
+    {
+      "id": "recent64_101",
+      "history_items": 64,
+      "seed": 101
+    },
+    {
+      "id": "recent64_202",
+      "history_items": 64,
+      "seed": 202
+    }
+  ],
+  "validation_interval": 5,
+  "epochs": 40,
+  "cpu_preflight": [
+    {
+      "seed": 101,
+      "history": 128,
+      "forward_flops": 3946108094,
+      "initializer": "4dcaf4ec587f08ce3ec69536526f4cda5c4ab01eedbc1e09bd7e2803c69ac9b3",
+      "compiled_cpu_updates": true,
+      "finite_beam20": true
+    },
+    {
+      "seed": 202,
+      "history": 128,
+      "forward_flops": 3946108094,
+      "initializer": "0102d0baf3e18b608649a6473bcae2852792a5f0649e4dd4daa35dfcd416bd74",
+      "compiled_cpu_updates": true,
+      "finite_beam20": true
+    },
+    {
+      "seed": 101,
+      "history": 64,
+      "forward_flops": 1583758782,
+      "initializer": "4dcaf4ec587f08ce3ec69536526f4cda5c4ab01eedbc1e09bd7e2803c69ac9b3",
+      "compiled_cpu_updates": true,
+      "finite_beam20": true
+    },
+    {
+      "seed": 202,
+      "history": 64,
+      "forward_flops": 1583758782,
+      "initializer": "0102d0baf3e18b608649a6473bcae2852792a5f0649e4dd4daa35dfcd416bd74",
+      "compiled_cpu_updates": true,
+      "finite_beam20": true
+    }
+  ],
+  "tests": {
+    "total_including_skips": 1187,
+    "skipped": 93,
+    "seconds": 147.269
+  }
+}
