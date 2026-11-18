@@ -7,6 +7,7 @@ import gc
 import json
 import random
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -31,6 +32,9 @@ EXTENDED_TRIALS = [dict(id=f'mixed128_merge64_{seed}', merge_items=64, seed=seed
                    for seed in REPLICATION_SEEDS]
 THINNED_TRIALS = [dict(id=f'thin128_merge64_{seed}', merge_items=64, seed=seed)
                   for seed in REPLICATION_SEEDS]
+MEAN_TRIALS = [dict(id=f'mean128_merge64_{seed}', merge_items=64, seed=seed)
+               for seed in REPLICATION_SEEDS]
+MEAN_ITEM_VECTORS = 'pair-cache/item-embeddings.npy'
 PARENT_KERNEL = 'carasik/rhpr-ml1m-mixed128-screen'
 PARENT_COMMIT = '1074a7599c52875d66eb83716491f377c2310f33'
 PARENT_TRIAL = 'trials/mixed128_merge120_42'
@@ -62,7 +66,10 @@ def mixed_parent_trial(config):
 
 def mixed_parent_files(config):
     trial = mixed_parent_trial(config)
-    return {name.replace(PARENT_TRIAL, trial) for name in PARENT_FILES}
+    files = {name.replace(PARENT_TRIAL, trial) for name in PARENT_FILES}
+    if config.get('pair_vector_method') == 'mean':
+        files.add(MEAN_ITEM_VECTORS)
+    return files
 
 
 def validate(c):
@@ -72,14 +79,18 @@ def validate(c):
     parent = c.get('frozen_parent')
     extended = c.get('extended_budget')
     thinned = c.get('history_reduction') == 'keep_second'
+    mean_pairs = c.get('pair_vector_method') == 'mean'
     expected_views = THINNED_VIEWS if thinned else MIXED_VIEWS
     epochs = 60 if extended else 40
     trials = (EXTENDED_TRIALS if extended else REPLICATION_TRIALS) if parent else MIXED_TRIALS if mixed else TRIALS
     policy = EXTENDED_MIXED_POLICY if extended else MIXED_POLICY if mixed else POLICY
     if thinned:
         trials, policy = THINNED_TRIALS, THINNED_POLICY
+    if mean_pairs:
+        trials = MEAN_TRIALS
     deadline = 10800 if extended else 7200 if parent else 14400
     if (('mixed_views' in c and mixed != expected_views)
+            or ('pair_vector_method' in c and (not mean_pairs or not extended or thinned))
             or ('history_reduction' in c and (not thinned or not extended or not mixed))
             or ('extended_budget' in c and (extended is not True or not parent or not mixed))
             or c['kind'] != 'gr_ml1m_last8_pairs' or c['windows'] != [128] or c['trials'] != trials
@@ -257,6 +268,8 @@ def run_trial(trial,p):
     if initial != expected_init['pair']: raise ValueError('pair initialization differs from CPU preflight')
     m = trial['merge_items']
     thinned = c.get('history_reduction') == 'keep_second'
+    mean_pairs = c.get('pair_vector_method') == 'mean'
+
     def build_cases(split):
         h, u, t = cases(p['data'], split)
         x = encode(h, sids, keys, pairs, m, keep_second=thinned)
@@ -285,8 +298,11 @@ def run_trial(trial,p):
                 raise ValueError('full training inputs or widths differ from Mixed64')
         else:
             provenance['pair_case_sha256'] = compressed_digest
-            if p.get('reference_views', provenance) != provenance:
-                raise ValueError('encoded training views differ from seed 42')
+            expected = p.get('reference_views', provenance)
+            if mean_pairs:
+                expected = {**expected, 'pair_case_sha256':compressed_digest}
+            if expected != provenance:
+                raise ValueError('full inputs or training view protocol differ from the reference')
         _write(out/'training-view-provenance.json', provenance)
     model.eval()
     with torch.inference_mode(),torch.nn.attention.sdpa_kernel(torch.nn.attention.SDPBackend.MATH),torch.profiler.profile(
@@ -349,6 +365,9 @@ def run_trial(trial,p):
     if thinned:
         row.update(history_reduction='keep_second', training_pair_view='batch_mixture_with_thinning',
                    test_pair_view='keep_second_of_oldest_valid_pairs', used_pair_embeddings=False)
+    if mean_pairs:
+        row['pair_vector_method'] = 'mean'
+        row['item_embeddings_sha256'] = c['frozen_parent']['files'][MEAN_ITEM_VECTORS]['sha256']
     if c.get('extended_budget'):
         row['validation_best_within_40'] = val_best_within(curve, 40)
     _write(out/'trial-result.json',row);return row
@@ -416,6 +435,57 @@ def prepare_indexes(c, output, source):
     return data, indexes, report
 
 
+def prepare_mean_pair_indexes(config, parent, data, original_indexes, output, source):
+    """Refit only the pair quantizer on arithmetic means of cached item vectors."""
+    import torch
+    from rhpr.gr.grid import fit_grid_rkmeans
+    from rhpr.gr.pair_sid import predict_rq
+    from rhpr.gr.pair_unique4 import unique_pair_sids
+
+    item_path = parent / MEAN_ITEM_VECTORS
+    item_vectors = np.load(item_path, allow_pickle=False)
+    if item_vectors.shape != (config['data']['items'], 768) or item_vectors.dtype != np.float32:
+        raise ValueError('mean pairs require the original FP32 Sentence-T5 item embeddings')
+    if not np.isfinite(item_vectors).all():
+        raise ValueError('nonfinite original item embeddings')
+    sets = cache_sets(data)
+    keys = np.load(original_indexes / 'pair-keys.npy', allow_pickle=False)
+    if not np.array_equal(keys,np.unique(np.concatenate(list(sets.values())))):
+        raise ValueError('ordered pair universe differs from the concatenated-text index')
+    train = np.isin(keys, sets['train'])
+    first, second = np.divmod(keys, len(item_vectors))
+    means = (item_vectors[first] + item_vectors[second]) * np.float32(.5)
+    train_means = means[train]
+    fit_codes, centers, fit = fit_grid_rkmeans(train_means,config['quantizer'],42,'cuda:0',source)
+    del train_means
+    codes = predict_rq(means,centers,'cuda:0')
+    del means
+    if not np.array_equal(codes[train],fit_codes):
+        raise ValueError('mean pair quantizer assignments differ from train fit')
+
+    indexes = output / 'mean-pair-indexes'
+    indexes.mkdir()
+    for name in ('items-42.npy','pair-keys.npy'):
+        shutil.copyfile(original_indexes/name,indexes/name)
+    np.save(indexes/'pair-codes-42.npy',codes)
+    np.save(indexes/'pair-centroids-42.npy',centers)
+    counts = np.unique(codes,axis=0,return_counts=True)[1]
+    report = dict(method='arithmetic_mean_of_two_original_fp32_t5_vectors',
+                  fit=fit,item_embeddings_sha256=file_sha256(item_path),
+                  pair_counts={s:len(ids) for s,ids in sets.items()},pair_union=len(keys),
+                  semantic_groups=len(counts),max_collision_group=int(counts.max()),
+                  pair_fit_on_train_only=True,collision_suffix='ordered_keys_train_then_validation_then_test')
+    _write(output/'mean-pair-index-report.json',report)
+    pair_sids = unique_pair_sids(keys,codes,sets['train'],np.union1d(sets['train'],sets['validation']))
+    pair_path = indexes/'pairs-42.npy'
+    np.save(pair_path,pair_sids)
+    report.update(pair_sid_file_sha256=file_sha256(pair_path),max_pair_suffix=int(pair_sids[:,3].max()))
+    _write(output/'mean-pair-index-report.json',report)
+    _event('ml1m_pairs_mean_index_complete',**report)
+    torch.cuda.empty_cache()
+    return indexes,report
+
+
 def run(c,output):
     import torch
     from rhpr.gr.ae_suite import assignments,launch_workers
@@ -438,6 +508,9 @@ def run(c,output):
         _write(output/'frozen-parent-verification.json', c['frozen_parent'])
         _event('ml1m_pairs_frozen_parent_verified', kernel=c['frozen_parent']['kernel'],
                revision=c['frozen_parent']['git_sha'], files=len(c['frozen_parent']['files']))
+        if c.get('pair_vector_method') == 'mean':
+            indexes, mean_report = prepare_mean_pair_indexes(c, parent, data, indexes, output, source)
+            extra['mean_pair_index'] = mean_report
     else:
         data, indexes, report = prepare_indexes(c, output, source)
     _write(output/'reference-control.json',c['reference_control'])
@@ -453,6 +526,8 @@ def run(c,output):
     if extra:
         keys = shared
         anchor = extra['reference_mixed42']
+        if 'mean_pair_index' in extra:
+            anchor = {**anchor, 'pair_sid_file_sha256':extra['mean_pair_index']['pair_sid_file_sha256']}
         reference_forward = anchor['forward']
         flop_key = 'supported_forward_flops_batch1'
         for row in rows:
