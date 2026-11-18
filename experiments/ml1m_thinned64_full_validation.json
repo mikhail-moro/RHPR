@@ -1,0 +1,139 @@
+{
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-ml1m-thinned64-full-val"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "modern_runtime": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-t5-sdpa-runtime",
+    "manifest_sha256": "18f4688aab798d792d9204d1c018d8aba7da80bc97f5aadcdd181b34f6f0b9f6"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false,
+    "attn_implementation": "sdpa"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-t5-sdpa-runtime"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-ml1m-mixed128-screen",
+      "carasik/rhpr-ml1m-mixed64-thinned"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "kind": "gr_ml1m_mixed64_input_ablations",
+  "seeds": [
+    101,
+    202
+  ],
+  "minimum_history": 97,
+  "evaluation_batch_size": 16,
+  "shuffle_seed": 64128,
+  "validation_case_sha256": "f2035a8596ce933273c1c979f8d8ecd60f46b796ab972251cb9bcce83c8249a4",
+  "frozen_parent": {
+    "kernel": "carasik/rhpr-ml1m-mixed128-screen",
+    "git_sha": "1074a7599c52875d66eb83716491f377c2310f33",
+    "files": {
+      "frozen-indexes/items-42.npy": {
+        "size_bytes": 118720,
+        "sha256": "80422aa36fbcabbd0c1133a0695547513c1a795f908c72b4ed412e9cc2c2b672"
+      },
+      "frozen-indexes/pair-keys.npy": {
+        "size_bytes": 2057600,
+        "sha256": "828a912a84542291cf76910c443be7416a9cfd5899e1ed3322df011ebe55d27f"
+      },
+      "frozen-indexes/pairs-42.npy": {
+        "size_bytes": 4115072,
+        "sha256": "a0d7823f3fb559dc7e22f08e22930bf6e1614e261e538606388962582798a849"
+      },
+      "prepared-cases/validation-cases.npz": {
+        "size_bytes": 1518552,
+        "sha256": "6c594fe29c3c16d0ab6818cda80435075b78e5da740944a56aa9ea93fc3b5b90"
+      },
+      "run-manifest.json": {
+        "size_bytes": 9369,
+        "sha256": "1ff2f0f9005dda4fd77469d9144aec63729da6420888f2f33dcd5a69ac25e82b"
+      },
+      "prepared-cases/validation-anchors.npz": {
+        "size_bytes": 63546,
+        "sha256": "dbbc4350f46cb96fb897a7731fbd5beeff9e4a65af4d77a018680a2de099e896"
+      }
+    }
+  },
+  "checkpoints_parent": {
+    "kernel": "carasik/rhpr-ml1m-mixed64-thinned",
+    "git_sha": "f313afc09d3319a2de70c14b36bc0a7b7cc1270b",
+    "files": {
+      "run-manifest.json": {
+        "size_bytes": 11986,
+        "sha256": "7eba10f8f4e476b86816bfe26a9f55807de24e70d6598348eef3e50a1fa9e579"
+      },
+      "trials/thin128_merge64_101/training-selection.json": {
+        "size_bytes": 1163,
+        "sha256": "28870c6e2f6322d55b24eb170637611ed01f9b89e1ca38bb97b7026c24266be4"
+      },
+      "trials/thin128_merge64_101/test-metrics.json": {
+        "size_bytes": 609,
+        "sha256": "d954c84a9ecc08f38f2835cef04e9ebe7db7d674e73454490ae6c64980a73fa3"
+      },
+      "trials/thin128_merge64_101/validation-epoch-045.npz": {
+        "size_bytes": 830724,
+        "sha256": "ebe20aed938f9daa454c11e6c4f9dcbe55cb91aad35810f4bd4b1b7152cc2da1"
+      },
+      "trials/thin128_merge64_101/generator-best.pt": {
+        "size_bytes": 20504333,
+        "sha256": "5c94674eb655561299bdadf157c8555bd654b30e2ef0304af64be3baf6803472"
+      },
+      "trials/thin128_merge64_202/training-selection.json": {
+        "size_bytes": 1164,
+        "sha256": "6070bbbcf43e27ed652a40cc4bb8a288c2128e241a22e5e8964539decf5bc9dc"
+      },
+      "trials/thin128_merge64_202/test-metrics.json": {
+        "size_bytes": 616,
+        "sha256": "c9e7c3d3ca196d607706f262fb8d1d15d3a6b2dfc4bc6760331238fcfda0bcef"
+      },
+      "trials/thin128_merge64_202/validation-epoch-045.npz": {
+        "size_bytes": 832740,
+        "sha256": "6ee8cac637ff21c39cd9bfacc3db169fd33028f21bb206f56f74a698dfe47ea2"
+      },
+      "trials/thin128_merge64_202/generator-best.pt": {
+        "size_bytes": 20504333,
+        "sha256": "462de19d04357b875b4cfb26121c53c7edd8ffd4f3dc74568664c3ffe0eaec59"
+      }
+    }
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "history_reduction": "keep_second"
+}

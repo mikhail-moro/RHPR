@@ -40,10 +40,16 @@ def prepare(config, frozen):
     index_path = frozen / 'frozen-indexes'
     sids, keys, pair_sids = [np.load(index_path / f'{name}.npy')
                             for name in ('items-42', 'pair-keys', 'pairs-42')]
-    original = encode(contexts, sids, keys, pair_sids, 64)
+    thinned = config.get('history_reduction') == 'keep_second'
+    original = encode(contexts, sids, keys, pair_sids, 64, keep_second=thinned)
     recent = contexts[:, -128:]
     singleton_tokens = sids[np.maximum(recent, 0)] + np.arange(4) * 256
     full = np.where(recent[:, :, None] >= 0, singleton_tokens, -1).reshape(len(recent), 512)
+
+    index = InputIndex4(SidIndex.from_full_sids(sids, width=256))
+    views = {'original':original, 'full':full}
+    if thinned:
+        return index, selected, views, users, targets, past[selected], None
 
     # A seeded one-to-one reassignment within identical clipped history lengths
     # preserves pair counts, padding, and the overall distribution of pair tokens.
@@ -61,9 +67,8 @@ def prepare(config, frozen):
     swapped = np.where(pair_token, original[donors], original)
     assert np.all(((original != swapped) & pair_token).any(1))
     np.testing.assert_array_equal(original[~pair_token], swapped[~pair_token])
-    return InputIndex4(SidIndex.from_full_sids(sids, width=256)), selected, {
-        'original': original, 'full': full, 'shuffled': swapped
-    }, users, targets, past[selected], users[donors]
+    views['shuffled'] = swapped
+    return index, selected, views, users, targets, past[selected], users[donors]
 
 
 def evaluate_checkpoint(seed, config, prepared, checkpoints, source, output, device):
@@ -71,7 +76,8 @@ def evaluate_checkpoint(seed, config, prepared, checkpoints, source, output, dev
     from rhpr.gr.sid import evaluate_ranked_sids
 
     index, selected, views, users, targets, past, donors = prepared
-    trial = checkpoints / f'trials/mixed128_merge64_{seed}'
+    prefix = 'thin128' if config.get('history_reduction') == 'keep_second' else 'mixed128'
+    trial = checkpoints / f'trials/{prefix}_merge64_{seed}'
     epoch = read(trial / 'training-selection.json')['best_epoch']
     weights = trial / 'generator-best.pt'
     sha = file_sha256(weights)
@@ -106,13 +112,13 @@ def evaluate_checkpoint(seed, config, prepared, checkpoints, source, output, dev
     for key in ('ndcg@10', 'recall@10'):
         metrics[f'{prefix}_original_{key}'] = original[key]
     print(f'{prefix} original replay agreement {match:.4f}', flush=True)
-    for name in ('full', 'shuffled'):
+    for name in (v for v in views if v != 'original'):
         values, ids, scores = _evaluate(model, (views[name], users, targets),
                                         index, batch_size, device, 'fp32')
         path = output / f'{name}-{seed}.npz'
+        donor_data = {'donor_user_ids':donors} if donors is not None else {}
         np.savez_compressed(path, user_ids=users, target_item_ids=targets, semantic_ids=ids,
-                            scores=scores, past=past, donor_user_ids=donors,
-                            checkpoint_sha256=sha, epoch=epoch)
+                            scores=scores, past=past, checkpoint_sha256=sha, epoch=epoch, **donor_data)
         for key in ('ndcg@10', 'recall@10', 'seconds'):
             metrics[f'{prefix}_{name}_{key}'] = values[key]
         print(json.dumps(dict(seed=seed, view=name, sha256=file_sha256(path), **values)), flush=True)
@@ -130,6 +136,8 @@ def run(config, output):
     if (config['seeds'], config['minimum_history'], config['evaluation_batch_size'], config['shuffle_seed']) != (
             [101, 202], 97, 16, 64128):
         raise ValueError('expected the pinned Mixed64 validation ablation protocol')
+    if config.get('history_reduction') not in (None, 'keep_second'):
+        raise ValueError('unsupported history reduction')
     devices = config['execution']['worker_devices']
     if (devices != ['cuda:0', 'cuda:1'] or torch.cuda.device_count() != len(devices)
             or any(torch.cuda.get_device_capability(i) != (7, 5) for i in range(len(devices)))):
