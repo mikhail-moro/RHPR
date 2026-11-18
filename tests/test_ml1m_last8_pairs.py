@@ -6,7 +6,10 @@ from pathlib import Path
 
 import numpy as np
 
-from rhpr.gr.ml1m_last8_pairs import MERGE_PREFIXES,TRIALS,encode,pair_keys,validate,profiling_batch
+from rhpr.gr.ml1m_last8_pairs import (
+    MERGE_PREFIXES, MIXED_TRIALS, TRIALS, encode, full_context_selector, pair_keys,
+    profiling_batch, validate,
+)
 
 
 class Last8PairsTests(unittest.TestCase):
@@ -88,6 +91,40 @@ class Last8PairsTests(unittest.TestCase):
             self.assertEqual(e.rows,['First movie: A Second movie: B','First movie: B Second movie: A'])
             self.assertEqual(np.load(p).shape,(2,768))
             with self.assertRaises(ValueError):encode_pair_cache(e,['A'],np.array([0]),p,['a','b'],batch_size=0)
+
+    def test_mixed_screen_reuses_batch_schedule_and_keeps_native_full_and_pair_widths(self):
+        from rhpr.gr.kindle_mixed_views import MixedViews
+
+        config = json.loads(Path('experiments/ml1m_last8_mixed128_2t4.json').read_text())
+        validate(config)
+        self.assertEqual(config['trials'], MIXED_TRIALS)
+        altered = copy.deepcopy(config)
+        altered['mixed_views']['full_probability'] = .6
+        with self.assertRaises(ValueError):
+            validate(altered)
+
+        config['training']['batch_size'] = 8
+        legacy = MixedViews(np.zeros((129, 128)), np.zeros((129, 96)), batch_size=8)
+        order = np.random.default_rng(43).permutation(129)
+        expected_full = np.full((129, 128, 4), -1, dtype=np.int32)
+        for length in range(1, 129):
+            expected_full[length, -length:] = self.sids[:length] + 256 * np.arange(4)
+        for merge in MERGE_PREFIXES:
+            pair = encode(self.h, self.sids, self.keys, self.pairs, merge)
+            views = full_context_selector(self.h, self.sids, pair, config, merge)
+            np.testing.assert_array_equal(views.full, expected_full.reshape(129, 512))
+            schedule = views.schedule(1)
+            np.testing.assert_array_equal(schedule, legacy.schedule(1))
+            self.assertEqual(set(schedule), {False, True})
+            for batch, begin in enumerate(range(0, len(order), 8)):
+                chosen = order[begin:begin + 8]
+                for start in range(0, len(chosen), 3):
+                    part = chosen[start:start + 3]
+                    expected = views.full if schedule[batch] else pair
+                    np.testing.assert_array_equal(views(1, batch, part), expected[part])
+            report = views.epoch_summary(1)
+            self.assertEqual(sum(report['examples'].values()), len(order))
+            self.assertEqual(report['native_sid_widths'], {'full128': 512, 'pair128': pair.shape[1]})
 
 
 if __name__=='__main__':unittest.main()

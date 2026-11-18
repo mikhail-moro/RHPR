@@ -106,13 +106,17 @@ class MixedViews:
     Only contexts change: the caller retains the original users and targets.
     A per-epoch coverage audit rejects duplicated or missing training examples.
     """
-    def __init__(self, full, pair, batch_size=512, seed=42, full_probability=.5):
+    def __init__(self, full, pair, batch_size=512, seed=42, full_probability=.5, *,
+                 layout=(('full32', 128), ('pair32', 96))):
         self.full = np.asarray(full)
         self.pair = np.asarray(pair)
+        (self.full_name, full_width), (self.pair_name, pair_width) = layout
         if (self.full.ndim != 2 or self.pair.ndim != 2 or len(full) != len(pair)
-            or self.full.shape[1] != 128 or self.pair.shape[1] != 96
+            or self.full.shape[1] != full_width or self.pair.shape[1] != pair_width
+            or not full_width > pair_width > 0 or self.full_name == self.pair_name
             or not 0 <= full_probability <= 1 or batch_size <= 0):
-            raise ValueError('aligned native Full32/Pair32 contexts required')
+            raise ValueError('aligned contexts at the declared native widths required')
+        self.widths = dict(layout)
         self.batch_size, self.seed, self.probability = batch_size, seed, full_probability
         self.epoch = None
 
@@ -127,15 +131,15 @@ class MixedViews:
             self.epoch = epoch
             self.choices = self.schedule(epoch)
             self.counts = np.zeros(len(self.full), dtype=np.int32)
-            self.examples = dict(full32=0, pair32=0)
-            self.batches = dict(full32=set(), pair32=set())
+            self.examples = dict.fromkeys(self.widths, 0)
+            self.batches = {name: set() for name in self.widths}
         part = np.asarray(part)
         if (part.ndim != 1 or np.any(part < 0) or np.any(part >= len(self.full))
             or batch < 0 or batch >= len(self.choices)):
             raise ValueError('invalid training batch')
         np.add.at(self.counts, part, 1)
         full = bool(self.choices[batch])
-        name = 'full32' if full else 'pair32'
+        name = self.full_name if full else self.pair_name
         self.examples[name] += len(part)
         self.batches[name].add(batch)
         return (self.full if full else self.pair)[part]
@@ -145,7 +149,7 @@ class MixedViews:
             raise RuntimeError('mixed views must consume every original example exactly once')
         return dict(examples=dict(self.examples), batches={k:len(v) for k,v in self.batches.items()},
                     schedule_sha256=hashlib.sha256(self.choices.tobytes()).hexdigest(),
-                    examples_consumed_once=True, native_sid_widths=dict(full32=128, pair32=96))
+                    examples_consumed_once=True, native_sid_widths=dict(self.widths))
 
 
 def run_trial(trial, p, *, view_factory=None, policy=POLICY, mode='mixed_full_pair'):

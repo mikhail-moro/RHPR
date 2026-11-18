@@ -1,4 +1,4 @@
-"""Four fixed-prefix Pair128 screens on the matched ML1M Last-8 examples."""
+"""Fixed-prefix Pair128 screens with optional full/pair training views."""
 from __future__ import annotations
 
 import argparse
@@ -23,19 +23,28 @@ from rhpr.gr.movie_data import case_digest
 
 MERGE_PREFIXES = [64, 96, 112, 120]
 TRIALS = [dict(id=f'pair128_merge{m}_42', merge_items=m, seed=42) for m in MERGE_PREFIXES]
+MIXED_TRIALS = [dict(id=f'mixed128_merge{m}_42', merge_items=m, seed=42) for m in MERGE_PREFIXES]
+MIXED_VIEWS = dict(full_probability=.5, unit='optimizer_batch', inference='fixed_pairs',
+                   rng_stream=7301, preserve_native_positions=True)
 POLICY = dict(history_items=128, merge_prefix_items=MERGE_PREFIXES,
     protected_tail_items=[64,32,16,8], training='fixed_oldest_valid_adjacent_pairs',
     padding='left_pad_compacted_3plus1_units', odd_prefix='keep_single_before_tail',
     pair_index='one_shared_train_pair_union', suffix='train_then_validation_then_test',
     pair_text_labels=['First movie','Second movie'], pair_max_tokens=2048,
     all_targets_single=True, random_training=False, fixed_epochs=40)
+MIXED_POLICY = {**POLICY, 'training': 'full_or_fixed_pairs_per_optimizer_batch',
+                'random_training': True}
 
 
 def validate(c):
     from rhpr.gr.ml1m_last8 import WINDOWS, TRIALS as BASE_TRIALS, validate as base_validate
     t = c['training']; reference = c['reference_control']
-    if (c['kind'] != 'gr_ml1m_last8_pairs' or c['windows'] != [128] or c['trials'] != TRIALS
-            or c['policy'] != POLICY or c['expected_sid_file_sha256'] != REFERENCE_SID_SHA256
+    mixed = c.get('mixed_views')
+    trials = MIXED_TRIALS if mixed else TRIALS
+    if (('mixed_views' in c and mixed != MIXED_VIEWS)
+            or c['kind'] != 'gr_ml1m_last8_pairs' or c['windows'] != [128] or c['trials'] != trials
+            or c['policy'] != (MIXED_POLICY if mixed else POLICY)
+            or c['expected_sid_file_sha256'] != REFERENCE_SID_SHA256
             or (t['min_epochs'],t['max_epochs'],t['max_seconds']) != (40,40,7200)
             or c['pair_batches'] != dict(physical=64,evaluation=16)
             or c['pair_embedding_batch_size'] != 128
@@ -44,7 +53,7 @@ def validate(c):
             or reference['best_epoch'] != 35 or reference['matched_max_epoch'] != 40
             or not re.fullmatch('[0-9a-f]{64}',c['expected_pair_initial_state_sha256'])
             or c['suite_deadline_seconds'] != 14400):
-        raise ValueError('expected exactly four fixed Pair128/40epoch screens, no extra fits')
+        raise ValueError('expected four Pair128 screens at seed 42 and 40 epochs')
     if (len(reference['validation_curve']) != 8
             or [r['epoch'] for r in reference['validation_curve']] != list(range(5,41,5))
             or max(reference['validation_curve'],key=lambda r:r['ndcg10'])['epoch'] != reference['best_epoch']
@@ -104,6 +113,18 @@ def cache_sets(data):
     return {s:pair_keys(cases(data,s)[0],3706,120) for s in ('train','validation','test')}
 
 
+def full_context_selector(contexts, sids, pair_contexts, config, merge_items):
+    """Switch between the same histories at their respective native widths."""
+    from rhpr.gr.kindle_mixed_views import MixedViews
+
+    history, _ = checked_contexts(contexts, len(sids))
+    tokens = sids[np.maximum(history, 0)] + 256 * np.arange(4, dtype=np.int32)
+    full = np.where(history[:, :, None] >= 0, tokens, -1).reshape(len(history), 512)
+    return MixedViews(full, pair_contexts, batch_size=config['training']['batch_size'],
+                      seed=config['seed'], full_probability=config['mixed_views']['full_probability'],
+                      layout=(('full128', 512), ('pair128', 4 * (128 - merge_items // 2))))
+
+
 def profiling_batch(index, contexts, users, targets, ignored_sids, device):
     """Profiling's five-argument builder contract, using the preencoded index."""
     return index.model_batch(contexts,users,targets,device)
@@ -132,7 +153,15 @@ def run_trial(trial,p):
     if initial != c['expected_pair_initial_state_sha256']: raise ValueError('pair initialization differs from CPU preflight')
     m=trial['merge_items'];raw={s:cases(p['data'],s) for s in ('train','validation')}
     encoded={s:(encode(h,sids,keys,pairs,m),u,t) for s,(h,u,t) in raw.items()}
+    views = None
+    if 'mixed_views' in c:
+        views = full_context_selector(raw['train'][0], sids, encoded['train'][0], c, m)
     out=Path(p['output'])/'trials'/trial['id'];out.mkdir(parents=True)
+    if views is not None:
+        _write(out/'training-view-provenance.json', dict(
+            policy=c['mixed_views'], native_sid_widths=views.widths,
+            full_case_sha256=case_digest((views.full, *encoded['train'][1:])),
+            pair_case_sha256=case_digest(encoded['train'])))
     model.eval()
     with torch.inference_mode(),torch.nn.attention.sdpa_kernel(torch.nn.attention.SDPBackend.MATH),torch.profiler.profile(
             activities=[torch.profiler.ProfilerActivity.CPU],with_flops=True) as prof:
@@ -148,12 +177,23 @@ def run_trial(trial,p):
         ProfileDeadline(180),'cuda:0',batch_builder=partial(profiling_batch,wrapped))
     if state_digest(dict(model.named_parameters())) != initial:raise RuntimeError('profile changed initial weights')
     _write(out/'training-profile.json',profile);_event('ml1m_pairs_profile_complete',trial=trial['id'],**profile)
+    if views is not None:
+        full_profile = benchmark_training(
+            compiled, (views.full, *encoded['train'][1:]), sids,
+            np.random.default_rng(42).permutation(48320)[:512], c['training']['physical_batch_size'],
+            'fp16', 'full_pipeline', c['training'], dict(seed=42, warmup=1, iterations=2),
+            ProfileDeadline(180), 'cuda:0', batch_builder=partial(profiling_batch, wrapped))
+        if state_digest(dict(model.named_parameters())) != initial:
+            raise RuntimeError('full-view profile changed initial weights')
+        _write(out/'training-profile-full.json', full_profile)
+        _event('ml1m_pairs_full_profile_complete', trial=trial['id'], **full_profile)
     random.seed(42);np.random.seed(42);torch.manual_seed(42);torch.cuda.manual_seed_all(42)
     torch.cuda.reset_peak_memory_stats();started=time.monotonic()
     def builder(root,width,split):
         if split not in encoded:raise ValueError('TEST forbidden during training')
         return encoded[split]
-    selection=_train_generator(model,p['data'],wrapped,c,out,'cuda:0',example_builder=builder)
+    selection=_train_generator(model,p['data'],wrapped,c,out,'cuda:0',example_builder=builder,
+                               training_context_selector=views)
     if (selection['training_epochs'] != 40 or selection['validation_checks'] != 8
             or selection['optimizer_updates']+selection['amp_skipped_updates'] != 3800):
         raise RuntimeError('incomplete40epochscreen; preserve checkpoints')
@@ -173,6 +213,11 @@ def run_trial(trial,p):
         raw_case_sha256={s:case_digest(v) for s,v in raw.items()},case_targets_sha256={s:case_digest(v[1:]) for s,v in raw.items()},
         test_case_sha256=case_digest((h,u,t)),selection=selection,forward=forward,timing=timing,profile=profile,test=test,
         epoch_capped_screen=True,training_pair_view='fixed',test_pair_view='fixed_oldest_valid_pairs')
+    if views is not None:
+        row.update(training_pair_view='batch_mixture', mixed_views=c['mixed_views'],
+                   full_training_profile=full_profile,
+                   train_view_examples={name: sum(v['training_views']['examples'][name] for v in curve)
+                                        for name in views.widths})
     _write(out/'trial-result.json',row);return row
 
 

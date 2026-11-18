@@ -121,3 +121,25 @@ paths and selected TEST paths. Limit each fit to7200s and the Kaggle session
 to4h including preparation/compilation. Quota before dispatch19.22GPUhours.
 Pair embeddings are a one-time preparation cost in this session and are
 saved for future authorized use; new runs must not be silently dispatched.
+
+## Mixed128 comparison
+
+The separate [Mixed128 kernel](https://www.kaggle.com/code/carasik/rhpr-ml1m-mixed128-screen)
+uses the same four merge prefixes, seed 42 and 40-epoch budget. For each
+optimizer batch, it draws either the full SingleSID history or the fixed
+PairSID view with probability 0.5 each. All microbatches in an update
+receive the same view. The previous Mixed32 RNG stream is seeded by epoch
+and shared across all four variants. Every training example contributes
+its existing target once per epoch.
+
+Full batches use 513 encoder positions, including USER. Pair batches
+use the widths in the table. VAL every five epochs and TEST on the
+selected checkpoint use the fixed PairSID view. The training curves
+record batch and example counts for each view. A separate training
+profile records the cost of full batches at the same physical batch
+size as compressed batches.
+
+The parallel session builds its own copy of the index from the same raw
+data and pair fitting settings. Compare the saved single and pair SID
+file hashes before attributing differences between sessions to mixing.
+The config is `experiments/ml1m_last8_mixed128_2t4.json`.
