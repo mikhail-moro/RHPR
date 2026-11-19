@@ -56,6 +56,9 @@ The launcher supports the existing ML1M Last-8 window, pair and input-ablation
 runners. Colab uses one GPU and runs their seeds and variants sequentially.
 The launcher keeps the experiment's data, precision, compilation and validation
 settings and verifies pinned parent output bytes before allocating a GPU.
+GPU allocation retries transient HTTP 502, 503 and 504 responses and read
+timeouts after 1, 2, 4 and 8 minutes. The retries reuse the same Colab notebook ID
+and leave the staged experiment in place.
 For Kaggle sources referenced by unversioned slug, the current output must
 match the pin. The runtime records the experiment revision, input config hashes,
 GPU and CUDA versions.

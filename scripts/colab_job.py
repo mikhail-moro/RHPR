@@ -293,12 +293,14 @@ def run_job(experiment, gpu, minutes, output, state, session):
             archive.add(remote, "job")
             archive.add(kaggle, "kaggle")
 
-        new_session = [sys.executable, str(ROOT / "scripts/colab_allocate.py"),
-                       *cli[1:], "new", "-s", session]
+        new_session = [sys.executable, str(ROOT / "scripts/colab_allocate.py")]
+        if gpu != "cpu":
+            new_session.append("--retry-transient")
+        new_session.extend([*cli[1:], "new", "-s", session])
         if gpu != "cpu":
             new_session += ["--gpu", gpu]
         try:
-            run_colab_phase(new_session, "allocation", log, timeout=300)
+            run_colab_phase(new_session, "allocation", log, timeout=1500 if gpu != "cpu" else 300)
             with transfer.open("rb") as stream:
                 run_colab_phase(remote_run + [
                     f"mkdir -p {REMOTE} && tar -xf - -C {REMOTE}",
