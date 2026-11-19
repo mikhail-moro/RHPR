@@ -21,6 +21,7 @@ import uuid
 ROOT = Path(__file__).resolve().parents[1]
 GPU_TYPES = ("T4", "L4", "A100", "H100")
 GPU_EXPERIMENTS = {"gr_ml1m_last8", "gr_ml1m_last8_pairs", "gr_ml1m_mixed64_input_ablations"}
+GPU_ALLOCATION_TIMEOUT_SECONDS = 45 * 60
 REMOTE = "/content/rhpr-job"
 SLUG = r"[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+"
 
@@ -183,8 +184,14 @@ def run_colab_phase(args, phase, log, *, timeout, stdin=None, stdout=None, check
     detail = result.stderr or b""
     log.write(detail)
     log.flush()
+    if phase == "allocation":
+        retries = detail.count(b"Colab allocation returned ")
+        print(f"Colab allocation finished (retry count {retries}, exit {result.returncode})", flush=True)
     if result.returncode:
-        status = re.search(rb"\bHTTP(?: status)? ([45][0-9]{2})\b", detail)
+        if phase == "allocation":
+            status = re.search(rb"^Colab backend HTTP ([45][0-9]{2})$", detail, re.MULTILINE)
+        else:
+            status = re.search(rb"\bHTTP(?: status)? ([45][0-9]{2})\b", detail)
         reason = next((label for needle, label in (
             (b"Allocation refused", "allocation-refused"),
             (b"Backend rejected accelerator", "accelerator-rejected"),
@@ -300,7 +307,8 @@ def run_job(experiment, gpu, minutes, output, state, session):
         if gpu != "cpu":
             new_session += ["--gpu", gpu]
         try:
-            run_colab_phase(new_session, "allocation", log, timeout=1500 if gpu != "cpu" else 300)
+            run_colab_phase(new_session, "allocation", log,
+                            timeout=GPU_ALLOCATION_TIMEOUT_SECONDS if gpu != "cpu" else 300)
             with transfer.open("rb") as stream:
                 run_colab_phase(remote_run + [
                     f"mkdir -p {REMOTE} && tar -xf - -C {REMOTE}",

@@ -54,13 +54,16 @@ class ColabJobTests(unittest.TestCase):
         self.assertNotIn("private-url", public.getvalue())
 
     def test_allocation_failure_reports_only_known_backend_diagnostics(self):
-        stderr = b"Colab allocation exception: ValidationError\nTraceback: private-credential\n"
+        stderr = (b"Colab allocation returned HTTP 503; retrying in 60s\n"
+                  b"Colab allocation exception: ValidationError\nTraceback: private-credential\n")
         process = subprocess.CompletedProcess(["colab"], 1, stderr=stderr)
         public, private = io.StringIO(), io.BytesIO()
         with (patch.object(colab_job.subprocess, "run", return_value=process), redirect_stdout(public),
               self.assertRaises(subprocess.CalledProcessError)):
             colab_job.run_colab_phase(["colab"], "allocation", private, timeout=1)
-        self.assertEqual(public.getvalue(), "Colab phase allocation: exit 1, invalid-backend-response\n")
+        self.assertEqual(public.getvalue(),
+                         "Colab allocation finished (retry count 1, exit 1)\n"
+                         "Colab phase allocation: exit 1, invalid-backend-response\n")
         self.assertEqual(private.getvalue(), stderr)
 
     def test_last8_config_keeps_protocol_and_uses_one_gpu(self):

@@ -13,7 +13,7 @@ from colab_cli.utils import get_status_code
 from requests.exceptions import ReadTimeout
 
 
-RETRY_DELAYS_SECONDS = (60, 120, 240, 480)
+RETRY_DELAYS_SECONDS = (60, 120, 180, 240, 300, 300, 300, 300, 300, 300)
 
 
 def retry_assignment(assign):
