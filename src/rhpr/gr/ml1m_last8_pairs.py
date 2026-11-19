@@ -205,7 +205,7 @@ def profiling_batch(index, contexts, users, targets, ignored_sids, device):
     return index.model_batch(contexts,users,targets,device)
 
 
-def frozen_inputs(c, input_root=Path('/kaggle/input'), *, ordinary_controls=False):
+def frozen_inputs(c, input_root=None, *, ordinary_controls=False):
     """Load pinned cases and tokens from the completed Mixed128 pilot."""
     from rhpr.gr.ml100k_pair_raw import cases
     from rhpr.gr.pair_test import locate_parent

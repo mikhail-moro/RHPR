@@ -225,19 +225,19 @@ def run_job(experiment, gpu, minutes, output, state, session):
             run_colab_phase(new_session, "allocation", log, timeout=300)
             with transfer.open("rb") as stream:
                 run_colab_phase(remote_run + [
-                    "mkdir -p /content/rhpr-job && tar -xf - -C /content/rhpr-job"
-                    " && ln -sT /content/rhpr-job/kaggle /kaggle",
+                    f"mkdir -p {REMOTE} && tar -xf - -C {REMOTE}",
                 ], "upload", log, stdin=stream, timeout=1200)
             print("Running experiment on Colab", flush=True)
             # The remote deadline also applies if the GitHub runner disconnects.
+            working = f"{REMOTE}/kaggle/working"
             training = run_colab_phase(remote_run + [
                 f"timeout -k 30s {minutes * 60}s python3 -u {REMOTE}/job/colab_runtime.py "
-                " > /kaggle/working/colab-run.log 2>&1",
+                f"> {working}/colab-run.log 2>&1",
             ], "execution", log, timeout=minutes * 60 + 90, check=False)
             print("Retrieving Colab results", flush=True)
             pending = output / "results.partial"
             with pending.open("wb") as stream:
-                run_colab_phase(remote_run + ["tar -C /kaggle/working -cf - ."], "result-download", log,
+                run_colab_phase(remote_run + [f"tar -C {working} -cf - ."], "result-download", log,
                                 stdout=stream, timeout=1200)
             pending.rename(output / "results.tar")
             training.check_returncode()

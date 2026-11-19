@@ -9,10 +9,39 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from scripts import colab_job
+from scripts import colab_job, colab_runtime
 
 
 class ColabJobTests(unittest.TestCase):
+    def test_runtime_relocates_gpu_paths_and_finds_pinned_parent(self):
+        from rhpr.gr.pair_test import locate_parent
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            job, kaggle = root / "job", root / "kaggle"
+            job.mkdir()
+            config = {"resources": {"path": "/kaggle/input/datasets/owner/resources",
+                                    "scratch_path": "/kaggle/temp/trial", "manifest_sha256": "pinned"},
+                      "runtime": {"wheel_path": "/kaggle/input/datasets/owner/resources/wheels",
+                                  "target_site": "/kaggle/temp/site"}}
+            (job / "experiment.json").write_text(json.dumps(config))
+            effective, path = colab_runtime.mount_config(job, kaggle)
+            self.assertEqual(effective, json.loads(path.read_text()))
+            self.assertEqual(effective["resources"]["path"], str(kaggle / "input/datasets/owner/resources"))
+            self.assertEqual(effective["resources"]["scratch_path"], str(kaggle / "temp/trial"))
+            self.assertEqual(effective["runtime"]["target_site"], str(kaggle / "temp/site"))
+            self.assertEqual(effective["resources"]["manifest_sha256"], "pinned")
+            self.assertEqual(json.loads((job / "experiment.json").read_text()), config)
+
+            parent = kaggle / "input/notebooks/owner/model"
+            parent.mkdir(parents=True)
+            manifest = parent / "run-manifest.json"
+            manifest.write_text('{"git_sha":"revision"}')
+            spec = {"kernel": "owner/model", "git_sha": "revision", "files": {
+                "run-manifest.json": {"size_bytes": manifest.stat().st_size, "sha256": colab_job.sha256(manifest)}}}
+            with patch.dict("os.environ", {"RHPR_INPUT_ROOT": str(kaggle / "input")}):
+                self.assertEqual(locate_parent(spec), parent)
+
     def test_colab_failure_reports_public_phase_without_service_details(self):
         raw = b"Forbidden (HTTP 403): private-url\n"
         process = subprocess.CompletedProcess(["colab"], 255, stderr=raw)
@@ -99,6 +128,7 @@ class ColabJobTests(unittest.TestCase):
                 if "new" in args:
                     state.write_text("{}")
                 if args[-1].startswith("mkdir"):
+                    self.assertEqual(args[-1], f"mkdir -p {colab_job.REMOTE} && tar -xf - -C {colab_job.REMOTE}")
                     with tarfile.open(fileobj=kwargs["stdin"], mode="r") as archive:
                         self.assertIn("job/colab_runtime.py", archive.getnames())
                         self.assertIn("kaggle/working", archive.getnames())

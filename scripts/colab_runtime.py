@@ -9,11 +9,31 @@ import subprocess
 import sys
 
 
+def mount_config(workspace, kaggle):
+    config = json.loads((workspace / "experiment.json").read_text())
+    for section, fields in (
+        ("resources", ("path", "scratch_path")),
+        ("runtime", ("wheel_path", "target_site")),
+        ("modern_runtime", ("path",)),
+        ("movie_input", ("path",)),
+    ):
+        paths = config.get(section, {})
+        for name in fields:
+            if name in paths:
+                relative = Path(paths[name]).relative_to("/kaggle")
+                if ".." in relative.parts:
+                    raise ValueError(f"Invalid staged mount path: {section}.{name}")
+                paths[name] = str(kaggle / relative)
+    config_path = workspace / "mounted-experiment.json"
+    config_path.write_text(json.dumps(config, indent=2) + "\n")
+    return config, config_path
+
+
 def main():
     workspace = Path(__file__).resolve().parent
-    config_path = workspace / "experiment.json"
-    config = json.loads(config_path.read_text())
-    output = Path("/kaggle/working")
+    kaggle = workspace.parent / "kaggle"
+    config, config_path = mount_config(workspace, kaggle)
+    output = kaggle / "working"
     runtime = config.get("runtime")
 
     if runtime and len(sys.argv) == 1:
@@ -36,6 +56,7 @@ def main():
     sys.path.insert(0, str(workspace / "src"))
     (output / "colab-runtime.json").write_text((workspace / "deployment.json").read_text())
     os.environ["GITHUB_SHA"] = json.loads((workspace / "deployment.json").read_text())["git_sha"]
+    os.environ["RHPR_INPUT_ROOT"] = str(kaggle / "input")
     if runtime:
         from rhpr.offline_runtime import install_offline_runtime
         install_offline_runtime(runtime, output)

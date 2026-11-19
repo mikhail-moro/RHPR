@@ -1,6 +1,6 @@
 """Read-only test of fixed pair-SID and Recent10 generator checkpoints."""
 from __future__ import annotations
-import argparse, gc, json, random, subprocess, sys, traceback
+import argparse, gc, json, os, random, subprocess, sys, traceback
 from pathlib import Path
 import numpy as np
 from rhpr.gr.experiment import _event, _evaluate, _write
@@ -21,8 +21,10 @@ def validate(c):
         raise ValueError('test protocol differs from predeclared evaluation')
 
 
-def locate_parent(spec, input_root=Path('/kaggle/input')):
+def locate_parent(spec, input_root=None):
     from rhpr.gr.data import file_sha256
+    if input_root is None:
+        input_root = Path(os.environ.get('RHPR_INPUT_ROOT', '/kaggle/input'))
     owner, slug = spec['kernel'].split('/')
     candidates = [input_root / slug, input_root / owner / slug, input_root / 'notebooks' / owner / slug,
                   input_root / 'kernels' / owner / slug]
