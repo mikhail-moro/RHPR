@@ -25,16 +25,54 @@ on:
         description: Remote execution time limit in minutes (1–300, including dependency setup)
         type: number
         default: 30
+      serial_experiments:
+        description: Optional JSON array of experiment paths to run in separate, sequential sessions
+        type: string
+        default: '[]'
+      after_run_id:
+        description: Optional Colab workflow run ID to wait for before allocating a new session
+        type: string
+        default: ''
 
 permissions:
   contents: read
 
 jobs:
-  colab:
+  prior-colab:
+    if: inputs.after_run_id != ''
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    permissions:
+      actions: read
+    steps:
+      - name: Wait for the prior Colab workflow to release its session
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREVIOUS_RUN: ${{ inputs.after_run_id }}
+        run: |
+          [[ "$PREVIOUS_RUN" =~ ^[0-9]+$ && "$PREVIOUS_RUN" != "$GITHUB_RUN_ID" ]]
+          echo "Waiting for Colab workflow $PREVIOUS_RUN."
+          while true; do
+            status=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$PREVIOUS_RUN" --jq .status)
+            if [[ "$status" == completed ]]; then
+              break
+            fi
+            sleep 60
+          done
+  colab:
+    needs: prior-colab
+    if: ${{ !cancelled() && (needs.prior-colab.result == 'success' || needs.prior-colab.result == 'skipped') }}
+    name: ${{ matrix.experiment == '' && 'colab' || format('Colab {0}', matrix.experiment) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        experiment: ${{ fromJSON(inputs.task == 'experiment' && inputs.serial_experiments != '' && inputs.serial_experiments != '[]' && inputs.serial_experiments || '[""]') }}
     env:
-      COLAB_SESSION: rhpr-${{ github.run_id }}-${{ github.run_attempt }}
+      COLAB_RUN_SUFFIX: ${{ matrix.experiment != '' && format('-{0}', strategy.job-index) || '' }}
+      COLAB_SESSION: rhpr-${{ github.run_id }}-${{ github.run_attempt }}${{ matrix.experiment != '' && format('-{0}', strategy.job-index) || '' }}
     steps:
       - uses: actions/checkout@v4
         if: inputs.task != 'usage'
@@ -101,7 +139,7 @@ jobs:
         if: inputs.task != 'usage'
         env:
           COLAB_TASK: ${{ inputs.task }}
-          COLAB_EXPERIMENT: ${{ inputs.experiment }}
+          COLAB_EXPERIMENT: ${{ matrix.experiment || inputs.experiment }}
           COLAB_GPU: ${{ inputs.gpu }}
           COLAB_MINUTES: ${{ inputs.timeout_minutes }}
           KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
@@ -133,7 +171,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: ${{ always() && inputs.task != 'usage' }}
         with:
-          name: colab-results-${{ github.run_id }}-${{ github.run_attempt }}
+          name: colab-results-${{ github.run_id }}-${{ github.run_attempt }}${{ env.COLAB_RUN_SUFFIX }}
           path: ${{ env.COLAB_ENCRYPTED_OUTPUT }}/*.age
           compression-level: 0
           if-no-files-found: ignore

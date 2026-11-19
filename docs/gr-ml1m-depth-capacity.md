@@ -3,7 +3,10 @@
 Fit Recent128 and Thinned64 from scratch with both four and eight encoder
 layers. The L4 configuration fits both history variants at each depth in one
 session. On Colab T4 use one session per trial, appending `#<trial_id>` to the
-experiment path in the workflow input. Each trial has up to 16,800 seconds
+experiment path in the workflow input. Supply the paths as a JSON array in
+`serial_experiments` when they should use T4 one at a time. `after_run_id`
+can delay the batch until an existing Colab workflow releases its session.
+Each trial has up to 16,800 seconds
 for training and validation within a 300-minute remote session. All sessions
 emit the same cohort metrics for their view. Compute the cross-run differences
 after all four fits complete. Keep four decoder layers, d_model 128, FFN width 1024, six heads,
