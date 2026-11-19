@@ -152,6 +152,36 @@ def stage_inputs(root, config, log):
                 path.unlink()
 
 
+def run_colab_phase(args, phase, log, *, timeout, stdin=None, stdout=None, check=True):
+    """Expose the failed phase and allowlisted diagnostics in public CI."""
+    try:
+        result = subprocess.run(args, stdin=stdin, stdout=log if stdout is None else stdout,
+                                stderr=subprocess.PIPE, timeout=timeout)
+    except subprocess.TimeoutExpired as error:
+        log.write(error.stderr or b"")
+        print(f"Colab phase {phase}: timeout", flush=True)
+        raise
+    detail = result.stderr or b""
+    log.write(detail)
+    log.flush()
+    if result.returncode:
+        status = re.search(rb"\bHTTP(?: status)? ([45][0-9]{2})\b", detail)
+        reason = next((label for needle, label in (
+            (b"Allocation refused", "allocation-refused"),
+            (b"SSH session limit reached", "ssh-session-limit"),
+            (b"SSH requires", "ssh-unavailable"),
+            (b"Permission denied (publickey", "ssh-public-key-rejected"),
+            (b"Host key verification failed", "ssh-host-key-rejected"),
+            (b"File exists", "remote-path-already-exists"),
+            (b"Connection closed", "connection-closed"),
+        ) if needle in detail), "undetermined")
+        http = f", HTTP {status.group(1).decode('ascii')}" if status else ""
+        print(f"Colab phase {phase}: exit {result.returncode}, {reason}{http}", flush=True)
+        if check:
+            result.check_returncode()
+    return result
+
+
 def run_job(experiment, gpu, minutes, output, state, session):
     experiment = (ROOT / checked_path(experiment)).resolve()
     experiment.relative_to((ROOT / "experiments").resolve())
@@ -192,23 +222,23 @@ def run_job(experiment, gpu, minutes, output, state, session):
         if gpu != "cpu":
             new_session += ["--gpu", gpu]
         try:
-            subprocess.run(new_session, stdout=log, stderr=log, check=True, timeout=300)
+            run_colab_phase(new_session, "allocation", log, timeout=300)
             with transfer.open("rb") as stream:
-                subprocess.run(remote_run + [
+                run_colab_phase(remote_run + [
                     "mkdir -p /content/rhpr-job && tar -xf - -C /content/rhpr-job"
                     " && ln -sT /content/rhpr-job/kaggle /kaggle",
-                ], stdin=stream, stdout=log, stderr=log, check=True, timeout=1200)
+                ], "upload", log, stdin=stream, timeout=1200)
             print("Running experiment on Colab", flush=True)
             # The remote deadline also applies if the GitHub runner disconnects.
-            training = subprocess.run(remote_run + [
+            training = run_colab_phase(remote_run + [
                 f"timeout -k 30s {minutes * 60}s python3 -u {REMOTE}/job/colab_runtime.py "
                 " > /kaggle/working/colab-run.log 2>&1",
-            ], stdout=log, stderr=log, timeout=minutes * 60 + 90)
+            ], "execution", log, timeout=minutes * 60 + 90, check=False)
             print("Retrieving Colab results", flush=True)
             pending = output / "results.partial"
             with pending.open("wb") as stream:
-                subprocess.run(remote_run + ["tar -C /kaggle/working -cf - ."], stdout=stream,
-                               stderr=log, check=True, timeout=1200)
+                run_colab_phase(remote_run + ["tar -C /kaggle/working -cf - ."], "result-download", log,
+                                stdout=stream, timeout=1200)
             pending.rename(output / "results.tar")
             training.check_returncode()
         finally:
