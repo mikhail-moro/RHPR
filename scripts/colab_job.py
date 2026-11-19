@@ -1,0 +1,244 @@
+"""Stage an RHPR experiment, run it with the official Colab CLI and retrieve results."""
+from __future__ import annotations
+
+import argparse
+import copy
+import hashlib
+import json
+import os
+from pathlib import Path, PurePosixPath
+import re
+import shutil
+import subprocess
+import tarfile
+import tempfile
+import time
+import uuid
+
+
+ROOT = Path(__file__).resolve().parents[1]
+GPU_TYPES = ("T4", "L4", "A100", "H100")
+GPU_EXPERIMENTS = {"gr_ml1m_last8", "gr_ml1m_last8_pairs", "gr_ml1m_mixed64_input_ablations"}
+REMOTE = "/content/rhpr-job"
+SLUG = r"[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+"
+
+
+def checked_path(value):
+    path = PurePosixPath(value)
+    if not path.parts or path.is_absolute() or ".." in path.parts or "\\" in value:
+        raise ValueError("expected a relative input path")
+    return path
+
+
+def colab_config(config, gpu):
+    config = copy.deepcopy(config)
+    if gpu == "cpu":
+        if config.get("kind", "synthetic") != "synthetic":
+            raise ValueError("the CPU smoke run expects a synthetic experiment")
+    else:
+        if gpu not in GPU_TYPES or config.get("kind") not in GPU_EXPERIMENTS:
+            raise ValueError("Colab GPU support is available for the ML1M Last-8 experiment family")
+        config["execution"].update(colab_gpu=gpu, worker_devices=["cuda:0"])
+    return config
+
+
+def input_plan(config):
+    kaggle = config.get("kaggle", {})
+    if kaggle.get("competition_sources") or kaggle.get("model_sources"):
+        raise ValueError("Colab staging supports Kaggle datasets and notebook outputs")
+    datasets = list(dict.fromkeys(kaggle.get("dataset_sources", [])))
+    parents = {kernel: {} for kernel in kaggle.get("kernel_sources", [])}
+    for slug in (*datasets, *parents):
+        if not re.fullmatch(SLUG, slug):
+            raise ValueError("Kaggle sources must use owner/slug")
+    for entry in config.values():
+        if isinstance(entry, dict) and entry.get("kernel") in parents and "files" in entry:
+            files = parents[entry["kernel"]]
+            for path, expected in entry["files"].items():
+                checked_path(path)
+                if path in files and files[path] != expected:
+                    raise ValueError("conflicting hashes for one parent artifact")
+                files[path] = expected
+    for files in parents.values():
+        if not files or "run-manifest.json" not in files:
+            raise ValueError("Colab requires pinned output files for every parent notebook")
+    return datasets, parents
+
+
+def sha256(path):
+    with path.open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
+def dataset_location(path):
+    relative = PurePosixPath(path).relative_to("/kaggle/input/datasets")
+    owner, slug, *subdirectory = checked_path(relative.as_posix()).parts
+    return f"{owner}/{slug}", PurePosixPath(*subdirectory)
+
+
+def download_dataset_file(root, slug, name, expected, log):
+    directory = root / "datasets" / slug
+    destination = directory / name
+    if not destination.is_file():
+        directory.mkdir(parents=True, exist_ok=True)
+        args = ["kaggle", "datasets", "download", slug, "-f", str(name),
+                "--path", str(directory), "--unzip", "--quiet"]
+        for delay in (3, 6, 12, 24, 0):
+            result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=1200)
+            log.write(result.stdout)
+            if result.returncode == 0:
+                break
+            if not delay or b"429 Client Error" not in result.stdout:
+                result.check_returncode()
+            time.sleep(delay)
+    if not destination.is_file() or sha256(destination) != expected:
+        raise ValueError(f"Kaggle dataset file differs from its pin: {slug}/{name}")
+    return destination
+
+
+def stage_datasets(root, config, datasets, log):
+    # Some private Kaggle datasets have no downloadable whole-dataset ZIP.
+    # Fetch the same individual files named by the experiment's manifests.
+    task_files = {}
+    for key in ("resources", "modern_runtime"):
+        if key not in config:
+            continue
+        spec = config[key]
+        slug, subdirectory = dataset_location(spec["path"])
+        if slug not in datasets:
+            raise ValueError(f"missing dataset source for {key}")
+        manifest = download_dataset_file(root, slug, subdirectory / "resources-manifest.json",
+                                         spec["manifest_sha256"], log)
+        task_files[slug] = {subdirectory / checked_path(item["path"]): item["sha256"]
+                            for item in json.loads(manifest.read_text())["files"]}
+    movie = config.get("movie_input")
+    if movie:
+        slug, subdirectory = dataset_location(movie["path"])
+        if slug in datasets:
+            task_files[slug] = {subdirectory / "ml-1m-source.bin": movie["source_zip_sha256"]}
+    if set(task_files) != set(datasets):
+        raise ValueError("Colab requires pinned files for every Kaggle dataset source")
+    for slug, files in task_files.items():
+        for name, sha in files.items():
+            download_dataset_file(root, slug, name, sha, log)
+    runtime = config.get("runtime")
+    if runtime:
+        slug, subdirectory = dataset_location(runtime["wheel_path"])
+        for name, key in (("runtime-manifest.json", "manifest_sha256"),
+                          ("requirements-lock.txt", "requirements_sha256")):
+            path = root / "datasets" / slug / subdirectory / name
+            if not path.is_file() or sha256(path) != runtime[key]:
+                raise ValueError(f"Kaggle runtime file differs from its pin: {name}")
+
+
+def stage_inputs(root, config, log):
+    datasets, parents = input_plan(config)
+    stage_datasets(root, config, datasets, log)
+    for slug, files in parents.items():
+        target = root / "notebooks" / slug
+        target.mkdir(parents=True)
+        pattern = r"^(?:" + "|".join(map(re.escape, sorted(files))) + r")$"
+        subprocess.run(["kaggle", "kernels", "output", slug, "--path", str(target),
+                        "--file-pattern", pattern, "--page-size", "200", "--quiet"],
+                       stdout=log, stderr=log, check=True, timeout=1200)
+        for name, expected in files.items():
+            path = target / name
+            if (not path.is_file() or not path.resolve().is_relative_to(target)
+                    or path.stat().st_size != expected["size_bytes"] or sha256(path) != expected["sha256"]):
+                raise ValueError(f"Kaggle parent differs from its pin: {slug}/{name}")
+        # The Kaggle API may attach stdout separately from the requested files.
+        for path in target.rglob("*"):
+            if path.is_file() and path.relative_to(target).as_posix() not in files:
+                path.unlink()
+
+
+def run_job(experiment, gpu, minutes, output, state, session):
+    experiment = (ROOT / checked_path(experiment)).resolve()
+    experiment.relative_to((ROOT / "experiments").resolve())
+    config = colab_config(json.loads(experiment.read_text()), gpu)
+    output.mkdir(parents=True, exist_ok=False)
+    cli = ["colab", "--auth", "adc", "--config", str(state)]
+
+    with (output / "deployment.log").open("wb") as log, tempfile.TemporaryDirectory() as temporary:
+        stage = Path(temporary)
+        remote = stage / "job"
+        remote.mkdir()
+        (remote / "experiment.json").write_text(json.dumps(config, indent=2) + "\n")
+        shutil.copy(ROOT / "scripts/colab_runtime.py", remote)
+        shutil.copytree(ROOT / "src/rhpr", remote / "src/rhpr", ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+        revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+        (remote / "deployment.json").write_text(json.dumps(dict(
+            provider="colab", gpu_requested=gpu, git_sha=revision, session=session,
+            experiment=str(experiment.relative_to(ROOT)), experiment_sha256=sha256(experiment),
+            runtime_config_sha256=sha256(remote / "experiment.json")),
+            indent=2) + "\n")
+        kaggle = stage / "kaggle"
+        (kaggle / "input").mkdir(parents=True)
+        (kaggle / "working").mkdir()
+        (kaggle / "temp").mkdir()
+        print("Preparing experiment inputs", flush=True)
+        stage_inputs(kaggle / "input", config, log)
+        print(f"Opening Colab session {session} on {gpu}", flush=True)
+        state.parent.mkdir(parents=True, exist_ok=True)
+        identity = stage / "ssh"
+        subprocess.run(["ssh-keygen", "-q", "-t", "ed25519", "-N", "", "-f", str(identity)], check=True)
+        remote_run = cli + ["ssh", "-s", session, "-i", str(identity), "--"]
+        transfer = stage / "input.tar"
+        with tarfile.open(transfer, "w") as archive:
+            archive.add(remote, "job")
+            archive.add(kaggle, "kaggle")
+
+        new_session = cli + ["new", "-s", session]
+        if gpu != "cpu":
+            new_session += ["--gpu", gpu]
+        try:
+            subprocess.run(new_session, stdout=log, stderr=log, check=True, timeout=300)
+            with transfer.open("rb") as stream:
+                subprocess.run(remote_run + [
+                    "mkdir -p /content/rhpr-job && tar -xf - -C /content/rhpr-job"
+                    " && ln -sT /content/rhpr-job/kaggle /kaggle",
+                ], stdin=stream, stdout=log, stderr=log, check=True, timeout=1200)
+            print("Running experiment on Colab", flush=True)
+            # The remote deadline also applies if the GitHub runner disconnects.
+            training = subprocess.run(remote_run + [
+                f"timeout -k 30s {minutes * 60}s python3 -u {REMOTE}/job/colab_runtime.py "
+                " > /kaggle/working/colab-run.log 2>&1",
+            ], stdout=log, stderr=log, timeout=minutes * 60 + 90)
+            print("Retrieving Colab results", flush=True)
+            pending = output / "results.partial"
+            with pending.open("wb") as stream:
+                subprocess.run(remote_run + ["tar -C /kaggle/working -cf - ."], stdout=stream,
+                               stderr=log, check=True, timeout=1200)
+            pending.rename(output / "results.tar")
+            training.check_returncode()
+        finally:
+            if state.is_file():
+                print(f"Releasing Colab session {session}", flush=True)
+                stopped = subprocess.run(cli + ["stop", "-s", session], stdout=log, stderr=log, timeout=60)
+                if stopped.returncode:
+                    print("Colab did not confirm session release. See Manage sessions.", flush=True)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--experiment", default="experiments/baseline.json")
+    parser.add_argument("--gpu", choices=("cpu", *GPU_TYPES), default="cpu")
+    parser.add_argument("--minutes", type=int, default=10)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--state", type=Path, required=True)
+    parser.add_argument("--session", default=f"rhpr-{uuid.uuid4().hex[:10]}")
+    args = parser.parse_args()
+    if not 1 <= args.minutes <= 300 or not re.fullmatch(r"rhpr-[a-z0-9-]{1,50}", args.session):
+        parser.error("expected 1–300 minutes and a safe rhpr- session name")
+    try:
+        run_job(args.experiment, args.gpu, args.minutes, args.output.resolve(), args.state.resolve(), args.session)
+    except (OSError, ValueError, subprocess.SubprocessError) as error:
+        # Public CI prints phase markers only. Detailed service errors can
+        # include private URLs and are recorded in deployment.log.
+        if isinstance(error, ValueError):
+            parser.exit(1, f"Colab deployment failed: {error}\n")
+        parser.exit(1, f"Colab deployment failed ({type(error).__name__}); see deployment.log.\n")
+
+
+if __name__ == "__main__":
+    main()

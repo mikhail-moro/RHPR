@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 from concurrent.futures import ThreadPoolExecutor
+from itertools import cycle
 import subprocess
 import sys
 from pathlib import Path
@@ -128,6 +129,7 @@ def evaluate_checkpoint(seed, config, prepared, checkpoints, source, output, dev
 def run(config, output):
     import torch
     from rhpr.gr.grid import prepare_grid_source
+    from rhpr.gr.ml1m_devices import devices_for
     from rhpr.gr.pair_test import locate_parent
     from rhpr.gr.resources import unpack_grid, verify_resources
     from rhpr.gr.study_parallel import worker_environment
@@ -138,12 +140,9 @@ def run(config, output):
         raise ValueError('expected the pinned Mixed64 validation ablation protocol')
     if config.get('history_reduction') not in (None, 'keep_second'):
         raise ValueError('unsupported history reduction')
-    devices = config['execution']['worker_devices']
-    if (devices != ['cuda:0', 'cuda:1'] or torch.cuda.device_count() != len(devices)
-            or any(torch.cuda.get_device_capability(i) != (7, 5) for i in range(len(devices)))):
-        raise RuntimeError('this run requires two T4s')
+    devices = devices_for(config)
     torch.set_num_threads(1)
-    print(f'Kaggle allocated {torch.cuda.device_count()} GPUs', flush=True)
+    print(f'Allocated {len(devices)} GPUs', flush=True)
     frozen = locate_parent(config['frozen_parent'])
     checkpoints = locate_parent(config['checkpoints_parent'])
     prepared = prepare(config, frozen)
@@ -169,7 +168,7 @@ def run(config, output):
         runs = [
             pool.submit(subprocess.run, [sys.executable, '-u', '-m', __name__, str(plan), str(seed)],
                         env=worker_environment(config, {'device':device}), check=True, timeout=480)
-            for seed, device in zip(config['seeds'], devices)
+            for seed, device in zip(config['seeds'], cycle(devices))
         ]
         for job in runs:
             job.result()
@@ -182,13 +181,12 @@ def run(config, output):
 def worker(plan_path, seed):
     import torch
     import transformers
+    from rhpr.gr.ml1m_devices import check_worker
 
-    if (torch.cuda.device_count() != 1 or torch.cuda.get_device_capability() != (7, 5)
-            or transformers.__version__ != '5.22.1'):
-        raise RuntimeError('worker requires one isolated T4 and Transformers 5.22.1')
-    torch.set_num_threads(1)
     plan = read(plan_path)
     config = plan['config']
+    check_worker(config, transformers.__version__)
+    torch.set_num_threads(1)
     prepared = prepare(config, Path(plan['frozen']))
     output = Path(plan['output'])
     metrics = evaluate_checkpoint(seed, config, prepared, Path(plan['checkpoints']),

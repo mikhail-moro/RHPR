@@ -375,8 +375,9 @@ def run_trial(trial,p):
 
 def worker(plan_path,slot):
     import torch,transformers
+    from rhpr.gr.ml1m_devices import check_worker
     p=json.loads(Path(plan_path).read_text());validate(p['config']);torch.set_num_threads(1)
-    if torch.cuda.device_count()!=1 or torch.cuda.get_device_capability()!=(7,5) or transformers.__version__!='5.22.1':raise RuntimeError('requires isolated T4/HF5.22.1')
+    check_worker(p['config'], transformers.__version__)
     status=dict(results={},failures=[])
     for trial in p['assignments'][slot]['trials']:
         _event('ml1m_pairs_trial_start',trial=trial['id'])
@@ -488,14 +489,15 @@ def prepare_mean_pair_indexes(config, parent, data, original_indexes, output, so
 
 def run(c,output):
     import torch
-    from rhpr.gr.ae_suite import assignments,launch_workers
+    from rhpr.gr.ae_suite import launch_workers
     from rhpr.gr.grid import prepare_grid_source
+    from rhpr.gr.ml1m_devices import assignments_for, devices_for
     from rhpr.gr.resources import unpack_grid,verify_resources
     from rhpr.offline_runtime import resolve_dataset_directory
 
     validate(c);output=Path(output).resolve();output.mkdir(parents=True,exist_ok=True);(output/'workers').mkdir()
     torch.set_num_threads(1)
-    if torch.cuda.device_count()!=2 or any(torch.cuda.get_device_capability(i)!=(7,5) for i in (0,1)):raise RuntimeError('requires two T4s; no fallback')
+    devices = devices_for(c)
     roots={name:resolve_dataset_directory(c[name]['path']) for name in ('resources','modern_runtime')}
     for name in roots:verify_resources(roots[name],c[name]['manifest_sha256'])
     scratch=Path(c['resources']['scratch_path']);scratch.mkdir(parents=True,exist_ok=True)
@@ -519,7 +521,7 @@ def run(c,output):
         subprocess.run([sys.executable,'-m','pip','install','--no-index','--no-deps','--no-cache-dir','--no-compile','--require-hashes',
             '--only-binary=:all:','--target',str(overlay),'--find-links',str(roots['modern_runtime']),'-r',str(roots['modern_runtime']/'requirements-lock.txt')],
             stdout=log,stderr=subprocess.STDOUT,check=True,timeout=180)
-    sys.path.insert(0,str(overlay));p=dict(config=c,output=str(output),source=str(source),data=str(data),indexes=str(indexes),assignments=assignments(c,2),**extra)
+    sys.path.insert(0,str(overlay));p=dict(config=c,output=str(output),source=str(source),data=str(data),indexes=str(indexes),assignments=assignments_for(c, devices),**extra)
     path=output/'plan.json';_write(path,p);summary=launch_workers(path,worker_module='rhpr.gr.ml1m_last8_pairs',event_prefix='ml1m_pairs')
     rows=list(summary['results'].values())
     shared = ('sid_file_sha256','pair_sid_file_sha256','raw_case_sha256','case_targets_sha256','test_case_sha256')

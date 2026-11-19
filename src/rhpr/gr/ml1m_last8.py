@@ -20,6 +20,7 @@ import numpy as np
 from rhpr.gr.data import file_sha256
 from rhpr.gr.experiment import _evaluate, _event, _loss, _model_batch, _train_generator, _write
 from rhpr.gr.movie_data import case_digest
+from rhpr.gr.ml1m_devices import assignments_for, check_worker, devices_for
 
 WINDOWS = [8, 16, 32, 64, 128, 256]
 TRIALS = [dict(id=f'recent{w}_42', history_items=w, seed=42) for w in (256, 128, 64, 32, 16, 8)]
@@ -112,7 +113,8 @@ def validate(c):
             or t['compile_training'] != dict(options={'triton.cudagraphs': False}, fullgraph=False, dynamic=False)
             or c['physical_batch_by_window'] != MICROBATCHES or c['evaluation_batch_by_window'] != EVAL_BATCHES
             or not c['evaluation']['test_after_selection'] or c['kaggle']['kernel_sources']
-            or c['execution']['worker_devices'] != ['cuda:0', 'cuda:1']):
+            or c['execution']['worker_devices'] != (
+                ['cuda:0'] if c['execution'].get('colab_gpu') else ['cuda:0', 'cuda:1'])):
         raise ValueError('ML1M Last-8 differs from the registered window protocol')
     hashes = [c['expected_initial_state_sha256'], c['movie_input']['source_zip_sha256'], *c['expected_raw_case_sha256'].values()]
     if (set(c['expected_raw_case_sha256']) != {'train','validation','test'}
@@ -305,8 +307,7 @@ def run_trial(trial, p):
 def worker(plan_path, slot):
     import torch, transformers
     p = json.loads(Path(plan_path).read_text()); validate(p['config']); torch.set_num_threads(1)
-    if torch.cuda.device_count() != 1 or torch.cuda.get_device_capability() != (7, 5) or transformers.__version__ != '5.22.1':
-        raise RuntimeError('requires isolated T4/HF5.22.1')
+    check_worker(p['config'], transformers.__version__)
     status = dict(results={}, failures=[])
     for trial in p['assignments'][slot]['trials']:
         _event('ml1m_last8_trial_start', trial=trial['id'], **trial)
@@ -366,15 +367,14 @@ def prepare_indexes(c, output, resources, source):
 
 def run(c, output):
     import torch
-    from rhpr.gr.ae_suite import assignments, launch_workers
+    from rhpr.gr.ae_suite import launch_workers
     from rhpr.gr.grid import prepare_grid_source
     from rhpr.gr.resources import unpack_grid, verify_resources
     from rhpr.offline_runtime import resolve_dataset_directory
 
     validate(c); output = Path(output).resolve(); output.mkdir(parents=True, exist_ok=True); (output/'workers').mkdir()
     torch.set_num_threads(1)
-    if torch.cuda.device_count() != 2 or any(torch.cuda.get_device_capability(i) != (7, 5) for i in (0, 1)):
-        raise RuntimeError('requires two T4s; no fallback')
+    devices = devices_for(c)
     resources = resolve_dataset_directory(c['resources']['path']); verify_resources(resources, c['resources']['manifest_sha256'])
     modern = resolve_dataset_directory(c['modern_runtime']['path']); verify_resources(modern, c['modern_runtime']['manifest_sha256'])
     scratch = Path(c['resources']['scratch_path']); scratch.mkdir(parents=True, exist_ok=True)
@@ -400,7 +400,7 @@ def run(c, output):
             '-r', str(modern/'requirements-lock.txt')], stdout=log, stderr=subprocess.STDOUT, check=True, timeout=180)
     sys.path.insert(0, str(overlay))
     p = dict(config=c, output=str(output), source=str(source), data=str(data), indexes=str(indexes),
-             assignments=assignments(c, 2), **extra)
+             assignments=assignments_for(c, devices), **extra)
     path = output/'plan.json'; _write(path, p)
     summary = launch_workers(path, worker_module='rhpr.gr.ml1m_last8', event_prefix='ml1m_last8')
     verify_results(c, summary['results'])
