@@ -1,0 +1,139 @@
+name: Colab experiment
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: Check account access, run the CPU smoke test, or run a GPU experiment
+        type: choice
+        options: [usage, cpu-smoke, experiment]
+        default: usage
+      code_ref:
+        description: Trusted RHPR branch or commit containing the experiment
+        type: string
+        default: codex/kindle-mixed-views
+      experiment:
+        description: Experiment JSON under experiments/ (GPU task only)
+        type: string
+        default: experiments/ml1m_thinned64_full_validation.json
+      gpu:
+        description: Colab GPU
+        type: choice
+        options: [T4, L4, A100, H100]
+        default: T4
+      timeout_minutes:
+        description: Remote execution time limit in minutes (1–300, including dependency setup)
+        type: number
+        default: 30
+
+permissions:
+  contents: read
+
+jobs:
+  colab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      COLAB_SESSION: rhpr-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - uses: actions/checkout@v4
+        if: inputs.task != 'usage'
+        with:
+          ref: ${{ inputs.code_ref }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Set runner paths
+        run: |
+          {
+            echo "COLAB_STATE=$RUNNER_TEMP/colab-sessions.json"
+            echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/colab-adc.json"
+            echo "COLAB_OUTPUT=$RUNNER_TEMP/colab-output"
+            echo "COLAB_ENCRYPTED_OUTPUT=$RUNNER_TEMP/colab-encrypted"
+          } >> "$GITHUB_ENV"
+      - name: Install Colab CLI
+        # Pin the official revision that supports SSH commands and binary transfers.
+        run: python -m pip install 'google-colab-cli @ git+https://github.com/googlecolab/google-colab-cli.git@aa01a39019ed6570c7496ec8ec5330daf1730b33'
+      - name: Load Google account credentials
+        env:
+          COLAB_GOOGLE_ADC: ${{ secrets.COLAB_GOOGLE_ADC }}
+        run: |
+          umask 077
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          raw = os.environ.get("COLAB_GOOGLE_ADC", "")
+          try:
+              credentials = json.loads(raw)
+              if (credentials.get("type") != "authorized_user"
+                      or not all(credentials.get(k) for k in ("client_id", "client_secret", "refresh_token"))):
+                  raise ValueError
+          except (ValueError, AttributeError):
+              raise SystemExit("Set COLAB_GOOGLE_ADC to the complete authorized-user ADC JSON.")
+          Path(os.environ["GOOGLE_APPLICATION_CREDENTIALS"]).write_text(raw)
+          PY
+      - name: Check access to Colab without allocating a runtime
+        run: |
+          if ! colab --auth adc --config "$COLAB_STATE" usage > /dev/null 2>&1; then
+            echo "Colab access check failed. Verify the Google account credentials and OAuth scopes."
+            exit 1
+          fi
+          echo "Colab accepted the Google account credentials."
+      - name: Set up private result export
+        if: inputs.task != 'usage'
+        env:
+          COLAB_ARTIFACT_RECIPIENT: ${{ vars.COLAB_ARTIFACT_RECIPIENT }}
+        run: |
+          if [[ "$COLAB_ARTIFACT_RECIPIENT" != age1* ]]; then
+            echo "Set COLAB_ARTIFACT_RECIPIENT to your public age key before running an experiment."
+            exit 1
+          fi
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq age
+          age -r "$COLAB_ARTIFACT_RECIPIENT" </dev/null >/dev/null
+      - name: Install Kaggle CLI for input downloads
+        if: inputs.task == 'experiment'
+        run: python -m pip install kaggle==2.2.5 six==1.17.0
+      - name: Run on Colab
+        if: inputs.task != 'usage'
+        env:
+          COLAB_TASK: ${{ inputs.task }}
+          COLAB_EXPERIMENT: ${{ inputs.experiment }}
+          COLAB_GPU: ${{ inputs.gpu }}
+          COLAB_MINUTES: ${{ inputs.timeout_minutes }}
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          args=(--output "$COLAB_OUTPUT" --state "$COLAB_STATE" --session "$COLAB_SESSION")
+          if [[ "$COLAB_TASK" == experiment ]]; then
+            args+=(--experiment "$COLAB_EXPERIMENT" --gpu "$COLAB_GPU" --minutes "$COLAB_MINUTES")
+          fi
+          python scripts/colab_job.py "${args[@]}"
+      - name: Release any remaining Colab runtime
+        if: ${{ always() && inputs.task != 'usage' }}
+        run: |
+          if [[ -s "$COLAB_STATE" ]]; then
+            timeout 40s colab --auth adc --config "$COLAB_STATE" stop -s "$COLAB_SESSION" > /dev/null 2>&1 || true
+          fi
+      - name: Encrypt results and deployment log
+        if: ${{ always() && inputs.task != 'usage' }}
+        env:
+          COLAB_ARTIFACT_RECIPIENT: ${{ vars.COLAB_ARTIFACT_RECIPIENT }}
+        run: |
+          if [[ -d "$COLAB_OUTPUT" ]]; then
+            mkdir -p "$COLAB_ENCRYPTED_OUTPUT"
+            for file in deployment.log results.tar; do
+              if [[ -f "$COLAB_OUTPUT/$file" ]]; then
+                age -r "$COLAB_ARTIFACT_RECIPIENT" -o "$COLAB_ENCRYPTED_OUTPUT/$file.age" "$COLAB_OUTPUT/$file"
+              fi
+            done
+          fi
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.task != 'usage' }}
+        with:
+          name: colab-results-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.COLAB_ENCRYPTED_OUTPUT }}/*.age
+          compression-level: 0
+          if-no-files-found: ignore
