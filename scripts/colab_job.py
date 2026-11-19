@@ -43,8 +43,8 @@ def colab_config(config, gpu, trial=None):
             raise ValueError("Colab GPU support is available for the ML1M Last-8 experiment family")
         config["execution"].update(colab_gpu=gpu, worker_devices=["cuda:0"])
     if trial is not None:
-        if gpu != "T4" or not config.get("depth_pilot"):
-            raise ValueError("single-trial selection is available for the depth pilot on Colab T4")
+        if gpu == "cpu" or not config.get("depth_pilot"):
+            raise ValueError("single-trial selection is available for the depth pilot on a Colab GPU")
         selected = [spec for spec in config["trials"] if spec["id"] == trial]
         if len(selected) != 1:
             raise ValueError("expected one registered depth pilot trial ID")
@@ -316,7 +316,7 @@ def run_job(experiment, gpu, minutes, output, state, session):
             print("Running experiment on Colab", flush=True)
             # The remote deadline also applies if the GitHub runner disconnects.
             working = f"{REMOTE}/kaggle/working"
-            if separator and gpu == "T4":
+            if separator:
                 returncode = run_checkpointed_training(remote_run, working, minutes, output, log)
             else:
                 training = run_colab_phase(remote_run + [

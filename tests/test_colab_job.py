@@ -85,21 +85,26 @@ class ColabJobTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "exactly one L4"):
                 devices_for(config)
 
-    def test_depth_trials_can_be_deployed_individually_on_t4(self):
-        from rhpr.gr.ml1m_last8_pairs import single_depth_t4_trial, validate
+    def test_depth_trials_can_be_deployed_individually_on_colab_gpus(self):
+        from rhpr.gr.ml1m_devices import devices_for
+        from rhpr.gr.ml1m_last8_pairs import single_colab_depth_trial, validate
 
         for depth in (4, 8):
             original = json.loads((colab_job.ROOT / f"experiments/ml1m_last8_depth{depth}_capacity_colab.json").read_text())
             for trial in original["trials"]:
-                config = colab_job.colab_config(original, "T4", trial["id"])
-                validate(config)
-                self.assertTrue(single_depth_t4_trial(config))
-                self.assertEqual(config["trials"], [trial])
-                self.assertEqual(config["training"], original["training"])
-                self.assertEqual(config["frozen_parent"], original["frozen_parent"])
-                config["execution"]["colab_gpu"] = "L4"
-                with self.assertRaisesRegex(ValueError, "invalid depth-by-history"):
+                for gpu in colab_job.GPU_TYPES:
+                    config = colab_job.colab_config(original, gpu, trial["id"])
                     validate(config)
+                    self.assertTrue(single_colab_depth_trial(config))
+                    self.assertEqual(config["trials"], [trial])
+                    self.assertEqual(config["training"], original["training"])
+                    self.assertEqual(config["frozen_parent"], original["frozen_parent"])
+                    with (patch("torch.cuda.device_count", return_value=1),
+                          patch("torch.cuda.get_device_name", return_value=f"NVIDIA {gpu}-test")):
+                        self.assertEqual(devices_for(config), ["cuda:0"])
+                    config["execution"].pop("colab_gpu")
+                    with self.assertRaisesRegex(ValueError, "invalid depth-by-history"):
+                        validate(config)
             with self.assertRaisesRegex(ValueError, "registered depth pilot trial ID"):
                 colab_job.colab_config(original, "T4", "unknown-trial")
 

@@ -61,7 +61,7 @@ THINNED_POLICY = {**EXTENDED_MIXED_POLICY, 'training': 'full_or_keep_second_per_
 THINNED_VIEWS = {**MIXED_VIEWS, 'inference': 'keep_second'}
 DEPTH_PILOT_SEED = 101
 DEPTH_PILOT_RESOURCES = ["grid-source.bin", "wheels/"]
-DEPTH_T4_TRAIN_SECONDS = 16800
+DEPTH_SINGLE_TRIAL_TRAIN_SECONDS = 16800
 
 
 def depth_pilot_trials(depth):
@@ -70,8 +70,8 @@ def depth_pilot_trials(depth):
             for view, merge in (('recent128', 0), ('thinned64', 64))]
 
 
-def single_depth_t4_trial(config):
-    return config['execution'].get('colab_gpu') == 'T4' and len(config['trials']) == 1
+def single_colab_depth_trial(config):
+    return bool(config['execution'].get('colab_gpu')) and len(config['trials']) == 1
 
 
 def snapshot_colab_checkpoint(trial_output, output, epoch):
@@ -126,7 +126,7 @@ def validate(c):
         depth = c['generator']['encoder_layers']
         initial = c['depth_pilot']['initializers']
         registered = depth_pilot_trials(depth)
-        trial_sets = [[trial] for trial in registered] if single_depth_t4_trial(c) else [registered]
+        trial_sets = [[trial] for trial in registered] if single_colab_depth_trial(c) else [registered]
         if (depth not in (4, 8) or set(c['depth_pilot']) != {'initializers'}
                 or c.get('history_reduction') != 'keep_second'
                 or c['resources'].get('include_prefixes') != DEPTH_PILOT_RESOURCES
@@ -323,8 +323,8 @@ def run_trial(trial,p):
     expected_init = depth_pilot['initializers'] if depth_pilot else c.get('replication_initializers', {}).get(str(seed), {
         'base': c['expected_initial_state_sha256'], 'pair': c['expected_pair_initial_state_sha256']})
     c['training'].update(physical_batch_size=c['pair_batches']['physical'],evaluation_batch_size=c['pair_batches']['evaluation'])
-    if depth_pilot and single_depth_t4_trial(c):
-        c['training']['max_seconds'] = DEPTH_T4_TRAIN_SECONDS
+    if depth_pilot and single_colab_depth_trial(c):
+        c['training']['max_seconds'] = DEPTH_SINGLE_TRIAL_TRAIN_SECONDS
     random.seed(seed);np.random.seed(seed);torch.manual_seed(seed);torch.cuda.manual_seed_all(seed)
     root=Path(p['indexes']);sids=np.load(root/'items-42.npy');keys=np.load(root/'pair-keys.npy');pairs=np.load(root/'pairs-42.npy')
     index=SidIndex.from_full_sids(sids,width=256);wrapped=InputIndex4(index)
@@ -410,7 +410,7 @@ def run_trial(trial,p):
         if split not in encoded:raise ValueError('TEST forbidden during training')
         return encoded[split]
     checkpoint = (partial(snapshot_colab_checkpoint, out, Path(p['output']))
-                  if depth_pilot and single_depth_t4_trial(c) else None)
+                  if depth_pilot and single_colab_depth_trial(c) else None)
     selection=_train_generator(model,p['data'],wrapped,c,out,'cuda:0',example_builder=builder,
                                training_context_selector=views,after_validation_checkpoint=checkpoint)
     epochs = c['training']['max_epochs']

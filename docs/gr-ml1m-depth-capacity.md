@@ -1,10 +1,10 @@
 # ML1M Last-8 depth pilot
 
 Fit Recent128 and Thinned64 from scratch with both four and eight encoder
-layers. The L4 configuration fits both history variants at each depth in one
-session. On Colab T4 use one session per trial, appending `#<trial_id>` to the
+layers. The original configuration fits both history variants at each depth in
+one session. To use one Colab session per trial, append `#<trial_id>` to the
 experiment path in the workflow input. Supply the paths as a JSON array in
-`serial_experiments` when they should use T4 one at a time. `after_run_id`
+`serial_experiments` when they should run one at a time. `after_run_id`
 can delay the batch until an existing Colab workflow releases its session.
 Each trial has up to 16,800 seconds
 for training and validation within a 300-minute remote session. All sessions
@@ -15,7 +15,7 @@ FP16 training and FP32 beam-20 evaluation. All four fits use seed 101,
 32, and validation every five epochs. Select each checkpoint by raw
 validation NDCG@10.
 
-The T4 launcher runs training independently of the SSH connection and fetches
+The single-trial launcher runs training independently of the SSH connection and fetches
 the latest checkpoint after validation. If the VM disappears, GitHub Actions
 exports the latest retrieved copy as `checkpoint.tar.age`, including last and
 best weights, training curves and optimizer state in the last checkpoint.
