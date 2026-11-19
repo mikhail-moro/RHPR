@@ -109,8 +109,10 @@ def stage_datasets(root, config, datasets, log):
             raise ValueError(f"missing dataset source for {key}")
         manifest = download_dataset_file(root, slug, subdirectory / "resources-manifest.json",
                                          spec["manifest_sha256"], log)
+        prefixes = tuple(spec.get("include_prefixes", ()))
         task_files[slug] = {subdirectory / checked_path(item["path"]): item["sha256"]
-                            for item in json.loads(manifest.read_text())["files"]}
+                            for item in json.loads(manifest.read_text())["files"]
+                            if not prefixes or item["path"].startswith(prefixes)}
     movie = config.get("movie_input")
     if movie:
         slug, subdirectory = dataset_location(movie["path"])

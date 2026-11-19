@@ -21,6 +21,27 @@ class Last8PairsTests(unittest.TestCase):
         self.keys=pair_keys(self.h,self.nitems,120)
         self.pairs=np.array([[i,1,2,0] for i in range(len(self.keys))],dtype=np.int32)
 
+    def test_depth_pilot_changes_depth_with_matched_history_and_training_recipes(self):
+        from rhpr.gr.ml1m_last8_pairs import depth_pilot_reference, encode_full
+
+        configs = [json.loads(Path(f'experiments/ml1m_last8_depth{depth}_capacity_colab.json').read_text())
+                   for depth in (4, 8)]
+        for config in configs:
+            validate(config)
+            self.assertEqual(config['seeds'], [101])
+            self.assertEqual(config['resources']['include_prefixes'], ['grid-source.bin', 'wheels/'])
+            self.assertEqual([trial['merge_items'] for trial in config['trials']], [0, 64])
+        self.assertEqual(configs[0]['training'], configs[1]['training'])
+        self.assertEqual(configs[0]['frozen_parent'], configs[1]['frozen_parent'])
+        self.assertEqual(configs[0]['generator'], depth_pilot_reference(configs[1])['generator'])
+        thinned = encode(self.h, self.sids, self.keys, self.pairs, 64, keep_second=True)
+        full = encode_full(self.h, self.sids)
+        for config in configs:
+            selector = full_context_selector(self.h, self.sids, thinned, config, 64)
+            np.testing.assert_array_equal(full, selector.full)
+        self.assertEqual(full.shape[1], 512)
+        self.assertEqual(thinned.shape[1], 384)
+
     def test_every_length_and_merge_cap_preserves_events_order_odd_prefix_and_tail(self):
         single_map={tuple(s):i for i,s in enumerate(self.sids)}
         pair_map={tuple(s):divmod(int(k),self.nitems) for k,s in zip(self.keys,self.pairs)}

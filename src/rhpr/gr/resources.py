@@ -8,7 +8,7 @@ import zipfile
 from rhpr.gr.data import file_sha256
 
 
-def verify_resources(directory: Path, manifest_sha256: str) -> dict:
+def verify_resources(directory: Path, manifest_sha256: str, *, include_prefixes=()) -> dict:
     directory = directory.resolve()
     path = directory / "resources-manifest.json"
     if file_sha256(path) != manifest_sha256:
@@ -21,12 +21,16 @@ def verify_resources(directory: Path, manifest_sha256: str) -> dict:
                 or "\\" in entry["path"] or relative in seen):
             raise ValueError("unsafe resource path")
         seen.add(relative)
+        if include_prefixes and not entry["path"].startswith(tuple(include_prefixes)):
+            continue
         source = directory / relative
         if not source.resolve().is_relative_to(directory) or source.is_symlink():
             raise ValueError("unsafe resource path")
         if (not source.is_file() or source.stat().st_size != entry["size_bytes"]
                 or file_sha256(source) != entry["sha256"]):
             raise ValueError(f"GR input digest mismatch: {relative}")
+    if any(not any(path.as_posix().startswith(prefix) for path in seen) for prefix in include_prefixes):
+        raise ValueError("requested resource prefix is absent from the manifest")
     return manifest
 
 

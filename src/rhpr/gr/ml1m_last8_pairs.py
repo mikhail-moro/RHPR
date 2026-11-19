@@ -58,6 +58,38 @@ EXTENDED_MIXED_POLICY = {**MIXED_POLICY, 'fixed_epochs': 60}
 THINNED_POLICY = {**EXTENDED_MIXED_POLICY, 'training': 'full_or_keep_second_per_optimizer_batch',
                   'merge_prefix_items': [64], 'protected_tail_items': [64]}
 THINNED_VIEWS = {**MIXED_VIEWS, 'inference': 'keep_second'}
+DEPTH_PILOT_SEED = 101
+DEPTH_PILOT_RESOURCES = ["grid-source.bin", "wheels/"]
+
+
+def depth_pilot_trials(depth):
+    return [dict(id=f'd{depth}_{view}_{DEPTH_PILOT_SEED}', seed=DEPTH_PILOT_SEED,
+                 history_view=view, merge_items=merge)
+            for view, merge in (('recent128', 0), ('thinned64', 64))]
+
+
+def depth_pilot_reference(config):
+    """Validate and read the frozen data using its original registered protocol."""
+    reference = copy.deepcopy(config)
+    reference.pop('depth_pilot')
+    reference['generator']['encoder_layers'] = 4
+    reference['trials'] = THINNED_TRIALS
+    reference['seeds'] = REPLICATION_SEEDS
+    reference['pair_batches']['physical'] = 64
+    reference['resources'].pop('include_prefixes')
+    return reference
+
+
+def build_trial_model(sids, c, seed, source):
+    from rhpr.gr.grid import build_grid_generator
+
+    model = build_grid_generator(sids, c['generator'], seed, 'cpu', source)
+    if c.get('depth_pilot') and c['generator']['encoder_layers'] == 8:
+        shallow = build_grid_generator(sids, {**c['generator'], 'encoder_layers': 4}, seed, 'cpu', source)
+        missing, unexpected = model.load_state_dict(shallow.state_dict(), strict=False)
+        if unexpected or not missing or any(not re.search(r'\.encoder\.block\.[4-7]\.', name) for name in missing):
+            raise ValueError('only the four added encoder blocks may have new initial weights')
+    return model
 
 
 def mixed_parent_trial(config):
@@ -73,6 +105,20 @@ def mixed_parent_files(config):
 
 
 def validate(c):
+    if 'depth_pilot' in c:
+        depth = c['generator']['encoder_layers']
+        initial = c['depth_pilot']['initializers']
+        if (depth not in (4, 8) or set(c['depth_pilot']) != {'initializers'}
+                or c.get('history_reduction') != 'keep_second'
+                or c['resources'].get('include_prefixes') != DEPTH_PILOT_RESOURCES
+                or c['seeds'] != [DEPTH_PILOT_SEED]
+                or c['trials'] != depth_pilot_trials(depth)
+                or c['pair_batches'] != dict(physical=32, evaluation=16)
+                or set(initial) != {'base', 'pair'}
+                or any(not re.fullmatch('[0-9a-f]{64}', v) for v in initial.values())):
+            raise ValueError('invalid depth-by-history pilot protocol')
+        validate(depth_pilot_reference(c))
+        return
     from rhpr.gr.ml1m_last8 import WINDOWS, TRIALS as BASE_TRIALS, validate as base_validate
     t = c['training']; reference = c['reference_control']
     mixed = c.get('mixed_views')
@@ -187,15 +233,18 @@ def cache_sets(data):
     return {s:pair_keys(cases(data,s)[0],3706,120) for s in ('train','validation','test')}
 
 
+def encode_full(contexts, sids):
+    history, _ = checked_contexts(contexts, len(sids))
+    tokens = sids[np.maximum(history, 0)] + 256 * np.arange(4, dtype=np.int32)
+    return np.where(history[:, :, None] >= 0, tokens, -1).reshape(len(history), 512)
+
+
 def full_context_selector(contexts, sids, pair_contexts, config, merge_items):
     """Switch between the same histories at their respective native widths."""
     from rhpr.gr.kindle_mixed_views import MixedViews
 
-    history, _ = checked_contexts(contexts, len(sids))
-    tokens = sids[np.maximum(history, 0)] + 256 * np.arange(4, dtype=np.int32)
-    full = np.where(history[:, :, None] >= 0, tokens, -1).reshape(len(history), 512)
     compressed_name = 'thin128' if config.get('history_reduction') == 'keep_second' else 'pair128'
-    return MixedViews(full, pair_contexts, batch_size=config['training']['batch_size'],
+    return MixedViews(encode_full(contexts, sids), pair_contexts, batch_size=config['training']['batch_size'],
                       seed=config['seed'], full_probability=config['mixed_views']['full_probability'],
                       layout=(('full128', 512), (compressed_name, 4 * (128 - merge_items // 2))))
 
@@ -243,7 +292,6 @@ def frozen_inputs(c, input_root=None, *, ordinary_controls=False):
 
 def run_trial(trial,p):
     import torch
-    from rhpr.gr.grid import build_grid_generator
     from rhpr.gr.ml100k_pair_raw import cases
     from rhpr.gr.pair_unique4 import attach4,InputIndex4
     from rhpr.gr.profiling import benchmark_training,ProfileDeadline
@@ -252,13 +300,14 @@ def run_trial(trial,p):
     c=copy.deepcopy(p['config']);c['active_trial']=trial;c['data']['history_items']=128
     seed = trial['seed']
     c['seed'] = seed
-    expected_init = c.get('replication_initializers', {}).get(str(seed), {
+    depth_pilot = c.get('depth_pilot')
+    expected_init = depth_pilot['initializers'] if depth_pilot else c.get('replication_initializers', {}).get(str(seed), {
         'base': c['expected_initial_state_sha256'], 'pair': c['expected_pair_initial_state_sha256']})
     c['training'].update(physical_batch_size=c['pair_batches']['physical'],evaluation_batch_size=c['pair_batches']['evaluation'])
     random.seed(seed);np.random.seed(seed);torch.manual_seed(seed);torch.cuda.manual_seed_all(seed)
     root=Path(p['indexes']);sids=np.load(root/'items-42.npy');keys=np.load(root/'pair-keys.npy');pairs=np.load(root/'pairs-42.npy')
     index=SidIndex.from_full_sids(sids,width=256);wrapped=InputIndex4(index)
-    model=build_grid_generator(sids,c['generator'],seed,'cpu',p['source'])
+    model=build_trial_model(sids,c,seed,p['source'])
     base=state_digest(dict(model.named_parameters()))
     if base != expected_init['base']: raise ValueError('base parameters differ from CPU preflight')
     before={k:v.detach().clone() for k,v in model.named_parameters()};attach4(model)
@@ -267,12 +316,13 @@ def run_trial(trial,p):
     initial=state_digest(dict(model.named_parameters()))
     if initial != expected_init['pair']: raise ValueError('pair initialization differs from CPU preflight')
     m = trial['merge_items']
-    thinned = c.get('history_reduction') == 'keep_second'
+    full_only = trial.get('history_view') == 'recent128'
+    thinned = c.get('history_reduction') == 'keep_second' and not full_only
     mean_pairs = c.get('pair_vector_method') == 'mean'
 
     def build_cases(split):
         h, u, t = cases(p['data'], split)
-        x = encode(h, sids, keys, pairs, m, keep_second=thinned)
+        x = encode_full(h, sids) if full_only else encode(h, sids, keys, pairs, m, keep_second=thinned)
         if thinned:
             if np.any(x >= 1024) or case_digest((x, u, t)) != c['expected_thinned_case_sha256'][split]:
                 raise ValueError(f'thinning produced unexpected inputs in {split}')
@@ -281,8 +331,10 @@ def run_trial(trial,p):
     built = {s:build_cases(s) for s in splits}
     raw = {s:built[s][0] for s in splits}
     encoded = {s:built[s][1] for s in splits}
+    if full_only and case_digest(encoded['train']) != p['reference_views']['full_case_sha256']:
+        raise ValueError('full training inputs differ from the frozen 128-item history')
     views = None
-    if 'mixed_views' in c:
+    if 'mixed_views' in c and not full_only:
         views = full_context_selector(raw['train'][0], sids, encoded['train'][0], c, m)
     out=Path(p['output'])/'trials'/trial['id'];out.mkdir(parents=True)
     if views is not None:
@@ -312,11 +364,13 @@ def run_trial(trial,p):
     forward=dict(parameters=sum(v.numel() for v in model.parameters()),added_pair_parameters=4*256*128,
         encoder_positions=encoded['validation'][0].shape[1]+1,supported_forward_flops_batch1=sum(e.flops for e in prof.key_averages()),
         scope='B1 fixed-padded CPU mathSDPA teacher-forced4code forward,FMA2; excludes beam/backward/text encoding')
+    if depth_pilot:
+        forward['active_parameters'] = forward['parameters'] - forward['added_pair_parameters']
     _write(out/'forward-flops.json',forward);model.to('cuda:0')
     compiled=torch.compile(model,**c['training']['compile_training'])
     profile=benchmark_training(compiled,encoded['train'],sids,np.random.default_rng(42).permutation(48320)[:512],
         c['training']['physical_batch_size'],'fp16','full_pipeline',c['training'],dict(seed=42,warmup=1,iterations=2),
-        ProfileDeadline(180),'cuda:0',batch_builder=partial(profiling_batch,wrapped))
+        ProfileDeadline(360 if depth_pilot else 180),'cuda:0',batch_builder=partial(profiling_batch,wrapped))
     if state_digest(dict(model.named_parameters())) != initial:raise RuntimeError('profile changed initial weights')
     _write(out/'training-profile.json',profile);_event('ml1m_pairs_profile_complete',trial=trial['id'],**profile)
     if views is not None:
@@ -324,7 +378,7 @@ def run_trial(trial,p):
             compiled, (views.full, *encoded['train'][1:]), sids,
             np.random.default_rng(42).permutation(48320)[:512], c['training']['physical_batch_size'],
             'fp16', 'full_pipeline', c['training'], dict(seed=42, warmup=1, iterations=2),
-            ProfileDeadline(180), 'cuda:0', batch_builder=partial(profiling_batch, wrapped))
+            ProfileDeadline(360 if depth_pilot else 180), 'cuda:0', batch_builder=partial(profiling_batch, wrapped))
         if state_digest(dict(model.named_parameters())) != initial:
             raise RuntimeError('full-view profile changed initial weights')
         _write(out/'training-profile-full.json', full_profile)
@@ -365,6 +419,10 @@ def run_trial(trial,p):
     if thinned:
         row.update(history_reduction='keep_second', training_pair_view='batch_mixture_with_thinning',
                    test_pair_view='keep_second_of_oldest_valid_pairs', used_pair_embeddings=False)
+    if full_only:
+        row.update(training_pair_view='full128', test_pair_view='full128', used_pair_embeddings=False)
+    if depth_pilot:
+        row.update(history_view=trial['history_view'], encoder_layers=c['generator']['encoder_layers'])
     if mean_pairs:
         row['pair_vector_method'] = 'mean'
         row['item_embeddings_sha256'] = c['frozen_parent']['files'][MEAN_ITEM_VECTORS]['sha256']
@@ -487,6 +545,31 @@ def prepare_mean_pair_indexes(config, parent, data, original_indexes, output, so
     return indexes,report
 
 
+def depth_paired_summary(rows, output, data, indexes):
+    from rhpr.gr.ml100k_pair_raw import cases
+    from rhpr.gr.sid import SidIndex, evaluate_ranked_sids
+
+    histories, users, targets = cases(data, 'test')
+    lengths = (histories >= 0).sum(axis=1)
+    index = SidIndex.from_full_sids(np.load(indexes / 'items-42.npy'), width=256)
+    cohorts = {'all': lengths >= 0, 'at_least_128': lengths >= 128}
+    summary = {name: {'users': int(selected.sum())} for name, selected in cohorts.items()}
+    for row in rows:
+        view = row['history_view']
+        with np.load(output / 'trials' / row['trial'] / 'test-best-predictions.npz') as saved:
+            np.testing.assert_array_equal(users, saved['user_ids'])
+            np.testing.assert_array_equal(targets, saved['target_item_ids'])
+            predictions = saved['semantic_ids']
+            for name, selected in cohorts.items():
+                metrics = evaluate_ranked_sids(index, predictions[selected], targets[selected])
+                summary[name][view] = {key: metrics[key] for key in ('ndcg@10', 'recall@10')}
+        if not np.isclose(summary['all'][view]['ndcg@10'], row['test']['metrics']['ndcg@10']):
+            raise ValueError('depth pilot predictions do not replay the saved score')
+    for result in summary.values():
+        result['recent_minus_thinned_ndcg10'] = result['recent128']['ndcg@10'] - result['thinned64']['ndcg@10']
+    return summary
+
+
 def run(c,output):
     import torch
     from rhpr.gr.ae_suite import launch_workers
@@ -499,12 +582,15 @@ def run(c,output):
     torch.set_num_threads(1)
     devices = devices_for(c)
     roots={name:resolve_dataset_directory(c[name]['path']) for name in ('resources','modern_runtime')}
-    for name in roots:verify_resources(roots[name],c[name]['manifest_sha256'])
+    for name in roots:
+        prefixes = c[name].get('include_prefixes', ()) if c.get('depth_pilot') and name == 'resources' else ()
+        verify_resources(roots[name], c[name]['manifest_sha256'], include_prefixes=prefixes)
     scratch=Path(c['resources']['scratch_path']);scratch.mkdir(parents=True,exist_ok=True)
     source=prepare_grid_source(unpack_grid(roots['resources']/'grid-source.bin',scratch/'original'),scratch/'grid')
     extra = {}
     if 'frozen_parent' in c:
-        parent, data, indexes, report, reference, views = frozen_inputs(c)
+        parent, data, indexes, report, reference, views = frozen_inputs(
+            depth_pilot_reference(c) if c.get('depth_pilot') else c)
         extra = dict(reference_views=views, reference_mixed42=reference)
         _write(output/'index-report.json', json.loads((parent/'index-report.json').read_text()))
         _write(output/'frozen-parent-verification.json', c['frozen_parent'])
@@ -530,13 +616,19 @@ def run(c,output):
         anchor = extra['reference_mixed42']
         if 'mean_pair_index' in extra:
             anchor = {**anchor, 'pair_sid_file_sha256':extra['mean_pair_index']['pair_sid_file_sha256']}
-        reference_forward = anchor['forward']
-        flop_key = 'supported_forward_flops_batch1'
-        for row in rows:
-            profile = row['forward']
-            if (any(profile[k] != reference_forward[k] for k in profile if k != flop_key)
-                    or abs(profile[flop_key] / reference_forward[flop_key] - 1) > 1e-6):
-                raise ValueError('forward dimensions or FLOPs differ from the reference')
+        if c.get('depth_pilot'):
+            positions = {row['history_view']: row['forward']['encoder_positions'] for row in rows}
+            if positions != dict(recent128=513, thinned64=385):
+                raise ValueError('depth pilot encoder widths differ from the registered histories')
+            extra['depth_comparison'] = depth_paired_summary(rows, output, data, indexes)
+        else:
+            reference_forward = anchor['forward']
+            flop_key = 'supported_forward_flops_batch1'
+            for row in rows:
+                profile = row['forward']
+                if (any(profile[k] != reference_forward[k] for k in profile if k != flop_key)
+                        or abs(profile[flop_key] / reference_forward[flop_key] - 1) > 1e-6):
+                    raise ValueError('forward dimensions or FLOPs differ from the reference')
     else:
         keys = (*shared, 'base_initial_state_sha256', 'initial_state_sha256')
         anchor = rows[0]
