@@ -53,6 +53,16 @@ class ColabJobTests(unittest.TestCase):
         self.assertIn("upload: exit 255, undetermined, HTTP 403", public.getvalue())
         self.assertNotIn("private-url", public.getvalue())
 
+    def test_allocation_failure_reports_only_known_backend_diagnostics(self):
+        stderr = b"Colab allocation exception: ValidationError\nTraceback: private-credential\n"
+        process = subprocess.CompletedProcess(["colab"], 1, stderr=stderr)
+        public, private = io.StringIO(), io.BytesIO()
+        with (patch.object(colab_job.subprocess, "run", return_value=process), redirect_stdout(public),
+              self.assertRaises(subprocess.CalledProcessError)):
+            colab_job.run_colab_phase(["colab"], "allocation", private, timeout=1)
+        self.assertEqual(public.getvalue(), "Colab phase allocation: exit 1, invalid-backend-response\n")
+        self.assertEqual(private.getvalue(), stderr)
+
     def test_last8_config_keeps_protocol_and_uses_one_gpu(self):
         from rhpr.gr.ml1m_devices import assignments_for, devices_for
         from rhpr.gr.ml1m_last8_pairs import validate

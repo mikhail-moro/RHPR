@@ -10,6 +10,7 @@ from pathlib import Path, PurePosixPath
 import re
 import shutil
 import subprocess
+import sys
 import tarfile
 import tempfile
 import time
@@ -170,6 +171,12 @@ def run_colab_phase(args, phase, log, *, timeout, stdin=None, stdout=None, check
         status = re.search(rb"\bHTTP(?: status)? ([45][0-9]{2})\b", detail)
         reason = next((label for needle, label in (
             (b"Allocation refused", "allocation-refused"),
+            (b"Backend rejected accelerator", "accelerator-rejected"),
+            (b"Colab allocation exception: ValidationError", "invalid-backend-response"),
+            (b"Colab allocation exception: JSONDecodeError", "invalid-backend-json"),
+            (b"Colab allocation exception: ReadTimeout", "backend-read-timeout"),
+            (b"Colab allocation exception: ConnectTimeout", "backend-connect-timeout"),
+            (b"Colab allocation exception: ConnectionError", "backend-connection-error"),
             (b"SSH session limit reached", "ssh-session-limit"),
             (b"SSH requires", "ssh-unavailable"),
             (b"Permission denied (publickey", "ssh-public-key-rejected"),
@@ -220,7 +227,8 @@ def run_job(experiment, gpu, minutes, output, state, session):
             archive.add(remote, "job")
             archive.add(kaggle, "kaggle")
 
-        new_session = cli + ["new", "-s", session]
+        new_session = [sys.executable, str(ROOT / "scripts/colab_allocate.py"),
+                       *cli[1:], "new", "-s", session]
         if gpu != "cpu":
             new_session += ["--gpu", gpu]
         try:
