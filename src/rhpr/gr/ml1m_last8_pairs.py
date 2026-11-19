@@ -60,12 +60,17 @@ THINNED_POLICY = {**EXTENDED_MIXED_POLICY, 'training': 'full_or_keep_second_per_
 THINNED_VIEWS = {**MIXED_VIEWS, 'inference': 'keep_second'}
 DEPTH_PILOT_SEED = 101
 DEPTH_PILOT_RESOURCES = ["grid-source.bin", "wheels/"]
+DEPTH_T4_TRAIN_SECONDS = 16800
 
 
 def depth_pilot_trials(depth):
     return [dict(id=f'd{depth}_{view}_{DEPTH_PILOT_SEED}', seed=DEPTH_PILOT_SEED,
                  history_view=view, merge_items=merge)
             for view, merge in (('recent128', 0), ('thinned64', 64))]
+
+
+def single_depth_t4_trial(config):
+    return config['execution'].get('colab_gpu') == 'T4' and len(config['trials']) == 1
 
 
 def depth_pilot_reference(config):
@@ -108,11 +113,13 @@ def validate(c):
     if 'depth_pilot' in c:
         depth = c['generator']['encoder_layers']
         initial = c['depth_pilot']['initializers']
+        registered = depth_pilot_trials(depth)
+        trial_sets = [[trial] for trial in registered] if single_depth_t4_trial(c) else [registered]
         if (depth not in (4, 8) or set(c['depth_pilot']) != {'initializers'}
                 or c.get('history_reduction') != 'keep_second'
                 or c['resources'].get('include_prefixes') != DEPTH_PILOT_RESOURCES
                 or c['seeds'] != [DEPTH_PILOT_SEED]
-                or c['trials'] != depth_pilot_trials(depth)
+                or c['trials'] not in trial_sets
                 or c['pair_batches'] != dict(physical=32, evaluation=16)
                 or set(initial) != {'base', 'pair'}
                 or any(not re.fullmatch('[0-9a-f]{64}', v) for v in initial.values())):
@@ -304,6 +311,8 @@ def run_trial(trial,p):
     expected_init = depth_pilot['initializers'] if depth_pilot else c.get('replication_initializers', {}).get(str(seed), {
         'base': c['expected_initial_state_sha256'], 'pair': c['expected_pair_initial_state_sha256']})
     c['training'].update(physical_batch_size=c['pair_batches']['physical'],evaluation_batch_size=c['pair_batches']['evaluation'])
+    if depth_pilot and single_depth_t4_trial(c):
+        c['training']['max_seconds'] = DEPTH_T4_TRAIN_SECONDS
     random.seed(seed);np.random.seed(seed);torch.manual_seed(seed);torch.cuda.manual_seed_all(seed)
     root=Path(p['indexes']);sids=np.load(root/'items-42.npy');keys=np.load(root/'pair-keys.npy');pairs=np.load(root/'pairs-42.npy')
     index=SidIndex.from_full_sids(sids,width=256);wrapped=InputIndex4(index)
@@ -422,7 +431,8 @@ def run_trial(trial,p):
     if full_only:
         row.update(training_pair_view='full128', test_pair_view='full128', used_pair_embeddings=False)
     if depth_pilot:
-        row.update(history_view=trial['history_view'], encoder_layers=c['generator']['encoder_layers'])
+        row.update(history_view=trial['history_view'], encoder_layers=c['generator']['encoder_layers'],
+                   training_time_limit_seconds=c['training']['max_seconds'])
     if mean_pairs:
         row['pair_vector_method'] = 'mean'
         row['item_embeddings_sha256'] = c['frozen_parent']['files'][MEAN_ITEM_VECTORS]['sha256']
@@ -566,7 +576,8 @@ def depth_paired_summary(rows, output, data, indexes):
         if not np.isclose(summary['all'][view]['ndcg@10'], row['test']['metrics']['ndcg@10']):
             raise ValueError('depth pilot predictions do not replay the saved score')
     for result in summary.values():
-        result['recent_minus_thinned_ndcg10'] = result['recent128']['ndcg@10'] - result['thinned64']['ndcg@10']
+        if 'recent128' in result and 'thinned64' in result:
+            result['recent_minus_thinned_ndcg10'] = result['recent128']['ndcg@10'] - result['thinned64']['ndcg@10']
     return summary
 
 
@@ -618,7 +629,10 @@ def run(c,output):
             anchor = {**anchor, 'pair_sid_file_sha256':extra['mean_pair_index']['pair_sid_file_sha256']}
         if c.get('depth_pilot'):
             positions = {row['history_view']: row['forward']['encoder_positions'] for row in rows}
-            if positions != dict(recent128=513, thinned64=385):
+            registered_positions = dict(recent128=513, thinned64=385)
+            expected_positions = {trial['history_view']: registered_positions[trial['history_view']]
+                                  for trial in c['trials']}
+            if positions != expected_positions:
                 raise ValueError('depth pilot encoder widths differ from the registered histories')
             extra['depth_comparison'] = depth_paired_summary(rows, output, data, indexes)
         else:

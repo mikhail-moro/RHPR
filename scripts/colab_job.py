@@ -31,7 +31,7 @@ def checked_path(value):
     return path
 
 
-def colab_config(config, gpu):
+def colab_config(config, gpu, trial=None):
     config = copy.deepcopy(config)
     if gpu == "cpu":
         if config.get("kind", "synthetic") != "synthetic":
@@ -40,6 +40,13 @@ def colab_config(config, gpu):
         if gpu not in GPU_TYPES or config.get("kind") not in GPU_EXPERIMENTS:
             raise ValueError("Colab GPU support is available for the ML1M Last-8 experiment family")
         config["execution"].update(colab_gpu=gpu, worker_devices=["cuda:0"])
+    if trial is not None:
+        if gpu != "T4" or not config.get("depth_pilot"):
+            raise ValueError("single-trial selection is available for the depth pilot on Colab T4")
+        selected = [spec for spec in config["trials"] if spec["id"] == trial]
+        if len(selected) != 1:
+            raise ValueError("expected one registered depth pilot trial ID")
+        config["trials"] = selected
     return config
 
 
@@ -192,9 +199,10 @@ def run_colab_phase(args, phase, log, *, timeout, stdin=None, stdout=None, check
 
 
 def run_job(experiment, gpu, minutes, output, state, session):
-    experiment = (ROOT / checked_path(experiment)).resolve()
+    filename, separator, trial = experiment.partition("#")
+    experiment = (ROOT / checked_path(filename)).resolve()
     experiment.relative_to((ROOT / "experiments").resolve())
-    config = colab_config(json.loads(experiment.read_text()), gpu)
+    config = colab_config(json.loads(experiment.read_text()), gpu, trial if separator else None)
     output.mkdir(parents=True, exist_ok=False)
     cli = ["colab", "--auth", "adc", "--config", str(state)]
 

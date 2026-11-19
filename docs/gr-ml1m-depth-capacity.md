@@ -1,8 +1,12 @@
 # ML1M Last-8 depth pilot
 
 Fit Recent128 and Thinned64 from scratch with both four and eight encoder
-layers. Run the two history variants at each depth sequentially on one
-Colab L4. Keep four decoder layers, d_model 128, FFN width 1024, six heads,
+layers. The L4 configuration fits both history variants at each depth in one
+session. On Colab T4 use one session per trial, appending `#<trial_id>` to the
+experiment path in the workflow input. Each trial has up to 16,800 seconds
+for training and validation within a 300-minute remote session. All sessions
+emit the same cohort metrics for their view. Compute the cross-run differences
+after all four fits complete. Keep four decoder layers, d_model 128, FFN width 1024, six heads,
 FP16 training and FP32 beam-20 evaluation. All four fits use seed 101,
 60 epochs, 95 updates per epoch, effective and physical batches of 512 and
 32, and validation every five epochs. Select each checkpoint by raw
