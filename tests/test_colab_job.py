@@ -115,12 +115,27 @@ class ColabJobTests(unittest.TestCase):
                 self.assertIsNone(re.fullmatch(pattern, "model.log"))
                 (target / "run-manifest.json").write_bytes(payload)
                 (target / "model.log").write_text("Kaggle log")
+                return subprocess.CompletedProcess(args, 0, stdout=b"")
 
             with patch.object(colab_job.subprocess, "run", side_effect=download):
                 colab_job.stage_inputs(root, config, io.BytesIO())
             self.assertEqual([path.name for path in target.iterdir()], ["run-manifest.json"])
             with self.assertRaisesRegex(ValueError, "parent notebook"):
                 colab_job.input_plan({"kaggle": config["kaggle"]})
+
+    def test_kaggle_staging_retries_transient_errors_and_logs_only_status(self):
+        args = ["kaggle"]
+        rate_limit = b"429 Client Error: private location\n"
+        denied = b"HTTP 403: private location\n"
+        results = [subprocess.CompletedProcess(args, 1, stdout=message) for message in (rate_limit, denied)]
+        public, private = io.StringIO(), io.BytesIO()
+        with (patch.object(colab_job.subprocess, "run", side_effect=results),
+              patch.object(colab_job.time, "sleep") as sleep, redirect_stdout(public),
+              self.assertRaises(subprocess.CalledProcessError)):
+            colab_job.download_kaggle_input(args, "dataset", private)
+        sleep.assert_called_once_with(5)
+        self.assertEqual(private.getvalue(), rate_limit + denied)
+        self.assertEqual(public.getvalue(), "Kaggle dataset download failed: exit 1, HTTP 403\n")
 
     def test_dataset_staging_downloads_pinned_nested_files(self):
         with tempfile.TemporaryDirectory() as tmp:

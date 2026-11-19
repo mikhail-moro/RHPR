@@ -84,6 +84,22 @@ def dataset_location(path):
     return f"{owner}/{slug}", PurePosixPath(*subdirectory)
 
 
+def download_kaggle_input(args, kind, log):
+    for delay in (5, 10, 20, 40, 60, 0):
+        result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=1200)
+        log.write(result.stdout)
+        log.flush()
+        if result.returncode == 0:
+            return
+        match = re.search(rb"\bHTTP(?: status| Error)?[ :]+([45][0-9]{2})\b|\b([45][0-9]{2}) (?:Client|Server) Error", result.stdout)
+        status = int(match.group(1) or match.group(2)) if match else None
+        if not delay or status not in {429, 500, 502, 503, 504}:
+            reason = f"HTTP {status}" if status is not None else "undetermined"
+            print(f"Kaggle {kind} download failed: exit {result.returncode}, {reason}", flush=True)
+            result.check_returncode()
+        time.sleep(delay)
+
+
 def download_dataset_file(root, slug, name, expected, log):
     directory = root / "datasets" / slug
     destination = directory / name
@@ -91,14 +107,7 @@ def download_dataset_file(root, slug, name, expected, log):
         directory.mkdir(parents=True, exist_ok=True)
         args = ["kaggle", "datasets", "download", slug, "-f", str(name),
                 "--path", str(directory), "--unzip", "--quiet"]
-        for delay in (3, 6, 12, 24, 0):
-            result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=1200)
-            log.write(result.stdout)
-            if result.returncode == 0:
-                break
-            if not delay or b"429 Client Error" not in result.stdout:
-                result.check_returncode()
-            time.sleep(delay)
+        download_kaggle_input(args, "dataset", log)
     if not destination.is_file() or sha256(destination) != expected:
         raise ValueError(f"Kaggle dataset file differs from its pin: {slug}/{name}")
     return destination
@@ -148,9 +157,8 @@ def stage_inputs(root, config, log):
         target = root / "notebooks" / slug
         target.mkdir(parents=True)
         pattern = r"^(?:" + "|".join(map(re.escape, sorted(files))) + r")$"
-        subprocess.run(["kaggle", "kernels", "output", slug, "--path", str(target),
-                        "--file-pattern", pattern, "--page-size", "200", "--quiet"],
-                       stdout=log, stderr=log, check=True, timeout=1200)
+        download_kaggle_input(["kaggle", "kernels", "output", slug, "--path", str(target),
+                              "--file-pattern", pattern, "--page-size", "200", "--quiet"], "notebook", log)
         for name, expected in files.items():
             path = target / name
             if (not path.is_file() or not path.resolve().is_relative_to(target)
