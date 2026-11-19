@@ -162,7 +162,7 @@ jobs:
         run: |
           if [[ -d "$COLAB_OUTPUT" ]]; then
             mkdir -p "$COLAB_ENCRYPTED_OUTPUT"
-            for file in deployment.log results.tar; do
+            for file in deployment.log results.tar checkpoint.tar; do
               if [[ -f "$COLAB_OUTPUT/$file" ]]; then
                 age -r "$COLAB_ARTIFACT_RECIPIENT" -o "$COLAB_ENCRYPTED_OUTPUT/$file.age" "$COLAB_OUTPUT/$file"
               fi

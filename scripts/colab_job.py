@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -206,6 +207,55 @@ def run_colab_phase(args, phase, log, *, timeout, stdin=None, stdout=None, check
     return result
 
 
+def run_checkpointed_training(remote_run, working, minutes, output, log):
+    status_file = f"{working}/training-exit"
+    epoch_file = f"{working}/checkpoint-epoch"
+    script = (f"timeout -k 30s {minutes * 60}s python3 -u {REMOTE}/job/colab_runtime.py; "
+              f"printf '%s\\n' \"$?\" > {status_file}.partial && mv {status_file}.partial {status_file}")
+    run_colab_phase(remote_run + [
+        f"nohup bash -c {shlex.quote(script)} > {working}/colab-run.log 2>&1 < /dev/null &",
+    ], "execution-start", log, timeout=60)
+
+    probe = remote_run + [
+        f"for path in {status_file} {epoch_file}; do if test -f \"$path\"; "
+        'then cat "$path"; else echo -1; fi; done',
+    ]
+    last_epoch = 0
+    failures = 0
+    deadline = time.monotonic() + minutes * 60 + 90
+    while time.monotonic() < deadline:
+        time.sleep(min(60, max(0, deadline - time.monotonic())))
+        try:
+            result = run_colab_phase(probe, "execution-status", log, timeout=45, stdout=subprocess.PIPE, check=False)
+        except subprocess.TimeoutExpired:
+            result = None
+        status = re.fullmatch(rb"(-1|[0-9]{1,3})\n(-1|[0-9]+)\n", result.stdout) if result and not result.returncode else None
+        if not status:
+            failures += 1
+            if failures == 5:
+                raise RuntimeError("Lost contact with the Colab runtime during training")
+            continue
+        failures = 0
+        exit_code, epoch = map(int, status.groups())
+        if exit_code != 0 and epoch > last_epoch:
+            pending = output / "checkpoint.partial"
+            try:
+                with pending.open("wb") as stream:
+                    saved = run_colab_phase(remote_run + [f"cat {working}/checkpoint.tar"],
+                                            "checkpoint-download", log, timeout=90, stdout=stream, check=False)
+                if not saved.returncode and tarfile.is_tarfile(pending):
+                    pending.rename(output / "checkpoint.tar")
+                    last_epoch = epoch
+                    print(f"Colab checkpoint saved after epoch {epoch}", flush=True)
+            except subprocess.TimeoutExpired:
+                pass
+            finally:
+                pending.unlink(missing_ok=True)
+        if exit_code >= 0:
+            return exit_code
+    raise subprocess.TimeoutExpired(probe, minutes * 60 + 90)
+
+
 def run_job(experiment, gpu, minutes, output, state, session):
     filename, separator, trial = experiment.partition("#")
     experiment = (ROOT / checked_path(filename)).resolve()
@@ -256,17 +306,22 @@ def run_job(experiment, gpu, minutes, output, state, session):
             print("Running experiment on Colab", flush=True)
             # The remote deadline also applies if the GitHub runner disconnects.
             working = f"{REMOTE}/kaggle/working"
-            training = run_colab_phase(remote_run + [
-                f"timeout -k 30s {minutes * 60}s python3 -u {REMOTE}/job/colab_runtime.py "
-                f"> {working}/colab-run.log 2>&1",
-            ], "execution", log, timeout=minutes * 60 + 90, check=False)
+            if separator and gpu == "T4":
+                returncode = run_checkpointed_training(remote_run, working, minutes, output, log)
+            else:
+                training = run_colab_phase(remote_run + [
+                    f"timeout -k 30s {minutes * 60}s python3 -u {REMOTE}/job/colab_runtime.py "
+                    f"> {working}/colab-run.log 2>&1",
+                ], "execution", log, timeout=minutes * 60 + 90, check=False)
+                returncode = training.returncode
             print("Retrieving Colab results", flush=True)
             pending = output / "results.partial"
             with pending.open("wb") as stream:
-                run_colab_phase(remote_run + [f"tar -C {working} -cf - ."], "result-download", log,
+                run_colab_phase(remote_run + [f"tar -C {working} --exclude=./checkpoint.tar -cf - ."], "result-download", log,
                                 stdout=stream, timeout=1200)
             pending.rename(output / "results.tar")
-            training.check_returncode()
+            if returncode:
+                raise subprocess.CalledProcessError(returncode, "Colab training")
         finally:
             if state.is_file():
                 print(f"Releasing Colab session {session}", flush=True)
@@ -288,7 +343,7 @@ def main():
         parser.error("expected 1–300 minutes and a safe rhpr- session name")
     try:
         run_job(args.experiment, args.gpu, args.minutes, args.output.resolve(), args.state.resolve(), args.session)
-    except (OSError, ValueError, subprocess.SubprocessError) as error:
+    except (OSError, RuntimeError, ValueError, subprocess.SubprocessError) as error:
         # Public CI prints phase markers only. Detailed service errors can
         # include private URLs and are recorded in deployment.log.
         if isinstance(error, ValueError):

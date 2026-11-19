@@ -15,6 +15,11 @@ FP16 training and FP32 beam-20 evaluation. All four fits use seed 101,
 32, and validation every five epochs. Select each checkpoint by raw
 validation NDCG@10.
 
+The T4 launcher runs training independently of the SSH connection and fetches
+the latest checkpoint after validation. If the VM disappears, GitHub Actions
+exports the latest retrieved copy as `checkpoint.tar.age`, including last and
+best weights, training curves and optimizer state in the last checkpoint.
+
 The eight-layer model copies the initial weights of all common layers from
 the four-layer model. Its four added encoder blocks keep their own initial
 weights. Both history variants use the same model and initial tensors at

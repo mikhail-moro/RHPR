@@ -188,3 +188,33 @@ class ColabJobTests(unittest.TestCase):
             self.assertEqual((output / "results.tar").read_bytes(), b"partial run outputs")
             self.assertIn("stop", calls[-1])
             self.assertNotIn("--gpu", next(args for args in calls if "new" in args))
+
+    def test_latest_colab_checkpoint_survives_remote_disconnection(self):
+        from rhpr.gr.ml1m_last8_pairs import snapshot_colab_checkpoint
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trial, remote, output = (root / name for name in ("trial", "remote", "output"))
+            for path in (trial, remote, output):
+                path.mkdir()
+            for name in ("generator-last.pt", "generator-best.pt", "training-curves.json"):
+                (trial / name).write_text(name)
+            snapshot_colab_checkpoint(trial, remote, 10)
+            self.assertEqual((remote / "checkpoint-epoch").read_text(), "10\n")
+            probes = iter([b"-1\n10\n", *([None] * 5)])
+
+            def transfer(args, phase, log, **kwargs):
+                if phase == "execution-status":
+                    status = next(probes)
+                    return subprocess.CompletedProcess(args, 0 if status else 255, stdout=status)
+                if phase == "checkpoint-download":
+                    kwargs["stdout"].write((remote / "checkpoint.tar").read_bytes())
+                return subprocess.CompletedProcess(args, 0)
+
+            with (patch.object(colab_job, "run_colab_phase", side_effect=transfer),
+                  patch.object(colab_job.time, "sleep"),
+                  self.assertRaisesRegex(RuntimeError, "Lost contact")):
+                colab_job.run_checkpointed_training(["colab"], "/remote", 5, output, io.BytesIO())
+            self.assertFalse((output / "checkpoint.partial").exists())
+            with tarfile.open(output / "checkpoint.tar") as archive:
+                self.assertEqual(set(archive.getnames()), {"generator-best.pt", "generator-last.pt", "training-curves.json"})

@@ -10,6 +10,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tarfile
 import time
 import traceback
 from functools import partial
@@ -71,6 +72,17 @@ def depth_pilot_trials(depth):
 
 def single_depth_t4_trial(config):
     return config['execution'].get('colab_gpu') == 'T4' and len(config['trials']) == 1
+
+
+def snapshot_colab_checkpoint(trial_output, output, epoch):
+    pending = output / 'checkpoint.partial'
+    with tarfile.open(pending, 'w') as archive:
+        for name in ('generator-last.pt', 'generator-best.pt', 'training-curves.json'):
+            archive.add(trial_output / name, arcname=name)
+    pending.replace(output / 'checkpoint.tar')
+    pending_epoch = output / 'checkpoint-epoch.partial'
+    pending_epoch.write_text(f'{epoch}\n')
+    pending_epoch.replace(output / 'checkpoint-epoch')
 
 
 def depth_pilot_reference(config):
@@ -397,8 +409,10 @@ def run_trial(trial,p):
     def builder(root,width,split):
         if split not in encoded:raise ValueError('TEST forbidden during training')
         return encoded[split]
+    checkpoint = (partial(snapshot_colab_checkpoint, out, Path(p['output']))
+                  if depth_pilot and single_depth_t4_trial(c) else None)
     selection=_train_generator(model,p['data'],wrapped,c,out,'cuda:0',example_builder=builder,
-                               training_context_selector=views)
+                               training_context_selector=views,after_validation_checkpoint=checkpoint)
     epochs = c['training']['max_epochs']
     if (selection['training_epochs'] != epochs or selection['validation_checks'] != epochs//5
             or selection['optimizer_updates']+selection['amp_skipped_updates'] != 95*epochs):

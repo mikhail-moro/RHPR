@@ -153,7 +153,8 @@ def _evaluate(model, examples, sid_index, batch_size: int, device: str, precisio
 
 
 def _train_generator(model, users, sid_index, config: dict, output: Path, device: str,
-                     *, example_builder=None, resume_from=None, training_context_selector=None):
+                     *, example_builder=None, resume_from=None, training_context_selector=None,
+                     after_validation_checkpoint=None):
     import numpy as np
     import torch
 
@@ -347,6 +348,8 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                     "config": config, "best_epoch": best_epoch, "best_metric": best_metric,
                     "stale_validation_checks": stale, "amp_skipped_updates": skipped_updates,**continuation_state},
                    output / "generator-last.pt")
+        if after_validation_checkpoint is not None and "validation" in row:
+            after_validation_checkpoint(epoch)
         mean_epoch_seconds = time.monotonic() - epoch_started
         # An explicit epoch-based patience remains interpretable when changing
         # validation cadence. Legacy configurations keep their check-based rule.
