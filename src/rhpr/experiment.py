@@ -106,6 +106,11 @@ def run_experiment(
             raise ValueError('ML1M Last-8 pairs require an output directory')
         from rhpr.gr.ml1m_last8_pairs import run
         return run(config, output_dir)
+    if kind == 'gr_ml1m_last8_tpu_probe':
+        if output_dir is None:
+            raise ValueError('ML1M Last-8 TPU probe requires an output directory')
+        from rhpr.gr.ml1m_last8_tpu_probe import run
+        return run(config, output_dir)
     if kind == 'gr_ml1m_last8':
         if output_dir is None:
             raise ValueError('ML1M Last-8 requires an output directory')
