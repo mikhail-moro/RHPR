@@ -226,3 +226,19 @@ class ColabJobTests(unittest.TestCase):
             self.assertFalse((output / "checkpoint.partial").exists())
             with tarfile.open(output / "checkpoint.tar") as archive:
                 self.assertEqual(set(archive.getnames()), {"generator-best.pt", "generator-last.pt", "training-curves.json"})
+            colab_job.unpack_checkpoint(output / "checkpoint.tar", root / "resume")
+            for name in colab_job.CHECKPOINT_FILES:
+                self.assertEqual((root / "resume" / name).read_text(), name)
+
+    def test_checkpoint_archive_rejects_unexpected_members(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "checkpoint.tar"
+            with tarfile.open(source, "w") as archive:
+                for name in (*colab_job.CHECKPOINT_FILES, "../unexpected"):
+                    member = tarfile.TarInfo(name)
+                    member.size = 1
+                    archive.addfile(member, io.BytesIO(b"x"))
+            with self.assertRaisesRegex(ValueError, "best checkpoint and curves"):
+                colab_job.unpack_checkpoint(source, root / "resume")
+            self.assertFalse((root / "resume").exists())

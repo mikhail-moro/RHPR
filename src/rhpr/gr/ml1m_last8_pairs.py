@@ -411,8 +411,12 @@ def run_trial(trial,p):
         return encoded[split]
     checkpoint = (partial(snapshot_colab_checkpoint, out, Path(p['output']))
                   if depth_pilot and single_colab_depth_trial(c) else None)
+    resume = c['execution'].get('resume_checkpoint')
+    if resume and checkpoint is None:
+        raise ValueError('checkpoint continuation requires one Colab depth trial')
     selection=_train_generator(model,p['data'],wrapped,c,out,'cuda:0',example_builder=builder,
-                               training_context_selector=views,after_validation_checkpoint=checkpoint)
+                               training_context_selector=views,after_validation_checkpoint=checkpoint,
+                               resume_from=resume['path'] if resume else None)
     epochs = c['training']['max_epochs']
     if (selection['training_epochs'] != epochs or selection['validation_checks'] != epochs//5
             or selection['optimizer_updates']+selection['amp_skipped_updates'] != 95*epochs):
@@ -420,6 +424,9 @@ def run_trial(trial,p):
     curve=json.loads((out/'training-curves.json').read_text())
     timing=dict(wall_seconds=time.monotonic()-started,warm_epoch_training_median_seconds=float(np.median([v['train_seconds'] for v in curve[1:]])),
         first_epoch_training_seconds=curve[0]['train_seconds'],cuda_peak_allocated_bytes=int(torch.cuda.max_memory_allocated()),cuda_peak_reserved_bytes=int(torch.cuda.max_memory_reserved()))
+    if resume:
+        timing.update(resumed_from_epoch=selection['resumed_from_epoch'], continuation_wall_seconds=timing.pop('wall_seconds'),
+                      total_recorded_training_seconds=selection['training_seconds'])
     (h, u, t), (x, _, _) = build_cases('test')
     checkpoint = out / 'generator-best.pt'
     ck=torch.load(checkpoint,map_location='cpu',weights_only=False)

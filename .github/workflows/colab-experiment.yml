@@ -33,6 +33,14 @@ on:
         description: Optional Colab workflow run ID to wait for before allocating a new session
         type: string
         default: ''
+      resume_dataset:
+        description: Private Kaggle dataset containing the checkpoint.tar for a single depth trial
+        type: string
+        default: ''
+      resume_sha256:
+        description: SHA-256 of checkpoint.tar, required with resume_dataset
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -142,11 +150,16 @@ jobs:
           COLAB_EXPERIMENT: ${{ matrix.experiment || inputs.experiment }}
           COLAB_GPU: ${{ inputs.gpu }}
           COLAB_MINUTES: ${{ inputs.timeout_minutes }}
+          COLAB_RESUME_DATASET: ${{ inputs.resume_dataset }}
+          COLAB_RESUME_SHA256: ${{ inputs.resume_sha256 }}
           KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
         run: |
           args=(--output "$COLAB_OUTPUT" --state "$COLAB_STATE" --session "$COLAB_SESSION")
           if [[ "$COLAB_TASK" == experiment ]]; then
             args+=(--experiment "$COLAB_EXPERIMENT" --gpu "$COLAB_GPU" --minutes "$COLAB_MINUTES")
+            if [[ -n "$COLAB_RESUME_DATASET" || -n "$COLAB_RESUME_SHA256" ]]; then
+              args+=(--resume-dataset "$COLAB_RESUME_DATASET" --resume-sha256 "$COLAB_RESUME_SHA256")
+            fi
           fi
           python scripts/colab_job.py "${args[@]}"
       - name: Release any remaining Colab runtime

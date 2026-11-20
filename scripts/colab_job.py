@@ -22,6 +22,11 @@ ROOT = Path(__file__).resolve().parents[1]
 GPU_TYPES = ("T4", "L4", "A100", "H100")
 GPU_EXPERIMENTS = {"gr_ml1m_last8", "gr_ml1m_last8_pairs", "gr_ml1m_mixed64_input_ablations"}
 GPU_ALLOCATION_TIMEOUT_SECONDS = 45 * 60
+CHECKPOINT_FILES = {
+    "generator-last.pt": 512 * 1024**2,
+    "generator-best.pt": 256 * 1024**2,
+    "training-curves.json": 4 * 1024**2,
+}
 REMOTE = "/content/rhpr-job"
 SLUG = r"[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+"
 
@@ -172,6 +177,20 @@ def stage_inputs(root, config, log):
                 path.unlink()
 
 
+def unpack_checkpoint(source, destination):
+    with tarfile.open(source, "r:") as archive:
+        members = archive.getmembers()
+        if (len(members) != len(CHECKPOINT_FILES)
+                or {member.name for member in members} != CHECKPOINT_FILES.keys()
+                or any(not member.isfile() or not 0 < member.size <= CHECKPOINT_FILES[member.name]
+                       for member in members)):
+            raise ValueError("expected the last checkpoint, best checkpoint and curves in checkpoint.tar")
+        destination.mkdir()
+        for member in members:
+            with archive.extractfile(member) as stream, (destination / member.name).open("xb") as target:
+                shutil.copyfileobj(stream, target)
+
+
 def run_colab_phase(args, phase, log, *, timeout, stdin=None, stdout=None, check=True):
     """Expose the failed phase and allowlisted diagnostics in public CI."""
     try:
@@ -263,11 +282,16 @@ def run_checkpointed_training(remote_run, working, minutes, output, log):
     raise subprocess.TimeoutExpired(probe, minutes * 60 + 90)
 
 
-def run_job(experiment, gpu, minutes, output, state, session):
+def run_job(experiment, gpu, minutes, output, state, session, *, resume_dataset="", resume_sha256=""):
     filename, separator, trial = experiment.partition("#")
     experiment = (ROOT / checked_path(filename)).resolve()
     experiment.relative_to((ROOT / "experiments").resolve())
     config = colab_config(json.loads(experiment.read_text()), gpu, trial if separator else None)
+    if resume_dataset or resume_sha256:
+        if not separator or not re.fullmatch(SLUG, resume_dataset) or not re.fullmatch(r"[0-9a-f]{64}", resume_sha256):
+            raise ValueError("resume requires one depth trial, an owner/dataset and a checkpoint SHA-256")
+        config["execution"]["resume_checkpoint"] = {"path": f"{REMOTE}/job/resume", "dataset": resume_dataset,
+                                                     "sha256": resume_sha256}
     output.mkdir(parents=True, exist_ok=False)
     cli = ["colab", "--auth", "adc", "--config", str(state)]
 
@@ -290,6 +314,9 @@ def run_job(experiment, gpu, minutes, output, state, session):
         (kaggle / "temp").mkdir()
         print("Preparing experiment inputs", flush=True)
         stage_inputs(kaggle / "input", config, log)
+        if resume_dataset:
+            source = download_dataset_file(stage / "resume-input", resume_dataset, Path("checkpoint.tar"), resume_sha256, log)
+            unpack_checkpoint(source, remote / "resume")
         print(f"Opening Colab session {session} on {gpu}", flush=True)
         state.parent.mkdir(parents=True, exist_ok=True)
         identity = stage / "ssh"
@@ -348,11 +375,14 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--state", type=Path, required=True)
     parser.add_argument("--session", default=f"rhpr-{uuid.uuid4().hex[:10]}")
+    parser.add_argument("--resume-dataset", default="")
+    parser.add_argument("--resume-sha256", default="")
     args = parser.parse_args()
     if not 1 <= args.minutes <= 300 or not re.fullmatch(r"rhpr-[a-z0-9-]{1,50}", args.session):
         parser.error("expected 1–300 minutes and a safe rhpr- session name")
     try:
-        run_job(args.experiment, args.gpu, args.minutes, args.output.resolve(), args.state.resolve(), args.session)
+        run_job(args.experiment, args.gpu, args.minutes, args.output.resolve(), args.state.resolve(), args.session,
+                resume_dataset=args.resume_dataset, resume_sha256=args.resume_sha256)
     except (OSError, RuntimeError, ValueError, subprocess.SubprocessError) as error:
         # Public CI prints phase markers only. Detailed service errors can
         # include private URLs and are recorded in deployment.log.

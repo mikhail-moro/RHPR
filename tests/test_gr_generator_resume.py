@@ -81,5 +81,26 @@ class GeneratorResumeTest(unittest.TestCase):
                 r=_train_generator(self.model(),self.users,self.index,c,out,'cpu',example_builder=temporal_examples,resume_from=source)
             self.assertEqual(r['training_epochs'],5);self.assertEqual(r['stopping_reason'],'early_stopping');self.assertEqual(r['best_epoch'],1)
 
+    def test_colab_resume_keeps_trial_and_gpu(self):
+        self.config.update(active_trial={'id': 'test'}, execution={'colab_gpu': 'T4'})
+        with tempfile.TemporaryDirectory(dir='/tmp') as tmp:
+            root = Path(tmp)
+            source, resumed = root / 'source', root / 'resumed'
+            source.mkdir()
+            resumed.mkdir()
+            self.train_prefix(source)
+            config = copy.deepcopy(self.config)
+            config['execution']['resume_checkpoint'] = {'path': str(source)}
+            config['execution']['colab_gpu'] = 'A100'
+            with self.assertRaisesRegex(ValueError, 'same GPU type'):
+                _train_generator(self.model(), self.users, self.index, config, resumed, 'cpu',
+                                 example_builder=temporal_examples, resume_from=source)
+            config['execution']['colab_gpu'] = 'T4'
+            with patch('rhpr.gr.experiment._evaluate', self.fake_eval(offset=2)):
+                result = _train_generator(self.model(), self.users, self.index, config, resumed, 'cpu',
+                                          example_builder=temporal_examples, resume_from=source)
+            self.assertEqual(result['resumed_from_epoch'], 2)
+            self.assertEqual(result['training_epochs'], 6)
+
 
 if __name__=='__main__':unittest.main()

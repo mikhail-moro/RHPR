@@ -87,3 +87,10 @@ the workflow still retrieves the run directory before releasing it. A forced
 GitHub cancellation or loss of the Colab VM can interrupt retrieval. If that
 happens, check **Manage sessions** in Colab for the session name printed by
 the job.
+
+For a depth pilot interrupted after a validation, decrypt only
+`checkpoint.tar.age` and place `checkpoint.tar` in your private Kaggle dataset.
+Launch the same `experiment` with its `#<trial_id>` suffix and GPU type. Set
+`resume_dataset` to `owner/slug` and `resume_sha256` to the archive digest.
+The job verifies the digest, restores the last epoch and its optimizer, scaler,
+scheduler and RNG state, and retains the prior best-validation checkpoint.
