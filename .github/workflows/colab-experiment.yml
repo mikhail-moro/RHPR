@@ -34,11 +34,11 @@ on:
         type: string
         default: ''
       resume_dataset:
-        description: Private Kaggle dataset containing the checkpoint.tar for a single depth trial
+        description: Private Kaggle dataset containing checkpoint.bin for a single depth trial
         type: string
         default: ''
       resume_sha256:
-        description: SHA-256 of checkpoint.tar, required with resume_dataset
+        description: SHA-256 of checkpoint.bin, required with resume_dataset
         type: string
         default: ''
 

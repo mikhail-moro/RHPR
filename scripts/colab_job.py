@@ -315,7 +315,7 @@ def run_job(experiment, gpu, minutes, output, state, session, *, resume_dataset=
         print("Preparing experiment inputs", flush=True)
         stage_inputs(kaggle / "input", config, log)
         if resume_dataset:
-            source = download_dataset_file(stage / "resume-input", resume_dataset, Path("checkpoint.tar"), resume_sha256, log)
+            source = download_dataset_file(stage / "resume-input", resume_dataset, Path("checkpoint.bin"), resume_sha256, log)
             unpack_checkpoint(source, remote / "resume")
         print(f"Opening Colab session {session} on {gpu}", flush=True)
         state.parent.mkdir(parents=True, exist_ok=True)
