@@ -1,0 +1,281 @@
+{
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-ml1m-window-tiger-seeds"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "modern_runtime": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-t5-sdpa-runtime",
+    "manifest_sha256": "18f4688aab798d792d9204d1c018d8aba7da80bc97f5aadcdd181b34f6f0b9f6"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false,
+    "attn_implementation": "sdpa"
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 1,
+    "batch_size": 64,
+    "physical_batch_size": 4,
+    "learning_rate": 0.003,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 40,
+    "min_epochs": 40,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 16,
+    "max_seconds": 12600,
+    "sampling": "fixed_last8_train_targets_after_leave_last_two",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 20,
+    "scheduler": {
+      "kind": "warmup_cosine",
+      "warmup_epochs": 2,
+      "total_epochs": 60,
+      "min_lr": 0.001
+    },
+    "early_stopping": {
+      "kind": "ema",
+      "alpha": 0.5,
+      "min_delta": 0.0005
+    },
+    "compile_training": {
+      "options": {
+        "triton.cudagraphs": false
+      },
+      "fullgraph": false,
+      "dynamic": false
+    },
+    "targets_per_row": 8
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "data": {
+    "history_items": 128,
+    "users": 6040,
+    "items": 3706,
+    "events": 1000209,
+    "train_examples": 48320
+  },
+  "expected_raw_case_sha256": {
+    "train": "8ea681f85304befbc5fdeceec535a298edc64c8d35d7afa8f7ab0656e19261cc",
+    "validation": "f2035a8596ce933273c1c979f8d8ecd60f46b796ab972251cb9bcce83c8249a4",
+    "test": "bc47ff569738ddbad1ff64559f92ff96e058ed0fed990852a846765496237d31"
+  },
+  "frozen_parent": {
+    "kernel": "carasik/rhpr-ml1m-mixed128-screen",
+    "git_sha": "1074a7599c52875d66eb83716491f377c2310f33",
+    "files": {
+      "frozen-indexes/items-42.npy": {
+        "size_bytes": 118720,
+        "sha256": "80422aa36fbcabbd0c1133a0695547513c1a795f908c72b4ed412e9cc2c2b672"
+      },
+      "prepared-cases/data-report.json": {
+        "size_bytes": 11782,
+        "sha256": "c92aa807df29294217fdf2d7e5567921a9aeb775eee890207fa6d6a847575aaf"
+      },
+      "prepared-cases/test-cases.npz": {
+        "size_bytes": 1527442,
+        "sha256": "27e0444f2a491d604e811b0885b80a5e357baf34e9824c111ba64b453b5b2013"
+      },
+      "prepared-cases/train-cases.npz": {
+        "size_bytes": 2199755,
+        "sha256": "cf7e161da121da85b39558f50a9a3f1fa8431499ac32c5a43a47c2bf55c9c8ec"
+      },
+      "prepared-cases/validation-cases.npz": {
+        "size_bytes": 1518552,
+        "sha256": "6c594fe29c3c16d0ab6818cda80435075b78e5da740944a56aa9ea93fc3b5b90"
+      },
+      "run-manifest.json": {
+        "size_bytes": 9369,
+        "sha256": "1ff2f0f9005dda4fd77469d9144aec63729da6420888f2f33dcd5a69ac25e82b"
+      }
+    }
+  },
+  "kind": "gr_ml1m_window_tiger",
+  "name": "ml1m_last8_window_tiger_vs_sasrec_three_seeds",
+  "seed": 101,
+  "expected_initial_state_sha256": "4dcaf4ec587f08ce3ec69536526f4cda5c4ab01eedbc1e09bd7e2803c69ac9b3",
+  "targets_per_user": 8,
+  "trials": [
+    {
+      "id": "sasrec_101",
+      "predictor": "sasrec",
+      "seed": 101,
+      "decoder_window": null,
+      "physical_batch_size": 64
+    },
+    {
+      "id": "window16_202",
+      "predictor": "window16",
+      "seed": 202,
+      "decoder_window": 16,
+      "physical_batch_size": 16
+    },
+    {
+      "id": "window16_42",
+      "predictor": "window16",
+      "seed": 42,
+      "decoder_window": 16,
+      "physical_batch_size": 16
+    },
+    {
+      "id": "sasrec_42",
+      "predictor": "sasrec",
+      "seed": 42,
+      "decoder_window": null,
+      "physical_batch_size": 64
+    },
+    {
+      "id": "window32_202",
+      "predictor": "window32",
+      "seed": 202,
+      "decoder_window": 32,
+      "physical_batch_size": 16
+    },
+    {
+      "id": "window32_42",
+      "predictor": "window32",
+      "seed": 42,
+      "decoder_window": 32,
+      "physical_batch_size": 16
+    },
+    {
+      "id": "sasrec_202",
+      "predictor": "sasrec",
+      "seed": 202,
+      "decoder_window": null,
+      "physical_batch_size": 64
+    }
+  ],
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-t5-sdpa-runtime"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-ml1m-mixed128-screen",
+      "carasik/rhpr-ml1m-window-tiger"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "evaluation": {
+    "save_validation_predictions": true,
+    "selection_metric": "validation item NDCG@10",
+    "candidate_universe": "all3706ratedMovies,no sampled negatives,no seen-item filtering"
+  },
+  "window_initializers": {
+    "42": "d57fc2e783c0a04bfc567c0082541f757e241d1c53d7e79b3e8f281bf2eb9337",
+    "101": "4dcaf4ec587f08ce3ec69536526f4cda5c4ab01eedbc1e09bd7e2803c69ac9b3",
+    "202": "0102d0baf3e18b608649a6473bcae2852792a5f0649e4dd4daa35dfcd416bd74"
+  },
+  "compare_initialization_by_shape": true,
+  "sasrec": {
+    "d_model": 256,
+    "n_layers": 7,
+    "n_heads": 4,
+    "ffn_multiplier": 3,
+    "dropout": 0.1
+  },
+  "sasrec_training_overrides": {
+    "learning_rate": 0.001,
+    "scheduler": {
+      "kind": "warmup_cosine",
+      "warmup_epochs": 2,
+      "total_epochs": 60,
+      "min_lr": 0.0003
+    },
+    "loss_log_key": "train_loss_item_ce"
+  },
+  "pilot_parent": {
+    "kernel": "carasik/rhpr-ml1m-window-tiger",
+    "git_sha": "40a689c8be5defc6e086046233f777ca8e728a99",
+    "files": {
+      "run-manifest.json": {
+        "size_bytes": 5542,
+        "sha256": "8fd09ce936badb78eea66861f2a53ce080fe700fdb5e9ef09f98647c2c9bc915"
+      },
+      "trials/window16/trial-result.json": {
+        "size_bytes": 1979,
+        "sha256": "365c235b2e810616298e892c6ce325e43ac1b923c75653f5f3d94496d8a00708"
+      },
+      "trials/window16/training-curves.json": {
+        "size_bytes": 20061,
+        "sha256": "48d78574a0491b78ee07809c419b5bafb08ca6bfc6336f0ad887c9d4513bcf88"
+      },
+      "trials/window16/test-metrics.json": {
+        "size_bytes": 537,
+        "sha256": "a310e673ad80d3515a17d339ac4a424698e83a29768c118117426ee3b154a386"
+      },
+      "trials/window16/test-best-predictions.npz": {
+        "size_bytes": 831780,
+        "sha256": "1f63d299965cb3724994b66f4abb53ad03fd84ee0aad886aa1a9bc53ae1d5775"
+      },
+      "trials/window16/forward-flops.json": {
+        "size_bytes": 265,
+        "sha256": "800527f286baafcb9fb2414be015e819094d81ec7a81700caa5d6192a6fa9f6e"
+      },
+      "trials/window16/validation-epoch-040.npz": {
+        "size_bytes": 832384,
+        "sha256": "8246f6a7e4dce8e9e785f118a0638bf8b786c97e14328ffe0d176cbd35afc54a"
+      },
+      "trials/window32/trial-result.json": {
+        "size_bytes": 1973,
+        "sha256": "8047bdb1277a1e68d811fadb10549f5bc155590f76e85e49c4cd381bb78e488f"
+      },
+      "trials/window32/training-curves.json": {
+        "size_bytes": 20130,
+        "sha256": "2ad8f16ff3c1f1213d25d519d8e60dac73293de7228bea05c9fc3c51d0d03d58"
+      },
+      "trials/window32/test-metrics.json": {
+        "size_bytes": 536,
+        "sha256": "ced9935c7ce44bdc100dff2e7ded902b855ebf9dd5a68c553cf4d3dd975c1937"
+      },
+      "trials/window32/test-best-predictions.npz": {
+        "size_bytes": 830097,
+        "sha256": "d43cd8214d560999179bfe2a2d7d81dc90886b7b6d320b78bc1dde379094f6be"
+      },
+      "trials/window32/forward-flops.json": {
+        "size_bytes": 266,
+        "sha256": "84fa6ca70dd09f8127f56eb4dd242cfc0a0d4be6e01aab3c3bb01b797d054a67"
+      },
+      "trials/window32/validation-epoch-040.npz": {
+        "size_bytes": 831665,
+        "sha256": "3fd4abab6bf62bee0b1d25d1dea62c466bf6ca1e0b6ae225200fdb074a5d7709"
+      }
+    }
+  }
+}

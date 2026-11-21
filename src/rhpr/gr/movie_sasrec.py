@@ -63,11 +63,48 @@ class MovieSASRec(SASRecModel):
         return values,p,s
 
 
-def build_movie_sasrec(config,seed,device):
+class GroupedMovieSASRec(MovieSASRec):
+    def position_indices(self, original_lengths, source_positions):
+        # Future events cannot change the position IDs of an earlier prefix.
+        return source_positions
+
+
+class Last8ItemIDIndex(ItemIDIndex):
+    def model_batch(self, contexts, users, targets, device):
+        import torch
+
+        if targets.ndim == 1:
+            return super().model_batch(contexts, users, targets, device)
+        inputs = np.concatenate((contexts, targets[:, :-1]), axis=1)
+        batch = super().model_batch(inputs, users, targets[:, 0], device)
+        batch['target_item_ids'] = torch.as_tensor(targets, dtype=torch.long, device=device)
+        return batch
+
+
+def grouped_sasrec_logits(model, batch):
+    import torch
+
+    states, mask, _ = model.encode(batch['item_ids'], batch['valid_mask'])
+    targets_per_row = batch['target_item_ids'].shape[1]
+    suffix = torch.arange(targets_per_row, device=states.device)
+    positions = mask.sum(1, keepdim=True) - targets_per_row + suffix
+    selected = states.gather(1, positions[:, :, None].expand(-1, -1, states.shape[-1]))
+    return selected @ model.item_embedding.weight[1:].T
+
+
+def grouped_sasrec_loss(model, batch):
+    import torch.nn.functional as F
+
+    scores = grouped_sasrec_logits(model, batch)
+    return F.cross_entropy(scores.flatten(0, 1), batch['target_item_ids'].flatten())
+
+
+def build_movie_sasrec(config,seed,device, *, grouped=False):
     import torch
     from rhpr.gr.sid_study import state_digest
     torch.manual_seed(seed)
-    model=MovieSASRec(num_items=config['data']['items'],max_seq_len=config['data']['history_items'],
+    model_type = GroupedMovieSASRec if grouped else MovieSASRec
+    model=model_type(num_items=config['data']['items'],max_seq_len=config['data']['history_items'],
         **config['sasrec']).to(device)
     pins=config.get('expected_sasrec_initial_state_sha256_by_seed')
     if pins is not None and pins.get(str(seed))!=state_digest(dict(model.named_parameters())):

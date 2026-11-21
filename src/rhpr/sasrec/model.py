@@ -344,7 +344,7 @@ class SASRecModel(nn.Module):
         if sequence_length > self.max_seq_len:
             raise ValueError("compressed sequence exceeds max_seq_len")
 
-        positions = (original_lengths[:, None] - 1 - source_positions).clamp(min=0, max=self.max_seq_len - 1)
+        positions = self.position_indices(original_lengths, source_positions).clamp(min=0, max=self.max_seq_len - 1)
         positions = positions.masked_fill(~compressed_mask, 0)
         embeddings = embeddings + self.position_embedding(positions)
         embeddings = self.input_dropout(self.input_norm(embeddings))
@@ -356,9 +356,13 @@ class SASRecModel(nn.Module):
             embeddings,
             mask=causal_mask,
             src_key_padding_mask=~compressed_mask,
+            is_causal=True,
         )
         encoded = encoded.masked_fill(~compressed_mask.unsqueeze(-1), 0.0)
         return encoded, compressed_mask, source_positions
+
+    def position_indices(self, original_lengths, source_positions):
+        return original_lengths[:, None] - 1 - source_positions
 
     def last_state(
         self, item_ids: torch.Tensor, valid_mask: torch.Tensor, gap_ids: torch.Tensor | None = None

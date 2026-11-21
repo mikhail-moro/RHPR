@@ -7,7 +7,8 @@ import gc
 import json
 from pathlib import Path
 import random
-from statistics import median
+import shutil
+from statistics import mean, median, stdev
 import subprocess
 import sys
 import traceback
@@ -146,12 +147,13 @@ def run_trial(trial, plan):
     from rhpr.gr.sid_study import state_digest
 
     config = plan['config']
-    trial_config = {**config, 'active_trial': trial,
+    seed = trial.get('seed', config['seed'])
+    sasrec = trial.get('predictor') == 'sasrec'
+    trial_config = {**config, 'active_trial': trial, 'seed': seed,
                     'training': {**config['training'], 'physical_batch_size': trial['physical_batch_size']}}
     window = trial['decoder_window']
     output = Path(plan['output']) / 'trials' / trial['id']
     output.mkdir(parents=True, exist_ok=True)
-    seed = config['seed']
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -165,25 +167,37 @@ def run_trial(trial, plan):
         raise ValueError('Incorrect Last-8 target counts')
 
     sids = np.load(parent / 'frozen-indexes' / 'items-42.npy', allow_pickle=False)
-    index = WindowInput(sids, window)
-    model = build_grid_generator(sids, config['generator'], seed, 'cpu', plan['source'])
+    if sasrec:
+        from rhpr.gr.movie_sasrec import Last8ItemIDIndex, build_movie_sasrec, grouped_sasrec_loss
+
+        trial_config['training'].update(config['sasrec_training_overrides'])
+        index = Last8ItemIDIndex(len(sids))
+        model = build_movie_sasrec(config, seed, 'cpu', grouped=True)
+        loss_fn = grouped_sasrec_loss
+    else:
+        index = WindowInput(sids, window)
+        model = build_grid_generator(sids, config['generator'], seed, 'cpu', plan['source'])
+        loss_fn = _loss if window is None else window_loss
     initial = state_digest(dict(model.named_parameters()))
-    if initial != config['expected_initial_state_sha256']:
-        raise ValueError('GRID initialization differs from the frozen initializer')
+    if not sasrec:
+        pinned = config.get('window_initializers', {}).get(str(seed), config['expected_initial_state_sha256'])
+        if initial != pinned:
+            raise ValueError('GRID initialization differs from the frozen initializer')
     if window:
         attach_window_generation(model, window)
-    loss_fn = _loss if window is None else window_loss
     cpu_batch = index.model_batch(*(part[:1] for part in train), 'cpu')
-    model.eval()
+    # Training mode disables the fused SASRec inference path in the CPU FLOP trace.
+    model.train(sasrec)
     with torch.inference_mode(), torch.nn.attention.sdpa_kernel(torch.nn.attention.SDPBackend.MATH):
-        with torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU], with_flops=True) as profile:
+        with torch.random.fork_rng(devices=[]), torch.profiler.profile(
+                activities=[torch.profiler.ProfilerActivity.CPU], with_flops=True) as profile:
             loss = loss_fn(model, cpu_batch)
     if not torch.isfinite(loss):
         raise FloatingPointError('Nonfinite CPU forward')
     flops_per_user = sum(entry.flops for entry in profile.key_averages())
-    forward = dict(encoder_calls_per_user=8 if window is None else 1,
-                   encoder_positions=cpu_batch['input_ids'].shape[1] + 1,
-                   decoder_positions=5 if window is None else SID_LEVELS * window,
+    forward = dict(encoder_calls_per_user=1 if sasrec or window else 8,
+                   encoder_positions=cpu_batch['item_ids' if sasrec else 'input_ids'].shape[1] + (not sasrec),
+                   decoder_positions=0 if sasrec else 5 if window is None else SID_LEVELS * window,
                    supported_flops_per_user=flops_per_user,
                    supported_flops_per_target=flops_per_user / TARGETS_PER_USER,
                    scope='padded teacher-forced CPU math SDPA with loss, FMA2, no backward or beam')
@@ -196,7 +210,7 @@ def run_trial(trial, plan):
         return examples[split]
 
     selection = _train_generator(model, parent, index, trial_config, output, 'cuda:0',
-                                 example_builder=build_examples, loss_fn=window_loss if window else None)
+                                 example_builder=build_examples, loss_fn=loss_fn if sasrec or window else None)
     if selection['training_epochs'] != config['training']['max_epochs']:
         raise RuntimeError('Pilot hit its time limit; selected and recent checkpoints were saved')
     if selection['optimizer_updates'] + selection['amp_skipped_updates'] != 95 * selection['training_epochs']:
@@ -208,13 +222,16 @@ def run_trial(trial, plan):
                   peak_training_allocated_bytes=torch.cuda.max_memory_allocated())
     metrics, predictions, scores = _evaluate(model, test, index, config['training']['evaluation_batch_size'],
                                               'cuda:0', precision='fp32')
-    np.savez_compressed(output / 'test-best-predictions.npz', semantic_ids=predictions, scores=scores,
-                        user_ids=test[1], target_item_ids=test[2])
+    prediction_key = 'item_ids' if sasrec else 'semantic_ids'
+    np.savez_compressed(output / 'test-best-predictions.npz', scores=scores,
+                        user_ids=test[1], target_item_ids=test[2], **{prediction_key: predictions})
     test_report = dict(metrics=metrics, epoch=selection['best_epoch'],
                        checkpoint_sha256=file_sha256(output / 'generator-best.pt'))
     _write(output / 'test-metrics.json', test_report)
     result = dict(trial=trial['id'], seed=seed, window=window, initial_state_sha256=initial,
                   selection=selection, forward=forward, timing=timing, test=test_report)
+    if 'pilot_parent' in config:
+        result['initialization_group'] = f"{trial['predictor']}_{seed}"
     _write(output / 'trial-result.json', result)
     return result
 
@@ -271,6 +288,84 @@ def summarize(results, output):
     return metrics
 
 
+def validate_replication(config):
+    predictors = {'window16': 16, 'window32': 32, 'sasrec': None}
+    fresh = {(trial['predictor'], trial['seed'], trial['decoder_window']) for trial in config['trials']}
+    expected = {(name, seed, window) for name, window in predictors.items()
+                for seed in (42, 101, 202) if seed != 101 or name == 'sasrec'}
+    if (fresh != expected or len(config['trials']) != len(expected)
+            or any(trial['id'] != f"{trial['predictor']}_{trial['seed']}" for trial in config['trials'])):
+        raise ValueError('Expected fresh SASRec on three seeds and Window TIGER replication on two')
+
+
+def import_pilot(config, parent, output):
+    manifest = json.loads((parent / 'run-manifest.json').read_text())
+    pilot = manifest['config']
+    common = ('generator', 'data', 'evaluation', 'expected_raw_case_sha256', 'frozen_parent')
+    if (any(config[key] != pilot[key] for key in common) or pilot['seed'] != 101
+            or pilot['training'] != config['training']
+            or pilot['expected_initial_state_sha256'] != config['window_initializers']['101']):
+        raise ValueError('The frozen seed 101 differs from the replication protocol')
+    imported = {}
+    for predictor in ('window16', 'window32'):
+        name = f'{predictor}_101'
+        source = parent / 'trials' / predictor
+        report = json.loads((source / 'trial-result.json').read_text())
+        if (report['seed'] != 101 or report['window'] != int(predictor[6:])
+                or report['initial_state_sha256'] != config['window_initializers']['101']
+                or report['selection']['training_epochs'] != config['training']['max_epochs']):
+            raise ValueError(f'Invalid pilot result: {predictor}')
+        dest = output / 'trials' / name
+        dest.mkdir(parents=True)
+        for path in config['pilot_parent']['files']:
+            relative = Path(path)
+            if relative.parent == Path('trials', predictor):
+                shutil.copy2(parent / relative, dest / relative.name)
+        imported[name] = {**report, 'trial': name, 'reused_from': config['pilot_parent']['kernel']}
+    return imported
+
+
+def summarize_replication(results, output):
+    aggregate = {}
+    seeds = (42, 101, 202)
+    metrics = {'models': len(results), 'seeds': len(seeds),
+               'new_fits': sum('reused_from' not in row for row in results.values())}
+    for name in ('window16', 'window32', 'sasrec'):
+        rows = [results[f'{name}_{seed}'] for seed in seeds]
+        test = [row['test']['metrics']['ndcg@10'] for row in rows]
+        valid = [row['selection']['validation_ndcg10'] for row in rows]
+        delta = [score - results[f'sasrec_{seed}']['test']['metrics']['ndcg@10']
+                 for seed, score in zip(seeds, test)]
+        summary = {
+            'test_ndcg10_mean': mean(test), 'test_ndcg10_std': stdev(test),
+            'val_ndcg10_mean': mean(valid),
+            'warm_epoch_seconds_median': median(row['timing']['warm_epoch_median_seconds'] for row in rows),
+            'wall_seconds_median': median(row['timing']['train_wall_seconds'] for row in rows),
+            'test_ndcg10_delta_vs_sasrec_mean': mean(delta),
+        }
+        aggregate[name] = {**summary, 'test_ndcg10_by_seed': dict(zip(seeds, test)),
+                           'test_ndcg10_delta_vs_sasrec_by_seed': dict(zip(seeds, delta))}
+        metrics.update({f'{name}_{key}': value for key, value in summary.items()})
+    common_time = {}
+    for seed in seeds:
+        curves = {}
+        for name in aggregate:
+            rows = json.loads((output / 'trials' / f'{name}_{seed}' / 'training-curves.json').read_text())
+            curves[name] = [row for row in rows if 'validation' in row]
+        time_limit = min(rows[-1]['elapsed_seconds'] for rows in curves.values())
+        best = {}
+        for name, rows in curves.items():
+            eligible = [row for row in rows if row['elapsed_seconds'] <= time_limit]
+            if eligible:
+                row = max(eligible, key=lambda row: row['validation']['ndcg@10'])
+                best[name] = dict(epoch=row['epoch'], ndcg10=row['validation']['ndcg@10'],
+                                  elapsed_seconds=row['elapsed_seconds'])
+        common_time[seed] = dict(time_limit_seconds=time_limit, best_validation=best)
+    _write(output / 'study-summary.json', dict(results=results, aggregate=aggregate,
+                                              same_time_validation=common_time))
+    return metrics
+
+
 def run(config, output):
     from rhpr.gr.ae_suite import launch_workers
     from rhpr.gr.grid import prepare_grid_source
@@ -282,11 +377,15 @@ def run(config, output):
     if (config['data']['history_items'], config['targets_per_user'], config['training']['targets_per_row'],
             config['training']['batch_size']) != (HISTORY_ITEMS, TARGETS_PER_USER, TARGETS_PER_USER, 64):
         raise ValueError('The pilot requires 128 history items and 512 targets per optimizer update')
-    if {trial['id']: trial['decoder_window'] for trial in config['trials']} != {
+    replication = 'pilot_parent' in config
+    if replication:
+        validate_replication(config)
+    elif {trial['id']: trial['decoder_window'] for trial in config['trials']} != {
             'prefix_control': None, 'window16': 16, 'window32': 32}:
         raise ValueError('Expected the common-prefix control and windows 16 and 32')
     devices = devices_for(config)
     parent = locate_parent(config['frozen_parent'])
+    reused = import_pilot(config, locate_parent(config['pilot_parent']), output) if replication else {}
     roots = {name: resolve_dataset_directory(config[name]['path']) for name in ('resources', 'modern_runtime')}
     for name, root in roots.items():
         verify_resources(root, config[name]['manifest_sha256'])
@@ -305,6 +404,8 @@ def run(config, output):
     _write(plan, dict(config=config, parent=str(parent), source=str(source), output=str(output),
                       assignments=assignments_for(config, devices)))
     summary = launch_workers(plan, worker_module='rhpr.gr.ml1m_window_tiger', event_prefix='window_tiger')
+    if replication:
+        return summarize_replication({**summary['results'], **reused}, output)
     return summarize(summary['results'], output)
 
 
