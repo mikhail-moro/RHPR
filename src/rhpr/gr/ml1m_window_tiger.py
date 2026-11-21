@@ -179,7 +179,8 @@ def run_trial(trial, plan):
         from rhpr.gr.ml1m_full_decoder import build_full_decoder, full_decoder_loss
 
         index = SidIndex.from_full_sids(sids, width=256)
-        model = build_full_decoder(sids, config['generator'], seed, plan['source'])
+        trial_config['generator'] = {**config['generator'], **trial.get('generator_overrides', {})}
+        model = build_full_decoder(sids, trial_config['generator'], seed, plan['source'])
         loss_fn = full_decoder_loss
     else:
         index = WindowInput(sids, window)
@@ -214,8 +215,9 @@ def run_trial(trial, plan):
 
         loss_fn(model, cpu_batch).backward()
         counts = parameter_counts(model)
-        if counts['inactive_nonembedding_names'] or counts['active_nonembedding_parameters'] != 1967360:
-            raise ValueError('Unexpected active parameter count for the four-layer full-history decoder')
+        expected = trial.get('expected_active_nonembedding_parameters', 1967360)
+        if counts['inactive_nonembedding_names'] or counts['active_nonembedding_parameters'] != expected:
+            raise ValueError('Unexpected active parameter count for the full-history decoder')
         model.zero_grad(set_to_none=True)
         forward.update(encoder_calls_per_user=0, encoder_positions=0,
                        decoder_positions=cpu_batch['input_ids'].shape[1] + SID_LEVELS * TARGETS_PER_USER + 1,
@@ -353,6 +355,28 @@ def import_pilot(config, parent, output):
     return imported
 
 
+def import_decoder_pilot(config, parent, output):
+    manifest = json.loads((parent / 'run-manifest.json').read_text())
+    pilot = manifest['config']
+    common = ('seed', 'generator', 'training', 'data', 'evaluation', 'expected_raw_case_sha256',
+              'frozen_parent', 'pilot_parent')
+    if any(config[key] != pilot[key] for key in common):
+        raise ValueError('The four-layer decoder uses a different comparison protocol')
+    name = 'full_decoder_101'
+    trial = Path('trials', name)
+    report = json.loads((parent / trial / 'trial-result.json').read_text())
+    if (report['trial'] != name or report['seed'] != config['seed'] or report['window'] is not None
+            or report['forward']['parameters']['active_nonembedding_parameters'] != 1967360
+            or report['selection']['training_epochs'] != config['training']['max_epochs']):
+        raise ValueError('Invalid four-layer decoder result')
+    (output / trial).mkdir(parents=True)
+    spec = config['decoder_pilot_parent']
+    for relative in map(Path, spec['files']):
+        if relative.parent == trial:
+            shutil.copy2(parent / relative, output / relative)
+    return {name: {**report, 'reused_from': spec['kernel']}}
+
+
 def summarize_replication(results, output):
     aggregate = {}
     seeds = (42, 101, 202)
@@ -430,9 +454,13 @@ def run(config, output):
     if sasrec_recovery:
         validate_sasrec_recovery(config)
     elif full_decoder:
-        if not replication or config['trials'] != [dict(id='full_decoder_101', predictor='full_decoder',
-                                                       seed=101, decoder_window=None, physical_batch_size=16)]:
-            raise ValueError('Expected one four-layer full-history decoder and frozen seed 101 controls')
+        expected = dict(id='full_decoder_101', predictor='full_decoder', seed=101,
+                        decoder_window=None, physical_batch_size=16)
+        if 'decoder_pilot_parent' in config:
+            expected.update(id='full_decoder8_101', generator_overrides=dict(decoder_layers=8, d_ff=1408),
+                            expected_active_nonembedding_parameters=4589824)
+        if not replication or config['trials'] != [expected]:
+            raise ValueError('Expected one registered full-history decoder and frozen seed 101 controls')
     elif replication:
         validate_replication(config)
     elif {trial['id']: trial['decoder_window'] for trial in config['trials']} != {
@@ -441,6 +469,8 @@ def run(config, output):
     devices = devices_for(config)
     parent = locate_parent(config['frozen_parent'])
     reused = import_pilot(config, locate_parent(config['pilot_parent']), output) if replication else {}
+    if 'decoder_pilot_parent' in config:
+        reused.update(import_decoder_pilot(config, locate_parent(config['decoder_pilot_parent']), output))
     roots = {name: resolve_dataset_directory(config[name]['path']) for name in ('resources', 'modern_runtime')}
     for name, root in roots.items():
         verify_resources(root, config[name]['manifest_sha256'])
