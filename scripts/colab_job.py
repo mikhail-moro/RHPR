@@ -19,14 +19,13 @@ import uuid
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from rhpr.checkpoint_archive import CHECKPOINT_FILES, unpack_checkpoint
+
 GPU_TYPES = ("T4", "L4", "A100", "H100")
 GPU_EXPERIMENTS = {"gr_ml1m_last8", "gr_ml1m_last8_pairs", "gr_ml1m_mixed64_input_ablations"}
 GPU_ALLOCATION_TIMEOUT_SECONDS = 45 * 60
-CHECKPOINT_FILES = {
-    "generator-last.pt": 512 * 1024**2,
-    "generator-best.pt": 256 * 1024**2,
-    "training-curves.json": 4 * 1024**2,
-}
 REMOTE = "/content/rhpr-job"
 SLUG = r"[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+"
 
@@ -175,20 +174,6 @@ def stage_inputs(root, config, log):
         for path in target.rglob("*"):
             if path.is_file() and path.relative_to(target).as_posix() not in files:
                 path.unlink()
-
-
-def unpack_checkpoint(source, destination):
-    with tarfile.open(source, "r:") as archive:
-        members = archive.getmembers()
-        if (len(members) != len(CHECKPOINT_FILES)
-                or {member.name for member in members} != CHECKPOINT_FILES.keys()
-                or any(not member.isfile() or not 0 < member.size <= CHECKPOINT_FILES[member.name]
-                       for member in members)):
-            raise ValueError("expected the last checkpoint, best checkpoint and curves in checkpoint.tar")
-        destination.mkdir()
-        for member in members:
-            with archive.extractfile(member) as stream, (destination / member.name).open("xb") as target:
-                shutil.copyfileobj(stream, target)
 
 
 def run_colab_phase(args, phase, log, *, timeout, stdin=None, stdout=None, check=True):

@@ -10,9 +10,14 @@ def colab_gpu_matches(requested, actual):
 
 def devices_for(config):
     execution = config["execution"]
+    kaggle = execution.get("kaggle_gpu")
     requested = execution.get("colab_gpu")
     devices = execution["worker_devices"]
-    if requested:
+    if kaggle:
+        if (kaggle != "T4" or requested or devices != ["cuda:0"] or torch.cuda.device_count() < 1
+                or not colab_gpu_matches(kaggle, torch.cuda.get_device_name(0))):
+            raise RuntimeError("Kaggle continuation requires one assigned T4")
+    elif requested:
         if (devices != ["cuda:0"] or torch.cuda.device_count() != 1
                 or not colab_gpu_matches(requested, torch.cuda.get_device_name(0))):
             raise RuntimeError(f"Colab requires exactly one {requested}; no fallback")
@@ -23,17 +28,18 @@ def devices_for(config):
 
 
 def check_worker(config, transformers_version):
-    requested = config["execution"].get("colab_gpu")
+    execution = config["execution"]
     if torch.cuda.device_count() != 1 or transformers_version != "5.22.1":
         raise RuntimeError("requires one isolated GPU and Transformers 5.22.1")
-    if requested:
+    if execution.get("colab_gpu") or execution.get("kaggle_gpu"):
         devices_for(config)
     elif torch.cuda.get_device_capability() != (7, 5):
         raise RuntimeError("requires an isolated T4")
 
 
 def assignments_for(config, devices):
-    if config["execution"].get("colab_gpu"):
+    execution = config["execution"]
+    if execution.get("colab_gpu") or execution.get("kaggle_gpu"):
         return [{"slot": 0, "device": devices[0], "trials": config["trials"]}]
     from rhpr.gr.ae_suite import assignments
     return assignments(config, len(devices))

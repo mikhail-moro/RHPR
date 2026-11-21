@@ -15,13 +15,20 @@ def restore_training(model,optimizer,scaler,index,config,train,validation,source
     source=Path(source);output=Path(output)
     state=torch.load(source/'generator-last.pt',map_location='cpu',weights_only=False)
     previous=state['config'];epoch=state['epoch']
-    if config.get('execution', {}).get('resume_checkpoint'):
+    execution = config.get('execution', {})
+    kaggle_checkpoint = config.get('kaggle_checkpoint')
+    if execution.get('resume_checkpoint') or kaggle_checkpoint:
         for key in ('active_trial', 'mixed_views', 'history_reduction', 'pair_batches'):
             if previous.get(key) != config.get(key):
-                raise ValueError(f'Colab checkpoint belongs to a different {key}')
-        if (previous['execution'].get('colab_gpu') != config['execution']['colab_gpu']
+                raise ValueError(f'GPU checkpoint belongs to a different {key}')
+        previous_execution = previous['execution']
+        previous_gpu = previous_execution.get('colab_gpu') or previous_execution.get('kaggle_gpu')
+        requested_gpu = execution.get('colab_gpu') or execution.get('kaggle_gpu')
+        if (previous_gpu != requested_gpu
                 or epoch < 1 or epoch % config['training']['validation_interval'] != 0):
-            raise ValueError('Colab resume requires the same GPU type and a completed validation checkpoint')
+            raise ValueError('GPU resume requires the same GPU type and a completed validation checkpoint')
+        if kaggle_checkpoint and epoch != kaggle_checkpoint['epoch']:
+            raise ValueError('Kaggle checkpoint epoch differs from the registered continuation')
     if previous['training'].get('scheduler') is not None and previous['training']['scheduler']!=config['training'].get('scheduler'):
         raise ValueError('resume changes an existing scheduler policy')
     for key in ['seed','data','generator','sasrec']:

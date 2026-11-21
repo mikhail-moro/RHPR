@@ -84,6 +84,19 @@ def single_colab_depth_trial(config):
     return bool(config['execution'].get('colab_gpu')) and len(config['trials']) == 1
 
 
+def stage_kaggle_checkpoint(spec, scratch):
+    from rhpr.checkpoint_archive import unpack_checkpoint
+    from rhpr.offline_runtime import resolve_dataset_directory
+
+    archive = resolve_dataset_directory(Path('/kaggle/input/datasets') / spec['dataset']) / 'checkpoint.bin'
+    if file_sha256(archive) != spec['sha256']:
+        raise ValueError('Kaggle checkpoint archive SHA-256 differs from the registered checkpoint')
+    destination = scratch / 'resume'
+    unpack_checkpoint(archive, destination)
+    _event('ml1m_pairs_resume_archive_verified', **spec)
+    return destination
+
+
 def snapshot_colab_checkpoint(trial_output, output, epoch):
     pending = output / 'checkpoint.partial'
     with tarfile.open(pending, 'w') as archive:
@@ -104,6 +117,9 @@ def depth_pilot_reference(config):
     reference['seeds'] = REPLICATION_SEEDS
     reference['pair_batches']['physical'] = 64
     reference['resources'].pop('include_prefixes')
+    if reference.pop('kaggle_checkpoint', None):
+        reference['execution'].pop('kaggle_gpu')
+        reference['execution']['worker_devices'] = ['cuda:0', 'cuda:1']
     return reference
 
 
@@ -137,6 +153,23 @@ def validate(c):
         initial = c['depth_pilot']['initializers']
         registered = depth_pilot_trials(depth)
         trial_sets = [[trial] for trial in registered] if single_colab_depth_trial(c) else [registered]
+        if 'kaggle_checkpoint' in c:
+            checkpoint = c['kaggle_checkpoint']
+            execution = c['execution']
+            if (depth != 8 or c['trials'] != [registered[1]]
+                    or set(checkpoint) != {'dataset', 'sha256', 'epoch'}
+                    or checkpoint['epoch'] != 35
+                    or not re.fullmatch(r'[\w-]+/[\w-]+', checkpoint['dataset'], flags=re.ASCII)
+                    or not re.fullmatch('[0-9a-f]{64}', checkpoint['sha256'])
+                    or checkpoint['dataset'] not in c['kaggle']['dataset_sources']
+                    or c['kaggle']['machine_shape'] != 'NvidiaTeslaT4'
+                    or execution.get('kaggle_gpu') != 'T4'
+                    or execution['worker_devices'] != ['cuda:0']
+                    or execution.get('colab_gpu') or execution.get('resume_checkpoint')):
+                raise ValueError('invalid Kaggle Thinned64 continuation protocol')
+            trial_sets = [[registered[1]]]
+        elif c['execution'].get('kaggle_gpu'):
+            raise ValueError('the single Kaggle depth worker requires a pinned checkpoint')
         if (depth not in (4, 8) or set(c['depth_pilot']) != {'initializers'}
                 or c.get('history_reduction') != 'keep_second'
                 or c['resources'].get('include_prefixes') != DEPTH_PILOT_RESOURCES
@@ -448,12 +481,15 @@ def run_trial(trial,p):
         return encoded[split]
     checkpoint = (partial(snapshot_colab_checkpoint, out, Path(p['output']))
                   if depth_pilot and single_colab_depth_trial(c) else None)
-    resume = c['execution'].get('resume_checkpoint')
-    if resume and checkpoint is None:
+    colab_resume = c['execution'].get('resume_checkpoint')
+    if colab_resume and checkpoint is None:
         raise ValueError('checkpoint continuation requires one Colab depth trial')
+    resume = colab_resume['path'] if colab_resume else p.get('kaggle_resume_path')
+    if c.get('kaggle_checkpoint') and not resume:
+        raise ValueError('Kaggle continuation requires a verified checkpoint archive')
     selection=_train_generator(model,p['data'],wrapped,c,out,'cuda:0',example_builder=builder,
                                training_context_selector=views,after_validation_checkpoint=checkpoint,
-                               resume_from=resume['path'] if resume else None)
+                               resume_from=resume)
     epochs = c['training']['max_epochs']
     if (selection['training_epochs'] != epochs or selection['validation_checks'] != epochs//5
             or selection['optimizer_updates']+selection['amp_skipped_updates'] != 95*epochs):
@@ -660,6 +696,9 @@ def run(c,output):
         prefixes = c[name].get('include_prefixes', ()) if c.get('depth_pilot') and name == 'resources' else ()
         verify_resources(roots[name], c[name]['manifest_sha256'], include_prefixes=prefixes)
     scratch=Path(c['resources']['scratch_path']);scratch.mkdir(parents=True,exist_ok=True)
+    kaggle_resume_path = None
+    if 'kaggle_checkpoint' in c:
+        kaggle_resume_path = str(stage_kaggle_checkpoint(c['kaggle_checkpoint'], scratch))
     source=prepare_grid_source(unpack_grid(roots['resources']/'grid-source.bin',scratch/'original'),scratch/'grid')
     extra = {}
     if 'frozen_parent' in c:
@@ -682,6 +721,8 @@ def run(c,output):
             '--only-binary=:all:','--target',str(overlay),'--find-links',str(roots['modern_runtime']),'-r',str(roots['modern_runtime']/'requirements-lock.txt')],
             stdout=log,stderr=subprocess.STDOUT,check=True,timeout=180)
     sys.path.insert(0,str(overlay));p=dict(config=c,output=str(output),source=str(source),data=str(data),indexes=str(indexes),assignments=assignments_for(c, devices),**extra)
+    if kaggle_resume_path:
+        p['kaggle_resume_path'] = kaggle_resume_path
     path=output/'plan.json';_write(path,p);summary=launch_workers(path,worker_module='rhpr.gr.ml1m_last8_pairs',event_prefix='ml1m_pairs')
     rows=list(summary['results'].values())
     shared = ('sid_file_sha256','pair_sid_file_sha256','raw_case_sha256','case_targets_sha256','test_case_sha256')
