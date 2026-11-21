@@ -149,6 +149,7 @@ def run_trial(trial, plan):
     config = plan['config']
     seed = trial.get('seed', config['seed'])
     sasrec = trial.get('predictor') == 'sasrec'
+    full_decoder = trial.get('predictor') == 'full_decoder'
     trial_config = {**config, 'active_trial': trial, 'seed': seed,
                     'training': {**config['training'], 'physical_batch_size': trial['physical_batch_size']}}
     window = trial['decoder_window']
@@ -174,18 +175,25 @@ def run_trial(trial, plan):
         index = Last8ItemIDIndex(len(sids))
         model = build_movie_sasrec(config, seed, 'cpu', grouped=True)
         loss_fn = grouped_sasrec_loss
+    elif full_decoder:
+        from rhpr.gr.ml1m_full_decoder import build_full_decoder, full_decoder_loss
+
+        index = SidIndex.from_full_sids(sids, width=256)
+        model = build_full_decoder(sids, config['generator'], seed, plan['source'])
+        loss_fn = full_decoder_loss
     else:
         index = WindowInput(sids, window)
         model = build_grid_generator(sids, config['generator'], seed, 'cpu', plan['source'])
         loss_fn = _loss if window is None else window_loss
     initial = state_digest(dict(model.named_parameters()))
-    if not sasrec:
+    if not (sasrec or full_decoder):
         pinned = config.get('window_initializers', {}).get(str(seed), config['expected_initial_state_sha256'])
         if initial != pinned:
             raise ValueError('GRID initialization differs from the frozen initializer')
     if window:
         attach_window_generation(model, window)
-    cpu_batch = index.model_batch(*(part[:1] for part in train), 'cpu')
+    cpu_batch = (_model_batch(*(part[:1] for part in train), sids, 'cpu') if full_decoder else
+                 index.model_batch(*(part[:1] for part in train), 'cpu'))
     # Training mode disables the fused SASRec inference path in the CPU FLOP trace.
     model.train(sasrec)
     with torch.inference_mode(), torch.nn.attention.sdpa_kernel(torch.nn.attention.SDPBackend.MATH):
@@ -201,6 +209,17 @@ def run_trial(trial, plan):
                    supported_flops_per_user=flops_per_user,
                    supported_flops_per_target=flops_per_user / TARGETS_PER_USER,
                    scope='padded teacher-forced CPU math SDPA with loss, FMA2, no backward or beam')
+    if full_decoder:
+        from rhpr.gr.movie_sasrec import parameter_counts
+
+        loss_fn(model, cpu_batch).backward()
+        counts = parameter_counts(model)
+        if counts['inactive_nonembedding_names'] or counts['active_nonembedding_parameters'] != 1967360:
+            raise ValueError('Unexpected active parameter count for the four-layer full-history decoder')
+        model.zero_grad(set_to_none=True)
+        forward.update(encoder_calls_per_user=0, encoder_positions=0,
+                       decoder_positions=cpu_batch['input_ids'].shape[1] + SID_LEVELS * TARGETS_PER_USER + 1,
+                       parameters=counts)
     _write(output / 'forward-flops.json', forward)
     model.to('cuda:0')
     torch.cuda.reset_peak_memory_stats()
@@ -210,7 +229,7 @@ def run_trial(trial, plan):
         return examples[split]
 
     selection = _train_generator(model, parent, index, trial_config, output, 'cuda:0',
-                                 example_builder=build_examples, loss_fn=loss_fn if sasrec or window else None)
+                                 example_builder=build_examples, loss_fn=loss_fn if sasrec or window or full_decoder else None)
     if selection['training_epochs'] != config['training']['max_epochs']:
         raise RuntimeError('Pilot hit its time limit; selected and recent checkpoints were saved')
     if selection['optimizer_updates'] + selection['amp_skipped_updates'] != 95 * selection['training_epochs']:
@@ -346,23 +365,38 @@ def summarize_replication(results, output):
         aggregate[name] = {**summary, 'test_ndcg10_by_seed': dict(zip(seeds, test)),
                            'test_ndcg10_delta_vs_sasrec_by_seed': dict(zip(seeds, delta))}
         metrics.update({f'{name}_{key}': value for key, value in summary.items()})
-    common_time = {}
-    for seed in seeds:
-        curves = {}
-        for name in aggregate:
-            rows = json.loads((output / 'trials' / f'{name}_{seed}' / 'training-curves.json').read_text())
-            curves[name] = [row for row in rows if 'validation' in row]
-        time_limit = min(rows[-1]['elapsed_seconds'] for rows in curves.values())
-        best = {}
-        for name, rows in curves.items():
-            eligible = [row for row in rows if row['elapsed_seconds'] <= time_limit]
-            if eligible:
-                row = max(eligible, key=lambda row: row['validation']['ndcg@10'])
-                best[name] = dict(epoch=row['epoch'], ndcg10=row['validation']['ndcg@10'],
-                                  elapsed_seconds=row['elapsed_seconds'])
-        common_time[seed] = dict(time_limit_seconds=time_limit, best_validation=best)
+    common_time = {seed: same_time_validation({name: f'{name}_{seed}' for name in aggregate}, output)
+                   for seed in seeds}
     _write(output / 'study-summary.json', dict(results=results, aggregate=aggregate,
                                               same_time_validation=common_time))
+    return metrics
+
+
+def same_time_validation(trials, output):
+    curves = {}
+    for name, trial in trials.items():
+        rows = json.loads((output / 'trials' / trial / 'training-curves.json').read_text())
+        curves[name] = [row for row in rows if 'validation' in row]
+    time_limit = min(rows[-1]['elapsed_seconds'] for rows in curves.values())
+    best = {}
+    for name, rows in curves.items():
+        eligible = [row for row in rows if row['elapsed_seconds'] <= time_limit]
+        if eligible:
+            row = max(eligible, key=lambda row: row['validation']['ndcg@10'])
+            best[name] = dict(epoch=row['epoch'], ndcg10=row['validation']['ndcg@10'],
+                              elapsed_seconds=row['elapsed_seconds'])
+    return dict(time_limit_seconds=time_limit, best_validation=best)
+
+
+def summarize_full_decoder(results, output):
+    time_matched = same_time_validation({name: name for name in results}, output)
+    _write(output / 'study-summary.json', dict(results=results, same_time_validation=time_matched))
+    metrics = {}
+    for name, row in results.items():
+        metrics.update({f'{name}_val_ndcg10': row['selection']['validation_ndcg10'],
+                        f'{name}_test_ndcg10': row['test']['metrics']['ndcg@10'],
+                        f'{name}_warm_epoch_seconds': row['timing']['warm_epoch_median_seconds'],
+                        f'{name}_forward_flops_per_target': row['forward']['supported_flops_per_target']})
     return metrics
 
 
@@ -378,7 +412,12 @@ def run(config, output):
             config['training']['batch_size']) != (HISTORY_ITEMS, TARGETS_PER_USER, TARGETS_PER_USER, 64):
         raise ValueError('The pilot requires 128 history items and 512 targets per optimizer update')
     replication = 'pilot_parent' in config
-    if replication:
+    full_decoder = any(trial.get('predictor') == 'full_decoder' for trial in config['trials'])
+    if full_decoder:
+        if not replication or config['trials'] != [dict(id='full_decoder_101', predictor='full_decoder',
+                                                       seed=101, decoder_window=None, physical_batch_size=16)]:
+            raise ValueError('Expected one four-layer full-history decoder and frozen seed 101 controls')
+    elif replication:
         validate_replication(config)
     elif {trial['id']: trial['decoder_window'] for trial in config['trials']} != {
             'prefix_control': None, 'window16': 16, 'window32': 32}:
@@ -404,6 +443,8 @@ def run(config, output):
     _write(plan, dict(config=config, parent=str(parent), source=str(source), output=str(output),
                       assignments=assignments_for(config, devices)))
     summary = launch_workers(plan, worker_module='rhpr.gr.ml1m_window_tiger', event_prefix='window_tiger')
+    if full_decoder:
+        return summarize_full_decoder({**summary['results'], **reused}, output)
     if replication:
         return summarize_replication({**summary['results'], **reused}, output)
     return summarize(summary['results'], output)
