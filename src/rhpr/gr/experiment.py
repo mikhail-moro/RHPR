@@ -257,7 +257,10 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                 with _autocast(precision, device):
                     loss = loss_for_batch(batch)
                 if not torch.isfinite(loss):
-                    raise FloatingPointError("nonfinite GR training loss")
+                    raise FloatingPointError(
+                        f"nonfinite GR training loss in {precision} at epoch {epoch}, "
+                        f"batch {begin // batch_size + 1}, microbatch {position // physical + 1}"
+                    )
                 total_loss += loss.detach().float().item() * len(part)
                 scaler.scale(loss * (len(part) / len(chosen))).backward()
             scaler.unscale_(optimizer)

@@ -317,6 +317,15 @@ def validate_replication(config):
         raise ValueError('Expected fresh SASRec on three seeds and Window TIGER replication on two')
 
 
+def validate_sasrec_recovery(config):
+    expected = [dict(id=f'sasrec_{seed}', predictor='sasrec', seed=seed,
+                     decoder_window=None, physical_batch_size=64) for seed in (101, 42, 202)]
+    training = {**config['training'], **config['sasrec_training_overrides']}
+    if (config['trials'] != expected or 'pilot_parent' in config or training.get('precision') != 'fp32'
+            or training.get('compile_training') or not config.get('compare_initialization_by_seed')):
+        raise ValueError('Expected only the three missing SASRec fits in eager FP32')
+
+
 def import_pilot(config, parent, output):
     manifest = json.loads((parent / 'run-manifest.json').read_text())
     pilot = manifest['config']
@@ -391,6 +400,10 @@ def same_time_validation(trials, output):
 def summarize_full_decoder(results, output):
     time_matched = same_time_validation({name: name for name in results}, output)
     _write(output / 'study-summary.json', dict(results=results, same_time_validation=time_matched))
+    return trial_metrics(results)
+
+
+def trial_metrics(results):
     metrics = {}
     for name, row in results.items():
         metrics.update({f'{name}_val_ndcg10': row['selection']['validation_ndcg10'],
@@ -412,8 +425,11 @@ def run(config, output):
             config['training']['batch_size']) != (HISTORY_ITEMS, TARGETS_PER_USER, TARGETS_PER_USER, 64):
         raise ValueError('The pilot requires 128 history items and 512 targets per optimizer update')
     replication = 'pilot_parent' in config
+    sasrec_recovery = config.get('sasrec_control_only', False)
     full_decoder = any(trial.get('predictor') == 'full_decoder' for trial in config['trials'])
-    if full_decoder:
+    if sasrec_recovery:
+        validate_sasrec_recovery(config)
+    elif full_decoder:
         if not replication or config['trials'] != [dict(id='full_decoder_101', predictor='full_decoder',
                                                        seed=101, decoder_window=None, physical_batch_size=16)]:
             raise ValueError('Expected one four-layer full-history decoder and frozen seed 101 controls')
@@ -443,6 +459,8 @@ def run(config, output):
     _write(plan, dict(config=config, parent=str(parent), source=str(source), output=str(output),
                       assignments=assignments_for(config, devices)))
     summary = launch_workers(plan, worker_module='rhpr.gr.ml1m_window_tiger', event_prefix='window_tiger')
+    if sasrec_recovery:
+        return trial_metrics(summary['results'])
     if full_decoder:
         return summarize_full_decoder({**summary['results'], **reused}, output)
     if replication:
