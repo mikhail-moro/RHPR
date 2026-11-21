@@ -58,10 +58,20 @@ MIXED_POLICY = {**POLICY, 'training': 'full_or_fixed_pairs_per_optimizer_batch',
 EXTENDED_MIXED_POLICY = {**MIXED_POLICY, 'fixed_epochs': 60}
 THINNED_POLICY = {**EXTENDED_MIXED_POLICY, 'training': 'full_or_keep_second_per_optimizer_batch',
                   'merge_prefix_items': [64], 'protected_tail_items': [64]}
-THINNED_VIEWS = {**MIXED_VIEWS, 'inference': 'keep_second'}
+BUDGET_CONTROL_POLICIES = {
+    'recent96': dict(history_items=128, recent_full_items=96, older_sid_codes=0,
+                     random_training=True, fixed_epochs=60, all_targets_single=True),
+    'prefix2': dict(history_items=128, recent_full_items=64, older_sid_codes=2,
+                    random_training=True, fixed_epochs=60, all_targets_single=True),
+}
 DEPTH_PILOT_SEED = 101
 DEPTH_PILOT_RESOURCES = ["grid-source.bin", "wheels/"]
 DEPTH_SINGLE_TRIAL_TRAIN_SECONDS = 16800
+
+
+def budget_control_trials(reduction):
+    return [dict(id=f'{reduction}_{seed}', merge_items=0, seed=seed)
+            for seed in REPLICATION_SEEDS]
 
 
 def depth_pilot_trials(depth):
@@ -143,20 +153,24 @@ def validate(c):
     mixed = c.get('mixed_views')
     parent = c.get('frozen_parent')
     extended = c.get('extended_budget')
-    thinned = c.get('history_reduction') == 'keep_second'
+    reduction = c.get('history_reduction')
+    thinned = reduction == 'keep_second'
+    budget_control = reduction in BUDGET_CONTROL_POLICIES
     mean_pairs = c.get('pair_vector_method') == 'mean'
-    expected_views = THINNED_VIEWS if thinned else MIXED_VIEWS
+    expected_views = {**MIXED_VIEWS, 'inference': reduction} if reduction else MIXED_VIEWS
     epochs = 60 if extended else 40
     trials = (EXTENDED_TRIALS if extended else REPLICATION_TRIALS) if parent else MIXED_TRIALS if mixed else TRIALS
     policy = EXTENDED_MIXED_POLICY if extended else MIXED_POLICY if mixed else POLICY
     if thinned:
         trials, policy = THINNED_TRIALS, THINNED_POLICY
+    if budget_control:
+        trials, policy = budget_control_trials(reduction), BUDGET_CONTROL_POLICIES[reduction]
     if mean_pairs:
         trials = MEAN_TRIALS
     deadline = 10800 if extended else 7200 if parent else 14400
     if (('mixed_views' in c and mixed != expected_views)
-            or ('pair_vector_method' in c and (not mean_pairs or not extended or thinned))
-            or ('history_reduction' in c and (not thinned or not extended or not mixed))
+            or ('pair_vector_method' in c and (not mean_pairs or not extended or reduction))
+            or ('history_reduction' in c and (not (thinned or budget_control) or not extended or not mixed))
             or ('extended_budget' in c and (extended is not True or not parent or not mixed))
             or c['kind'] != 'gr_ml1m_last8_pairs' or c['windows'] != [128] or c['trials'] != trials
             or c['policy'] != policy
@@ -183,11 +197,12 @@ def validate(c):
                        for v in initializations.values())
                 or len({v['pair'] for v in initializations.values()} | {c['expected_pair_initial_state_sha256']}) != 3):
             raise ValueError('expected two new Mixed128 seeds on the completed frozen index')
-    if thinned:
-        hashes = c.get('expected_thinned_case_sha256', {})
+    if thinned or budget_control:
+        hash_key = 'expected_thinned_case_sha256' if thinned else 'expected_compact_case_sha256'
+        hashes = c.get(hash_key, {})
         if (set(hashes) != {'train', 'validation', 'test'}
                 or any(not re.fullmatch('[0-9a-f]{64}', v) for v in hashes.values())):
-            raise ValueError('expected pinned cases for thinning each split')
+            raise ValueError('expected pinned compact cases for each split')
     if (len(reference['validation_curve']) != 8
             or [r['epoch'] for r in reference['validation_curve']] != list(range(5,41,5))
             or max(reference['validation_curve'],key=lambda r:r['ndcg10'])['epoch'] != reference['best_epoch']
@@ -258,14 +273,27 @@ def encode_full(contexts, sids):
     return np.where(history[:, :, None] >= 0, tokens, -1).reshape(len(history), 512)
 
 
+def encode_budget_control(contexts, sids, reduction):
+    """Put either 96 complete SIDs or 64 old prefixes and 64 recent SIDs in 384 slots."""
+    full = encode_full(contexts, sids)
+    if reduction == 'recent96':
+        return full[:, -384:].astype(np.int32)
+    if reduction == 'prefix2':
+        old = full[:, :256].reshape(len(full), 64, 4)[:, :, :2].reshape(len(full), 128)
+        return np.concatenate((old, full[:, 256:]), axis=1, dtype=np.int32)
+    raise ValueError(f'unknown compact history: {reduction}')
+
+
 def full_context_selector(contexts, sids, pair_contexts, config, merge_items):
     """Switch between the same histories at their respective native widths."""
     from rhpr.gr.kindle_mixed_views import MixedViews
 
-    compressed_name = 'thin128' if config.get('history_reduction') == 'keep_second' else 'pair128'
+    reduction = config.get('history_reduction')
+    compressed_name = {'keep_second': 'thin128'}.get(reduction, reduction or 'pair128')
+    compact_width = 384 if reduction in BUDGET_CONTROL_POLICIES else 4 * (128 - merge_items // 2)
     return MixedViews(encode_full(contexts, sids), pair_contexts, batch_size=config['training']['batch_size'],
                       seed=config['seed'], full_probability=config['mixed_views']['full_probability'],
-                      layout=(('full128', 512), (compressed_name, 4 * (128 - merge_items // 2))))
+                      layout=(('full128', 512), (compressed_name, compact_width)))
 
 
 def profiling_batch(index, contexts, users, targets, ignored_sids, device):
@@ -284,13 +312,13 @@ def frozen_inputs(c, input_root=None, *, ordinary_controls=False):
                    'reference_control','expected_raw_case_sha256')
     if not ordinary_controls:
         shared_keys += ('mixed_views','pair_batches')
-    thinned = c.get('history_reduction') == 'keep_second'
-    comparison = {**c, 'mixed_views': MIXED_VIEWS} if thinned else c
+    reduced = bool(c.get('history_reduction'))
+    comparison = {**c, 'mixed_views': MIXED_VIEWS} if reduced else c
     if original['trials'] != MIXED_TRIALS or any(original[k] != comparison[k] for k in shared_keys):
         raise ValueError('frozen parent uses a different data, model or training protocol')
     limits = dict(min_epochs=40,max_epochs=40,max_seconds=7200)
     training = {**c['training'], **limits} if c.get('extended_budget') else c['training']
-    policy = MIXED_POLICY if thinned else {**c['policy'], 'fixed_epochs': 40}
+    policy = MIXED_POLICY if reduced else {**c['policy'], 'fixed_epochs': 40}
     if original['training'] != training or (not ordinary_controls and original['policy'] != policy):
         raise ValueError('frozen parent differs outside the allowed training budget')
     data, indexes = parent/'prepared-cases', parent/'frozen-indexes'
@@ -338,15 +366,23 @@ def run_trial(trial,p):
     if initial != expected_init['pair']: raise ValueError('pair initialization differs from CPU preflight')
     m = trial['merge_items']
     full_only = trial.get('history_view') == 'recent128'
-    thinned = c.get('history_reduction') == 'keep_second' and not full_only
+    reduction = None if full_only else c.get('history_reduction')
+    thinned = reduction == 'keep_second'
+    budget_control = reduction in BUDGET_CONTROL_POLICIES
     mean_pairs = c.get('pair_vector_method') == 'mean'
 
     def build_cases(split):
         h, u, t = cases(p['data'], split)
-        x = encode_full(h, sids) if full_only else encode(h, sids, keys, pairs, m, keep_second=thinned)
-        if thinned:
-            if np.any(x >= 1024) or case_digest((x, u, t)) != c['expected_thinned_case_sha256'][split]:
-                raise ValueError(f'thinning produced unexpected inputs in {split}')
+        if full_only:
+            x = encode_full(h, sids)
+        elif budget_control:
+            x = encode_budget_control(h, sids, reduction)
+        else:
+            x = encode(h, sids, keys, pairs, m, keep_second=thinned)
+        if reduction:
+            hash_key = 'expected_thinned_case_sha256' if thinned else 'expected_compact_case_sha256'
+            if np.any(x >= 1024) or case_digest((x, u, t)) != c[hash_key][split]:
+                raise ValueError(f'{reduction} produced unexpected inputs in {split}')
         return (h, u, t), (x, u, t)
     splits = ('train', 'validation')
     built = {s:build_cases(s) for s in splits}
@@ -363,9 +399,10 @@ def run_trial(trial,p):
             policy=c['mixed_views'], native_sid_widths=views.widths,
             full_case_sha256=case_digest((views.full, *encoded['train'][1:])))
         compressed_digest = case_digest(encoded['train'])
-        if thinned:
+        if reduction:
             reference = p['reference_views']
-            provenance['thinned_case_sha256'] = compressed_digest
+            digest_key = 'thinned_case_sha256' if thinned else 'compact_case_sha256'
+            provenance[digest_key] = compressed_digest
             if (provenance['full_case_sha256'] != reference['full_case_sha256']
                     or list(views.widths.values()) != list(reference['native_sid_widths'].values())):
                 raise ValueError('full training inputs or widths differ from Mixed64')
@@ -449,6 +486,11 @@ def run_trial(trial,p):
     if thinned:
         row.update(history_reduction='keep_second', training_pair_view='batch_mixture_with_thinning',
                    test_pair_view='keep_second_of_oldest_valid_pairs', used_pair_embeddings=False)
+    if budget_control:
+        row.update(history_reduction=reduction, training_pair_view=f'batch_mixture_with_{reduction}',
+                   test_pair_view=reduction, used_pair_embeddings=False,
+                   protected_tail=c['policy']['recent_full_items'],
+                   older_sid_codes=c['policy']['older_sid_codes'])
     if full_only:
         row.update(training_pair_view='full128', test_pair_view='full128', used_pair_embeddings=False)
     if depth_pilot:

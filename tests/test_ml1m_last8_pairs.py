@@ -8,7 +8,7 @@ import numpy as np
 
 from rhpr.gr.ml1m_last8_pairs import (
     EXTENDED_TRIALS, MERGE_PREFIXES, MIXED_TRIALS, PARENT_KERNEL, REPLICATION_TRIALS, TRIALS, encode,
-    full_context_selector, pair_keys, profiling_batch, validate,
+    encode_budget_control, full_context_selector, pair_keys, profiling_batch, validate,
 )
 
 
@@ -89,6 +89,23 @@ class Last8PairsTests(unittest.TestCase):
         for m in MERGE_PREFIXES:
             short=np.full((1,128),-1,dtype=np.int32);short[0,-(128-m):]=np.arange(128-m)
             self.assertEqual(len(pair_keys(short,self.nitems,m)),0)
+
+    def test_budget_controls_preserve_chronology_and_the_declared_sid_levels(self):
+        offsets = np.arange(4) * 256
+        for reduction, recent_count, old_codes in (('recent96', 96, 0), ('prefix2', 64, 2)):
+            config_path = Path(f'experiments/ml1m_last8_budget_{reduction}_2t4.json')
+            config = json.loads(config_path.read_text())
+            validate(config)
+            encoded = encode_budget_control(self.h, self.sids, reduction)
+            self.assertEqual(encoded.shape, (129, 384))
+            for length, row in enumerate(encoded):
+                tokens = self.sids[:length] + offsets
+                expected = np.concatenate((tokens[:-recent_count, :old_codes].ravel(),
+                                           tokens[-recent_count:].ravel()))
+                np.testing.assert_array_equal(
+                    row, np.pad(expected, (384 - len(expected), 0), constant_values=-1))
+            views = full_context_selector(self.h, self.sids, encoded, config, 0)
+            self.assertEqual(views.widths, {'full128': 512, reduction: 384})
 
     def test_missing_pairs_and_invalid_padding_fail_without_dropping_events(self):
         with self.assertRaisesRegex(ValueError,'missing pair'):encode(self.h,self.sids,self.keys[1:],self.pairs[1:],120)
