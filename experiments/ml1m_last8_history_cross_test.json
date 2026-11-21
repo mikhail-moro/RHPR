@@ -1,0 +1,173 @@
+{
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-ml1m-history-cross-test"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "modern_runtime": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-t5-sdpa-runtime",
+    "manifest_sha256": "18f4688aab798d792d9204d1c018d8aba7da80bc97f5aadcdd181b34f6f0b9f6"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false,
+    "attn_implementation": "sdpa"
+  },
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-t5-sdpa-runtime"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-ml1m-mixed128-screen",
+      "carasik/rhpr-ml1m-mixed64-thinned",
+      "carasik/rhpr-ml1m-mixed64-controls"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "kind": "gr_ml1m_mixed64_input_ablations",
+  "seeds": [
+    101,
+    202
+  ],
+  "evaluation_batch_size": 16,
+  "frozen_parent": {
+    "kernel": "carasik/rhpr-ml1m-mixed128-screen",
+    "git_sha": "1074a7599c52875d66eb83716491f377c2310f33",
+    "files": {
+      "run-manifest.json": {
+        "size_bytes": 9369,
+        "sha256": "1ff2f0f9005dda4fd77469d9144aec63729da6420888f2f33dcd5a69ac25e82b"
+      },
+      "frozen-indexes/items-42.npy": {
+        "size_bytes": 118720,
+        "sha256": "80422aa36fbcabbd0c1133a0695547513c1a795f908c72b4ed412e9cc2c2b672"
+      },
+      "prepared-cases/test-cases.npz": {
+        "size_bytes": 1527442,
+        "sha256": "27e0444f2a491d604e811b0885b80a5e357baf34e9824c111ba64b453b5b2013"
+      },
+      "prepared-cases/test-anchors.npz": {
+        "size_bytes": 63764,
+        "sha256": "c7593f8d053aa829ed8ff8294e2749d62a2e6b20b8f97fb9c4aba2a649f855d8"
+      }
+    }
+  },
+  "checkpoints_parent": {
+    "kernel": "carasik/rhpr-ml1m-mixed64-thinned",
+    "git_sha": "f313afc09d3319a2de70c14b36bc0a7b7cc1270b",
+    "files": {
+      "run-manifest.json": {
+        "size_bytes": 11986,
+        "sha256": "7eba10f8f4e476b86816bfe26a9f55807de24e70d6598348eef3e50a1fa9e579"
+      },
+      "trials/thin128_merge64_101/generator-best.pt": {
+        "size_bytes": 20504333,
+        "sha256": "5c94674eb655561299bdadf157c8555bd654b30e2ef0304af64be3baf6803472"
+      },
+      "trials/thin128_merge64_101/test-best-predictions.npz": {
+        "size_bytes": 829680,
+        "sha256": "95fdf8354966bfe324cbc0d2d493d005f37c3e16bef19a5d96cc3b77ba57e87d"
+      },
+      "trials/thin128_merge64_101/test-metrics.json": {
+        "size_bytes": 609,
+        "sha256": "d954c84a9ecc08f38f2835cef04e9ebe7db7d674e73454490ae6c64980a73fa3"
+      },
+      "trials/thin128_merge64_101/training-selection.json": {
+        "size_bytes": 1163,
+        "sha256": "28870c6e2f6322d55b24eb170637611ed01f9b89e1ca38bb97b7026c24266be4"
+      },
+      "trials/thin128_merge64_202/generator-best.pt": {
+        "size_bytes": 20504333,
+        "sha256": "462de19d04357b875b4cfb26121c53c7edd8ffd4f3dc74568664c3ffe0eaec59"
+      },
+      "trials/thin128_merge64_202/test-best-predictions.npz": {
+        "size_bytes": 831490,
+        "sha256": "ab00ec4dc71f7ab50aba8031cd922777f3e1bedd63d8710b3b72559076c6314c"
+      },
+      "trials/thin128_merge64_202/test-metrics.json": {
+        "size_bytes": 616,
+        "sha256": "c9e7c3d3ca196d607706f262fb8d1d15d3a6b2dfc4bc6760331238fcfda0bcef"
+      },
+      "trials/thin128_merge64_202/training-selection.json": {
+        "size_bytes": 1164,
+        "sha256": "6070bbbcf43e27ed652a40cc4bb8a288c2128e241a22e5e8964539decf5bc9dc"
+      }
+    }
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "history_reduction": "keep_second",
+  "test_case_sha256": "bc47ff569738ddbad1ff64559f92ff96e058ed0fed990852a846765496237d31",
+  "thinned_test_case_sha256": "b681909f186b61373169362a5c3050ef5ad7f6394743b257067127acc6c3380a",
+  "full_checkpoints_parent": {
+    "kernel": "carasik/rhpr-ml1m-mixed64-controls",
+    "git_sha": "911b1366479644950b4113be32495c5446a12259",
+    "files": {
+      "run-manifest.json": {
+        "size_bytes": 15389,
+        "sha256": "d6484387cdc7a9e129a189efcc2eb098c6bef1416381eb287fdfc9bd79bef0a4"
+      },
+      "trials/recent128_101/generator-best.pt": {
+        "size_bytes": 19978057,
+        "sha256": "57169d86bb4134e6abb8364f2190d286e1e16269eac8dc1257455034621fa085"
+      },
+      "trials/recent128_101/test-best-predictions.npz": {
+        "size_bytes": 819773,
+        "sha256": "23ddaba0d743c453b19663861530f59b27a3711400840ae0200427e630a32eac"
+      },
+      "trials/recent128_101/test-metrics.json": {
+        "size_bytes": 609,
+        "sha256": "967301894eb72a4795428de7b0c26c34e0d05014fc4012519e1005a3b693bb87"
+      },
+      "trials/recent128_101/training-selection.json": {
+        "size_bytes": 1327,
+        "sha256": "03bf49010e227d154a9f09db45c1914eadf7be5b1448476a5be4e6bfb32e95af"
+      },
+      "trials/recent128_202/generator-best.pt": {
+        "size_bytes": 19982025,
+        "sha256": "b7179fde30d6f148862b62b8f40719235ab0344b6fde9af6d01f545c6cee84d5"
+      },
+      "trials/recent128_202/test-best-predictions.npz": {
+        "size_bytes": 844659,
+        "sha256": "53c550ef8d1e17a3798c7d9b5372ebbab1528d98bf23fb0fd73d4f66b2ccf061"
+      },
+      "trials/recent128_202/test-metrics.json": {
+        "size_bytes": 616,
+        "sha256": "395fe04ba26d0110180cd40e3812ad7540ae92a2ed1eca3e4043dfaf8f30edf0"
+      },
+      "trials/recent128_202/training-selection.json": {
+        "size_bytes": 1326,
+        "sha256": "7c66d007e9c98d91e8227687efd9dfc1228912bdf85fca6c01fc64a1e40dcca4"
+      }
+    }
+  }
+}

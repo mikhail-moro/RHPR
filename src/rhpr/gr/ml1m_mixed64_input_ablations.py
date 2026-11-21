@@ -1,4 +1,4 @@
-"""Inference-only comparison of full and reassigned pair histories on ML1M VAL."""
+"""Inference-only history view comparisons on frozen ML1M checkpoints."""
 from __future__ import annotations
 
 import json
@@ -13,7 +13,7 @@ import numpy as np
 from rhpr.gr.data import file_sha256
 from rhpr.gr.experiment import _evaluate
 from rhpr.gr.grid import build_grid_generator
-from rhpr.gr.ml1m_last8_pairs import encode
+from rhpr.gr.ml1m_last8_pairs import encode, encode_full
 from rhpr.gr.movie_data import case_digest
 from rhpr.gr.pair_unique4 import InputIndex4, attach4
 from rhpr.gr.sid import SidIndex
@@ -26,6 +26,97 @@ def read(path):
 def load_arrays(path, *names):
     with np.load(path) as saved:
         return tuple(saved[name] for name in names)
+
+
+class _NativeSingletonInput(InputIndex4):
+    def model_batch(self, contexts, users, targets, device):
+        # The plain GRID encoder applies the hierarchy offsets internally.
+        offsets = np.tile(np.arange(self.sid_length) * self.width, contexts.shape[1] // self.sid_length)
+        raw = np.where(contexts >= 0, contexts - offsets, -1)
+        batch = super().model_batch(raw, users, targets, device)
+        batch['input_ids'].masked_fill_(batch['attention_mask_encoder'] == 0, -1)
+        return batch
+
+
+def prepare_cross_test(config, frozen):
+    data = frozen / 'prepared-cases'
+    cases = load_arrays(data / 'test-cases.npz', 'contexts', 'user_ids', 'targets')
+    contexts, users, targets = cases
+    anchor_users, past = load_arrays(data / 'test-anchors.npz', 'user_ids', 'target_positions')
+    np.testing.assert_array_equal(anchor_users, users)
+    if len(np.unique(users)) != 6040 or case_digest(cases) != config['test_case_sha256']:
+        raise ValueError('cross-evaluation requires the frozen test cases')
+    sids = np.load(frozen / 'frozen-indexes/items-42.npy', allow_pickle=False)
+    full = encode_full(contexts, sids)
+    thin = encode(contexts, sids, np.empty(0, dtype=np.int64), np.empty((0, 4), dtype=np.int32),
+                  64, keep_second=True)
+    if case_digest((thin, users, targets)) != config['thinned_test_case_sha256']:
+        raise ValueError('thinned test inputs differ from the trained model protocol')
+    np.testing.assert_array_equal(full[:, -256:], thin[:, -256:])
+    np.testing.assert_array_equal((full >= 0).sum(1), 4 * np.minimum(past, 128))
+    return InputIndex4(SidIndex.from_full_sids(sids, width=256)), {'full': full, 'thin': thin}, users, targets, past
+
+
+def cross_evaluate_checkpoint(seed, config, prepared, checkpoint_root, source, output, *, mixed, device):
+    import torch
+    from rhpr.gr.sid import evaluate_ranked_sids
+
+    index, views, users, targets, past = prepared
+    original_view, alternate = ('thin', 'full') if mixed else ('full', 'thin')
+    regime, trial_name = ('mixed', f'thin128_merge64_{seed}') if mixed else ('recent', f'recent128_{seed}')
+    trial = checkpoint_root / 'trials' / trial_name
+    original = read(trial / 'test-metrics.json')
+    epoch = read(trial / 'training-selection.json')['best_epoch']
+    weights = trial / 'generator-best.pt'
+    sha = file_sha256(weights)
+    if sha != original['checkpoint_sha256'] or epoch != original['epoch']:
+        raise ValueError('checkpoint differs from the original test selection')
+    state = torch.load(weights, map_location='cpu', weights_only=True)
+    if epoch != state['epoch']:
+        raise ValueError('checkpoint epoch differs from the original test selection')
+    model = build_grid_generator(index.sids, config['generator'], seed, 'cpu', source)
+    if mixed:
+        model = attach4(model)
+    else:
+        index = _NativeSingletonInput(index)
+    model.load_state_dict(state['model'], strict=True)
+    model.to(device)
+    saved_users, saved_targets, saved_ids = load_arrays(
+        trial / 'test-best-predictions.npz', 'user_ids', 'target_item_ids', 'semantic_ids')
+    np.testing.assert_array_equal(saved_users, users)
+    np.testing.assert_array_equal(saved_targets, targets)
+    native_metrics = evaluate_ranked_sids(index, saved_ids, targets)
+    for key, value in native_metrics.items():
+        if abs(value - original['metrics'][key]) > 1e-12:
+            raise ValueError(f'original test predictions disagree on {key}')
+
+    rng = np.random.default_rng(seed)
+    rows = np.sort(np.concatenate([rng.choice(np.flatnonzero(mask), 32, replace=False)
+                                  for mask in (past <= 65, (past > 65) & (past < 128), past >= 128)]))
+    batch = config['evaluation_batch_size']
+    _, replay, _ = _evaluate(model, (views[original_view][rows], users[rows], targets[rows]),
+                             index, batch, device, 'fp32')
+    saved_top10 = saved_ids[rows, :10]
+    match = float((replay[:, :10] == saved_top10).all(axis=(1, 2)).mean())
+    wanted = index.sids[targets[rows], None, :]
+    np.testing.assert_array_equal((replay[:, :10] == wanted).all(-1), (saved_top10 == wanted).all(-1))
+    if match < .98:
+        raise ValueError(f'original test top-10 replay agreement too low: {match:.4f}')
+    print(json.dumps(dict(phase='cross_test_start', regime=regime, seed=seed, epoch=epoch,
+                          evaluation_view=alternate, replay_agreement=match)), flush=True)
+
+    metrics, ids, scores = _evaluate(model, (views[alternate], users, targets), index, batch, device, 'fp32')
+    stem = f'{regime}-{seed}-{alternate}'
+    path = output / f'{stem}.npz'
+    np.savez_compressed(path, user_ids=users, target_item_ids=targets, semantic_ids=ids, scores=scores,
+                        past=past, checkpoint_sha256=sha, epoch=epoch)
+    receipt = dict(train_regime=regime, seed=seed, evaluation_view=alternate, epoch=epoch,
+                   checkpoint_sha256=sha, output_sha256=file_sha256(path), replay_rows=len(rows),
+                   replay_exact_top10_agreement=match, replay_target_ranks_agree=True,
+                   metrics=metrics, native_metrics=native_metrics, evaluation_batch_size=batch)
+    (output / f'{stem}.json').write_text(json.dumps(receipt, indent=2) + '\n')
+    print(json.dumps(dict(phase='cross_test_complete', **receipt)), flush=True)
+    return {f'{regime}_{seed}_{alternate}_{key}': metrics[key] for key in ('ndcg@10', 'recall@10', 'seconds')}
 
 
 def prepare(config, frozen):
@@ -135,7 +226,12 @@ def run(config, output):
     from rhpr.gr.study_parallel import worker_environment
     from rhpr.offline_runtime import resolve_dataset_directory
 
-    if (config['seeds'], config['minimum_history'], config['evaluation_batch_size'], config['shuffle_seed']) != (
+    cross_test = 'full_checkpoints_parent' in config
+    if cross_test:
+        if (config['seeds'] != [101, 202] or config['evaluation_batch_size'] != 16
+                or config.get('history_reduction') != 'keep_second'):
+            raise ValueError('expected the pinned ML1M cross-evaluation protocol')
+    elif (config['seeds'], config['minimum_history'], config['evaluation_batch_size'], config['shuffle_seed']) != (
             [101, 202], 97, 16, 64128):
         raise ValueError('expected the pinned Mixed64 validation ablation protocol')
     if config.get('history_reduction') not in (None, 'keep_second'):
@@ -145,7 +241,12 @@ def run(config, output):
     print(f'Allocated {len(devices)} GPUs', flush=True)
     frozen = locate_parent(config['frozen_parent'])
     checkpoints = locate_parent(config['checkpoints_parent'])
-    prepared = prepare(config, frozen)
+    if cross_test:
+        full_checkpoints = locate_parent(config['full_checkpoints_parent'])
+        prepared = prepare_cross_test(config, frozen)
+    else:
+        full_checkpoints = None
+        prepared = prepare(config, frozen)
     roots = {name: resolve_dataset_directory(config[name]['path']) for name in ('resources', 'modern_runtime')}
     for name, root in roots.items():
         verify_resources(root, config[name]['manifest_sha256'])
@@ -163,6 +264,7 @@ def run(config, output):
     sys.path.insert(0, str(overlay))
     plan = scratch / 'plan.json'
     plan.write_text(json.dumps(dict(config=config, frozen=str(frozen), checkpoints=str(checkpoints),
+                                    full_checkpoints=str(full_checkpoints) if cross_test else None,
                                     source=str(source), output=str(output))))
     with ThreadPoolExecutor(max_workers=len(devices)) as pool:
         runs = [
@@ -172,7 +274,7 @@ def run(config, output):
         ]
         for job in runs:
             job.result()
-    metrics = {'validation_users':len(prepared[3])}
+    metrics = {'test_users': len(prepared[2])} if cross_test else {'validation_users': len(prepared[3])}
     for seed in config['seeds']:
         metrics.update(read(output / f'worker-{seed}.json'))
     return metrics
@@ -187,10 +289,17 @@ def worker(plan_path, seed):
     config = plan['config']
     check_worker(config, transformers.__version__)
     torch.set_num_threads(1)
-    prepared = prepare(config, Path(plan['frozen']))
     output = Path(plan['output'])
-    metrics = evaluate_checkpoint(seed, config, prepared, Path(plan['checkpoints']),
-                                  Path(plan['source']), output, 'cuda:0')
+    if plan['full_checkpoints'] is None:
+        prepared = prepare(config, Path(plan['frozen']))
+        metrics = evaluate_checkpoint(seed, config, prepared, Path(plan['checkpoints']),
+                                      Path(plan['source']), output, 'cuda:0')
+    else:
+        prepared = prepare_cross_test(config, Path(plan['frozen']))
+        metrics = cross_evaluate_checkpoint(seed, config, prepared, Path(plan['full_checkpoints']),
+                                            Path(plan['source']), output, mixed=False, device='cuda:0')
+        metrics.update(cross_evaluate_checkpoint(seed, config, prepared, Path(plan['checkpoints']),
+                                                Path(plan['source']), output, mixed=True, device='cuda:0'))
     (output / f'worker-{seed}.json').write_text(json.dumps(metrics, indent=2))
 
 
