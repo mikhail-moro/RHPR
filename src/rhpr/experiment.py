@@ -116,6 +116,11 @@ def run_experiment(
             raise ValueError('ML1M Last-8 requires an output directory')
         from rhpr.gr.ml1m_last8 import run
         return run(config, output_dir)
+    if kind == 'gr_ml1m_window_tiger':
+        if output_dir is None:
+            raise ValueError('Window TIGER requires an output directory')
+        from rhpr.gr.ml1m_window_tiger import run
+        return run(config, output_dir)
     if kind == 'gr_history_windows':
         if output_dir is None:
             raise ValueError('History window pilot requires an output directory')

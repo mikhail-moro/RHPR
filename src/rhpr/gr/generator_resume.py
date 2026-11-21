@@ -45,7 +45,7 @@ def restore_training(model,optimizer,scaler,index,config,train,validation,source
         if state.get(name+'_case_sha256',array_digest(examples))!=array_digest(examples):raise ValueError('resume case schedule changed')
     curves=json.loads((source/'training-curves.json').read_text())
     if ([x['epoch'] for x in curves]!=list(range(1,epoch+1)) or curves[-1]['updates']!=state['updates']
-            or any(x['train_examples']!=len(train[2]) for x in curves)):
+            or any(x['train_examples']!=len(train[2])*config['training'].get('targets_per_row', 1) for x in curves)):
         raise ValueError('resume curves/updates/case count mismatch')
     best=torch.load(source/'generator-best.pt',map_location='cpu',weights_only=False)
     if best['epoch']!=state['best_epoch'] or best['validation']['ndcg@10']!=state['best_metric']:

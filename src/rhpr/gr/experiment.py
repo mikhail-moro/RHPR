@@ -154,7 +154,8 @@ def _evaluate(model, examples, sid_index, batch_size: int, device: str, precisio
 
 def _train_generator(model, users, sid_index, config: dict, output: Path, device: str,
                      *, example_builder=None, resume_from=None, training_context_selector=None,
-                     after_validation_checkpoint=None):
+                     after_validation_checkpoint=None, loss_fn=None):
+    from functools import partial
     import numpy as np
     import torch
 
@@ -179,6 +180,7 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
     best_metric, best_epoch, stale = -1.0, 0, 0
     best_path = output / "generator-best.pt"
     contexts, user_ids, targets = train
+    targets_per_row = specification.get("targets_per_row", 1)
     batch_size = specification["batch_size"]
     physical = specification["physical_batch_size"]
     updates = 0
@@ -219,12 +221,16 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
         verification=json.loads((output/'resume-verification.json').read_text());verification['rng_restored_and_verified']=True
         _write(output/'resume-verification.json',verification)
         _event('gr_training_resumed',epoch=completed_epoch,updates=updates,best_epoch=best_epoch)
-    forward_model=model
+    loss_for_batch = partial(loss_fn or _loss, model)
     if specification.get('compile_training'):
-        if hasattr(model,'rhpr_loss'):raise ValueError('compile_training requires the standard forward loss path')
+        if loss_fn is None and hasattr(model, 'rhpr_loss'):
+            raise ValueError('compile_training requires the standard forward loss path')
         _event('gr_compile_training_enabled',policy=specification['compile_training'],
                note='Compilation is lazy; first and last batch shapes can incur cold cost. Checkpoints remain unwrapped.')
-        forward_model=torch.compile(model,**specification['compile_training'])
+        if loss_fn is None:
+            loss_for_batch = partial(_loss, torch.compile(model, **specification['compile_training']))
+        else:
+            loss_for_batch = torch.compile(loss_for_batch, **specification['compile_training'])
     for epoch in range(completed_epoch+1, specification["max_epochs"] + 1):
         # Budget exits only at an epoch boundary, preserving an interpretable
         # full pass. Save selected and last checkpoints for later continuation.
@@ -249,7 +255,7 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                     raise ValueError('training context selector changed example count')
                 batch = _index_model_batch(selected_contexts, user_ids[part], targets[part], sid_index, device)
                 with _autocast(precision, device):
-                    loss = _loss(forward_model, batch)
+                    loss = loss_for_batch(batch)
                 if not torch.isfinite(loss):
                     raise FloatingPointError("nonfinite GR training loss")
                 total_loss += loss.detach().float().item() * len(part)
@@ -277,7 +283,7 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
         training_seconds += train_seconds
         loss_key = specification.get('loss_log_key', 'train_loss_sum_over_codes')
         row = {"epoch": epoch, "updates": updates, "amp_skipped_updates": skipped_updates,
-               "train_examples": len(targets),
+               "train_examples": len(targets) * targets_per_row,
                loss_key: total_loss / len(targets), "train_seconds": train_seconds}
         if training_context_selector is not None:
             row['training_views'] = training_context_selector.epoch_summary(epoch)
@@ -328,6 +334,8 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
         if scheduler is not None or resume_from is not None:
             row.update(learning_rate=epoch_lr,next_learning_rate=float(optimizer.param_groups[0]['lr']))
         if step_scheduler:row['learning_rate_last_batch']=batch_lr
+        if targets_per_row > 1:
+            row['elapsed_seconds'] = previous_wall_seconds + time.monotonic() - started
         curves.append(row)
         _write(output / "training-curves.json", curves)
         _event("gr_epoch_complete", **row)
@@ -378,7 +386,7 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
               "validation_checks": sum("validation" in row for row in curves),
               "stopping_reason": stop_reason,
               "validation_ndcg10": best_metric,
-              "training_examples_per_epoch": len(targets)}
+              "training_examples_per_epoch": len(targets) * targets_per_row}
     if resume_from is not None:
         values.update(resumed_from_epoch=completed_epoch,continuation_epochs=len(curves)-completed_epoch,
             continuation_optimizer_updates=updates-initial_updates,
