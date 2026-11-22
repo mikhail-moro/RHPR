@@ -251,7 +251,9 @@ def run_trial(trial, plan):
     _write(output / 'test-metrics.json', test_report)
     result = dict(trial=trial['id'], seed=seed, window=window, initial_state_sha256=initial,
                   selection=selection, forward=forward, timing=timing, test=test_report)
-    if 'pilot_parent' in config:
+    if config.get('decoder_depth_replication'):
+        result['initialization_group'] = f"full_decoder{trial_config['generator']['decoder_layers']}_{seed}"
+    elif 'pilot_parent' in config:
         result['initialization_group'] = f"{trial['predictor']}_{seed}"
     _write(output / 'trial-result.json', result)
     return result
@@ -339,6 +341,22 @@ def validate_wide_decoder_replication(config):
     if (config['trials'] != expected or not config.get('compare_initialization_by_seed')
             or any(key in config for key in ('pilot_parent', 'decoder_pilot_parent'))):
         raise ValueError('Expected only the three wide full-history decoder fits')
+
+
+def validate_decoder_depth_replication(config):
+    expected = [
+        dict(id=f'{name}_{seed}', predictor='full_decoder', seed=seed,
+             decoder_window=None, physical_batch_size=16, **architecture)
+        for name, architecture in (
+            ('full_decoder', dict(expected_active_nonembedding_parameters=1967360)),
+            ('full_decoder8', dict(generator_overrides=dict(decoder_layers=8, d_ff=1408),
+                                   expected_active_nonembedding_parameters=4589824)),
+        )
+        for seed in (42, 202)
+    ]
+    if (config['trials'] != expected or not config.get('compare_initialization_by_shape')
+            or any(key in config for key in ('pilot_parent', 'decoder_pilot_parent'))):
+        raise ValueError('Expected only the original D4 and D8 on the two missing seeds')
 
 
 def import_pilot(config, parent, output):
@@ -464,11 +482,14 @@ def run(config, output):
     replication = 'pilot_parent' in config
     sasrec_recovery = config.get('sasrec_control_only', False)
     wide_decoder = config.get('wide_decoder_replication', False)
+    decoder_depth = config.get('decoder_depth_replication', False)
     full_decoder = any(trial.get('predictor') == 'full_decoder' for trial in config['trials'])
     if sasrec_recovery:
         validate_sasrec_recovery(config)
     elif wide_decoder:
         validate_wide_decoder_replication(config)
+    elif decoder_depth:
+        validate_decoder_depth_replication(config)
     elif full_decoder:
         expected = dict(id='full_decoder_101', predictor='full_decoder', seed=101,
                         decoder_window=None, physical_batch_size=16)
@@ -505,7 +526,7 @@ def run(config, output):
     _write(plan, dict(config=config, parent=str(parent), source=str(source), output=str(output),
                       assignments=assignments_for(config, devices)))
     summary = launch_workers(plan, worker_module='rhpr.gr.ml1m_window_tiger', event_prefix='window_tiger')
-    if sasrec_recovery or wide_decoder:
+    if sasrec_recovery or wide_decoder or decoder_depth:
         return trial_metrics(summary['results'])
     if full_decoder:
         return summarize_full_decoder({**summary['results'], **reused}, output)
