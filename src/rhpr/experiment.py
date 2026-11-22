@@ -116,7 +116,7 @@ def run_experiment(
             raise ValueError('ML1M Last-8 requires an output directory')
         from rhpr.gr.ml1m_last8 import run
         return run(config, output_dir)
-    if kind == 'gr_ml1m_window_tiger':
+    if kind in {'gr_ml1m_window_tiger', 'gr_yambda_window_tiger'}:
         if output_dir is None:
             raise ValueError('Window TIGER requires an output directory')
         from rhpr.gr.ml1m_window_tiger import run

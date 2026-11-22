@@ -30,7 +30,7 @@ def load_cases(parent, config):
         with np.load(parent / 'prepared-cases' / f'{split}-cases.npz', allow_pickle=False) as saved:
             cases = tuple(saved[key] for key in ('contexts', 'user_ids', 'targets'))
         if case_digest(cases) != expected:
-            raise ValueError(f'Frozen ML1M cases changed: {split}')
+            raise ValueError(f'Frozen cases changed: {split}')
         splits[split] = cases
     return splits
 
@@ -239,12 +239,17 @@ def run_trial(trial, plan):
     raw = load_cases(parent, config)
     targets_per_user = config['targets_per_user']
     last16 = targets_per_user == 16
-    train = (build_last16_training(parent, raw, config['expected_last16_grouped_sha256'])
-             if last16 else group_training_cases(raw['train']))
-    validation, test = ((raw[split][0][:, -HISTORY_ITEMS:], *raw[split][1:])
+    if config['kind'] == 'gr_yambda_window_tiger':
+        train = raw['train']
+    else:
+        train = (build_last16_training(parent, raw, config['expected_last16_grouped_sha256'])
+                 if last16 else group_training_cases(raw['train']))
+    history_items = config['data']['history_items']
+    validation, test = ((raw[split][0][:, -history_items:], *raw[split][1:])
                         for split in ('validation', 'test'))
+    users = config['data']['users']
     if (len(train[1]), len(validation[1]), len(test[1]), train[2].size) != (
-            6040 * targets_per_user // TARGETS_PER_USER, 6040, 6040, 6040 * targets_per_user):
+            users * targets_per_user // TARGETS_PER_USER, users, users, users * targets_per_user):
         raise ValueError('Incorrect target and block counts')
 
     sids = np.load(parent / 'frozen-indexes' / 'items-42.npy', allow_pickle=False)
@@ -595,18 +600,24 @@ def run(config, output):
     from rhpr.gr.resources import unpack_grid, verify_resources
     from rhpr.offline_runtime import resolve_dataset_directory
 
+    yambda = config['kind'] == 'gr_yambda_window_tiger'
     last16 = config['targets_per_user'] == 16
+    expected_width = 256 if yambda else HISTORY_ITEMS
     if (config['data']['history_items'], config['training']['targets_per_row'],
-            config['training']['batch_size']) != (HISTORY_ITEMS, TARGETS_PER_USER, 64) or (
+            config['training']['batch_size']) != (expected_width, TARGETS_PER_USER, 64) or (
             not last16 and config['targets_per_user'] != TARGETS_PER_USER):
-        raise ValueError('The pilot requires 128 history items and 512 targets per optimizer update')
+        raise ValueError(f'The pilot requires {expected_width} history items and 512 targets per optimizer update')
     replication = 'pilot_parent' in config
     sasrec_recovery = config.get('sasrec_control_only', False)
     wide_decoder = config.get('wide_decoder_replication', False)
     decoder_depth = config.get('decoder_depth_replication', False)
     tail_pilot = 'window_tail_parent' in config
     full_decoder = any(trial.get('predictor') == 'full_decoder' for trial in config['trials'])
-    if last16:
+    if yambda:
+        from rhpr.gr.yambda_window_tiger import validate_pilot
+
+        validate_pilot(config)
+    elif last16:
         validate_last16_replication(config)
     elif sasrec_recovery:
         validate_sasrec_recovery(config)
@@ -631,7 +642,7 @@ def run(config, output):
             'prefix_control': None, 'window16': 16, 'window32': 32}:
         raise ValueError('Expected the common-prefix control and windows 16 and 32')
     devices = devices_for(config)
-    parent = locate_parent(config['frozen_parent'])
+    parent = output if yambda else locate_parent(config['frozen_parent'])
     reused = import_pilot(config, locate_parent(config['pilot_parent']), output) if replication else {}
     if 'decoder_pilot_parent' in config:
         reused.update(import_decoder_pilot(config, locate_parent(config['decoder_pilot_parent']), output))
@@ -649,6 +660,10 @@ def run(config, output):
                         '--find-links', str(roots['modern_runtime']), '-r', str(roots['modern_runtime'] / 'requirements-lock.txt')],
                        stdout=log, stderr=subprocess.STDOUT, check=True, timeout=180)
     sys.path.insert(0, str(overlay))
+    if yambda:
+        from rhpr.gr.yambda_window_tiger import prepare
+
+        prepare(config, output, source)
     plan = output / 'plan.json'
     execution_plan = dict(config=config, parent=str(parent), source=str(source), output=str(output),
                           assignments=assignments_for(config, devices))
