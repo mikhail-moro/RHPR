@@ -27,6 +27,20 @@ class WarmupCosineTest(unittest.TestCase):
             opt=torch.optim.Adam([torch.nn.Parameter(torch.tensor(1.))],lr=.01)
             with self.assertRaises(ValueError):build_scheduler(opt,dict(kind='warmup_cosine',warmup_epochs=warm,total_epochs=total,min_lr=minimum),steps_per_epoch=3)
 
+    def test_reference_steps_keep_learning_rate_identical_at_the_same_update(self):
+        spec = dict(kind='warmup_cosine', warmup_epochs=2, total_epochs=60, min_lr=.001)
+        old = torch.optim.Adam([torch.nn.Parameter(torch.tensor(1.))], lr=.003)
+        extended = torch.optim.Adam([torch.nn.Parameter(torch.tensor(1.))], lr=.003)
+        a = build_scheduler(old, spec, steps_per_epoch=95)
+        b = build_scheduler(extended, {**spec, 'reference_steps_per_epoch': 95}, steps_per_epoch=189)
+        for _ in range(5701):
+            self.assertEqual(a.get_last_lr(), b.get_last_lr())
+            old.step()
+            extended.step()
+            a.step()
+            b.step()
+        self.assertAlmostEqual(b.get_last_lr()[0], .001)
+
     def test_actual_training_exact_resume_preserves_parameters_adam_and_lr(self):
         fixture=resume_fixture.GeneratorResumeTest();fixture.setUp();fixture.config['training']['scheduler']=dict(kind='warmup_cosine',warmup_epochs=2,total_epochs=6,min_lr=.0001)
         with tempfile.TemporaryDirectory()as tmp:

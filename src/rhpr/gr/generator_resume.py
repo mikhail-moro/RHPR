@@ -95,12 +95,14 @@ def build_scheduler(optimizer,spec,state=None,best_metric=-1.,epoch=0,steps_per_
     if spec['kind']=='warmup_cosine':
         import math
         warm=spec['warmup_epochs'];total=spec['total_epochs'];minimum=spec['min_lr']
+        reference_steps=spec.get('reference_steps_per_epoch',steps_per_epoch)
         if (type(steps_per_epoch)is not int or steps_per_epoch<1 or type(warm)is not int
+                or type(reference_steps)is not int or reference_steps<1
                 or type(total)is not int or not 0<warm<total
                 or not math.isfinite(minimum)or minimum<=0
                 or any(minimum>=g.get('initial_lr',g['lr'])for g in optimizer.param_groups)):
             raise ValueError('invalid warmup/cosine schedule')
-        warm_steps=warm*steps_per_epoch;total_steps=total*steps_per_epoch
+        warm_steps=warm*reference_steps;total_steps=total*reference_steps
         def multiplier(step,base):
             if step<warm_steps:return (step+1)/warm_steps
             progress=min(1.,(step-warm_steps+1)/(total_steps-warm_steps))

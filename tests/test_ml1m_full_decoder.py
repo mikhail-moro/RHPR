@@ -3,6 +3,29 @@ import os
 import unittest
 
 
+class GroupedTrainingCasesTest(unittest.TestCase):
+    def test_last16_preserves_last8_and_has_causal_prefixes_for_both_blocks(self):
+        import numpy as np
+
+        from rhpr.gr.ml1m_last8 import build_last8_cases
+        from rhpr.gr.ml1m_window_tiger import group_training_cases
+
+        histories = {3: np.arange(20), 7: np.arange(200, 360)}
+        raw8 = build_last8_cases(histories)['train'][:3]
+        raw16 = build_last8_cases(histories, targets_per_user=16)['train'][:3]
+        old = group_training_cases(raw8)
+        expanded = group_training_cases(raw16, targets_per_user=16)
+        for a, b in zip(old, expanded):
+            np.testing.assert_array_equal(a, b[1::2])
+        np.testing.assert_array_equal(expanded[1], [3, 3, 7, 7])
+        for prefix, user, targets in zip(*expanded):
+            sequence = histories[user]
+            first = np.flatnonzero(sequence == targets[0])[0]
+            np.testing.assert_array_equal(prefix[prefix >= 0], sequence[max(0, first - 121):first])
+            np.testing.assert_array_equal(targets, sequence[first:first + 8])
+            self.assertLessEqual(first + 8, len(sequence) - 2)
+
+
 @unittest.skipUnless(os.environ.get('RHPR_GRID_SOURCE'), 'requires pinned GRID and modern Transformers')
 class FullHistoryDecoderTest(unittest.TestCase):
     def setUp(self):

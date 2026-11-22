@@ -35,21 +35,41 @@ def load_cases(parent, config):
     return splits
 
 
-def group_training_cases(cases):
-    """Take one common historical prefix and verify each successive training anchor."""
+def group_training_cases(cases, targets_per_user=TARGETS_PER_USER):
+    """Take one causal prefix per complete block of eight consecutive targets."""
     contexts, users, targets = cases
     order = np.argsort(users, kind='stable')
-    grouped = users[order].reshape(-1, TARGETS_PER_USER)
+    if targets_per_user < TARGETS_PER_USER or targets_per_user % TARGETS_PER_USER:
+        raise ValueError('Expected complete blocks of eight targets per user')
+    grouped = users[order].reshape(-1, targets_per_user)
     targets = targets[order].reshape(-1, TARGETS_PER_USER)
     users = grouped[:, 0]
     if len(np.unique(users)) != len(users) or not (grouped == users[:, None]).all():
-        raise ValueError('Expected eight chronological targets per user')
+        raise ValueError('Incorrect number of chronological targets per user')
     prefix_width = HISTORY_ITEMS - TARGETS_PER_USER + 1
     prefix = contexts[order[::TARGETS_PER_USER], -prefix_width:]
     for step in range(TARGETS_PER_USER):
         expected = np.concatenate((prefix, targets[:, :step]), axis=1)
         np.testing.assert_array_equal(contexts[order[step::TARGETS_PER_USER], -expected.shape[1]:], expected)
-    return prefix, users, targets
+    return prefix, np.repeat(users, targets_per_user // TARGETS_PER_USER), targets
+
+
+def build_last16_training(parent, raw, expected_sha256):
+    from rhpr.gr.ml1m_last8 import build_last8_cases
+
+    with np.load(parent / 'prepared-cases' / 'user-histories.npz', allow_pickle=False) as saved:
+        histories = dict(zip(saved['user_ids'], np.split(saved['items'], saved['offsets'][1:-1])))
+    expanded = build_last8_cases(histories, width=raw['train'][0].shape[1], targets_per_user=16)
+    for split in ('validation', 'test'):
+        if case_digest(expanded[split][:3]) != case_digest(raw[split]):
+            raise ValueError(f'Last-16 changed the frozen {split} cases')
+    later = np.arange(len(histories) * 16).reshape(-1, 16)[:, TARGETS_PER_USER:].ravel()
+    for original, extended in zip(raw['train'], expanded['train'][:3]):
+        np.testing.assert_array_equal(extended[later], original)
+    train = group_training_cases(expanded['train'][:3], targets_per_user=16)
+    if case_digest(train) != expected_sha256:
+        raise ValueError('Last-16 train block schedule differs from preflight')
+    return train
 
 
 class WindowInput:
@@ -217,11 +237,15 @@ def run_trial(trial, plan):
     torch.cuda.manual_seed_all(seed)
     parent = Path(plan['parent'])
     raw = load_cases(parent, config)
-    train = group_training_cases(raw['train'])
+    targets_per_user = config['targets_per_user']
+    last16 = targets_per_user == 16
+    train = (build_last16_training(parent, raw, config['expected_last16_grouped_sha256'])
+             if last16 else group_training_cases(raw['train']))
     validation, test = ((raw[split][0][:, -HISTORY_ITEMS:], *raw[split][1:])
                         for split in ('validation', 'test'))
-    if (len(train[1]), len(validation[1]), len(test[1]), train[2].size) != (6040, 6040, 6040, 48320):
-        raise ValueError('Incorrect Last-8 target counts')
+    if (len(train[1]), len(validation[1]), len(test[1]), train[2].size) != (
+            6040 * targets_per_user // TARGETS_PER_USER, 6040, 6040, 6040 * targets_per_user):
+        raise ValueError('Incorrect target and block counts')
 
     sids = np.load(parent / 'frozen-indexes' / 'items-42.npy', allow_pickle=False)
     if sasrec:
@@ -290,7 +314,9 @@ def run_trial(trial, plan):
                                  example_builder=build_examples, loss_fn=loss_fn if sasrec or window or full_decoder else None)
     if selection['training_epochs'] != config['training']['max_epochs']:
         raise RuntimeError('Pilot hit its time limit; selected and recent checkpoints were saved')
-    if selection['optimizer_updates'] + selection['amp_skipped_updates'] != 95 * selection['training_epochs']:
+    batch_size = trial_config['training']['batch_size']
+    updates_per_epoch = (len(train[1]) + batch_size - 1) // batch_size
+    if selection['optimizer_updates'] + selection['amp_skipped_updates'] != updates_per_epoch * selection['training_epochs']:
         raise ValueError('Incorrect number of target batches')
     curves = json.loads((output / 'training-curves.json').read_text())
     timing = dict(first_epoch_seconds=curves[0]['train_seconds'],
@@ -311,6 +337,8 @@ def run_trial(trial, plan):
         result['tail_views'] = evaluate_window_tails(
             model, index, dict(validation=validation, test=test), output,
             config['training']['evaluation_batch_size'], 'cuda:0')
+    elif last16:
+        result['initialization_group'] = trial['id']
     elif config.get('decoder_depth_replication'):
         result['initialization_group'] = f"full_decoder{trial_config['generator']['decoder_layers']}_{seed}"
     elif 'pilot_parent' in config:
@@ -431,6 +459,25 @@ def validate_window_tail_pilot(config, parent):
         raise ValueError('Window8 and the tail evaluation must use the original Window101 protocol')
 
 
+def validate_last16_replication(config):
+    expected = {
+        f'{name}_{seed}': dict(id=f'{name}_{seed}', predictor=name, seed=seed,
+                               decoder_window=window, physical_batch_size=16)
+        for name, window in (('full_decoder', None), ('window16', 16)) for seed in (42, 101, 202)
+    }
+    actual = {trial['id']: trial for trial in config['trials']}
+    training = config['training']
+    if (actual != expected or len(config['trials']) != len(expected)
+            or config['data']['train_examples'] != 96640
+            or training['sampling'] != 'fixed_last16_train_targets_after_leave_last_two'
+            or training['scheduler'] != dict(kind='warmup_cosine', warmup_epochs=2, total_epochs=60,
+                                             min_lr=.001, reference_steps_per_epoch=95)
+            or (training['min_epochs'], training['max_epochs'], training['validation_interval']) != (40, 40, 5)
+            or not config.get('compare_initialization_by_shape')
+            or any(key in config for key in ('pilot_parent', 'decoder_pilot_parent', 'window_tail_parent'))):
+        raise ValueError('Expected the original D4 and Window16 with a three-seed Last-16 schedule')
+
+
 def import_pilot(config, parent, output):
     manifest = json.loads((parent / 'run-manifest.json').read_text())
     pilot = manifest['config']
@@ -548,8 +595,10 @@ def run(config, output):
     from rhpr.gr.resources import unpack_grid, verify_resources
     from rhpr.offline_runtime import resolve_dataset_directory
 
-    if (config['data']['history_items'], config['targets_per_user'], config['training']['targets_per_row'],
-            config['training']['batch_size']) != (HISTORY_ITEMS, TARGETS_PER_USER, TARGETS_PER_USER, 64):
+    last16 = config['targets_per_user'] == 16
+    if (config['data']['history_items'], config['training']['targets_per_row'],
+            config['training']['batch_size']) != (HISTORY_ITEMS, TARGETS_PER_USER, 64) or (
+            not last16 and config['targets_per_user'] != TARGETS_PER_USER):
         raise ValueError('The pilot requires 128 history items and 512 targets per optimizer update')
     replication = 'pilot_parent' in config
     sasrec_recovery = config.get('sasrec_control_only', False)
@@ -557,7 +606,9 @@ def run(config, output):
     decoder_depth = config.get('decoder_depth_replication', False)
     tail_pilot = 'window_tail_parent' in config
     full_decoder = any(trial.get('predictor') == 'full_decoder' for trial in config['trials'])
-    if sasrec_recovery:
+    if last16:
+        validate_last16_replication(config)
+    elif sasrec_recovery:
         validate_sasrec_recovery(config)
     elif wide_decoder:
         validate_wide_decoder_replication(config)
@@ -614,7 +665,7 @@ def run(config, output):
                     metrics[f'{name}_{split}_recent{tail}_ndcg10'] = values['ndcg@10']
         _write(output / 'study-summary.json', dict(results=results))
         return metrics
-    if sasrec_recovery or wide_decoder or decoder_depth:
+    if sasrec_recovery or wide_decoder or decoder_depth or last16:
         return trial_metrics(summary['results'])
     if full_decoder:
         return summarize_full_decoder({**summary['results'], **reused}, output)
