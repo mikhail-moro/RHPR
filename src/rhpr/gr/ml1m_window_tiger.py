@@ -328,6 +328,19 @@ def validate_sasrec_recovery(config):
         raise ValueError('Expected only the three missing SASRec fits in eager FP32')
 
 
+def validate_wide_decoder_replication(config):
+    expected = [
+        dict(id=f'full_decoder_wide_{seed}', predictor='full_decoder', seed=seed,
+             decoder_window=None, physical_batch_size=16,
+             generator_overrides=dict(d_model=256, d_ff=1344),
+             expected_active_nonembedding_parameters=4590080)
+        for seed in (101, 42, 202)
+    ]
+    if (config['trials'] != expected or not config.get('compare_initialization_by_seed')
+            or any(key in config for key in ('pilot_parent', 'decoder_pilot_parent'))):
+        raise ValueError('Expected only the three wide full-history decoder fits')
+
+
 def import_pilot(config, parent, output):
     manifest = json.loads((parent / 'run-manifest.json').read_text())
     pilot = manifest['config']
@@ -450,9 +463,12 @@ def run(config, output):
         raise ValueError('The pilot requires 128 history items and 512 targets per optimizer update')
     replication = 'pilot_parent' in config
     sasrec_recovery = config.get('sasrec_control_only', False)
+    wide_decoder = config.get('wide_decoder_replication', False)
     full_decoder = any(trial.get('predictor') == 'full_decoder' for trial in config['trials'])
     if sasrec_recovery:
         validate_sasrec_recovery(config)
+    elif wide_decoder:
+        validate_wide_decoder_replication(config)
     elif full_decoder:
         expected = dict(id='full_decoder_101', predictor='full_decoder', seed=101,
                         decoder_window=None, physical_batch_size=16)
@@ -489,7 +505,7 @@ def run(config, output):
     _write(plan, dict(config=config, parent=str(parent), source=str(source), output=str(output),
                       assignments=assignments_for(config, devices)))
     summary = launch_workers(plan, worker_module='rhpr.gr.ml1m_window_tiger', event_prefix='window_tiger')
-    if sasrec_recovery:
+    if sasrec_recovery or wide_decoder:
         return trial_metrics(summary['results'])
     if full_decoder:
         return summarize_full_decoder({**summary['results'], **reused}, output)
