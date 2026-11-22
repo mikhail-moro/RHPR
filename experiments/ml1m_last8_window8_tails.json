@@ -1,0 +1,197 @@
+{
+  "resources": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "scratch_path": "/kaggle/temp/rhpr-ml1m-window8-tails"
+  },
+  "runtime": {
+    "kind": "gr",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7"
+  },
+  "modern_runtime": {
+    "path": "/kaggle/input/datasets/carasik/rhpr-t5-sdpa-runtime",
+    "manifest_sha256": "18f4688aab798d792d9204d1c018d8aba7da80bc97f5aadcdd181b34f6f0b9f6"
+  },
+  "generator": {
+    "kind": "grid_encoder_decoder",
+    "d_model": 128,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "num_heads": 6,
+    "encoder_layers": 4,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "mlp_layers": null,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "codebook_size": 256,
+    "beam_width": 20,
+    "should_check_prefix": false,
+    "attn_implementation": "sdpa"
+  },
+  "training": {
+    "device": "cuda",
+    "cpu_threads": 1,
+    "batch_size": 64,
+    "physical_batch_size": 4,
+    "learning_rate": 0.003,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "grad_clip_norm": 1.0,
+    "max_epochs": 40,
+    "min_epochs": 40,
+    "patience": 5,
+    "validation_interval": 5,
+    "evaluation_batch_size": 16,
+    "max_seconds": 12600,
+    "sampling": "fixed_last8_train_targets_after_leave_last_two",
+    "precision": "fp16",
+    "evaluation_precision": "fp32",
+    "validate_first_epoch": false,
+    "patience_epochs": 20,
+    "scheduler": {
+      "kind": "warmup_cosine",
+      "warmup_epochs": 2,
+      "total_epochs": 60,
+      "min_lr": 0.001
+    },
+    "early_stopping": {
+      "kind": "ema",
+      "alpha": 0.5,
+      "min_delta": 0.0005
+    },
+    "compile_training": {
+      "options": {
+        "triton.cudagraphs": false
+      },
+      "fullgraph": false,
+      "dynamic": false
+    },
+    "targets_per_row": 8
+  },
+  "execution": {
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "cpu_threads_per_worker": 1
+  },
+  "data": {
+    "history_items": 128,
+    "users": 6040,
+    "items": 3706,
+    "events": 1000209,
+    "train_examples": 48320
+  },
+  "expected_raw_case_sha256": {
+    "train": "8ea681f85304befbc5fdeceec535a298edc64c8d35d7afa8f7ab0656e19261cc",
+    "validation": "f2035a8596ce933273c1c979f8d8ecd60f46b796ab972251cb9bcce83c8249a4",
+    "test": "bc47ff569738ddbad1ff64559f92ff96e058ed0fed990852a846765496237d31"
+  },
+  "frozen_parent": {
+    "kernel": "carasik/rhpr-ml1m-mixed128-screen",
+    "git_sha": "1074a7599c52875d66eb83716491f377c2310f33",
+    "files": {
+      "frozen-indexes/items-42.npy": {
+        "size_bytes": 118720,
+        "sha256": "80422aa36fbcabbd0c1133a0695547513c1a795f908c72b4ed412e9cc2c2b672"
+      },
+      "prepared-cases/data-report.json": {
+        "size_bytes": 11782,
+        "sha256": "c92aa807df29294217fdf2d7e5567921a9aeb775eee890207fa6d6a847575aaf"
+      },
+      "prepared-cases/test-cases.npz": {
+        "size_bytes": 1527442,
+        "sha256": "27e0444f2a491d604e811b0885b80a5e357baf34e9824c111ba64b453b5b2013"
+      },
+      "prepared-cases/train-cases.npz": {
+        "size_bytes": 2199755,
+        "sha256": "cf7e161da121da85b39558f50a9a3f1fa8431499ac32c5a43a47c2bf55c9c8ec"
+      },
+      "prepared-cases/validation-cases.npz": {
+        "size_bytes": 1518552,
+        "sha256": "6c594fe29c3c16d0ab6818cda80435075b78e5da740944a56aa9ea93fc3b5b90"
+      },
+      "run-manifest.json": {
+        "size_bytes": 9369,
+        "sha256": "1ff2f0f9005dda4fd77469d9144aec63729da6420888f2f33dcd5a69ac25e82b"
+      }
+    }
+  },
+  "kind": "gr_ml1m_window_tiger",
+  "name": "ml1m_last8_window8_and_frozen_history_tail_ablation",
+  "seed": 101,
+  "expected_initial_state_sha256": "4dcaf4ec587f08ce3ec69536526f4cda5c4ab01eedbc1e09bd7e2803c69ac9b3",
+  "targets_per_user": 8,
+  "suite_deadline_seconds": 13800,
+  "trials": [
+    {
+      "id": "window8_101",
+      "predictor": "window8",
+      "seed": 101,
+      "decoder_window": 8,
+      "physical_batch_size": 16
+    },
+    {
+      "id": "window16_tails_101",
+      "predictor": "window_checkpoint",
+      "seed": 101,
+      "decoder_window": 16
+    },
+    {
+      "id": "window32_tails_101",
+      "predictor": "window_checkpoint",
+      "seed": 101,
+      "decoder_window": 32
+    }
+  ],
+  "kaggle": {
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-t5-sdpa-runtime"
+    ],
+    "competition_sources": [],
+    "kernel_sources": [
+      "carasik/rhpr-ml1m-mixed128-screen",
+      "carasik/rhpr-ml1m-window-tiger"
+    ],
+    "model_sources": [],
+    "machine_shape": "NvidiaTeslaT4"
+  },
+  "evaluation": {
+    "save_validation_predictions": true,
+    "selection_metric": "validation item NDCG@10",
+    "candidate_universe": "all3706ratedMovies,no sampled negatives,no seen-item filtering"
+  },
+  "window_tail_parent": {
+    "kernel": "carasik/rhpr-ml1m-window-tiger",
+    "git_sha": "40a689c8be5defc6e086046233f777ca8e728a99",
+    "files": {
+      "run-manifest.json": {
+        "size_bytes": 5542,
+        "sha256": "8fd09ce936badb78eea66861f2a53ce080fe700fdb5e9ef09f98647c2c9bc915"
+      },
+      "trials/window16/trial-result.json": {
+        "size_bytes": 1979,
+        "sha256": "365c235b2e810616298e892c6ce325e43ac1b923c75653f5f3d94496d8a00708"
+      },
+      "trials/window16/generator-best.pt": {
+        "size_bytes": 19974217,
+        "sha256": "75eb792504bf013b1b62f95f64432655f8c250a27ab23d739dc8652c815d2dae"
+      },
+      "trials/window32/trial-result.json": {
+        "size_bytes": 1973,
+        "sha256": "8047bdb1277a1e68d811fadb10549f5bc155590f76e85e49c4cd381bb78e488f"
+      },
+      "trials/window32/generator-best.pt": {
+        "size_bytes": 19974217,
+        "sha256": "c59566d02ac57e8e4b4f9a2cf37ae4728673bd52f1157bfe7b691e8a3e2862e9"
+      }
+    }
+  }
+}

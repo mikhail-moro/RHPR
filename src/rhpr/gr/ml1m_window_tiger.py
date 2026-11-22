@@ -75,8 +75,8 @@ class WindowInput:
                 prefixes[:, step, -observed.shape[1]:] = observed
             return _model_batch(prefixes.reshape(-1, HISTORY_ITEMS), np.repeat(users, TARGETS_PER_USER),
                                 targets.reshape(-1), self.sids, device)
-        recent_items = self.window - TARGETS_PER_USER
-        old, recent = contexts[:, :-recent_items], contexts[:, -recent_items:]
+        old_width = contexts.shape[1] - (self.window - TARGETS_PER_USER)
+        old, recent = contexts[:, :old_width], contexts[:, old_width:]
         decoder_items = np.concatenate((recent, targets), axis=1)
         decoder_sids = self.sids[np.maximum(decoder_items, 0)]
         decoder_sids[decoder_items < 0] = -1
@@ -140,12 +140,68 @@ def attach_window_generation(model, window):
     model.generate = partial(generate_next, model, window=window)
 
 
+def evaluate_window_tails(model, index, splits, output, batch_size, device):
+    """Keep positions fixed and remove the oldest observed events."""
+    results = {}
+    for split, (contexts, users, targets) in splits.items():
+        results[split] = {}
+        for tail in (HISTORY_ITEMS, 32, 16, 8):
+            view = contexts[:, -HISTORY_ITEMS:].copy()
+            removed = int(np.any(view[:, :-tail] >= 0, axis=1).sum())
+            view[:, :-tail] = -1
+            metrics, predictions, scores = _evaluate(
+                model, (view, users, targets), index, batch_size, device, precision='fp32')
+            np.savez_compressed(output / f'{split}-recent{tail}-predictions.npz',
+                                user_ids=users, target_item_ids=targets,
+                                semantic_ids=predictions, scores=scores)
+            results[split][str(tail)] = dict(**metrics, users_with_history_removed=removed)
+            _event('window_tail_evaluated', trial=output.name, split=split, tail=tail,
+                   ndcg10=metrics['ndcg@10'], users_with_history_removed=removed)
+    _write(output / 'tail-evaluation.json', results)
+    return results
+
+
+def run_saved_window_tails(trial, plan):
+    import torch
+    from rhpr.gr.data import file_sha256
+    from rhpr.gr.grid import build_grid_generator
+
+    config, seed, window = plan['config'], trial['seed'], trial['decoder_window']
+    parent = Path(plan['parent'])
+    sids = np.load(parent / 'frozen-indexes' / 'items-42.npy', allow_pickle=False)
+    raw = load_cases(parent, config)
+    splits = {split: raw[split] for split in ('validation', 'test')}
+    old = Path(plan['window_tail_parent']) / 'trials' / f'window{window}'
+    report = json.loads((old / 'trial-result.json').read_text())
+    path = old / 'generator-best.pt'
+    checkpoint = torch.load(path, map_location='cpu', weights_only=False)
+    digest = file_sha256(path)
+    if (report['seed'] != seed or report['window'] != window
+            or checkpoint['epoch'] != report['selection']['best_epoch']
+            or digest != report['test']['checkpoint_sha256']):
+        raise ValueError('The saved Window checkpoint differs from the selected model')
+    model = build_grid_generator(sids, config['generator'], seed, 'cpu', plan['source'])
+    model.load_state_dict(checkpoint['model'], strict=True)
+    attach_window_generation(model, window)
+    model.to('cuda:0')
+    output = Path(plan['output']) / 'trials' / trial['id']
+    output.mkdir(parents=True, exist_ok=True)
+    views = evaluate_window_tails(model, WindowInput(sids, window), splits, output,
+                                  config['training']['evaluation_batch_size'], 'cuda:0')
+    return dict(trial=trial['id'], seed=seed, window=window, checkpoint_sha256=digest,
+                checkpoint_epoch=checkpoint['epoch'], tail_views=views,
+                original_ndcg10=dict(validation=report['selection']['validation_ndcg10'],
+                                     test=report['test']['metrics']['ndcg@10']))
+
+
 def run_trial(trial, plan):
     import torch
     from rhpr.gr.data import file_sha256
     from rhpr.gr.grid import build_grid_generator
     from rhpr.gr.sid_study import state_digest
 
+    if trial.get('predictor') == 'window_checkpoint':
+        return run_saved_window_tails(trial, plan)
     config = plan['config']
     seed = trial.get('seed', config['seed'])
     sasrec = trial.get('predictor') == 'sasrec'
@@ -251,7 +307,11 @@ def run_trial(trial, plan):
     _write(output / 'test-metrics.json', test_report)
     result = dict(trial=trial['id'], seed=seed, window=window, initial_state_sha256=initial,
                   selection=selection, forward=forward, timing=timing, test=test_report)
-    if config.get('decoder_depth_replication'):
+    if 'window_tail_parent' in config:
+        result['tail_views'] = evaluate_window_tails(
+            model, index, dict(validation=validation, test=test), output,
+            config['training']['evaluation_batch_size'], 'cuda:0')
+    elif config.get('decoder_depth_replication'):
         result['initialization_group'] = f"full_decoder{trial_config['generator']['decoder_layers']}_{seed}"
     elif 'pilot_parent' in config:
         result['initialization_group'] = f"{trial['predictor']}_{seed}"
@@ -357,6 +417,18 @@ def validate_decoder_depth_replication(config):
     if (config['trials'] != expected or not config.get('compare_initialization_by_shape')
             or any(key in config for key in ('pilot_parent', 'decoder_pilot_parent'))):
         raise ValueError('Expected only the original D4 and D8 on the two missing seeds')
+
+
+def validate_window_tail_pilot(config, parent):
+    expected = [dict(id='window8_101', predictor='window8', seed=101,
+                     decoder_window=8, physical_batch_size=16)]
+    expected += [dict(id=f'window{window}_tails_101', predictor='window_checkpoint',
+                      seed=101, decoder_window=window) for window in (16, 32)]
+    reference = json.loads((parent / 'run-manifest.json').read_text())['config']
+    common = ('seed', 'generator', 'training', 'data', 'evaluation', 'expected_raw_case_sha256',
+              'frozen_parent', 'expected_initial_state_sha256')
+    if config['trials'] != expected or any(config[key] != reference[key] for key in common):
+        raise ValueError('Window8 and the tail evaluation must use the original Window101 protocol')
 
 
 def import_pilot(config, parent, output):
@@ -483,6 +555,7 @@ def run(config, output):
     sasrec_recovery = config.get('sasrec_control_only', False)
     wide_decoder = config.get('wide_decoder_replication', False)
     decoder_depth = config.get('decoder_depth_replication', False)
+    tail_pilot = 'window_tail_parent' in config
     full_decoder = any(trial.get('predictor') == 'full_decoder' for trial in config['trials'])
     if sasrec_recovery:
         validate_sasrec_recovery(config)
@@ -490,6 +563,9 @@ def run(config, output):
         validate_wide_decoder_replication(config)
     elif decoder_depth:
         validate_decoder_depth_replication(config)
+    elif tail_pilot:
+        tail_parent = locate_parent(config['window_tail_parent'])
+        validate_window_tail_pilot(config, tail_parent)
     elif full_decoder:
         expected = dict(id='full_decoder_101', predictor='full_decoder', seed=101,
                         decoder_window=None, physical_batch_size=16)
@@ -523,9 +599,21 @@ def run(config, output):
                        stdout=log, stderr=subprocess.STDOUT, check=True, timeout=180)
     sys.path.insert(0, str(overlay))
     plan = output / 'plan.json'
-    _write(plan, dict(config=config, parent=str(parent), source=str(source), output=str(output),
-                      assignments=assignments_for(config, devices)))
+    execution_plan = dict(config=config, parent=str(parent), source=str(source), output=str(output),
+                          assignments=assignments_for(config, devices))
+    if tail_pilot:
+        execution_plan['window_tail_parent'] = str(tail_parent)
+    _write(plan, execution_plan)
     summary = launch_workers(plan, worker_module='rhpr.gr.ml1m_window_tiger', event_prefix='window_tiger')
+    if tail_pilot:
+        results = summary['results']
+        metrics = trial_metrics({'window8_101': results['window8_101']})
+        for name, row in results.items():
+            for split, views in row['tail_views'].items():
+                for tail, values in views.items():
+                    metrics[f'{name}_{split}_recent{tail}_ndcg10'] = values['ndcg@10']
+        _write(output / 'study-summary.json', dict(results=results))
+        return metrics
     if sasrec_recovery or wide_decoder or decoder_depth:
         return trial_metrics(summary['results'])
     if full_decoder:
