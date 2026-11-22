@@ -602,7 +602,7 @@ def run(config, output):
 
     yambda = config['kind'] == 'gr_yambda_window_tiger'
     last16 = config['targets_per_user'] == 16
-    expected_width = 256 if yambda else HISTORY_ITEMS
+    expected_width = config['data']['history_items'] if yambda else HISTORY_ITEMS
     if (config['data']['history_items'], config['training']['targets_per_row'],
             config['training']['batch_size']) != (expected_width, TARGETS_PER_USER, 64) or (
             not last16 and config['targets_per_user'] != TARGETS_PER_USER):

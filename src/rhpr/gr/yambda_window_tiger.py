@@ -11,10 +11,14 @@ from rhpr.gr.sid import SidIndex
 
 
 def validate_pilot(config):
+    seeds = config.get('generator_seeds', [config['seed']])
+    expected = {(name, window, seed) for name, window in (('full_decoder', None), ('window16', 16))
+                for seed in seeds}
     trials = [(trial['predictor'], trial['decoder_window'], trial['seed']) for trial in config['trials']]
-    if (trials != [('full_decoder', None, config['seed']), ('window16', 16, config['seed'])]
+    if (not seeds or len(seeds) != len(set(seeds)) or len(trials) != len(expected) or set(trials) != expected
+            or config['data']['history_items'] not in (128, 256)
             or config['targets_per_user'] != 16 or not config.get('compare_initialization_by_shape')):
-        raise ValueError('Expected one paired Last-16 D4 and Window16 comparison')
+        raise ValueError('Expected paired Last-16 D4 and Window16 fits for every generator seed')
 
 
 def verify_embedding_footer(path, spec):
