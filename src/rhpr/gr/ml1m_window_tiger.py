@@ -95,7 +95,8 @@ class WindowInput:
                 prefixes[:, step, -observed.shape[1]:] = observed
             return _model_batch(prefixes.reshape(-1, HISTORY_ITEMS), np.repeat(users, TARGETS_PER_USER),
                                 targets.reshape(-1), self.sids, device)
-        old_width = contexts.shape[1] - (self.window - TARGETS_PER_USER)
+        block_size = targets.shape[1]
+        old_width = contexts.shape[1] - (self.window - block_size)
         old, recent = contexts[:, :old_width], contexts[:, old_width:]
         decoder_items = np.concatenate((recent, targets), axis=1)
         decoder_sids = self.sids[np.maximum(decoder_items, 0)]
@@ -104,7 +105,7 @@ class WindowInput:
         batch = _model_batch(old, users, targets[:, 0], self.sids, device)
         batch['future_ids'] = tokens[:, :-1]
         batch['attention_mask_decoder'] = (tokens[:, :-1] >= 0).long()
-        batch['labels'] = tokens[:, -TARGETS_PER_USER * SID_LEVELS:].reshape(-1, SID_LEVELS)
+        batch['labels'] = tokens[:, -block_size * SID_LEVELS:].reshape(-1, SID_LEVELS)
         return batch
 
 
@@ -113,7 +114,8 @@ def window_loss(model, batch):
 
     labels = batch['labels']
     hidden = model(**{key: value for key, value in batch.items() if key != 'labels'})
-    target_states = hidden[:, -TARGETS_PER_USER * SID_LEVELS:].reshape(-1, SID_LEVELS, hidden.shape[-1])
+    target_codes_per_row = labels.numel() // hidden.shape[0]
+    target_states = hidden[:, -target_codes_per_row:].reshape(-1, SID_LEVELS, hidden.shape[-1])
     return sum(F.cross_entropy(head(target_states[:, level]), labels[:, level])
                for level, head in enumerate(model.decoder.decoder_mlp))
 
@@ -228,6 +230,11 @@ def run_trial(trial, plan):
     full_decoder = trial.get('predictor') == 'full_decoder'
     trial_config = {**config, 'active_trial': trial, 'seed': seed,
                     'training': {**config['training'], 'physical_batch_size': trial['physical_batch_size']}}
+    block_size = trial.get('targets_per_block', TARGETS_PER_USER)
+    trial_config['training'].update(
+        targets_per_row=block_size,
+        batch_size=config['training']['batch_size'] * TARGETS_PER_USER // block_size,
+        rows_per_shuffle_group=TARGETS_PER_USER // block_size)
     window = trial['decoder_window']
     output = Path(plan['output']) / 'trials' / trial['id']
     output.mkdir(parents=True, exist_ok=True)
@@ -241,6 +248,12 @@ def run_trial(trial, plan):
     last16 = targets_per_user == 16
     if config['kind'] == 'gr_yambda_window_tiger':
         train = raw['train']
+        if block_size != TARGETS_PER_USER:
+            from rhpr.gr.yambda_window_tiger import split_training_blocks
+
+            train = split_training_blocks(train, block_size)
+            if case_digest(train) != config['expected_reblocked_train_sha256']:
+                raise ValueError('Reblocked Yambda train cases differ from preflight')
     else:
         train = (build_last16_training(parent, raw, config['expected_last16_grouped_sha256'])
                  if last16 else group_training_cases(raw['train']))
@@ -249,7 +262,7 @@ def run_trial(trial, plan):
                         for split in ('validation', 'test'))
     users = config['data']['users']
     if (len(train[1]), len(validation[1]), len(test[1]), train[2].size) != (
-            users * targets_per_user // TARGETS_PER_USER, users, users, users * targets_per_user):
+            users * targets_per_user // block_size, users, users, users * targets_per_user):
         raise ValueError('Incorrect target and block counts')
 
     sids = np.load(parent / 'frozen-indexes' / 'items-42.npy', allow_pickle=False)
@@ -293,8 +306,13 @@ def run_trial(trial, plan):
                    encoder_positions=cpu_batch['item_ids' if sasrec else 'input_ids'].shape[1] + (not sasrec),
                    decoder_positions=0 if sasrec else 5 if window is None else SID_LEVELS * window,
                    supported_flops_per_user=flops_per_user,
-                   supported_flops_per_target=flops_per_user / TARGETS_PER_USER,
+                   supported_flops_per_target=flops_per_user / block_size,
                    scope='padded teacher-forced CPU math SDPA with loss, FMA2, no backward or beam')
+    if 'targets_per_block' in trial:
+        blocks_per_user = targets_per_user // block_size
+        forward.update(targets_per_block=block_size, encoder_calls_per_user=blocks_per_user,
+                       supported_flops_per_block=flops_per_user,
+                       supported_flops_per_user=flops_per_user * blocks_per_user)
     if full_decoder:
         from rhpr.gr.movie_sasrec import parameter_counts
 
@@ -601,6 +619,7 @@ def run(config, output):
     from rhpr.offline_runtime import resolve_dataset_directory
 
     yambda = config['kind'] == 'gr_yambda_window_tiger'
+    frozen_yambda = yambda and 'frozen_parent' in config
     last16 = config['targets_per_user'] == 16
     expected_width = config['data']['history_items'] if yambda else HISTORY_ITEMS
     if (config['data']['history_items'], config['training']['targets_per_row'],
@@ -613,7 +632,12 @@ def run(config, output):
     decoder_depth = config.get('decoder_depth_replication', False)
     tail_pilot = 'window_tail_parent' in config
     full_decoder = any(trial.get('predictor') == 'full_decoder' for trial in config['trials'])
-    if yambda:
+    if frozen_yambda:
+        from rhpr.gr.yambda_window_tiger import validate_window_ablation
+
+        parent = locate_parent(config['frozen_parent'])
+        baseline = validate_window_ablation(config, parent)
+    elif yambda:
         from rhpr.gr.yambda_window_tiger import validate_pilot
 
         validate_pilot(config)
@@ -642,7 +666,8 @@ def run(config, output):
             'prefix_control': None, 'window16': 16, 'window32': 32}:
         raise ValueError('Expected the common-prefix control and windows 16 and 32')
     devices = devices_for(config)
-    parent = output if yambda else locate_parent(config['frozen_parent'])
+    if not frozen_yambda:
+        parent = output if yambda else locate_parent(config['frozen_parent'])
     reused = import_pilot(config, locate_parent(config['pilot_parent']), output) if replication else {}
     if 'decoder_pilot_parent' in config:
         reused.update(import_decoder_pilot(config, locate_parent(config['decoder_pilot_parent']), output))
@@ -660,7 +685,7 @@ def run(config, output):
                         '--find-links', str(roots['modern_runtime']), '-r', str(roots['modern_runtime'] / 'requirements-lock.txt')],
                        stdout=log, stderr=subprocess.STDOUT, check=True, timeout=180)
     sys.path.insert(0, str(overlay))
-    if yambda:
+    if yambda and not frozen_yambda:
         from rhpr.gr.yambda_window_tiger import prepare
 
         prepare(config, output, source)
@@ -680,6 +705,10 @@ def run(config, output):
                     metrics[f'{name}_{split}_recent{tail}_ndcg10'] = values['ndcg@10']
         _write(output / 'study-summary.json', dict(results=results))
         return metrics
+    if frozen_yambda:
+        results = {baseline['trial']: baseline, **summary['results']}
+        _write(output / 'study-summary.json', dict(control=baseline['trial'], results=results))
+        return trial_metrics(results)
     if sasrec_recovery or wide_decoder or decoder_depth or last16:
         return trial_metrics(summary['results'])
     if full_decoder:

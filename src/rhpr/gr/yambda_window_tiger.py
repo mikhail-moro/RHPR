@@ -1,5 +1,6 @@
 """Build shared Last-16 windows and a fixed audio SID catalogue from Yambda-50M."""
 import hashlib
+import json
 from pathlib import Path
 
 import numpy as np
@@ -20,6 +21,44 @@ def validate_pilot(config):
             or config['data']['history_items'] not in (128, 256)
             or config['targets_per_user'] != 16 or not config.get('compare_initialization_by_shape')):
         raise ValueError('Expected paired Last-16 D4 and Window16 fits for every generator seed')
+
+
+def validate_window_ablation(config, parent):
+    reference = json.loads((parent / 'run-manifest.json').read_text())['config']
+    shared = ('generator', 'training', 'data', 'evaluation', 'expected_raw_case_sha256',
+              'targets_per_user', 'quantizer', 'quantizer_seed')
+    expected = [
+        dict(id='window16_b4_101', predictor='window16', seed=101, decoder_window=16,
+             targets_per_block=4, physical_batch_size=16),
+        dict(id='window32_b8_101', predictor='window32', seed=101, decoder_window=32,
+             targets_per_block=8, physical_batch_size=16),
+    ]
+    if (any(config[key] != reference[key] for key in shared)
+            or config['trials'] != expected or config['seed'] != 101
+            or not config.get('compare_initialization_by_shape')):
+        raise ValueError('Expected Last-16 Window16/4 and Window32/8 with the frozen Yambda protocol')
+    baseline = json.loads((parent / 'trials/window16_101/trial-result.json').read_text())
+    if (baseline['trial'], baseline['seed'], baseline['window']) != ('window16_101', 101, 16) or (
+            config['expected_initial_state_sha256'] != baseline['initial_state_sha256']
+            or baseline['selection']['training_epochs'] != reference['training']['max_epochs']):
+        raise ValueError('The saved Window16/8 control does not match the ablation')
+    return {**baseline, 'reused_from': config['frozen_parent']['kernel']}
+
+
+def split_training_blocks(cases, block_size):
+    """Split each causal block without adding observed events or changing targets."""
+    contexts, users, targets = cases
+    source_size = targets.shape[1]
+    if not 0 < block_size <= source_size or source_size % block_size:
+        raise ValueError('The new block size must divide the original block size')
+    blocks = source_size // block_size
+    width = contexts.shape[1] + source_size - block_size
+    prefixes = np.full((len(contexts), blocks, width), -1, dtype=contexts.dtype)
+    for block in range(blocks):
+        start = block * block_size
+        prefix = np.concatenate((contexts, targets[:, :start]), axis=1)
+        prefixes[:, block, -prefix.shape[1]:] = prefix
+    return prefixes.reshape(-1, width), np.repeat(users, blocks), targets.reshape(-1, block_size)
 
 
 def verify_embedding_footer(path, spec):

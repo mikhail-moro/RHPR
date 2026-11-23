@@ -183,6 +183,11 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
     targets_per_row = specification.get("targets_per_row", 1)
     batch_size = specification["batch_size"]
     physical = specification["physical_batch_size"]
+    rows_per_shuffle_group = specification.get("rows_per_shuffle_group", 1)
+    if (type(rows_per_shuffle_group) is not int or rows_per_shuffle_group < 1
+            or len(targets) % rows_per_shuffle_group or batch_size % rows_per_shuffle_group):
+        raise ValueError("Shuffle groups must fit evenly in the training cases and optimizer batches")
+    within_group = np.arange(rows_per_shuffle_group)
     updates = 0
     skipped_updates = 0
     started = time.monotonic()
@@ -239,7 +244,8 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
             break
         if hasattr(model, 'rhpr_epoch_start'):
             model.rhpr_epoch_start(epoch, sid_index, output)
-        order = np.random.default_rng(seed + epoch).permutation(len(targets))
+        group_order = np.random.default_rng(seed + epoch).permutation(len(targets) // rows_per_shuffle_group)
+        order = (group_order[:, None] * rows_per_shuffle_group + within_group).ravel()
         model.train()
         epoch_lr=float(optimizer.param_groups[0]['lr'])
         epoch_started, total_loss = time.monotonic(), 0.0

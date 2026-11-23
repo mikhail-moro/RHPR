@@ -1,0 +1,197 @@
+{
+  "compare_initialization_by_shape": true,
+  "data": {
+    "embedding_bytes": 13814230943,
+    "embedding_footer_sha256": "e8f2129f2605beab54591d64d51db8eb60274bf947ac445f3bc3b0740c1bbb7c",
+    "events": 46467212,
+    "history_items": 128,
+    "items": 819432,
+    "listens_sha256": "c07db8326739b23fd4fb0a25037304e78b2e916320ccf1b01dc904d2b1b376c7",
+    "path": "/kaggle/input/datasets/ploshkin/yambda",
+    "train_examples": 146608,
+    "users": 9163
+  },
+  "evaluation": {
+    "candidate_universe": "all observed Yambda-50M listen tracks with embeddings; free-form beam, no seen-item filtering",
+    "save_validation_predictions": true,
+    "selection_metric": "validation item NDCG@10"
+  },
+  "execution": {
+    "cpu_threads_per_worker": 1,
+    "worker_devices": [
+      "cuda:0",
+      "cuda:1"
+    ]
+  },
+  "expected_initial_state_sha256": "4dcaf4ec587f08ce3ec69536526f4cda5c4ab01eedbc1e09bd7e2803c69ac9b3",
+  "expected_raw_case_sha256": {
+    "test": "5a3b2523507438444d1f493ce692328950cabe0d960df90cd34de622b9952157",
+    "train": "010192af1bbde86993d642ab297a904e754cd1cac10bab0ca3ec8b1b51943a42",
+    "validation": "26a82ce96da2fe03c68134c6e18c3104792c05b52d88a113b4617640f100c682"
+  },
+  "generator": {
+    "attn_implementation": "sdpa",
+    "beam_width": 20,
+    "codebook_size": 256,
+    "d_ff": 1024,
+    "d_kv": 64,
+    "d_model": 128,
+    "decoder_layers": 4,
+    "dropout": 0.1,
+    "encoder_layers": 4,
+    "kind": "grid_encoder_decoder",
+    "mlp_layers": null,
+    "num_heads": 6,
+    "num_user_bins": 2000,
+    "separator_token": false,
+    "should_check_prefix": false
+  },
+  "generator_seeds": [
+    101
+  ],
+  "kaggle": {
+    "competition_sources": [],
+    "dataset_sources": [
+      "carasik/rhpr-gr-beauty-phase0",
+      "carasik/rhpr-t5-sdpa-runtime"
+    ],
+    "kernel_sources": [
+      "carasik/rhpr-yambda-last16-d4-window16-recent128"
+    ],
+    "machine_shape": "NvidiaTeslaT4",
+    "model_sources": []
+  },
+  "kind": "gr_yambda_window_tiger",
+  "modern_runtime": {
+    "manifest_sha256": "18f4688aab798d792d9204d1c018d8aba7da80bc97f5aadcdd181b34f6f0b9f6",
+    "path": "/kaggle/input/datasets/carasik/rhpr-t5-sdpa-runtime"
+  },
+  "name": "yambda50m_last16_window_ablation_recent128_seed101",
+  "quantizer": {
+    "batch_size": 4096,
+    "codebook_size": 256,
+    "distance_backend": "torch_cdist",
+    "init_buffer_size": 3072,
+    "normalize_residuals": true,
+    "num_hierarchies": 3,
+    "passes_per_level": 5
+  },
+  "quantizer_seed": 42,
+  "resources": {
+    "grid_revision": "2fe3475b2d369580234093f35d52b1a2f54d0472",
+    "manifest_sha256": "eca36a394d586fe489aa56aa453626f418689e2f5732a0af98547505f590dba0",
+    "path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0",
+    "scratch_path": "/kaggle/temp/rhpr-yambda-last16-window-ablation"
+  },
+  "runtime": {
+    "kind": "gr",
+    "manifest_sha256": "772c6a50358d85c818f1777f34ff1eb19c8b0cc3254c42abd96190267d2adfc7",
+    "requirements_sha256": "a8ddc2ecd3b3a13f4d1aaa04adb29ca7475dd21aca170899d42933557984dde3",
+    "target_python_minor": "3.13",
+    "target_site": "/kaggle/temp/rhpr-gr-site",
+    "wheel_path": "/kaggle/input/datasets/carasik/rhpr-gr-beauty-phase0/wheels"
+  },
+  "seed": 101,
+  "targets_per_user": 16,
+  "training": {
+    "amp": true,
+    "batch_size": 64,
+    "compile_training": {
+      "dynamic": false,
+      "fullgraph": false,
+      "options": {
+        "triton.cudagraphs": false
+      }
+    },
+    "cpu_threads": 1,
+    "device": "cuda",
+    "early_stopping": {
+      "alpha": 0.5,
+      "kind": "ema",
+      "min_delta": 0.0005
+    },
+    "evaluation_batch_size": 16,
+    "evaluation_precision": "fp32",
+    "grad_clip_norm": 1.0,
+    "learning_rate": 0.003,
+    "max_epochs": 30,
+    "max_seconds": 10000,
+    "min_epochs": 30,
+    "patience": 5,
+    "patience_epochs": 20,
+    "physical_batch_size": 16,
+    "precision": "fp16",
+    "sampling": "fixed_last16_train_targets_after_distinct_timestamp_holdout",
+    "scheduler": {
+      "kind": "warmup_cosine",
+      "min_lr": 0.001,
+      "reference_steps_per_epoch": 95,
+      "total_epochs": 60,
+      "warmup_epochs": 2
+    },
+    "targets_per_row": 8,
+    "validate_first_epoch": false,
+    "validation_interval": 5,
+    "weight_decay": 0.0001
+  },
+  "trials": [
+    {
+      "id": "window16_b4_101",
+      "predictor": "window16",
+      "seed": 101,
+      "decoder_window": 16,
+      "targets_per_block": 4,
+      "physical_batch_size": 16
+    },
+    {
+      "id": "window32_b8_101",
+      "predictor": "window32",
+      "seed": 101,
+      "decoder_window": 32,
+      "targets_per_block": 8,
+      "physical_batch_size": 16
+    }
+  ],
+  "window_initializers": {
+    "101": "4dcaf4ec587f08ce3ec69536526f4cda5c4ab01eedbc1e09bd7e2803c69ac9b3"
+  },
+  "frozen_parent": {
+    "kernel": "carasik/rhpr-yambda-last16-d4-window16-recent128",
+    "git_sha": "e5ad9a1a80640584125b92883c3a6aba225fbbe0",
+    "files": {
+      "run-manifest.json": {
+        "size_bytes": 6028,
+        "sha256": "28ce9d92caa07ae596e19a29cee83a2112551dbf503051030ab4bb92bca505aa"
+      },
+      "frozen-indexes/items-42.npy": {
+        "size_bytes": 26221952,
+        "sha256": "0c622f86540a7e31a54f815d14ce1d5616a0f0dbf67ed72573cb8debf9ddd942"
+      },
+      "prepared-cases/anchors.npz": {
+        "size_bytes": 294826,
+        "sha256": "e5d62e6f0d7d2474917eabbbf56956f6d3a0ea736cd9302e4fa89ada04865749"
+      },
+      "prepared-cases/train-cases.npz": {
+        "size_bytes": 9603588,
+        "sha256": "369382d3eb9305c3c0d59ed0eeea39f420f6f26911a4c54bd7b68f972313ef5d"
+      },
+      "prepared-cases/validation-cases.npz": {
+        "size_bytes": 4802176,
+        "sha256": "cd5d4aa1d0bced68c20c03684ee2c569aef65ff352c225db2f555bd67b143006"
+      },
+      "prepared-cases/test-cases.npz": {
+        "size_bytes": 4802176,
+        "sha256": "5d280ee94b9ff2eee05c89855fa27e6e91aa04e01329c80479f3d73368dc9a6c"
+      },
+      "trials/window16_101/trial-result.json": {
+        "size_bytes": 2031,
+        "sha256": "3d4ec12a973e9643d56c4a1fab1c3a24e8ea41bff810bc847b28117ac6fea2f8"
+      },
+      "trials/window16_101/test-best-predictions.npz": {
+        "size_bytes": 1471990,
+        "sha256": "191f09c81060843b3b28871d8bb90ab07957c35468975092534f9e2a9bc87583"
+      }
+    }
+  },
+  "expected_reblocked_train_sha256": "c9fbe942e6054a5e4402d9758c6437e142061cc032550945053f35757b78b04a"
+}
