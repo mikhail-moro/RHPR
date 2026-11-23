@@ -50,17 +50,25 @@ def validate_window_continuation(config, parent, ablation_parent):
                for root in (parent, ablation_parent)]
     shared = ('generator', 'data', 'evaluation', 'expected_raw_case_sha256', 'targets_per_user',
               'quantizer', 'quantizer_seed', 'execution')
-    limits = {'min_epochs': 60, 'max_epochs': 60}
+    limits = ({'min_epochs': 30, 'max_epochs': 120} if config.get('train_to_plateau')
+              else {'min_epochs': 60, 'max_epochs': 60})
     if (config['seed'] != 101 or not config.get('compare_initialization_by_shape')
             or any(any(config[key] != source[key] for key in shared)
                    or source['training']['max_epochs'] != 30
                    or config['training'] != {**source['training'], **limits}
                    for source in sources)):
-        raise ValueError('Yambda continuation must extend the shared Last-16 schedule from 30 to 60 epochs')
+        raise ValueError('Yambda continuation must preserve the shared Last-16 schedule and extend epoch 30')
     table = {trial['id']: trial for source in sources for trial in source['trials']}
     names = ('full_decoder_101', 'window32_b8_101', 'window16_101')
-    if config['trials'] != [table[name] for name in names]:
-        raise ValueError('Expected only D4, Window32/8 and Window16/8 on seed 101')
+    expected = [table[name] for name in names]
+    if 'ntp_phase' in config:
+        from rhpr.gr.yambda_ntp import validate_ntp_phase
+
+        if not config.get('train_to_plateau'):
+            raise ValueError('The NTP phase requires a completed Window32 pretraining schedule')
+        expected.append(validate_ntp_phase(config))
+    if config['trials'] != expected:
+        raise ValueError('Unexpected Yambda continuation trial list')
     paths = {name: (ablation_parent if name == 'window32_b8_101' else parent) / 'trials' / name
              for name in names}
     for name, path in paths.items():

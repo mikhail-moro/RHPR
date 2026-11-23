@@ -129,13 +129,15 @@ def generate_next(model, attention_mask, input_ids, user_id=None, *, window):
     from transformers.cache_utils import DynamicCache, EncoderDecoderCache
 
     recent_codes = SID_LEVELS * (window - 1)
+    split_at = max(0, input_ids.shape[1] - recent_codes)
     memory, memory_mask = model.encoder_forward_pass(
-        attention_mask[:, :-recent_codes], input_ids[:, :-recent_codes], user_id)
-    recent_ids = input_ids[:, -recent_codes:]
-    recent_mask = attention_mask[:, -recent_codes:]
+        attention_mask[:, :split_at], input_ids[:, :split_at], user_id)
+    recent_ids = input_ids[:, split_at:]
+    recent_mask = attention_mask[:, split_at:]
     cache = EncoderDecoderCache(DynamicCache(), DynamicCache())
     hidden, cache = model.decoder_forward_pass(
-        attention_mask=recent_mask, future_ids=recent_ids, encoder_output=memory,
+        attention_mask=recent_mask if recent_codes else None, future_ids=recent_ids if recent_codes else None,
+        encoder_output=memory,
         attention_mask_for_encoder=memory_mask, use_cache=True, past_key_values=cache)
 
     batch_size = len(input_ids)
@@ -147,7 +149,7 @@ def generate_next(model, attention_mask, input_ids, user_id=None, *, window):
     cache.reorder_cache(torch.arange(batch_size, device=input_ids.device).repeat_interleave(beam))
     memory = memory.repeat_interleave(beam, dim=0)
     memory_mask = memory_mask.repeat_interleave(beam, dim=0)
-    mask = torch.cat((torch.ones_like(recent_mask[:, :1]), recent_mask), dim=1).repeat_interleave(beam, dim=0)
+    mask = torch.cat((recent_mask.new_ones((batch_size, 1)), recent_mask), dim=1).repeat_interleave(beam, dim=0)
     embedding = model.get_embedding_table('decoder')
     for level in range(1, SID_LEVELS):
         last_code = ids[:, :, -1].reshape(-1, 1) + (level - 1) * model.num_embeddings_per_hierarchy
@@ -227,6 +229,10 @@ def run_trial(trial, plan):
 
     if trial.get('predictor') == 'window_checkpoint':
         return run_saved_window_tails(trial, plan)
+    if trial.get('predictor') == 'frozen_ntp':
+        from rhpr.gr.yambda_ntp import run_ntp_trial
+
+        return run_ntp_trial(trial, plan)
     config = plan['config']
     seed = trial.get('seed', config['seed'])
     sasrec = trial.get('predictor') == 'sasrec'
@@ -371,7 +377,8 @@ def run_trial(trial, plan):
         if frozen_parameters_digest(model) != frozen_digest:
             raise ValueError('Cached encoder inputs or weights changed during training')
         del train_batch_builder
-    if selection['training_epochs'] != config['training']['max_epochs']:
+    stopped_at_plateau = config.get('train_to_plateau') and selection['stopping_reason'] == 'early_stopping'
+    if selection['training_epochs'] != config['training']['max_epochs'] and not stopped_at_plateau:
         raise RuntimeError('Pilot hit its time limit; selected and recent checkpoints were saved')
     batch_size = trial_config['training']['batch_size']
     updates_per_epoch = (len(train[1]) + batch_size - 1) // batch_size
