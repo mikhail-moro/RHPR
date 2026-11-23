@@ -45,6 +45,34 @@ def validate_window_ablation(config, parent):
     return {**baseline, 'reused_from': config['frozen_parent']['kernel']}
 
 
+def validate_window_continuation(config, parent, ablation_parent):
+    sources = [json.loads((root / 'run-manifest.json').read_text())['config']
+               for root in (parent, ablation_parent)]
+    shared = ('generator', 'data', 'evaluation', 'expected_raw_case_sha256', 'targets_per_user',
+              'quantizer', 'quantizer_seed', 'execution')
+    limits = {'min_epochs': 60, 'max_epochs': 60}
+    if (config['seed'] != 101 or not config.get('compare_initialization_by_shape')
+            or any(any(config[key] != source[key] for key in shared)
+                   or source['training']['max_epochs'] != 30
+                   or config['training'] != {**source['training'], **limits}
+                   for source in sources)):
+        raise ValueError('Yambda continuation must extend the shared Last-16 schedule from 30 to 60 epochs')
+    table = {trial['id']: trial for source in sources for trial in source['trials']}
+    names = ('full_decoder_101', 'window32_b8_101', 'window16_101')
+    if config['trials'] != [table[name] for name in names]:
+        raise ValueError('Expected only D4, Window32/8 and Window16/8 on seed 101')
+    paths = {name: (ablation_parent if name == 'window32_b8_101' else parent) / 'trials' / name
+             for name in names}
+    for name, path in paths.items():
+        result = json.loads((path / 'trial-result.json').read_text())
+        last = result['selection']
+        if (result['trial'] != name or result['seed'] != 101 or last['training_epochs'] != 30
+                or last['optimizer_updates'] + last['amp_skipped_updates'] != 8610
+                or last['training_examples_per_epoch'] != config['data']['train_examples']):
+            raise ValueError(f'The saved epoch-30 report differs for {name}')
+    return {name: str(path) for name, path in paths.items()}
+
+
 def split_training_blocks(cases, block_size):
     """Split each causal block without adding observed events or changing targets."""
     contexts, users, targets = cases

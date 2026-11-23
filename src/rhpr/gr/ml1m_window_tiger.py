@@ -333,8 +333,10 @@ def run_trial(trial, plan):
     def build_examples(_root, _width, split):
         return examples[split]
 
+    resume_from = plan.get('resume_trials', {}).get(trial['id'])
     selection = _train_generator(model, parent, index, trial_config, output, 'cuda:0',
-                                 example_builder=build_examples, loss_fn=loss_fn if sasrec or window or full_decoder else None)
+                                 example_builder=build_examples, resume_from=resume_from,
+                                 loss_fn=loss_fn if sasrec or window or full_decoder else None)
     if selection['training_epochs'] != config['training']['max_epochs']:
         raise RuntimeError('Pilot hit its time limit; selected and recent checkpoints were saved')
     batch_size = trial_config['training']['batch_size']
@@ -346,6 +348,9 @@ def run_trial(trial, plan):
                   warm_epoch_median_seconds=median(row['train_seconds'] for row in curves[1:]),
                   train_wall_seconds=selection['training_seconds'],
                   peak_training_allocated_bytes=torch.cuda.max_memory_allocated())
+    if resume_from is not None:
+        continued = curves[selection['resumed_from_epoch']:]
+        timing['continuation_warm_epoch_median_seconds'] = median(r['train_seconds'] for r in continued[1:])
     metrics, predictions, scores = _evaluate(model, test, index, config['training']['evaluation_batch_size'],
                                               'cuda:0', precision='fp32')
     prediction_key = 'item_ids' if sasrec else 'semantic_ids'
@@ -620,6 +625,7 @@ def run(config, output):
 
     yambda = config['kind'] == 'gr_yambda_window_tiger'
     frozen_yambda = yambda and 'frozen_parent' in config
+    resume_trials = {}
     last16 = config['targets_per_user'] == 16
     expected_width = config['data']['history_items'] if yambda else HISTORY_ITEMS
     if (config['data']['history_items'], config['training']['targets_per_row'],
@@ -633,10 +639,15 @@ def run(config, output):
     tail_pilot = 'window_tail_parent' in config
     full_decoder = any(trial.get('predictor') == 'full_decoder' for trial in config['trials'])
     if frozen_yambda:
-        from rhpr.gr.yambda_window_tiger import validate_window_ablation
-
         parent = locate_parent(config['frozen_parent'])
-        baseline = validate_window_ablation(config, parent)
+        if 'continuation_parent' in config:
+            from rhpr.gr.yambda_window_tiger import validate_window_continuation
+
+            resume_trials = validate_window_continuation(config, parent, locate_parent(config['continuation_parent']))
+        else:
+            from rhpr.gr.yambda_window_tiger import validate_window_ablation
+
+            baseline = validate_window_ablation(config, parent)
     elif yambda:
         from rhpr.gr.yambda_window_tiger import validate_pilot
 
@@ -692,6 +703,8 @@ def run(config, output):
     plan = output / 'plan.json'
     execution_plan = dict(config=config, parent=str(parent), source=str(source), output=str(output),
                           assignments=assignments_for(config, devices))
+    if resume_trials:
+        execution_plan['resume_trials'] = resume_trials
     if tail_pilot:
         execution_plan['window_tail_parent'] = str(tail_parent)
     _write(plan, execution_plan)
@@ -705,7 +718,7 @@ def run(config, output):
                     metrics[f'{name}_{split}_recent{tail}_ndcg10'] = values['ndcg@10']
         _write(output / 'study-summary.json', dict(results=results))
         return metrics
-    if frozen_yambda:
+    if frozen_yambda and not resume_trials:
         results = {baseline['trial']: baseline, **summary['results']}
         _write(output / 'study-summary.json', dict(control=baseline['trial'], results=results))
         return trial_metrics(results)
