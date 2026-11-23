@@ -154,7 +154,7 @@ def _evaluate(model, examples, sid_index, batch_size: int, device: str, precisio
 
 def _train_generator(model, users, sid_index, config: dict, output: Path, device: str,
                      *, example_builder=None, resume_from=None, training_context_selector=None,
-                     after_validation_checkpoint=None, loss_fn=None):
+                     after_validation_checkpoint=None, loss_fn=None, train_batch_builder=None):
     from functools import partial
     import numpy as np
     import torch
@@ -259,7 +259,10 @@ def _train_generator(model, users, sid_index, config: dict, output: Path, device
                                      training_context_selector(epoch, begin // batch_size, part))
                 if len(selected_contexts) != len(part):
                     raise ValueError('training context selector changed example count')
-                batch = _index_model_batch(selected_contexts, user_ids[part], targets[part], sid_index, device)
+                if train_batch_builder is None:
+                    batch = _index_model_batch(selected_contexts, user_ids[part], targets[part], sid_index, device)
+                else:
+                    batch = train_batch_builder(part, selected_contexts, user_ids[part], targets[part])
                 with _autocast(precision, device):
                     loss = loss_for_batch(batch)
                 if not torch.isfinite(loss):

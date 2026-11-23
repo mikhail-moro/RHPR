@@ -110,10 +110,13 @@ class WindowInput:
 
 
 def window_loss(model, batch):
+    hidden = model(**{key: value for key, value in batch.items() if key != 'labels'})
+    return window_target_loss(model, hidden, batch['labels'])
+
+
+def window_target_loss(model, hidden, labels):
     import torch.nn.functional as F
 
-    labels = batch['labels']
-    hidden = model(**{key: value for key, value in batch.items() if key != 'labels'})
     target_codes_per_row = labels.numel() // hidden.shape[0]
     target_states = hidden[:, -target_codes_per_row:].reshape(-1, SID_LEVELS, hidden.shape[-1])
     return sum(F.cross_entropy(head(target_states[:, level]), labels[:, level])
@@ -296,9 +299,18 @@ def run_trial(trial, plan):
     # Training mode disables the fused SASRec inference path in the CPU FLOP trace.
     model.train(sasrec)
     with torch.inference_mode(), torch.nn.attention.sdpa_kernel(torch.nn.attention.SDPBackend.MATH):
+        profile_loss = loss_fn
+        profile_batch = cpu_batch
+        if config.get('frozen_encoder_pilot'):
+            from rhpr.gr.yambda_frozen_encoder import cached_window_loss, decoder_batch
+
+            memory, mask = model.encoder_forward_pass(cpu_batch['attention_mask_encoder'],
+                cpu_batch['input_ids'], cpu_batch['user_id'])
+            profile_loss = cached_window_loss
+            profile_batch = decoder_batch(cpu_batch, memory, mask)
         with torch.random.fork_rng(devices=[]), torch.profiler.profile(
                 activities=[torch.profiler.ProfilerActivity.CPU], with_flops=True) as profile:
-            loss = loss_fn(model, cpu_batch)
+            loss = profile_loss(model, profile_batch)
     if not torch.isfinite(loss):
         raise FloatingPointError('Nonfinite CPU forward')
     flops_per_user = sum(entry.flops for entry in profile.key_averages())
@@ -313,6 +325,9 @@ def run_trial(trial, plan):
         forward.update(targets_per_block=block_size, encoder_calls_per_user=blocks_per_user,
                        supported_flops_per_block=flops_per_user,
                        supported_flops_per_user=flops_per_user * blocks_per_user)
+    if config.get('frozen_encoder_pilot'):
+        forward.update(encoder_calls_per_user=0, cached_encoder_positions=forward['encoder_positions'],
+                       encoder_positions=0, scope=forward['scope'] + '; decoder on cached memory')
     if full_decoder:
         from rhpr.gr.movie_sasrec import parameter_counts
 
@@ -334,9 +349,28 @@ def run_trial(trial, plan):
         return examples[split]
 
     resume_from = plan.get('resume_trials', {}).get(trial['id'])
+    train_batch_builder = None
+    if config.get('frozen_encoder_pilot'):
+        from rhpr.gr.yambda_frozen_encoder import cache_training_memory, cached_window_loss, freeze_encoder
+
+        checkpoint = torch.load(Path(resume_from) / 'generator-last.pt', map_location='cpu', weights_only=False)
+        model.load_state_dict(checkpoint['model'], strict=True)
+        del checkpoint
+        frozen_digest = freeze_encoder(model)
+        train_batch_builder, cache_report = cache_training_memory(
+            model, index, train, 'cuda:0', trial_config['training'])
+        _write(output / 'encoder-cache.json', cache_report)
+        loss_fn = cached_window_loss
     selection = _train_generator(model, parent, index, trial_config, output, 'cuda:0',
                                  example_builder=build_examples, resume_from=resume_from,
-                                 loss_fn=loss_fn if sasrec or window or full_decoder else None)
+                                 loss_fn=loss_fn if sasrec or window or full_decoder else None,
+                                 train_batch_builder=train_batch_builder)
+    if train_batch_builder is not None:
+        from rhpr.gr.yambda_frozen_encoder import frozen_parameters_digest
+
+        if frozen_parameters_digest(model) != frozen_digest:
+            raise ValueError('Cached encoder inputs or weights changed during training')
+        del train_batch_builder
     if selection['training_epochs'] != config['training']['max_epochs']:
         raise RuntimeError('Pilot hit its time limit; selected and recent checkpoints were saved')
     batch_size = trial_config['training']['batch_size']
@@ -361,6 +395,8 @@ def run_trial(trial, plan):
     _write(output / 'test-metrics.json', test_report)
     result = dict(trial=trial['id'], seed=seed, window=window, initial_state_sha256=initial,
                   selection=selection, forward=forward, timing=timing, test=test_report)
+    if config.get('frozen_encoder_pilot'):
+        result['encoder_cache'] = {**cache_report, 'frozen_parameters_sha256': frozen_digest}
     if 'window_tail_parent' in config:
         result['tail_views'] = evaluate_window_tails(
             model, index, dict(validation=validation, test=test), output,
@@ -641,9 +677,15 @@ def run(config, output):
     if frozen_yambda:
         parent = locate_parent(config['frozen_parent'])
         if 'continuation_parent' in config:
-            from rhpr.gr.yambda_window_tiger import validate_window_continuation
+            ablation_parent = locate_parent(config['continuation_parent'])
+            if config.get('frozen_encoder_pilot'):
+                from rhpr.gr.yambda_frozen_encoder import validate_frozen_encoder_pilot
 
-            resume_trials = validate_window_continuation(config, parent, locate_parent(config['continuation_parent']))
+                resume_trials = validate_frozen_encoder_pilot(config, parent, ablation_parent)
+            else:
+                from rhpr.gr.yambda_window_tiger import validate_window_continuation
+
+                resume_trials = validate_window_continuation(config, parent, ablation_parent)
         else:
             from rhpr.gr.yambda_window_tiger import validate_window_ablation
 
@@ -722,6 +764,14 @@ def run(config, output):
         results = {baseline['trial']: baseline, **summary['results']}
         _write(output / 'study-summary.json', dict(control=baseline['trial'], results=results))
         return trial_metrics(results)
+    if config.get('frozen_encoder_pilot'):
+        results = summary['results']
+        metrics = trial_metrics(results)
+        for name, result in results.items():
+            metrics[f'{name}_encoder_cache_seconds'] = result['encoder_cache']['seconds']
+            metrics[f'{name}_encoder_cache_bytes'] = result['encoder_cache']['bytes']
+            metrics[f'{name}_cached_epoch_seconds'] = result['timing']['continuation_warm_epoch_median_seconds']
+        return metrics
     if sasrec_recovery or wide_decoder or decoder_depth or last16:
         return trial_metrics(summary['results'])
     if full_decoder:
