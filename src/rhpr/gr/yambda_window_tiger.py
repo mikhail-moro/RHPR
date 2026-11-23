@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 
+from rhpr.gr.codebook_diagnostics import semantic_statistics
 from rhpr.gr.data import file_sha256
 from rhpr.gr.experiment import _event, _write
 from rhpr.gr.movie_data import case_digest
@@ -121,6 +122,73 @@ def build_cases(users, offsets, items, timestamps, source_ids, history_items):
     return splits, time_anchors[:kept], lengths[:kept]
 
 
+def _normalized_rows(vectors):
+    return vectors / np.maximum(np.linalg.norm(vectors, axis=1, keepdims=True), 1e-12)
+
+
+def _nearest_available(vectors, centers, capacity):
+    if len(vectors) > capacity.sum():
+        raise ValueError('Insufficient SID prefix capacity')
+    center_norm = np.square(centers).sum(axis=1)
+    codes = np.empty(len(vectors), dtype=np.int64)
+    for start in range(0, len(vectors), 4096):
+        batch = vectors[start:start+4096]
+        # The squared input norm is common to all candidates for an item.
+        preference = np.argsort(center_norm - 2 * (batch @ centers.T), axis=1, kind='stable')
+        for i, ranked in enumerate(preference, start):
+            code = ranked[np.flatnonzero(capacity[ranked])[0]]
+            codes[i] = code
+            capacity[code] -= 1
+    return codes
+
+
+def _by_code(rows, codes):
+    for code in np.unique(codes[rows]):
+        yield code, rows[codes[rows] == code]
+
+
+def reassign_overflow(codes, vectors, centers, width):
+    """Retain canonical members and route only excess tracks to free siblings."""
+    # A first-level branch has width**2 triples, each with width suffixes.
+    # The Yambda catalogue fits into a single branch, so its first code can
+    # always be preserved, even for a completely degenerate audio cluster.
+    if len(codes) > width**3:
+        raise ValueError('Catalogue too large to guarantee preserving first-level SID assignments')
+    codes = codes.astype(np.int64)
+    packed = (codes[:, 0] * width + codes[:, 1]) * width + codes[:, 2]
+    order = np.argsort(packed, kind='stable')
+    keys, starts, counts = np.unique(packed[order], return_index=True, return_counts=True)
+    overflow = counts > width
+    if not overflow.any():
+        return codes
+
+    # Stable catalogue order picks the original members that keep a full triple.
+    rows = np.concatenate([order[start+width:start+count]
+                           for start, count in zip(starts[overflow], counts[overflow], strict=True)])
+    capacity = np.full((width, width, width), width, dtype=np.int32)
+    capacity.flat[keys] -= np.minimum(counts, width)
+    repaired = codes.copy()
+    for first, first_rows in _by_code(rows, codes[:, 0]):
+        # Reserve second-level capacity for tracks keeping their original two
+        # codes before offering leftover capacity to any displaced tracks.
+        remaining = capacity[first].sum(axis=1)
+        displaced = []
+        for second, second_rows in _by_code(first_rows, codes[:, 1]):
+            keep = min(len(second_rows), remaining[second])
+            remaining[second] -= keep
+            if keep < len(second_rows):
+                displaced.append(second_rows[keep:])
+        if displaced:
+            spill = np.concatenate(displaced)
+            residual = _normalized_rows(_normalized_rows(vectors[spill]) - centers[0, first])
+            repaired[spill, 1] = _nearest_available(residual, centers[1], remaining)
+        for second, second_rows in _by_code(first_rows, repaired[:, 1]):
+            residual = _normalized_rows(_normalized_rows(vectors[second_rows]) - centers[0, first])
+            residual = _normalized_rows(residual - centers[1, second])
+            repaired[second_rows, 2] = _nearest_available(residual, centers[2], capacity[first, second])
+    return repaired
+
+
 def prepare(config, output, grid_source):
     import pyarrow.parquet as pq
     import torch
@@ -168,7 +236,22 @@ def prepare(config, output, grid_source):
     codes, centers, report = fit_grid_rkmeans(vectors, config['quantizer'], config['quantizer_seed'],
                                               'cuda:0', grid_source)
     torch.cuda.empty_cache()
-    index = SidIndex(codes, width=config['generator']['codebook_size'])
+    width = config['generator']['codebook_size']
+    raw_statistics = semantic_statistics(codes, width)
+    raw_prefixes = raw_statistics['prefixes'][-1]
+    _write(output / 'yambda-raw-collision-report.json', raw_statistics)
+    _event('yambda_raw_sid_collisions', max_collision_group=raw_statistics['max_collision_group'],
+           groups_exceeding_suffix_width=raw_prefixes['groups_exceeding_suffix_width'])
+    repaired = reassign_overflow(codes, vectors, centers, width)
+    moved = np.any(repaired != codes, axis=1)
+    resolution = dict(moved_tracks=int(moved.sum()),
+                      second_code_changes=int((repaired[:, 1] != codes[:, 1]).sum()),
+                      moved_targets={name: int(moved[arrays[2]].sum()) for name, arrays in splits.items()},
+                      policy='Preserve first code. Keep up to suffix width members per triple by catalogue row order; '
+                             'route excess to nearest available third or second/third centroids.')
+    index = SidIndex(repaired, width=width)
+    diagnostics = index.diagnostics()
+    _event('yambda_sid_index_ready', max_collision_group=diagnostics['max_collision_group'], **resolution)
     indexes = output / 'frozen-indexes'
     indexes.mkdir()
     np.save(indexes / 'items-42.npy', index.sids, allow_pickle=False)
@@ -178,4 +261,4 @@ def prepare(config, output, grid_source):
         catalogue_items=len(source_ids), users=len(anchors), train_targets=spec['train_examples'],
         user_embedding_bins_used=int(len(np.unique(eval_ids % config['generator']['num_user_bins']))),
         users_with_full_test_window=int((lengths >= spec['history_items']).sum()),
-        quantizer=report, sid_diagnostics=index.diagnostics()))
+        quantizer=report, collision_resolution=resolution, sid_diagnostics=diagnostics))
