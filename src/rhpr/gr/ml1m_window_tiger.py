@@ -237,6 +237,8 @@ def run_trial(trial, plan):
     seed = trial.get('seed', config['seed'])
     sasrec = trial.get('predictor') == 'sasrec'
     full_decoder = trial.get('predictor') == 'full_decoder'
+    item_decoder = trial.get('predictor') == 'item_decoder'
+    causal_decoder = full_decoder or item_decoder
     trial_config = {**config, 'active_trial': trial, 'seed': seed,
                     'training': {**config['training'], 'physical_batch_size': trial['physical_batch_size']}}
     block_size = trial.get('targets_per_block', TARGETS_PER_USER)
@@ -282,25 +284,31 @@ def run_trial(trial, plan):
         index = Last8ItemIDIndex(len(sids))
         model = build_movie_sasrec(config, seed, 'cpu', grouped=True)
         loss_fn = grouped_sasrec_loss
-    elif full_decoder:
+    elif causal_decoder:
         from rhpr.gr.ml1m_full_decoder import build_full_decoder, full_decoder_loss
 
         index = SidIndex.from_full_sids(sids, width=256)
         trial_config['generator'] = {**config['generator'], **trial.get('generator_overrides', {})}
-        model = build_full_decoder(sids, trial_config['generator'], seed, plan['source'])
-        loss_fn = full_decoder_loss
+        if item_decoder:
+            from rhpr.gr.yambda_item_decoder import build_item_decoder, item_decoder_loss
+
+            model = build_item_decoder(sids, trial_config['generator'], seed, plan['source'], trial['history_mode'])
+            loss_fn = item_decoder_loss
+        else:
+            model = build_full_decoder(sids, trial_config['generator'], seed, plan['source'])
+            loss_fn = full_decoder_loss
     else:
         index = WindowInput(sids, window)
         model = build_grid_generator(sids, config['generator'], seed, 'cpu', plan['source'])
         loss_fn = _loss if window is None else window_loss
     initial = state_digest(dict(model.named_parameters()))
-    if not (sasrec or full_decoder):
+    if not (sasrec or causal_decoder):
         pinned = config.get('window_initializers', {}).get(str(seed), config['expected_initial_state_sha256'])
         if initial != pinned:
             raise ValueError('GRID initialization differs from the frozen initializer')
     if window:
         attach_window_generation(model, window)
-    cpu_batch = (_model_batch(*(part[:1] for part in train), sids, 'cpu') if full_decoder else
+    cpu_batch = (_model_batch(*(part[:1] for part in train), sids, 'cpu') if causal_decoder else
                  index.model_batch(*(part[:1] for part in train), 'cpu'))
     # Training mode disables the fused SASRec inference path in the CPU FLOP trace.
     model.train(sasrec)
@@ -334,18 +342,22 @@ def run_trial(trial, plan):
     if config.get('frozen_encoder_pilot'):
         forward.update(encoder_calls_per_user=0, cached_encoder_positions=forward['encoder_positions'],
                        encoder_positions=0, scope=forward['scope'] + '; decoder on cached memory')
-    if full_decoder:
+    if causal_decoder:
         from rhpr.gr.movie_sasrec import parameter_counts
 
         loss_fn(model, cpu_batch).backward()
         counts = parameter_counts(model)
         expected = trial.get('expected_active_nonembedding_parameters', 1967360)
-        if counts['inactive_nonembedding_names'] or counts['active_nonembedding_parameters'] != expected:
+        if counts['inactive_nonembedding_names'] or (full_decoder and counts['active_nonembedding_parameters'] != expected):
             raise ValueError('Unexpected active parameter count for the full-history decoder')
         model.zero_grad(set_to_none=True)
         forward.update(encoder_calls_per_user=0, encoder_positions=0,
                        decoder_positions=cpu_batch['input_ids'].shape[1] + SID_LEVELS * TARGETS_PER_USER + 1,
                        parameters=counts)
+        if item_decoder:
+            forward.update(decoder_positions=cpu_batch['input_ids'].shape[1] // SID_LEVELS + block_size,
+                           history_mode=trial['history_mode'],
+                           history_passes=SID_LEVELS if trial['history_mode'] == 'residual' else 1)
     _write(output / 'forward-flops.json', forward)
     model.to('cuda:0')
     torch.cuda.reset_peak_memory_stats()
@@ -369,7 +381,7 @@ def run_trial(trial, plan):
         loss_fn = cached_window_loss
     selection = _train_generator(model, parent, index, trial_config, output, 'cuda:0',
                                  example_builder=build_examples, resume_from=resume_from,
-                                 loss_fn=loss_fn if sasrec or window or full_decoder else None,
+                                 loss_fn=loss_fn if sasrec or window or causal_decoder else None,
                                  train_batch_builder=train_batch_builder)
     if train_batch_builder is not None:
         from rhpr.gr.yambda_frozen_encoder import frozen_parameters_digest
@@ -683,7 +695,11 @@ def run(config, output):
     full_decoder = any(trial.get('predictor') == 'full_decoder' for trial in config['trials'])
     if frozen_yambda:
         parent = locate_parent(config['frozen_parent'])
-        if 'continuation_parent' in config:
+        if config.get('item_decoder_pilot'):
+            from rhpr.gr.yambda_item_decoder import validate_pilot as validate_item_decoder_pilot
+
+            baseline = validate_item_decoder_pilot(config, parent)
+        elif 'continuation_parent' in config:
             ablation_parent = locate_parent(config['continuation_parent'])
             if config.get('frozen_encoder_pilot'):
                 from rhpr.gr.yambda_frozen_encoder import validate_frozen_encoder_pilot
@@ -769,7 +785,12 @@ def run(config, output):
         return metrics
     if frozen_yambda and not resume_trials:
         results = {baseline['trial']: baseline, **summary['results']}
-        _write(output / 'study-summary.json', dict(control=baseline['trial'], results=results))
+        report = dict(control=baseline['trial'], results=results)
+        if config.get('item_decoder_pilot'):
+            from rhpr.gr.yambda_item_decoder import compare_predictions
+
+            report['test_cohorts'] = compare_predictions(results, config, parent, output)
+        _write(output / 'study-summary.json', report)
         return trial_metrics(results)
     if config.get('frozen_encoder_pilot'):
         results = summary['results']
