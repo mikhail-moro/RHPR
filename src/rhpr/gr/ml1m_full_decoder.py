@@ -38,7 +38,7 @@ def embed_prefix(model, codes, observed, user_id):
     return tape, mask
 
 
-def target_hidden(model, batch):
+def target_hidden(model, batch, mask_builder=None):
     import torch
 
     labels = batch['future_ids'].flatten(1)
@@ -46,25 +46,28 @@ def target_hidden(model, batch):
     codes = torch.cat((batch['input_ids'], shifted_targets), dim=1)
     observed = torch.cat((batch['attention_mask_encoder'], torch.ones_like(shifted_targets)), dim=1)
     tape, mask = embed_prefix(model, codes, observed, batch['user_id'])
+    if mask_builder is not None:
+        mask = mask_builder(mask, tape.shape[1])
     hidden = model.decoder(sequence_embedding=tape, attention_mask=mask,
                            encoder_output=None, encoder_attention_mask=None, past_key_values=None)
     return hidden[:, -TARGETS_PER_USER * SID_LEVELS:].reshape(-1, SID_LEVELS, hidden.shape[-1])
 
 
-def full_decoder_loss(model, batch):
+def full_decoder_loss(model, batch, mask_builder=None):
     import torch.nn.functional as F
 
-    hidden = target_hidden(model, batch)
+    hidden = target_hidden(model, batch, mask_builder=mask_builder)
     labels = batch['future_ids'].reshape(-1, SID_LEVELS)
     return sum(F.cross_entropy(head(hidden[:, level]), labels[:, level])
                for level, head in enumerate(model.decoder.decoder_mlp))
 
 
-def generate_next(model, attention_mask, input_ids, user_id):
+def generate_next(model, attention_mask, input_ids, user_id, mask_builder=None):
     import torch
 
     tape, mask = embed_prefix(model, input_ids, attention_mask, user_id)
-    hidden, cache = model.decoder(sequence_embedding=tape, attention_mask=mask,
+    route = mask if mask_builder is None else mask_builder(mask, tape.shape[1])
+    hidden, cache = model.decoder(sequence_embedding=tape, attention_mask=route,
                                   encoder_output=None, encoder_attention_mask=None,
                                   use_cache=True, past_key_values=None)
     batch_size = len(input_ids)
@@ -77,7 +80,8 @@ def generate_next(model, attention_mask, input_ids, user_id):
     for level in range(1, SID_LEVELS):
         last_code = ids[:, :, -1].reshape(-1, 1) + (level - 1) * model.num_embeddings_per_hierarchy
         mask = torch.cat((mask, torch.ones_like(mask[:, :1])), dim=1)
-        hidden, cache = model.decoder(sequence_embedding=embedding(last_code), attention_mask=mask,
+        route = mask if mask_builder is None else mask_builder(mask, 1)
+        hidden, cache = model.decoder(sequence_embedding=embedding(last_code), attention_mask=route,
                                       encoder_output=None, encoder_attention_mask=None,
                                       use_cache=True, past_key_values=cache)
         ids, scores, cache = model._beam_search_one_step(

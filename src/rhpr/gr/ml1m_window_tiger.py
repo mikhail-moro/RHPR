@@ -233,6 +233,10 @@ def run_trial(trial, plan):
         from rhpr.gr.yambda_ntp import run_ntp_trial
 
         return run_ntp_trial(trial, plan)
+    if trial.get('predictor') == 'd4_mask_finetune':
+        from rhpr.gr.yambda_masked_decoder import run_trial as run_mask_finetune
+
+        return run_mask_finetune(trial, plan)
     config = plan['config']
     seed = trial.get('seed', config['seed'])
     sasrec = trial.get('predictor') == 'sasrec'
@@ -695,7 +699,11 @@ def run(config, output):
     full_decoder = any(trial.get('predictor') == 'full_decoder' for trial in config['trials'])
     if frozen_yambda:
         parent = locate_parent(config['frozen_parent'])
-        if config.get('item_decoder_pilot'):
+        if 'finetune_parent' in config:
+            from rhpr.gr.yambda_masked_decoder import validate_finetune
+
+            finetune_checkpoint = validate_finetune(config, locate_parent(config['finetune_parent']))
+        elif config.get('item_decoder_pilot'):
             from rhpr.gr.yambda_item_decoder import validate_pilot as validate_item_decoder_pilot
 
             baseline = validate_item_decoder_pilot(config, parent)
@@ -770,10 +778,16 @@ def run(config, output):
                           assignments=assignments_for(config, devices))
     if resume_trials:
         execution_plan['resume_trials'] = resume_trials
+    if 'finetune_parent' in config:
+        execution_plan['finetune_checkpoint'] = str(finetune_checkpoint)
     if tail_pilot:
         execution_plan['window_tail_parent'] = str(tail_parent)
     _write(plan, execution_plan)
     summary = launch_workers(plan, worker_module='rhpr.gr.ml1m_window_tiger', event_prefix='window_tiger')
+    if 'finetune_parent' in config:
+        from rhpr.gr.yambda_masked_decoder import summarize as summarize_finetune
+
+        return summarize_finetune(summary['results'], output)
     if tail_pilot:
         results = summary['results']
         metrics = trial_metrics({'window8_101': results['window8_101']})
