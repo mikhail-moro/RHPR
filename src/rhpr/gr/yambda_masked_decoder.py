@@ -13,6 +13,7 @@ from rhpr.gr.experiment import _evaluate, _model_batch, _train_generator, _write
 from rhpr.gr.ml1m_full_decoder import build_full_decoder, embed_prefix, full_decoder_loss, generate_next
 from rhpr.gr.ml1m_window_tiger import load_cases
 from rhpr.gr.sid import SidIndex
+from rhpr.gr.sid_study import state_digest
 
 RECENT_ITEMS = 31
 CHECKPOINT_EPOCH = 110
@@ -178,9 +179,11 @@ def run_trial(trial, plan):
         raise ValueError('Wrong initial D4 epoch')
     model.load_state_dict(checkpoint['model'], strict=True)
     del checkpoint
+    initial_state = state_digest(dict(model.named_parameters()))
     model.to('cuda:0')
     masked = trial['id'] == TRIALS[0]
     result = dict(trial=trial['id'], seed=seed, initial_checkpoint_sha256=file_sha256(weights),
+                  initial_state_sha256=initial_state, initialization_group='pretrained_token_d4_101',
                   source_epoch=CHECKPOINT_EPOCH, train_with_mask=masked)
     if masked:
         result['zero_shot'] = {f'{split}_{label}': assess(model, cases[split], index, config, output,
